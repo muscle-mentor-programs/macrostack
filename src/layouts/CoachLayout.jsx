@@ -1,4 +1,4 @@
-import { Layers, LogOut } from 'lucide-react'
+import { Smartphone, LogOut } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import CoachBottomNav from '../components/CoachBottomNav'
 import ThemeToggle from '../components/ThemeToggle'
@@ -20,10 +20,11 @@ export default function CoachLayout({ children }) {
           <ThemeToggle compact />
           <button
             onClick={() => setActiveRole(null)}
-            title="Switch Role"
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-card border border-border text-muted hover:text-cream hover:border-border transition-all shadow-sm"
+            title="Switch to Client App"
+            className="h-9 px-3 flex items-center gap-1.5 rounded-xl bg-card border border-olive/40 text-olive hover:text-olive-light hover:border-olive/70 hover:bg-olive/10 transition-all shadow-sm"
           >
-            <Layers size={15} />
+            <Smartphone size={13} />
+            <span className="font-display font-bold text-[10px] tracking-widest">CLIENT</span>
           </button>
           <button
             onClick={logout}
