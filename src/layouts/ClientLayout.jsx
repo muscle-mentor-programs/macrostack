@@ -1,15 +1,27 @@
-import { LogOut } from 'lucide-react'
+import { Monitor, LogOut } from 'lucide-react'
 import BottomNav from '../components/BottomNav'
 import ThemeToggle from '../components/ThemeToggle'
 import useStore from '../store'
 
 export default function ClientLayout({ children }) {
-  const { logout } = useStore()
+  const { logout, currentUser, setActiveRole } = useStore()
+
+  const isSuperAdmin = currentUser?.role === 'superadmin'
 
   return (
     <div className="flex flex-col h-[100dvh] w-full bg-bg overflow-hidden">
-      {/* Top-right controls: theme + logout */}
+      {/* Top-right controls: role switch (superadmin only) + theme + logout */}
       <div className="fixed top-3 right-4 z-30 flex items-center gap-2">
+        {isSuperAdmin && (
+          <button
+            onClick={() => setActiveRole(null)}
+            title="Switch to Coach Portal"
+            className="h-9 px-3 flex items-center gap-1.5 rounded-xl bg-card border border-brown/40 text-brown hover:text-brown-light hover:border-brown/70 hover:bg-brown/10 transition-all shadow-sm"
+          >
+            <Monitor size={13} />
+            <span className="font-display font-bold text-[10px] tracking-widest">COACH</span>
+          </button>
+        )}
         <ThemeToggle compact />
         <button
           onClick={logout}
@@ -20,7 +32,7 @@ export default function ClientLayout({ children }) {
         </button>
       </div>
 
-      {/* Scrollable content — min-h-0 lets flex child shrink below content height */}
+      {/* Scrollable content */}
       <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
         {children}
       </main>

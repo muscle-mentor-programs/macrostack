@@ -11,26 +11,31 @@ function msgTime(ts) {
   return format(d, 'MMM d, h:mm a')
 }
 
-const NAV_H = 80
-
 export default function ClientMessages() {
   const { activeClientId, messages, sendMessage, markMessagesRead } = useStore()
-  const [input, setInput]     = useState('')
+  const [input, setInput]   = useState('')
   const [kbHeight, setKbHeight] = useState(0)
+  // Measured height of the bottom nav element (includes safe-area padding)
+  const [navH, setNavH]     = useState(57)
 
   const thread = messages[activeClientId] || []
 
-  // Mark messages read whenever thread updates
+  // Measure the nav bar once it's in the DOM
+  useEffect(() => {
+    const el = document.getElementById('client-bottom-nav')
+    if (el) setNavH(el.offsetHeight)
+  }, [])
+
+  // Mark messages read on open / new message
   useEffect(() => {
     if (activeClientId) markMessagesRead(activeClientId, 'client')
   }, [activeClientId, thread.length])
 
-  // Track software keyboard height via the visualViewport API (iOS + Android)
+  // Track software keyboard height via visualViewport (iOS + Android)
   useEffect(() => {
     const vv = window.visualViewport
     if (!vv) return
     const sync = () => {
-      // keyboard height = difference between layout height and visual height
       const kh = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
       setKbHeight(kh)
     }
@@ -48,16 +53,20 @@ export default function ClientMessages() {
     setInput('')
   }
 
-  // When keyboard is hidden → sit above the nav bar + safe area
-  // When keyboard is shown  → sit above the keyboard (covers nav, which is correct)
-  const bottomVal = kbHeight > 0
-    ? `${kbHeight}px`
-    : `calc(${NAV_H}px + env(safe-area-inset-bottom, 0px))`
+  // Overlay shrinks to sit above the keyboard when it appears.
+  // When keyboard is hidden bottom=0 (full screen); the BottomNav (z-20) renders
+  // on top of us and the input bar's paddingBottom creates the flush clearance.
+  const overlayBottom = kbHeight > 0 ? `${kbHeight}px` : '0px'
+
+  // Input bar bottom padding:
+  //   keyboard hidden → clear exactly the measured nav height (flush)
+  //   keyboard shown  → just 12px breathing room above keyboard
+  const inputPaddingBottom = kbHeight > 0 ? '12px' : `${navH}px`
 
   return (
     <div
       className="fixed inset-x-0 top-0 flex flex-col bg-bg z-10"
-      style={{ bottom: bottomVal }}
+      style={{ bottom: overlayBottom }}
     >
       {/* Header */}
       <div className="px-5 pt-12 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down">
@@ -76,8 +85,7 @@ export default function ClientMessages() {
             <p className="font-mono text-xs text-dim mt-1.5">Your coach will reach out here</p>
           </div>
         ) : (
-          // Reverse so DOM order is newest-first; flex-col-reverse flips it back
-          // visually so newest = bottom, oldest = top
+          // Newest first in DOM; flex-col-reverse flips it so newest appears at bottom
           [...thread].reverse().map((msg) => {
             const isClient = msg.from === 'client'
             return (
@@ -108,8 +116,11 @@ export default function ClientMessages() {
         )}
       </div>
 
-      {/* Input bar — always flush against nav or keyboard */}
-      <div className="flex-shrink-0 flex items-center gap-2 px-4 py-3 bg-surface border-t border-border">
+      {/* Input bar — flush against nav (keyboard hidden) or keyboard (keyboard shown) */}
+      <div
+        className="flex-shrink-0 flex items-center gap-2 px-4 bg-surface border-t border-border"
+        style={{ paddingTop: '12px', paddingBottom: inputPaddingBottom }}
+      >
         <input
           type="text"
           placeholder="Message your coach…"

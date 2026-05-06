@@ -5,7 +5,7 @@ const NAV = [
   { id: 'dashboard', label: 'HOME',    icon: Home          },
   { id: 'log',       label: 'LOG',     icon: BookOpen      },
   { id: 'weight',    label: 'WEIGHT',  icon: Scale         },
-  { id: 'messages',  label: 'CHAT',   icon: MessageCircle },
+  { id: 'messages',  label: 'CHAT',    icon: MessageCircle },
   { id: 'profile',   label: 'PROFILE', icon: User          },
 ]
 
@@ -17,7 +17,11 @@ export default function BottomNav() {
   ).length
 
   return (
-    <nav className="flex-shrink-0 w-full bg-surface border-t border-border nav-safe-bottom">
+    // fixed bottom-0 so the keyboard slides OVER the nav rather than pushing it up
+    <nav
+      id="client-bottom-nav"
+      className="fixed bottom-0 left-0 right-0 w-full bg-surface border-t border-border nav-safe-bottom z-20"
+    >
       <div className="grid grid-cols-5">
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = activePage === id

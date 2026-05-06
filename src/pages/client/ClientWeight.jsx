@@ -100,13 +100,16 @@ export default function ClientWeight() {
         {/* Date picker — shown when toggled */}
         {showDate && (
           <div className="mb-3 anim-fade-in">
-            <input
-              type="date"
-              value={logDate}
-              max={todayStr}
-              onChange={(e) => setLogDate(e.target.value)}
-              className="w-full bg-surface border border-border rounded-xl px-4 py-2.5 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
-            />
+            <div className="overflow-hidden rounded-xl">
+              <input
+                type="date"
+                value={logDate}
+                max={todayStr}
+                onChange={(e) => setLogDate(e.target.value)}
+                className="w-full bg-surface border border-border rounded-xl px-4 py-2.5 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
+                style={{ colorScheme: 'dark', display: 'block', width: '100%', maxWidth: '100%' }}
+              />
+            </div>
             {isBackfill && (
               <p className="font-mono text-[10px] text-brown-light mt-1.5 ml-1">
                 Backfilling for {format(parseISO(logDate), 'MMMM d')} — 7-day avg will update automatically
