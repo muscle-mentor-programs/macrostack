@@ -25,16 +25,14 @@ export default function LoginScreen() {
     setShowPw(false)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!email || !password) return
     setError('')
     setLoading(true)
-    setTimeout(() => {
-      const result = login(email, password, edition)
-      if (!result.ok) setError(result.error)
-      setLoading(false)
-    }, 350)
+    const result = await login(email, password, edition)
+    if (!result.ok) setError(result.error)
+    setLoading(false)
   }
 
   const inputCls =

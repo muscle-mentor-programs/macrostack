@@ -1,409 +1,513 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { format } from 'date-fns'
+import { supabase } from '../lib/supabase'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 
-// ─── Hardcoded user accounts ──────────────────────────────────────────────────
-const USERS = [
-  {
-    id: 'superadmin',
-    name: 'Branden Hales',
-    email: 'brandenmhales@gmail.com',
-    password: 'Mannabran1!',
-    role: 'superadmin',
-  },
-  {
-    id: 'client_grayson',
-    name: 'Grayson Hales',
-    email: 'graysonhales0@gmail.com',
-    password: 'Mannabran1!',
-    role: 'client',
-  },
-]
+// ─── DB row → store shape transformers ───────────────────────────────────────
+
+function dbToClient(row) {
+  return {
+    id:               row.id,
+    profileId:        row.profile_id   || null,
+    name:             row.name         || '',
+    email:            row.email        || '',
+    height:           row.height       || '',
+    dob:              row.dob          || '',
+    phone:            row.phone        || '',
+    bio:              row.bio          || '',
+    goals: {
+      calories: row.goal_calories ?? 2000,
+      protein:  row.goal_protein  ?? 150,
+      carbs:    row.goal_carbs    ?? 200,
+      fat:      row.goal_fat      ?? 65,
+    },
+    activeMealPlanId: row.active_meal_plan_id || null,
+    createdAt:        row.created_at,
+    log:       {},
+    weightLog: [],
+    mealPlans: [],
+  }
+}
+
+function dbToEntry(row) {
+  return {
+    id:          row.id,
+    date:        row.date,
+    name:        row.name,
+    brand:       row.brand        || '',
+    foodId:      row.food_id      || null,
+    quantity:    row.quantity     ?? 1,
+    servingSize: row.serving_size || null,
+    servingUnit: row.serving_unit || null,
+    meal:        row.meal         || 'Other',
+    calories:    row.calories     ?? 0,
+    protein:     row.protein      ?? 0,
+    carbs:       row.carbs        ?? 0,
+    fat:         row.fat          ?? 0,
+  }
+}
+
+function dbToWeight(row) {
+  return { id: row.id, value: row.value, unit: row.unit || 'lbs', date: row.date }
+}
+
+function dbToPlan(row) {
+  return { id: row.id, planName: row.plan_name, days: row.days || [], createdAt: row.created_at }
+}
+
+function dbToMessage(row) {
+  return {
+    id:            row.id,
+    from:          row.from_role,
+    text:          row.text,
+    timestamp:     row.created_at,
+    readByCoach:   row.read_by_coach,
+    readByClient:  row.read_by_client,
+  }
+}
+
+function dbToFood(row) {
+  return {
+    id:          row.id,
+    name:        row.name,
+    brand:       row.brand        || '',
+    servingSize: row.serving_size || null,
+    servingUnit: row.serving_unit || null,
+    calories:    row.calories     ?? 0,
+    protein:     row.protein      ?? 0,
+    carbs:       row.carbs        ?? 0,
+    fat:         row.fat          ?? 0,
+    upc:         row.upc          || null,
+    source:      row.source       || 'custom',
+  }
+}
 
 const calcTotals = (entries = []) =>
   entries.reduce(
     (acc, e) => ({
       calories: acc.calories + (e.calories || 0),
-      protein: acc.protein + (e.protein || 0),
-      carbs: acc.carbs + (e.carbs || 0),
-      fat: acc.fat + (e.fat || 0),
+      protein:  acc.protein  + (e.protein  || 0),
+      carbs:    acc.carbs    + (e.carbs    || 0),
+      fat:      acc.fat      + (e.fat      || 0),
     }),
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   )
 
+// ─── Store ───────────────────────────────────────────────────────────────────
+
 const useStore = create(
   persist(
     (set, get) => ({
-      // ─────────────────────────────────────────────────────────────
-      // AUTH
-      // ─────────────────────────────────────────────────────────────
+
+      // ── AUTH ──────────────────────────────────────────────────────────────
       isAuthenticated: false,
-      currentUser: null,
+      authLoading:     true,   // true while initial session check is in flight
+      currentUser:     null,   // { id, name, email, role }
 
-      // edition: 'coach' | 'client' — validates role matches the login form used
-      login: (email, password, edition = null) => {
-        const match = USERS.find(
-          (u) =>
-            u.email.toLowerCase() === email.toLowerCase().trim() &&
-            u.password === password
-        )
-        if (!match) return { ok: false, error: 'Invalid email or password.' }
+      initAuth: async () => {
+        const { data: { session } } = await supabase.auth.getSession()
 
-        // Reject if wrong edition
-        if (edition === 'coach' && match.role === 'client')
-          return { ok: false, error: 'This account requires the Client Edition.' }
-        if (edition === 'client' && match.role !== 'client')
-          return { ok: false, error: 'This account requires the Coach Edition.' }
+        if (!session) {
+          set({ authLoading: false, isAuthenticated: false })
+          return
+        }
 
-        const { password: _pw, ...safeUser } = match
-        const update = { isAuthenticated: true, currentUser: safeUser }
+        const { data: profile } = await supabase
+          .from('profiles').select('*').eq('id', session.user.id).single()
 
-        // Client users skip the role selector — route them straight in
-        if (safeUser.role === 'client') {
-          update.activeRole = 'client'
-          update.activePage = 'dashboard'
-          const profile = get().clients.find(
-            (c) => c.email?.toLowerCase() === safeUser.email.toLowerCase()
+        if (!profile) {
+          await supabase.auth.signOut()
+          set({ authLoading: false, isAuthenticated: false })
+          return
+        }
+
+        const currentUser = {
+          id:    profile.id,
+          name:  profile.name,
+          email: session.user.email,
+          role:  profile.role,
+        }
+
+        await get().loadAllData()
+
+        const update = { isAuthenticated: true, currentUser, authLoading: false }
+
+        if (profile.role === 'client') {
+          const clientProfile = get().clients.find(
+            (c) => c.email?.toLowerCase() === session.user.email.toLowerCase()
           )
-          if (profile) update.activeClientId = profile.id
+          if (clientProfile) {
+            update.activeRole     = 'client'
+            update.activeClientId = clientProfile.id
+            update.activePage     = 'dashboard'
+          }
+        }
+
+        set(update)
+
+        // Keep session in sync across tabs
+        supabase.auth.onAuthStateChange((event) => {
+          if (event === 'SIGNED_OUT') {
+            set({
+              isAuthenticated: false, currentUser: null,
+              activeRole: null, activeClientId: null,
+              clients: [], messages: {}, customFoods: [], scannedFoods: [],
+            })
+          }
+        })
+      },
+
+      login: async (email, password, edition = null) => {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(), password,
+        })
+        if (error) return { ok: false, error: 'Invalid email or password.' }
+
+        const { data: profile } = await supabase
+          .from('profiles').select('*').eq('id', data.user.id).single()
+
+        if (!profile) {
+          await supabase.auth.signOut()
+          return { ok: false, error: 'Account not configured. Contact your coach.' }
+        }
+
+        if (edition === 'coach' && profile.role === 'client') {
+          await supabase.auth.signOut()
+          return { ok: false, error: 'This account requires the Client Edition.' }
+        }
+        if (edition === 'client' && profile.role !== 'client') {
+          await supabase.auth.signOut()
+          return { ok: false, error: 'This account requires the Coach Edition.' }
+        }
+
+        const currentUser = {
+          id:    profile.id,
+          name:  profile.name,
+          email: data.user.email,
+          role:  profile.role,
+        }
+
+        await get().loadAllData()
+
+        const update = { isAuthenticated: true, currentUser }
+
+        if (profile.role === 'client') {
+          const clientProfile = get().clients.find(
+            (c) => c.email?.toLowerCase() === email.toLowerCase()
+          )
+          if (clientProfile) {
+            update.activeRole     = 'client'
+            update.activeClientId = clientProfile.id
+            update.activePage     = 'dashboard'
+          }
         }
 
         set(update)
         return { ok: true }
       },
 
-      logout: () =>
+      logout: async () => {
+        await supabase.auth.signOut()
         set({
-          isAuthenticated: false,
-          currentUser: null,
-          activeRole: null,
-          activeClientId: null,
-        }),
+          isAuthenticated: false, currentUser: null,
+          activeRole: null, activeClientId: null,
+          clients: [], messages: {}, customFoods: [], scannedFoods: [],
+        })
+      },
 
-      // ─────────────────────────────────────────────────────────────
-      // THEME
-      // ─────────────────────────────────────────────────────────────
-      theme: 'dark', // 'dark' | 'light'
+      // ── DATA LOADING ──────────────────────────────────────────────────────
+      loadAllData: async () => {
+        // Clients + all nested data in a single query
+        const { data: clientRows, error: cErr } = await supabase
+          .from('clients')
+          .select('*, food_log(*), weight_log(*), meal_plans(*)')
+          .order('created_at', { ascending: true })
+
+        if (cErr) console.error('loadAllData clients:', cErr)
+
+        const clients = (clientRows || []).map((row) => {
+          // Group food_log entries by date
+          const log = {}
+          ;(row.food_log || []).forEach((e) => {
+            if (!log[e.date]) log[e.date] = []
+            log[e.date].push(dbToEntry(e))
+          })
+          return {
+            ...dbToClient(row),
+            log,
+            weightLog: (row.weight_log || [])
+              .map(dbToWeight)
+              .sort((a, b) => a.date.localeCompare(b.date)),
+            mealPlans: (row.meal_plans || []).map(dbToPlan),
+          }
+        })
+
+        // Messages grouped by client_id
+        const { data: msgRows } = await supabase
+          .from('messages').select('*').order('created_at', { ascending: true })
+
+        const messages = {}
+        ;(msgRows || []).forEach((row) => {
+          if (!messages[row.client_id]) messages[row.client_id] = []
+          messages[row.client_id].push(dbToMessage(row))
+        })
+
+        // Custom + scanned foods
+        const { data: foodRows } = await supabase
+          .from('custom_foods').select('*').order('created_at', { ascending: true })
+
+        const customFoods  = (foodRows || []).filter((f) => f.source === 'custom').map(dbToFood)
+        const scannedFoods = (foodRows || []).filter((f) => f.source !== 'custom').map(dbToFood)
+
+        set({ clients, messages, customFoods, scannedFoods })
+      },
+
+      // ── THEME ─────────────────────────────────────────────────────────────
+      theme: 'dark',
       toggleTheme: () => {
         const next = get().theme === 'dark' ? 'light' : 'dark'
         set({ theme: next })
         document.documentElement.classList.toggle('light', next === 'light')
       },
 
-      // ─────────────────────────────────────────────────────────────
-      // ROLE
-      // ─────────────────────────────────────────────────────────────
-      activeRole: null, // null | 'coach' | 'client'
+      // ── ROLE / NAVIGATION ─────────────────────────────────────────────────
+      activeRole:   null,
       setActiveRole: (role) => set({ activeRole: role }),
 
-      // ─────────────────────────────────────────────────────────────
-      // NAVIGATION
-      // ─────────────────────────────────────────────────────────────
-      activePage: 'clients',
+      activePage:   'clients',
       setActivePage: (page) => set({ activePage: page }),
 
-      logDate: today(),
+      logDate:   today(),
       setLogDate: (date) => set({ logDate: date }),
 
-      // ─────────────────────────────────────────────────────────────
-      // COACH'S OWN DATA
-      // ─────────────────────────────────────────────────────────────
-      goals: { calories: 2400, protein: 180, carbs: 240, fat: 80 },
-      setGoals: (goals) => set({ goals }),
-
-      log: {},
-      addEntry: (entry) => {
-        const date = entry.date || today()
-        const id = Date.now().toString()
-        set((s) => ({
-          log: {
-            ...s.log,
-            [date]: [...(s.log[date] || []), { ...entry, id, date }],
-          },
-        }))
-      },
-      removeEntry: (date, id) =>
-        set((s) => ({
-          log: {
-            ...s.log,
-            [date]: (s.log[date] || []).filter((e) => e.id !== id),
-          },
-        })),
-      updateEntry: (date, id, updates) =>
-        set((s) => ({
-          log: {
-            ...s.log,
-            [date]: (s.log[date] || []).map((e) =>
-              e.id === id ? { ...e, ...updates } : e
-            ),
-          },
-        })),
-
-      weightLog: [],
-      addWeight: (entry) => {
-        const id = Date.now().toString()
-        set((s) => ({
-          weightLog: [...s.weightLog, { ...entry, id }].sort((a, b) =>
-            a.date.localeCompare(b.date)
-          ),
-        }))
-      },
-      removeWeight: (id) =>
-        set((s) => ({ weightLog: s.weightLog.filter((w) => w.id !== id) })),
-
-      customFoods: [],
-      addCustomFood: (food) => {
-        const id = 'custom_' + Date.now().toString()
-        set((s) => ({ customFoods: [...s.customFoods, { ...food, id }] }))
-      },
-      removeCustomFood: (id) =>
-        set((s) => ({ customFoods: s.customFoods.filter((f) => f.id !== id) })),
-
-      updateCustomFood: (id, updates) =>
-        set((s) => ({
-          customFoods: s.customFoods.map((f) => (f.id === id ? { ...f, ...updates } : f)),
-        })),
-
-      // ─── SCANNED FOODS (shared across all users) ──────────────────
-      scannedFoods: [],
-
-      addScannedFood: (food) => {
-        const { scannedFoods } = get()
-
-        // Deduplicate by UPC (exact match)
-        if (food.upc) {
-          const dupUPC = scannedFoods.find((f) => f.upc === food.upc)
-          if (dupUPC) return { ok: false, reason: 'duplicate_upc', existing: dupUPC }
-        }
-
-        // Deduplicate by name + brand (case-insensitive)
-        const nameLower  = food.name.toLowerCase().trim()
-        const brandLower = (food.brand || '').toLowerCase().trim()
-        const dupName = scannedFoods.find(
-          (f) =>
-            f.name.toLowerCase().trim()          === nameLower &&
-            (f.brand || '').toLowerCase().trim() === brandLower
-        )
-        if (dupName) return { ok: false, reason: 'duplicate_name', existing: dupName }
-
-        const id      = 'scanned_' + Date.now().toString()
-        const newFood = { ...food, id }
-        set((s) => ({ scannedFoods: [...s.scannedFoods, newFood] }))
-        return { ok: true, food: newFood }
-      },
-
-      removeScannedFood: (id) =>
-        set((s) => ({ scannedFoods: s.scannedFoods.filter((f) => f.id !== id) })),
-
-      getTotalsForDate: (date) => calcTotals(get().log[date]),
-
-      // ─────────────────────────────────────────────────────────────
-      // CLIENT MANAGEMENT (coach side)
-      // ─────────────────────────────────────────────────────────────
-      clients: [],
-      viewingClientId: null,
+      // ── CLIENT MANAGEMENT ─────────────────────────────────────────────────
+      clients:          [],
+      viewingClientId:  null,
       viewingClientTab: null,
       setViewingClientId: (id, tab = null) => set({ viewingClientId: id, viewingClientTab: tab }),
 
-      addClient: (data) => {
-        const id = 'client_' + Date.now().toString()
-        const client = {
-          id,
-          name: data.name || 'New Client',
-          email: data.email || '',
-          goals: data.goals || { calories: 2000, protein: 150, carbs: 200, fat: 65 },
-          log: {},
-          weightLog: [],
-          mealPlans: [],
-          activeMealPlanId: null,
-          createdAt: today(),
-          // Client-editable profile fields
-          height: '',
-          dob:    '',
-          phone:  '',
-          bio:    '',
-        }
+      addClient: async (data) => {
+        const { data: row, error } = await supabase
+          .from('clients')
+          .insert({
+            name:         data.name  || 'New Client',
+            email:        data.email || '',
+            goal_calories: data.goals?.calories ?? 2000,
+            goal_protein:  data.goals?.protein  ?? 150,
+            goal_carbs:    data.goals?.carbs    ?? 200,
+            goal_fat:      data.goals?.fat      ?? 65,
+          })
+          .select().single()
+
+        if (error) { console.error('addClient:', error); return null }
+
+        const client = { ...dbToClient(row), log: {}, weightLog: [], mealPlans: [] }
         set((s) => ({ clients: [...s.clients, client] }))
-        return id
+        return row.id
       },
 
-      removeClient: (id) =>
+      removeClient: async (id) => {
+        await supabase.from('clients').delete().eq('id', id)
         set((s) => ({
-          clients: s.clients.filter((c) => c.id !== id),
+          clients:        s.clients.filter((c) => c.id !== id),
           viewingClientId: s.viewingClientId === id ? null : s.viewingClientId,
-          activeClientId: s.activeClientId === id ? null : s.activeClientId,
-        })),
+          activeClientId:  s.activeClientId  === id ? null : s.activeClientId,
+        }))
+      },
 
-      updateClientInfo: (clientId, info) =>
+      updateClientInfo: async (clientId, info) => {
+        await supabase.from('clients').update({ name: info.name, email: info.email }).eq('id', clientId)
         set((s) => ({
-          clients: s.clients.map((c) =>
-            c.id === clientId ? { ...c, ...info } : c
-          ),
-        })),
+          clients: s.clients.map((c) => c.id === clientId ? { ...c, ...info } : c),
+        }))
+      },
 
-      // Client-editable personal fields (name, height, dob, phone, bio)
-      updateClientProfile: (clientId, { name, height, dob, phone, bio }) =>
+      updateClientProfile: async (clientId, fields) => {
+        const dbFields = {}
+        if (fields.name   !== undefined) dbFields.name   = fields.name
+        if (fields.height !== undefined) dbFields.height = fields.height
+        if (fields.dob    !== undefined) dbFields.dob    = fields.dob
+        if (fields.phone  !== undefined) dbFields.phone  = fields.phone
+        if (fields.bio    !== undefined) dbFields.bio    = fields.bio
+
+        await supabase.from('clients').update(dbFields).eq('id', clientId)
         set((s) => ({
-          clients: s.clients.map((c) =>
-            c.id === clientId
-              ? {
-                  ...c,
-                  ...(name   !== undefined && { name }),
-                  ...(height !== undefined && { height }),
-                  ...(dob    !== undefined && { dob }),
-                  ...(phone  !== undefined && { phone }),
-                  ...(bio    !== undefined && { bio }),
-                }
-              : c
-          ),
-        })),
+          clients: s.clients.map((c) => c.id === clientId ? { ...c, ...fields } : c),
+        }))
+      },
 
-      updateClientGoals: (clientId, goals) =>
+      updateClientGoals: async (clientId, goals) => {
+        await supabase.from('clients').update({
+          goal_calories: goals.calories,
+          goal_protein:  goals.protein,
+          goal_carbs:    goals.carbs,
+          goal_fat:      goals.fat,
+        }).eq('id', clientId)
         set((s) => ({
-          clients: s.clients.map((c) =>
-            c.id === clientId ? { ...c, goals } : c
-          ),
-        })),
+          clients: s.clients.map((c) => c.id === clientId ? { ...c, goals } : c),
+        }))
+      },
 
-      addClientEntry: (clientId, entry) => {
+      // ── FOOD LOG ──────────────────────────────────────────────────────────
+      addClientEntry: async (clientId, entry) => {
         const date = entry.date || today()
-        const id = Date.now().toString()
+        const id   = crypto.randomUUID()
+
+        // Optimistic update (instant UI)
         set((s) => ({
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c
-            return {
-              ...c,
-              log: {
-                ...c.log,
-                [date]: [...(c.log[date] || []), { ...entry, id, date }],
-              },
-            }
+            return { ...c, log: { ...c.log, [date]: [...(c.log[date] || []), { ...entry, id, date }] } }
           }),
         }))
+
+        const { error } = await supabase.from('food_log').insert({
+          id, client_id: clientId, date,
+          name:         entry.name,
+          brand:        entry.brand        || '',
+          food_id:      entry.foodId       || null,
+          quantity:     entry.quantity     ?? 1,
+          serving_size: entry.servingSize  || null,
+          serving_unit: entry.servingUnit  || null,
+          meal:         entry.meal         || 'Other',
+          calories:     entry.calories     ?? 0,
+          protein:      entry.protein      ?? 0,
+          carbs:        entry.carbs        ?? 0,
+          fat:          entry.fat          ?? 0,
+        })
+        if (error) console.error('food_log insert:', error)
       },
 
-      removeClientEntry: (clientId, date, entryId) =>
+      removeClientEntry: async (clientId, date, entryId) => {
         set((s) => ({
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c
-            return {
-              ...c,
-              log: {
-                ...c.log,
-                [date]: (c.log[date] || []).filter((e) => e.id !== entryId),
-              },
-            }
-          }),
-        })),
-
-      addClientWeight: (clientId, entry) => {
-        const id = Date.now().toString()
-        set((s) => ({
-          clients: s.clients.map((c) => {
-            if (c.id !== clientId) return c
-            return {
-              ...c,
-              weightLog: [...c.weightLog, { ...entry, id }].sort((a, b) =>
-                a.date.localeCompare(b.date)
-              ),
-            }
+            return { ...c, log: { ...c.log, [date]: (c.log[date] || []).filter((e) => e.id !== entryId) } }
           }),
         }))
+        await supabase.from('food_log').delete().eq('id', entryId)
       },
 
-      removeClientWeight: (clientId, weightId) =>
+      getClientTotalsForDate: (clientId, date) =>
+        calcTotals(get().clients.find((c) => c.id === clientId)?.log?.[date]),
+
+      // ── WEIGHT LOG ────────────────────────────────────────────────────────
+      addClientWeight: async (clientId, entry) => {
+        const id = crypto.randomUUID()
+        const w  = { id, value: entry.value, unit: entry.unit || 'lbs', date: entry.date }
+
+        set((s) => ({
+          clients: s.clients.map((c) => {
+            if (c.id !== clientId) return c
+            return { ...c, weightLog: [...c.weightLog, w].sort((a, b) => a.date.localeCompare(b.date)) }
+          }),
+        }))
+
+        const { error } = await supabase.from('weight_log').insert({
+          id, client_id: clientId, value: entry.value, unit: entry.unit || 'lbs', date: entry.date,
+        })
+        if (error) console.error('weight_log insert:', error)
+      },
+
+      removeClientWeight: async (clientId, weightId) => {
         set((s) => ({
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c
             return { ...c, weightLog: c.weightLog.filter((w) => w.id !== weightId) }
           }),
-        })),
+        }))
+        await supabase.from('weight_log').delete().eq('id', weightId)
+      },
 
-      // ─── MEAL PLANS ───────────────────────────────────────────
-      addMealPlan: (clientId, plan) => {
-        const id = 'plan_' + Date.now().toString()
-        const newPlan = { ...plan, id, createdAt: today() }
+      // ── MEAL PLANS ────────────────────────────────────────────────────────
+      addMealPlan: async (clientId, plan) => {
+        const { data: row, error } = await supabase
+          .from('meal_plans')
+          .insert({ client_id: clientId, plan_name: plan.planName || 'New Plan', days: plan.days || [] })
+          .select().single()
+
+        if (error) { console.error('addMealPlan:', error); return null }
+
+        const newPlan = dbToPlan(row)
+
         set((s) => ({
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c
-            const existingPlans = c.mealPlans || []
-            // Activate the new plan if there is no current active plan OR
-            // the current activeMealPlanId points to a plan that no longer exists
-            const hasValidActive = existingPlans.some((p) => p.id === c.activeMealPlanId)
+            const hasValidActive = (c.mealPlans || []).some((p) => p.id === c.activeMealPlanId)
+            const activeMealPlanId = hasValidActive ? c.activeMealPlanId : newPlan.id
+            // Sync active plan to DB if we just set it
+            if (!hasValidActive) {
+              supabase.from('clients').update({ active_meal_plan_id: newPlan.id }).eq('id', clientId)
+            }
+            return { ...c, mealPlans: [...(c.mealPlans || []), newPlan], activeMealPlanId }
+          }),
+        }))
+
+        return newPlan.id
+      },
+
+      updateMealPlan: async (clientId, planId, updates) => {
+        const dbUpdates = {}
+        if (updates.planName !== undefined) dbUpdates.plan_name = updates.planName
+        if (updates.days     !== undefined) dbUpdates.days      = updates.days
+
+        await supabase.from('meal_plans').update(dbUpdates).eq('id', planId)
+        set((s) => ({
+          clients: s.clients.map((c) => {
+            if (c.id !== clientId) return c
+            return { ...c, mealPlans: (c.mealPlans || []).map((p) => p.id === planId ? { ...p, ...updates } : p) }
+          }),
+        }))
+      },
+
+      removeMealPlan: async (clientId, planId) => {
+        await supabase.from('meal_plans').delete().eq('id', planId)
+        set((s) => ({
+          clients: s.clients.map((c) => {
+            if (c.id !== clientId) return c
             return {
               ...c,
-              mealPlans: [...existingPlans, newPlan],
-              activeMealPlanId: hasValidActive ? c.activeMealPlanId : id,
+              mealPlans:        (c.mealPlans || []).filter((p) => p.id !== planId),
+              activeMealPlanId: c.activeMealPlanId === planId ? null : c.activeMealPlanId,
             }
           }),
         }))
-        return id
       },
 
-      updateMealPlan: (clientId, planId, updates) =>
+      setActiveMealPlan: async (clientId, planId) => {
+        await supabase.from('clients').update({ active_meal_plan_id: planId }).eq('id', clientId)
         set((s) => ({
-          clients: s.clients.map((c) => {
-            if (c.id !== clientId) return c
-            return {
-              ...c,
-              mealPlans: (c.mealPlans || []).map((p) =>
-                p.id === planId ? { ...p, ...updates } : p
-              ),
-            }
-          }),
-        })),
-
-      removeMealPlan: (clientId, planId) =>
-        set((s) => ({
-          clients: s.clients.map((c) => {
-            if (c.id !== clientId) return c
-            return {
-              ...c,
-              mealPlans: (c.mealPlans || []).filter((p) => p.id !== planId),
-              activeMealPlanId:
-                c.activeMealPlanId === planId ? null : c.activeMealPlanId,
-            }
-          }),
-        })),
-
-      setActiveMealPlan: (clientId, planId) =>
-        set((s) => ({
-          clients: s.clients.map((c) =>
-            c.id === clientId ? { ...c, activeMealPlanId: planId } : c
-          ),
-        })),
-
-      getClientTotalsForDate: (clientId, date) => {
-        const client = get().clients.find((c) => c.id === clientId)
-        return calcTotals(client?.log?.[date])
+          clients: s.clients.map((c) => c.id === clientId ? { ...c, activeMealPlanId: planId } : c),
+        }))
       },
 
-      // ─────────────────────────────────────────────────────────────
-      // MESSAGES  { [clientId]: [{id, from, text, timestamp, readByCoach, readByClient}] }
-      // ─────────────────────────────────────────────────────────────
+      // ── MESSAGES ──────────────────────────────────────────────────────────
       messages: {},
 
-      sendMessage: (clientId, from, text) =>
+      sendMessage: async (clientId, from, text) => {
+        const id  = crypto.randomUUID()
+        const msg = {
+          id, from, text,
+          timestamp:     new Date().toISOString(),
+          readByCoach:   from === 'coach',
+          readByClient:  from === 'client',
+        }
+        // Optimistic
         set((s) => ({
-          messages: {
-            ...s.messages,
-            [clientId]: [
-              ...(s.messages[clientId] || []),
-              {
-                id:            Date.now().toString(),
-                from,
-                text,
-                timestamp:     new Date().toISOString(),
-                readByCoach:   from === 'coach',
-                readByClient:  from === 'client',
-              },
-            ],
-          },
-        })),
+          messages: { ...s.messages, [clientId]: [...(s.messages[clientId] || []), msg] },
+        }))
 
-      markMessagesRead: (clientId, reader) =>
+        const { error } = await supabase.from('messages').insert({
+          id, client_id: clientId, from_role: from, text,
+          read_by_coach:  from === 'coach',
+          read_by_client: from === 'client',
+        })
+        if (error) console.error('message insert:', error)
+      },
+
+      markMessagesRead: async (clientId, reader) => {
         set((s) => ({
           messages: {
             ...s.messages,
@@ -413,16 +517,98 @@ const useStore = create(
               readByClient: reader === 'client' ? true : m.readByClient,
             })),
           },
-        })),
+        }))
+        const field = reader === 'coach' ? 'read_by_coach' : 'read_by_client'
+        await supabase.from('messages')
+          .update({ [field]: true })
+          .eq('client_id', clientId)
+          .eq(field, false)
+      },
 
-      // ─────────────────────────────────────────────────────────────
-      // CLIENT SIDE (active client profile for client mode)
-      // ─────────────────────────────────────────────────────────────
+      // ── CUSTOM FOODS ──────────────────────────────────────────────────────
+      customFoods: [],
+
+      addCustomFood: async (food) => {
+        const id = crypto.randomUUID()
+        set((s) => ({ customFoods: [...s.customFoods, { ...food, id }] }))
+        const { error } = await supabase.from('custom_foods').insert({
+          id, name: food.name, brand: food.brand || '',
+          serving_size: food.servingSize || null, serving_unit: food.servingUnit || null,
+          calories: food.calories ?? 0, protein: food.protein ?? 0,
+          carbs: food.carbs ?? 0, fat: food.fat ?? 0,
+          upc: food.upc || null, source: 'custom',
+        })
+        if (error) console.error('custom_food insert:', error)
+      },
+
+      removeCustomFood: async (id) => {
+        set((s) => ({ customFoods: s.customFoods.filter((f) => f.id !== id) }))
+        await supabase.from('custom_foods').delete().eq('id', id)
+      },
+
+      updateCustomFood: async (id, updates) => {
+        set((s) => ({ customFoods: s.customFoods.map((f) => f.id === id ? { ...f, ...updates } : f) }))
+        const dbUpd = {}
+        if (updates.name        !== undefined) dbUpd.name         = updates.name
+        if (updates.brand       !== undefined) dbUpd.brand        = updates.brand
+        if (updates.servingSize !== undefined) dbUpd.serving_size = updates.servingSize
+        if (updates.servingUnit !== undefined) dbUpd.serving_unit = updates.servingUnit
+        if (updates.calories    !== undefined) dbUpd.calories     = updates.calories
+        if (updates.protein     !== undefined) dbUpd.protein      = updates.protein
+        if (updates.carbs       !== undefined) dbUpd.carbs        = updates.carbs
+        if (updates.fat         !== undefined) dbUpd.fat          = updates.fat
+        await supabase.from('custom_foods').update(dbUpd).eq('id', id)
+      },
+
+      // ── SCANNED FOODS (synchronous return value required by ScannedFoodModal) ──
+      scannedFoods: [],
+
+      addScannedFood: (food) => {
+        const { scannedFoods } = get()
+
+        // Dedup by UPC
+        if (food.upc) {
+          const dup = scannedFoods.find((f) => f.upc === food.upc)
+          if (dup) return { ok: false, reason: 'duplicate_upc', existing: dup }
+        }
+        // Dedup by name + brand
+        const nl = food.name.toLowerCase().trim()
+        const bl = (food.brand || '').toLowerCase().trim()
+        const dupName = scannedFoods.find(
+          (f) => f.name.toLowerCase().trim() === nl && (f.brand || '').toLowerCase().trim() === bl
+        )
+        if (dupName) return { ok: false, reason: 'duplicate_name', existing: dupName }
+
+        const id      = crypto.randomUUID()
+        const newFood = { ...food, id }
+        set((s) => ({ scannedFoods: [...s.scannedFoods, newFood] }))
+
+        // Fire-and-forget write (caller can't await — it uses the sync return value)
+        supabase.from('custom_foods').insert({
+          id, name: food.name, brand: food.brand || '',
+          serving_size: food.servingSize || null, serving_unit: food.servingUnit || null,
+          calories: food.calories ?? 0, protein: food.protein ?? 0,
+          carbs: food.carbs ?? 0, fat: food.fat ?? 0,
+          upc: food.upc || null, source: 'scanned',
+        }).then(({ error }) => { if (error) console.error('scanned_food insert:', error) })
+
+        return { ok: true, food: newFood }
+      },
+
+      removeScannedFood: async (id) => {
+        set((s) => ({ scannedFoods: s.scannedFoods.filter((f) => f.id !== id) }))
+        await supabase.from('custom_foods').delete().eq('id', id)
+      },
+
+      // ── CLIENT SELECTOR ───────────────────────────────────────────────────
       activeClientId: null,
-      setActiveClientId: (id) =>
-        set({ activeClientId: id, activePage: 'dashboard' }),
+      setActiveClientId: (id) => set({ activeClientId: id, activePage: 'dashboard' }),
     }),
-    { name: 'macrostack-v2' }
+    {
+      name: 'macrostack-ui',
+      // Only persist UI preferences — all data comes from Supabase
+      partialize: (state) => ({ theme: state.theme }),
+    }
   )
 )
 

@@ -55,12 +55,34 @@ const CLIENT_PAGES = {
 }
 
 export default function App() {
-  const { isAuthenticated, currentUser, activeRole, activePage, activeClientId, theme } = useStore()
-  const isMobile = useIsMobile()   // auto-detects viewport width
+  const {
+    isAuthenticated, authLoading, currentUser,
+    activeRole, activePage, activeClientId,
+    theme, initAuth,
+  } = useStore()
+  const isMobile = useIsMobile()
 
+  // Apply theme class
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
   }, [theme])
+
+  // Check Supabase session on mount
+  useEffect(() => {
+    initAuth()
+  }, [])
+
+  // Show nothing while the session check is in flight (avoids login-screen flash)
+  if (authLoading) {
+    return (
+      <div className="flex h-screen w-screen bg-bg items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-2 border-brown border-t-transparent rounded-full animate-spin" />
+          <p className="font-mono text-xs text-muted tracking-widest">LOADING…</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!isAuthenticated) return <LoginScreen />
 
