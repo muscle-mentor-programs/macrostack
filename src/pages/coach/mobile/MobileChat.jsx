@@ -33,9 +33,9 @@ function ThreadScreen({ client, onBack }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-bg z-40 flex flex-col anim-slide-right overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-14 pb-4 border-b border-border bg-surface flex-shrink-0">
+    <div className="fixed inset-0 bg-surface z-40 flex flex-col anim-slide-right overflow-hidden">
+      {/* Header — bg-surface extends all the way to the status bar */}
+      <div className="flex items-center gap-3 px-4 pt-14 pb-4 border-b border-border flex-shrink-0">
         <button
           onClick={onBack}
           className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0"
@@ -54,7 +54,7 @@ function ThreadScreen({ client, onBack }) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto bg-bg px-4 py-4 space-y-3">
         {thread.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <MessageCircle size={36} className="text-dim mb-3" />
