@@ -351,6 +351,12 @@ input[type="number"]::-webkit-outer-spin-button {
    must manually pad elements that reach screen edges.
 ───────────────────────────────────────────── */
 
+/* Full-screen height with 100vh fallback for browsers lacking dvh support */
+.h-dvh {
+  height: 100vh;   /* fallback (iOS < 15.4, older Android) */
+  height: 100dvh;  /* dynamic viewport — correct on modern iOS Safari */
+}
+
 /* Push layout content below the iOS status bar / notch */
 .pt-safe-top {
   padding-top: env(safe-area-inset-top, 0px);

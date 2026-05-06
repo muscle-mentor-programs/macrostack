@@ -75,7 +75,7 @@ export default function App() {
   // Show nothing while the session check is in flight (avoids login-screen flash)
   if (authLoading) {
     return (
-      <div className="flex h-[100dvh] w-full bg-bg items-center justify-center pt-safe-top">
+      <div className="flex h-dvh w-full bg-bg items-center justify-center pt-safe-top">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-2 border-brown border-t-transparent rounded-full animate-spin" />
           <p className="font-mono text-xs text-muted tracking-widest">LOADING…</p>
