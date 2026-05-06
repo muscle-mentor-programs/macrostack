@@ -9,7 +9,7 @@ import { Resend } from 'resend'
 import { mealPlanTemplate } from '../../src/lib/emailTemplates.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM   = process.env.RESEND_FROM_EMAIL || 'MacroStack <coaching@macrostack.app>'
+const FROM   = process.env.RESEND_FROM_EMAIL || 'MacroStack <onboarding@resend.dev>'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
