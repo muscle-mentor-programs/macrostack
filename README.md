@@ -10,7 +10,7 @@ A full-featured nutrition coaching web app for coaches and their clients. Mobile
 |---|---|
 | **GitHub** | [muscle-mentor-programs/macrostack](https://github.com/muscle-mentor-programs/macrostack) |
 | **Vercel** | Auto-deploys from `master` → [macrostack.vercel.app](https://macrostack.vercel.app) |
-| **Supabase** | _Not yet integrated — data currently persisted via Zustand/localStorage_ |
+| **Supabase** | Project `macrostack` · ref `ryvsbidtwhxfmashwsqt` · West US (Oregon) |
 
 > Push to `master` → Vercel picks it up automatically. No manual deploy step needed.
 
@@ -110,5 +110,5 @@ iOS-specific considerations implemented:
 |---|---|
 | GitHub org | `muscle-mentor-programs` |
 | Vercel team | `muscle-mentor-programs` |
-| Supabase org | _(to be configured)_ |
-| Contact | branden@bullfit.com |
+| Supabase org | `jxyqgqtyatmdhgawxeuo` · project ref `ryvsbidtwhxfmashwsqt` |
+| Contact | brandenmhales@gmail.com |
