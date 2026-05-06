@@ -282,7 +282,7 @@ export default function ClientDashboard() {
       </div>
 
       {/* Today's meals */}
-      <div className="px-5">
+      <div className="px-5 mb-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-display font-bold text-sm tracking-widest text-muted">TODAY'S MEALS</h2>
           <button onClick={() => setActivePage('log')} className="font-display text-xs text-brown tracking-widest">
@@ -336,7 +336,8 @@ export default function ClientDashboard() {
       {/* FAB */}
       <button
         onClick={() => setActivePage('log')}
-        className="fixed bottom-20 right-5 w-14 h-14 bg-brown hover:bg-brown-light rounded-full flex items-center justify-center shadow-lg transition-colors z-40 fab-pulse"
+        className="fixed right-5 w-14 h-14 bg-brown hover:bg-brown-light rounded-full flex items-center justify-center shadow-lg transition-colors z-40 fab-pulse"
+        style={{ bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}
       >
         <Plus size={24} className="text-bg" strokeWidth={2.5} />
       </button>

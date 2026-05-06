@@ -7,7 +7,7 @@ export default function ClientLayout({ children }) {
   const { logout } = useStore()
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-bg overflow-hidden">
+    <div className="flex flex-col h-[100dvh] w-full bg-bg overflow-hidden">
       {/* Top-right controls: theme + logout */}
       <div className="fixed top-3 right-4 z-30 flex items-center gap-2">
         <ThemeToggle compact />
@@ -20,8 +20,8 @@ export default function ClientLayout({ children }) {
         </button>
       </div>
 
-      {/* Mobile viewport — content scrolls, nav is fixed at bottom */}
-      <main className="flex-1 overflow-y-auto overscroll-contain">
+      {/* Scrollable content — min-h-0 lets flex child shrink below content height */}
+      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
         {children}
       </main>
       <BottomNav />

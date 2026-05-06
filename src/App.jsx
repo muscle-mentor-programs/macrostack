@@ -29,7 +29,6 @@ import MobileMyFoods        from './pages/coach/mobile/MobileMyFoods'
 import ClientDashboard from './pages/client/ClientDashboard'
 import ClientLog       from './pages/client/ClientLog'
 import ClientWeight    from './pages/client/ClientWeight'
-import ClientProgress  from './pages/client/ClientProgress'
 import ClientMessages  from './pages/client/ClientMessages'
 import ClientProfile   from './pages/client/ClientProfile'
 
@@ -51,7 +50,6 @@ const CLIENT_PAGES = {
   dashboard: ClientDashboard,
   log:       ClientLog,
   weight:    ClientWeight,
-  progress:  ClientProgress,
   messages:  ClientMessages,
   profile:   ClientProfile,
 }
