@@ -4,6 +4,18 @@ A full-featured nutrition coaching web app for coaches and their clients. Mobile
 
 ---
 
+## Deployment
+
+| Service | Account / URL |
+|---|---|
+| **GitHub** | [muscle-mentor-programs/macrostack](https://github.com/muscle-mentor-programs/macrostack) |
+| **Vercel** | Auto-deploys from `master` → [macrostack.vercel.app](https://macrostack.vercel.app) |
+| **Supabase** | _Not yet integrated — data currently persisted via Zustand/localStorage_ |
+
+> Push to `master` → Vercel picks it up automatically. No manual deploy step needed.
+
+---
+
 ## Features
 
 ### Coach Side
@@ -14,12 +26,11 @@ A full-featured nutrition coaching web app for coaches and their clients. Mobile
 - **Food Database** — searchable database of 1,270+ foods with custom food entry and UPC barcode scanning
 
 ### Client Side
-- **Dashboard** — daily macro ring, calorie progress bar, streak tracker
+- **Dashboard** — daily macro ring, calorie progress bar, meal plan viewer with one-tap logging
 - **Food Log** — log meals by food, quantity, and meal type; barcode scanner built in
-- **Weight Log** — track bodyweight over time with trend chart
-- **Progress** — before/after photo uploads, measurement tracking
-- **Messages** — direct messaging with coach
-- **Profile** — personal details, goal display
+- **Weight Log** — track bodyweight over time with 7-day moving average trend chart
+- **Messages** — iMessage-style direct messaging with coach
+- **Profile** — personal details, coach-assigned targets, 30-day calorie & protein progress charts
 
 ### Barcode Scanner
 - Camera-based UPC scanner using ZXing (ROI-cropped decoding)
@@ -35,7 +46,8 @@ A full-featured nutrition coaching web app for coaches and their clients. Mobile
 |---|---|
 | UI | React 19 + Vite |
 | Styling | Tailwind CSS v4 |
-| State | Zustand v5 (persisted) |
+| State | Zustand v5 (persisted to localStorage) |
+| Charts | Recharts |
 | Barcode | @zxing/library |
 | Nutrition API | Open Food Facts (free, no key) |
 | Date utils | date-fns |
@@ -64,17 +76,17 @@ The app runs at `http://localhost:5173` by default.
 
 ```
 src/
-├── components/        # Shared components (BarcodeScanner, ScannedFoodModal, etc.)
+├── components/        # Shared components (BarcodeScanner, BottomNav, etc.)
 ├── data/              # Built-in food database (1,270+ foods)
-├── hooks/             # useIsMobile, etc.
+├── hooks/             # useIsMobile, useScramble, useCountUp
 ├── layouts/           # CoachLayout, ClientLayout
 ├── pages/
 │   ├── coach/         # Desktop coach pages + mobile/ subdirectory
 │   ├── client/        # Client-side pages
 │   └── ...
 ├── services/          # AI meal plan generation
-├── store/             # Zustand global store
-└── App.jsx            # Root — auto-routes mobile vs desktop
+├── store/             # Zustand global store (index.js)
+└── App.jsx            # Root — auto-routes mobile vs desktop, role vs client
 ```
 
 ---
@@ -82,3 +94,21 @@ src/
 ## Mobile vs Desktop
 
 The app auto-detects viewport width via `useIsMobile` (breakpoint: 768 px). On mobile, coach pages swap to fully optimized layouts with bottom tab navigation. Client pages are always mobile-first.
+
+iOS-specific considerations implemented:
+- `h-[100dvh]` dynamic viewport height (avoids Safari URL-bar clipping)
+- `env(safe-area-inset-bottom)` for home-bar clearance on notched devices
+- `fixed` bottom nav so the software keyboard slides over it rather than pushing it up
+- `visualViewport` API in the chat view to ride the input bar above the keyboard in real time
+- `viewport-fit=cover` + `user-scalable=no` for native app feel
+
+---
+
+## Accounts & Access
+
+| Resource | Account |
+|---|---|
+| GitHub org | `muscle-mentor-programs` |
+| Vercel team | `muscle-mentor-programs` |
+| Supabase org | _(to be configured)_ |
+| Contact | branden@bullfit.com |
