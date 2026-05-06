@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
-import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight, Mail, Download } from 'lucide-react'
 import useStore from '../../store'
 import { FOODS, CATEGORIES } from '../../data/foods'
+import { mealPlanPDFBase64, downloadMealPlanPDF } from '../../lib/generateMealPlanPDF'
 
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 const WEIGHT_UNITS = ['g', 'ml', 'oz', 'fl oz', 'L']
@@ -57,6 +58,8 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const [selectedFood, setSelectedFood] = useState(null)
   const [quantity, setQuantity]   = useState(1)
   const [saved, setSaved]         = useState(false)
+  const [emailStatus, setEmailStatus] = useState('idle') // 'idle' | 'sending' | 'sent' | 'error'
+  const [downloading, setDownloading] = useState(false)
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
@@ -144,6 +147,49 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     setTimeout(() => { setSaved(false); onClose() }, 800)
   }
 
+  const handleDownloadPDF = () => {
+    if (!planName.trim()) return
+    setDownloading(true)
+    try {
+      downloadMealPlanPDF(
+        { planName: planName.trim(), days },
+        client ? { name: client.name, goals: client.goals } : null
+      )
+    } finally {
+      setTimeout(() => setDownloading(false), 600)
+    }
+  }
+
+  const handleEmailPDF = async () => {
+    if (!planName.trim() || !client?.email) return
+    setEmailStatus('sending')
+    try {
+      const pdfBase64 = mealPlanPDFBase64(
+        { planName: planName.trim(), days },
+        { name: client.name, goals: client.goals }
+      )
+      const res = await fetch('/api/email/meal-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to:         client.email,
+          clientName: client.name,
+          planName:   planName.trim(),
+          pdfBase64,
+          days:       days.map((d) => d.label),
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to send')
+      setEmailStatus('sent')
+      setTimeout(() => setEmailStatus('idle'), 3000)
+    } catch (err) {
+      console.error('[EmailPDF]', err)
+      setEmailStatus('error')
+      setTimeout(() => setEmailStatus('idle'), 3000)
+    }
+  }
+
   const totals  = dayTotals(activeDay)
   const goals   = client?.goals || { calories: 2000, protein: 150, carbs: 200, fat: 65 }
 
@@ -163,6 +209,39 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
             className="w-full bg-transparent font-display font-black text-xl text-cream tracking-wide focus:outline-none placeholder-dim"
           />
         </div>
+        {/* Download PDF */}
+        <button
+          onClick={handleDownloadPDF}
+          disabled={!planName.trim() || downloading}
+          title="Download as PDF"
+          className="flex items-center gap-2 font-display font-bold text-sm tracking-widest px-4 py-2 rounded-lg transition-all disabled:opacity-40 bg-surface border border-border text-muted hover:text-cream hover:border-cream/40"
+        >
+          <Download size={14} />
+          <span className="hidden sm:inline">{downloading ? 'SAVING…' : 'PDF'}</span>
+        </button>
+
+        {/* Email PDF */}
+        {client?.email && (
+          <button
+            onClick={handleEmailPDF}
+            disabled={!planName.trim() || emailStatus === 'sending'}
+            title={`Email PDF to ${client.email}`}
+            className={`flex items-center gap-2 font-display font-bold text-sm tracking-widest px-4 py-2 rounded-lg transition-all disabled:opacity-40 ${
+              emailStatus === 'sent'
+                ? 'bg-olive text-bg'
+                : emailStatus === 'error'
+                ? 'bg-red-900/50 text-red-300 border border-red-700'
+                : 'bg-surface border border-border text-muted hover:text-cream hover:border-brown/60'
+            }`}
+          >
+            <Mail size={14} />
+            <span className="hidden sm:inline">
+              {emailStatus === 'sending' ? 'SENDING…' : emailStatus === 'sent' ? 'SENT ✓' : emailStatus === 'error' ? 'ERROR' : 'EMAIL'}
+            </span>
+          </button>
+        )}
+
+        {/* Save */}
         <button
           onClick={handleSave}
           disabled={!planName.trim()}

@@ -308,6 +308,21 @@ const useStore = create(
 
         const client = { ...dbToClient(row), log: {}, weightLog: [], mealPlans: [] }
         set((s) => ({ clients: [...s.clients, client] }))
+
+        // Fire-and-forget welcome email
+        if (data.email) {
+          fetch('/api/email/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type:           'welcome',
+              recipientEmail: data.email,
+              name:           data.name || 'there',
+              role:           'client',
+            }),
+          }).catch(() => {})
+        }
+
         return row.id
       },
 
@@ -508,6 +523,35 @@ const useStore = create(
           read_by_client: from === 'client',
         })
         if (error) console.error('message insert:', error)
+
+        // Fire-and-forget email notification
+        try {
+          const { currentUser, clients } = get()
+          const client = clients.find((c) => c.id === clientId)
+
+          if (from === 'coach' && client?.email) {
+            // Coach messaged a client → notify the client
+            fetch('/api/email/notify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type:           'message',
+                recipientEmail: client.email,
+                recipientName:  client.name,
+                senderName:     currentUser?.name || 'Your Coach',
+                senderRole:     'coach',
+                preview:        text.slice(0, 120),
+              }),
+            }).catch(() => {}) // swallow errors — notification is best-effort
+          } else if (from === 'client' && currentUser?.email) {
+            // Client messaged the coach → notify the coach
+            // (currentUser here is the client; coach email comes from their own session)
+            // We notify coach at currentUser.email only if they are the coach account
+            // This branch runs when a coach-role user is testing as client,
+            // or when we can derive coach email from elsewhere.
+            // No-op for now unless we have a dedicated coach profile lookup.
+          }
+        } catch (_) { /* notification errors should never break messaging */ }
       },
 
       markMessagesRead: async (clientId, reader) => {

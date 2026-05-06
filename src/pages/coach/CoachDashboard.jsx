@@ -66,25 +66,50 @@ function QuickEditModal({ client, onClose }) {
 
 // ─── Email compose modal ──────────────────────────────────────────────────────
 function EmailModal({ clients, preselectedId, onClose }) {
+  const { currentUser } = useStore()
   const [selected, setSelected] = useState(
     preselectedId ? [preselectedId] : []
   )
-  const [subject, setSubject] = useState('')
-  const [body, setBody]       = useState('')
+  const [subject, setSubject]   = useState('')
+  const [body, setBody]         = useState('')
+  const [status, setStatus]     = useState(null) // null | 'sending' | 'sent' | 'error'
+  const [errMsg, setErrMsg]     = useState('')
 
   const toggle = (id) =>
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     )
 
-  const handleSend = () => {
-    const addrs = clients
-      .filter((c) => selected.includes(c.id) && c.email)
-      .map((c) => c.email)
-      .join(',')
-    const link = `mailto:${addrs}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-    window.open(link)
-    onClose()
+  const handleSend = async () => {
+    const recipients = clients.filter((c) => selected.includes(c.id) && c.email)
+    if (!recipients.length) return
+
+    setStatus('sending')
+    setErrMsg('')
+
+    const clientNames = {}
+    recipients.forEach((c) => { clientNames[c.email] = c.name })
+
+    try {
+      const res = await fetch('/api/email/send', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          to:          recipients.map((c) => c.email),
+          subject,
+          body,
+          coachName:   currentUser?.name || 'Your Coach',
+          clientNames,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Send failed')
+      setStatus('sent')
+      setTimeout(onClose, 1800)
+    } catch (e) {
+      setErrMsg(e.message)
+      setStatus('error')
+    }
   }
 
   const hasEmails = clients.some((c) => selected.includes(c.id) && c.email)
@@ -173,14 +198,19 @@ function EmailModal({ clients, preselectedId, onClose }) {
           </div>
         </div>
 
+        {errMsg && (
+          <p className="px-6 pb-2 font-mono text-xs text-red-400">{errMsg}</p>
+        )}
         <div className="flex gap-3 px-6 pb-6 pt-1">
           <button
             onClick={handleSend}
-            disabled={selected.length === 0 || !hasEmails}
-            className="flex-1 flex items-center justify-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover"
+            disabled={selected.length === 0 || !hasEmails || !subject.trim() || !body.trim() || status === 'sending'}
+            className={`flex-1 flex items-center justify-center gap-2 disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover ${
+              status === 'sent' ? 'bg-olive' : 'bg-brown hover:bg-brown-light'
+            }`}
           >
             <Send size={14} />
-            OPEN IN MAIL APP
+            {status === 'sending' ? 'SENDING…' : status === 'sent' ? 'SENT ✓' : 'SEND EMAIL'}
           </button>
           <button
             onClick={onClose}
