@@ -10,25 +10,23 @@ const path = require('path')
 // M (cream) + S (gold) on a dark background, filling 500×500
 const makeSVG = (size) => `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="${size}" height="${size}">
-  <!-- Background -->
-  <rect width="500" height="500" fill="#0D0C0A"/>
+  <!-- Background: cream #E8E4DC -->
+  <rect width="500" height="500" fill="#E8E4DC"/>
 
   <!--
-    "MS" as one string, centered at x=250.
-    text-anchor="middle" centers the full glyph run, so both letters
-    together are optically balanced on both sides.
-    Baseline y=382 centres the cap-height in the 500px square.
-    Exact brown: #9A7B55 (text-brown from tailwind.config.js)
+    "MS" at 50% of the original size (180px instead of 360px).
+    Baseline y=313 vertically centres the cap-height in the 500px square.
+    Dark text on light background: M in dark (#1C1A18), S in brown (#9A7B55).
   -->
   <text
     x="250"
-    y="382"
+    y="313"
     font-family="Impact, Arial Black, sans-serif"
-    font-size="360"
+    font-size="180"
     font-weight="900"
     text-anchor="middle"
     dominant-baseline="auto"
-  ><tspan fill="#F2EDE4">M</tspan><tspan fill="#9A7B55">S</tspan></text>
+  ><tspan fill="#1C1A18">M</tspan><tspan fill="#9A7B55">S</tspan></text>
 </svg>
 `
 
