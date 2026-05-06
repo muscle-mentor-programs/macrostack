@@ -351,6 +351,16 @@ input[type="number"]::-webkit-outer-spin-button {
    must manually pad elements that reach screen edges.
 ───────────────────────────────────────────── */
 
+/* Push layout content below the iOS status bar / notch */
+.pt-safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Fixed elements near the top — clears status bar + 12 px breathing room */
+.top-safe {
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+}
+
 /* Bottom nav: bg extends into safe area, buttons stay above home bar */
 .nav-safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);

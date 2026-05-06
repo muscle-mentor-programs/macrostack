@@ -233,9 +233,9 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="relative flex h-full w-full bg-bg items-center justify-center overflow-hidden anim-fade-in">
+    <div className="relative flex h-full w-full bg-bg items-center justify-center overflow-hidden pt-safe-top anim-fade-in">
       {/* Theme toggle */}
-      <div className="fixed top-4 right-4 z-10">
+      <div className="fixed top-safe right-4 z-10">
         <ThemeToggle compact />
       </div>
 
