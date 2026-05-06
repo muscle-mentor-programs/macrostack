@@ -107,6 +107,7 @@ const useStore = create(
       currentUser:     null,   // { id, name, email, role }
 
       initAuth: async () => {
+        if (!supabase) { set({ authLoading: false, isAuthenticated: false }); return }
         const { data: { session } } = await supabase.auth.getSession()
 
         if (!session) {
@@ -148,7 +149,7 @@ const useStore = create(
         set(update)
 
         // Keep session in sync across tabs
-        supabase.auth.onAuthStateChange((event) => {
+        supabase?.auth.onAuthStateChange((event) => {
           if (event === 'SIGNED_OUT') {
             set({
               isAuthenticated: false, currentUser: null,
@@ -160,6 +161,7 @@ const useStore = create(
       },
 
       login: async (email, password, edition = null) => {
+        if (!supabase) return { ok: false, error: 'Supabase is not configured. Check environment variables.' }
         const { data, error } = await supabase.auth.signInWithPassword({
           email: email.trim(), password,
         })
@@ -209,7 +211,7 @@ const useStore = create(
       },
 
       logout: async () => {
-        await supabase.auth.signOut()
+        if (supabase) await supabase.auth.signOut()
         set({
           isAuthenticated: false, currentUser: null,
           activeRole: null, activeClientId: null,
