@@ -14,15 +14,15 @@ const makeSVG = (size) => `
   <rect width="500" height="500" fill="#E8E4DC"/>
 
   <!--
-    "MS" at 50% of the original size (180px instead of 360px).
-    Baseline y=313 vertically centres the cap-height in the 500px square.
+    "MS" at midpoint between original (360px) and halved (180px) = 270px.
+    Baseline y=348 vertically centres the cap-height in the 500px square.
     Dark text on light background: M in dark (#1C1A18), S in brown (#9A7B55).
   -->
   <text
     x="250"
-    y="313"
+    y="348"
     font-family="Impact, Arial Black, sans-serif"
-    font-size="180"
+    font-size="270"
     font-weight="900"
     text-anchor="middle"
     dominant-baseline="auto"
