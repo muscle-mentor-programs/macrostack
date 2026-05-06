@@ -33,7 +33,7 @@ function ThreadScreen({ client, onBack }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-bg z-40 flex flex-col anim-slide-right">
+    <div className="fixed inset-0 bg-bg z-40 flex flex-col anim-slide-right overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-14 pb-4 border-b border-border bg-surface flex-shrink-0">
         <button
@@ -122,7 +122,7 @@ export default function MobileChat() {
   const totalUnread = clients.reduce((n, c) => n + unreadFor(c.id), 0)
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
       <div className="px-4 pt-14 pb-3 border-b border-border anim-fade-in-down">
         <div className="flex items-center gap-3">

@@ -346,6 +346,28 @@ input[type="number"]::-webkit-outer-spin-button {
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ─────────────────────────────────────────────
+   SAFE AREA / iOS HOME BAR SUPPORT
+   viewport-fit=cover is set in index.html so we
+   must manually pad elements that reach screen edges.
+───────────────────────────────────────────── */
+
+/* Bottom nav: bg extends into safe area, buttons stay above home bar */
+.nav-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Input bars inside fixed overlays (chat thread, etc.) */
+.pb-safe {
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+}
+
+/* Main scroll area: clear the nav + safe area so last row is never hidden.
+   ~80px nav + 34px max safe area = 114px. Use 120px for comfort. */
+.pb-nav {
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ─────────────────────────────────────────────
    ADDITIONAL KEYFRAMES
 ───────────────────────────────────────────── */
 

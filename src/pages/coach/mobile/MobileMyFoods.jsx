@@ -70,7 +70,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
   const lbl      = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
-    <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in">
+    <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in overflow-hidden">
       {/* Sticky header */}
       <div className="flex items-center justify-between px-5 pt-14 pb-4 border-b border-border bg-surface flex-shrink-0">
         <h3 className="font-display font-black text-xl tracking-widest text-cream">
@@ -216,7 +216,7 @@ export default function MobileMyFoods() {
   }
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
       <div className="px-4 pt-14 pb-4 anim-fade-in-down">
         <h2 className="font-display font-black text-3xl tracking-wider text-cream">
@@ -344,8 +344,8 @@ export default function MobileMyFoods() {
         )}
       </div>
 
-      {/* FABs */}
-      <div className="fixed bottom-20 right-4 flex flex-col gap-3 z-30">
+      {/* FABs — positioned above nav + iOS safe area */}
+      <div className="fixed right-4 flex flex-col gap-3 z-30" style={{ bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
         {/* Scan (secondary) */}
         <button
           onClick={() => setShowScanner(true)}

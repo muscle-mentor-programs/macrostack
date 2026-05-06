@@ -12,7 +12,9 @@ export default function CoachLayout({ children }) {
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
     return (
-      <div className="flex flex-col h-screen w-screen overflow-hidden bg-bg">
+      /* h-[100dvh] = dynamic viewport height — correctly handles iOS URL-bar show/hide.
+         w-full instead of w-screen avoids the 100vw horizontal-overflow bug.       */
+      <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-bg">
         {/* Floating top-right controls */}
         <div className="fixed top-3 right-4 z-30 flex items-center gap-1.5">
           <ThemeToggle compact />
@@ -32,8 +34,8 @@ export default function CoachLayout({ children }) {
           </button>
         </div>
 
-        {/* Scrollable page content */}
-        <main className="flex-1 overflow-y-auto overscroll-contain pb-20">
+        {/* Scrollable page content — min-h-0 lets flex shrink below content height */}
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
           {children}
         </main>
 

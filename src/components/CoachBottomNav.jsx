@@ -18,7 +18,8 @@ export default function CoachBottomNav() {
   )
 
   return (
-    <nav className="flex-shrink-0 bg-surface border-t border-border grid grid-cols-4 safe-area-bottom">
+    <nav className="flex-shrink-0 w-full bg-surface border-t border-border nav-safe-bottom">
+      <div className="grid grid-cols-4">
       {NAV.map(({ id, label, icon: Icon }) => {
         const active = activePage === id
         const badge  = id === 'chat' && totalUnread > 0 ? totalUnread : 0
@@ -26,7 +27,7 @@ export default function CoachBottomNav() {
           <button
             key={id}
             onClick={() => setActivePage(id)}
-            className={`relative flex flex-col items-center justify-center py-2.5 gap-0.5 transition-colors ${
+            className={`relative flex flex-col items-center justify-center py-3 gap-1 transition-colors ${
               active ? 'text-brown-light' : 'text-muted'
             }`}
           >
@@ -45,6 +46,7 @@ export default function CoachBottomNav() {
           </button>
         )
       })}
+      </div>
     </nav>
   )
 }

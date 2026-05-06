@@ -342,7 +342,7 @@ export default function MobileCoachDashboard() {
     'text-red-400'
 
   return (
-    <div className="px-4 pt-14 pb-4 space-y-5">
+    <div className="px-4 pt-14 pb-6 space-y-5 w-full overflow-x-hidden">
       {/* Header */}
       <div className="anim-fade-in-down">
         <h2 className="font-display font-black text-3xl tracking-wider text-cream">

@@ -85,7 +85,7 @@ function AddClientScreen({ onClose }) {
   const lbl = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
-    <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in">
+    <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in overflow-hidden">
       <div className="flex items-center justify-between px-5 pt-14 pb-4 border-b border-border bg-surface flex-shrink-0">
         <h3 className="font-display font-black text-xl tracking-widest text-cream">NEW CLIENT</h3>
         <button onClick={onClose} className="text-muted p-1"><X size={20} /></button>
@@ -416,7 +416,7 @@ function ClientDetailScreen({ client, onBack }) {
   const inp = 'w-full bg-card border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream focus:outline-none focus:border-brown'
 
   return (
-    <div className="fixed inset-0 bg-bg z-40 flex flex-col anim-slide-right">
+    <div className="fixed inset-0 bg-bg z-40 flex flex-col anim-slide-right overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-14 pb-4 border-b border-border bg-surface flex-shrink-0">
         <button onClick={onBack} className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0">
@@ -612,7 +612,7 @@ export default function MobileClients() {
   })
 
   return (
-    <div className="px-4 pt-14 pb-4">
+    <div className="px-4 pt-14 pb-6 w-full overflow-x-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 anim-fade-in-down">
         <div>
