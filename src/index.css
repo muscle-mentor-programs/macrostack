@@ -1,0 +1,408 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────
+   THEME TOKENS
+   CSS vars power body/scrollbar. Tailwind
+   utility overrides below handle everything
+   else in light mode.
+───────────────────────────────────────────── */
+
+:root {
+  --color-bg:      #0B0B0A;
+  --color-surface: #141412;
+  --color-card:    #1C1A18;
+  --color-border:  #2A2724;
+  --color-cream:   #E8E4DC;
+  --color-muted:   #7A756E;
+  --color-dim:     #3A3733;
+}
+
+html.light {
+  --color-bg:      #E5E1D8;
+  --color-surface: #DAD5CB;
+  --color-card:    #CFC9BE;
+  --color-border:  #B5AFA5;
+  --color-cream:   #1A1814;
+  --color-muted:   #6A6560;
+  --color-dim:     #BDB7AD;
+}
+
+/* ─────────────────────────────────────────────
+   BASE RESET
+───────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-cream);
+  font-family: 'Space Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.font-display {
+  font-family: 'Barlow Condensed', sans-serif;
+}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR
+───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+
+/* ─────────────────────────────────────────────
+   LIGHT MODE — Tailwind utility overrides
+   Tailwind bakes hardcoded hex values into
+   utility classes at build time, so we need
+   explicit overrides for html.light.
+   All !important to beat Tailwind specificity.
+───────────────────────────────────────────── */
+
+/* Backgrounds */
+html.light .bg-bg      { background-color: #E5E1D8 !important; }
+html.light .bg-surface { background-color: #DAD5CB !important; }
+html.light .bg-card    { background-color: #CFC9BE !important; }
+html.light .bg-dim     { background-color: #BDB7AD !important; }
+
+/* Transparent modal backdrops */
+html.light .bg-bg\/80  { background-color: rgba(229,225,216,0.88) !important; }
+html.light .bg-bg\/90  { background-color: rgba(229,225,216,0.94) !important; }
+
+/* Hover backgrounds */
+html.light .hover\:bg-bg:hover      { background-color: #E5E1D8 !important; }
+html.light .hover\:bg-surface:hover { background-color: #DAD5CB !important; }
+html.light .hover\:bg-card:hover    { background-color: #CFC9BE !important; }
+
+/* Text */
+html.light .text-cream { color: #1A1814 !important; }
+html.light .text-muted { color: #6A6560 !important; }
+html.light .text-dim   { color: #9A948C !important; }
+
+/* Hover text */
+html.light .hover\:text-cream:hover { color: #1A1814 !important; }
+html.light .hover\:text-muted:hover { color: #6A6560 !important; }
+
+/* Group-hover text */
+html.light .group:hover .group-hover\:text-cream { color: #1A1814 !important; }
+
+/* Borders */
+html.light .border-border        { border-color: #B5AFA5 !important; }
+html.light .border-border\/50    { border-color: rgba(181,175,165,0.5) !important; }
+html.light .border-l-border      { border-left-color: #B5AFA5 !important; }
+html.light .border-t-border      { border-top-color: #B5AFA5 !important; }
+html.light .border-b-border      { border-bottom-color: #B5AFA5 !important; }
+html.light .border-r-border      { border-right-color: #B5AFA5 !important; }
+
+/* Dividers */
+html.light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #B5AFA5 !important; }
+html.light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(181,175,165,0.5) !important; }
+
+/* Input placeholders */
+html.light .placeholder-muted::placeholder { color: #9A948C !important; }
+
+/* Native form controls (select options, date pickers, etc.) */
+html.light { color-scheme: light; }
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUpSheet {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scanline sweeps top to bottom on the sidebar brand area */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); opacity: 0.6; }
+  50%  { opacity: 0.3; }
+  100% { transform: translateY(400%); opacity: 0; }
+}
+
+/* Cursor blink for terminal feel */
+@keyframes cursorBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Subtle glow pulse */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(154, 123, 85, 0); }
+  50%       { box-shadow: 0 0 18px 3px rgba(154, 123, 85, 0.12); }
+}
+
+@keyframes pulseGlowOlive {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(107, 122, 82, 0); }
+  50%       { box-shadow: 0 0 16px 3px rgba(107, 122, 82, 0.12); }
+}
+
+/* FAB attention pulse */
+@keyframes fabPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(154, 123, 85, 0.5); }
+  70%  { box-shadow: 0 0 0 12px rgba(154, 123, 85, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(154, 123, 85, 0); }
+}
+
+/* Number flicker — subtle randomness on data values */
+@keyframes dataFlicker {
+  0%, 96%, 100% { opacity: 1; }
+  97%  { opacity: 0.85; }
+  98%  { opacity: 1; }
+  99%  { opacity: 0.9; }
+}
+
+/* Progress bar fill from 0 */
+@keyframes barFillFromLeft {
+  from { width: 0%; }
+}
+
+/* Gentle float for cards */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-2px); }
+}
+
+/* Glitch shift — used on hover */
+@keyframes glitchShift {
+  0%        { clip-path: inset(0 0 100% 0); transform: translateX(0); }
+  10%       { clip-path: inset(30% 0 50% 0); transform: translateX(-3px); }
+  20%       { clip-path: inset(60% 0 10% 0); transform: translateX(3px); }
+  30%       { clip-path: inset(10% 0 70% 0); transform: translateX(-2px); }
+  40%       { clip-path: inset(80% 0 5% 0); transform: translateX(2px); }
+  50%, 100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
+}
+
+/* Ring draw */
+@keyframes ringDraw {
+  from { stroke-dashoffset: 339; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Stagger shimmer on rows */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ─────────────────────────────────────────────
+   ANIMATION UTILITIES
+───────────────────────────────────────────── */
+
+.anim-fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+
+.anim-fade-in-up {
+  animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.anim-fade-in-down {
+  animation: fadeInDown 0.35s ease both;
+}
+
+.anim-slide-right {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.anim-slide-left {
+  animation: slideInLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.anim-sheet {
+  animation: slideUpSheet 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger helpers — apply via inline style animationDelay */
+.anim-stagger > * {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.anim-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.anim-stagger > *:nth-child(2) { animation-delay: 60ms; }
+.anim-stagger > *:nth-child(3) { animation-delay: 120ms; }
+.anim-stagger > *:nth-child(4) { animation-delay: 180ms; }
+.anim-stagger > *:nth-child(5) { animation-delay: 240ms; }
+.anim-stagger > *:nth-child(6) { animation-delay: 300ms; }
+
+/* Scanline overlay — position: relative required on parent */
+.scanline-parent {
+  position: relative;
+  overflow: hidden;
+}
+.scanline-parent::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(154, 123, 85, 0.06),
+    transparent
+  );
+  animation: scanline 3.5s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Cursor blink */
+.cursor::after {
+  content: '█';
+  font-size: 0.65em;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: cursorBlink 1s step-start infinite;
+  color: #9A7B55;
+}
+
+/* Glow pulse on hover */
+.glow-hover {
+  transition: box-shadow 0.3s ease;
+}
+.glow-hover:hover {
+  animation: pulseGlow 2s ease infinite;
+}
+
+/* FAB pulse */
+.fab-pulse {
+  animation: fabPulse 2.5s ease infinite;
+}
+
+/* Data flicker on numbers */
+.data-flicker {
+  animation: dataFlicker 8s ease infinite;
+}
+
+/* Animated progress bar */
+.bar-fill {
+  animation: barFillFromLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Glitch on hover */
+.glitch-hover {
+  position: relative;
+}
+.glitch-hover::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: #B8996F;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.glitch-hover:hover::before {
+  opacity: 1;
+  animation: glitchShift 0.3s steps(1) forwards;
+}
+
+/* Scrollbar hide for mobile category pills */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─────────────────────────────────────────────
+   ADDITIONAL KEYFRAMES
+───────────────────────────────────────────── */
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.88); }
+  65%  { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes borderGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(154,123,85,0); }
+  50%       { box-shadow: inset 0 0 0 1px rgba(154,123,85,0.25), 0 0 12px 2px rgba(154,123,85,0.08); }
+}
+
+@keyframes rowReveal {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes heatPop {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ─────────────────────────────────────────────
+   ADDITIONAL UTILITIES
+───────────────────────────────────────────── */
+
+/* Scale-pop for modals / overlays appearing */
+.anim-scale-in {
+  animation: scaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Spring-pop for avatars / confirmation states */
+.anim-pop {
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Row slide-in from left (list items) */
+.anim-row {
+  animation: rowReveal 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Heatmap cell pop */
+.anim-heat {
+  animation: heatPop 0.3s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+}
+
+/* Olive glow on hover (client-side buttons) */
+.glow-hover-olive {
+  transition: box-shadow 0.3s ease;
+}
+.glow-hover-olive:hover {
+  animation: pulseGlowOlive 2s ease infinite;
+}
