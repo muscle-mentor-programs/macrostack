@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
 import {
   Mail, Edit2, Users, TrendingUp, Target, X, Send,
   CheckSquare, Square, MessageCircle, BookOpen,
+  Copy, Check as CheckIcon, Bell,
 } from 'lucide-react'
 import useStore from '../../store'
 import AnimatedNumber from '../../components/AnimatedNumber'
@@ -390,10 +391,16 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
 
 // ─── Main dashboard ───────────────────────────────────────────────────────────
 export default function CoachDashboard() {
-  const { clients, setActivePage, setViewingClientId } = useStore()
+  const {
+    clients, setActivePage, setViewingClientId,
+    currentUser, coachRequests, fetchCoachRequests, respondToRequest,
+  } = useStore()
   const [editClient,      setEditClient]      = useState(null)
   const [emailModal,      setEmailModal]      = useState(false)
   const [emailPreselect,  setEmailPreselect]  = useState(null)
+  const [copied,          setCopied]          = useState(false)
+
+  useEffect(() => { fetchCoachRequests() }, [])
 
   const avgCompliance = clients.length
     ? Math.round(
@@ -408,6 +415,13 @@ export default function CoachDashboard() {
     : 0
 
   const activePlans = clients.filter((c) => c.activeMealPlanId).length
+
+  const handleCopyCode = () => {
+    if (!currentUser?.coachCode) return
+    navigator.clipboard.writeText(currentUser.coachCode).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const handleChat = (clientId) => {
     setActivePage('chat')
@@ -438,6 +452,78 @@ export default function CoachDashboard() {
           COMPOSE EMAIL
         </button>
       </div>
+
+      {/* Coach Code widget */}
+      {currentUser?.coachCode && (
+        <div className="px-8 pt-4 pb-0 flex-shrink-0">
+          <div className="bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
+              <span className="font-display font-black text-lg text-brown tracking-widest">
+                {currentUser.coachCode}
+              </span>
+            </div>
+            <button
+              onClick={handleCopyCode}
+              className="flex items-center gap-1.5 font-mono text-xs text-muted hover:text-cream transition-colors px-2 py-1 rounded-lg hover:bg-surface"
+              title="Copy coach code"
+            >
+              {copied ? (
+                <>
+                  <CheckIcon size={13} className="text-olive-light" />
+                  <span className="text-olive-light">COPIED</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={13} />
+                  COPY
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Pending client requests */}
+      {coachRequests.length > 0 && (
+        <div className="px-8 pt-4 pb-0 flex-shrink-0">
+          <div className="bg-card border border-brown/30 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Bell size={14} className="text-brown" />
+              <span className="font-display font-bold text-xs tracking-widest text-brown">
+                PENDING REQUESTS ({coachRequests.length})
+              </span>
+            </div>
+            <div className="space-y-2">
+              {coachRequests.map((req) => (
+                <div
+                  key={req.id}
+                  className="flex items-center justify-between gap-3 bg-surface border border-border rounded-lg px-3 py-2.5"
+                >
+                  <div className="min-w-0">
+                    <p className="font-mono text-sm text-cream truncate">{req.client_name}</p>
+                    <p className="font-mono text-xs text-muted truncate">{req.client_email}</p>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => respondToRequest(req.id, true)}
+                      className="font-display font-bold text-xs tracking-widest px-3 py-1.5 rounded-lg bg-olive/20 hover:bg-olive/40 text-olive-light border border-olive/30 transition-colors"
+                    >
+                      ACCEPT
+                    </button>
+                    <button
+                      onClick={() => respondToRequest(req.id, false)}
+                      className="font-display font-bold text-xs tracking-widest px-3 py-1.5 rounded-lg bg-surface hover:bg-red-400/10 text-dim hover:text-red-400 border border-border hover:border-red-400/30 transition-colors"
+                    >
+                      DECLINE
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-4 px-8 py-5 border-b border-border flex-shrink-0">

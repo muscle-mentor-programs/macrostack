@@ -51,7 +51,7 @@ export default function ClientSelector() {
           </div>
           <p className="font-display font-bold text-xl text-muted tracking-widest">NO PROFILES</p>
           <p className="font-mono text-sm text-dim mt-2 max-w-xs">
-            Your coach hasn't set up your profile yet. Check back after your onboarding session.
+            Your coach hasn&apos;t approved your request yet, or enter your coach code in your Profile after signing in.
           </p>
         </div>
       ) : (

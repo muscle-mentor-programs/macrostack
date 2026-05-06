@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format, subDays } from 'date-fns'
-import { Check } from 'lucide-react'
+import { Check, Link2 } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis,
   ResponsiveContainer, Tooltip, ReferenceLine,
@@ -9,8 +9,31 @@ import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 
 export default function ClientProfile() {
-  const { activeClientId, clients, updateClientProfile } = useStore()
+  const { activeClientId, clients, updateClientProfile, submitCoachCode } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
+
+  // Coach code linking
+  const [codeInput,  setCodeInput]  = useState('')
+  const [codeStatus, setCodeStatus] = useState('idle') // 'idle' | 'sending' | 'sent' | 'error'
+  const [codeError,  setCodeError]  = useState('')
+  const [coachName,  setCoachName]  = useState('')
+
+  const hasCoach = Boolean(client?.coachId)
+
+  const handleSubmitCode = async (e) => {
+    e.preventDefault()
+    if (!codeInput.trim()) return
+    setCodeStatus('sending')
+    setCodeError('')
+    const result = await submitCoachCode(codeInput.trim())
+    if (result.ok) {
+      setCodeStatus('sent')
+      setCoachName(result.coachName || '')
+    } else {
+      setCodeStatus('error')
+      setCodeError(result.error || 'Something went wrong.')
+    }
+  }
 
   const [form, setForm] = useState({
     name:   client?.name   || '',
@@ -132,6 +155,53 @@ export default function ClientProfile() {
             </span>
           ) : 'SAVE CHANGES'}
         </button>
+      </div>
+
+      {/* Link to Coach */}
+      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '230ms' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <Link2 size={14} className="text-olive-light" />
+          <p className="font-display font-bold text-xs text-muted tracking-widest">LINK TO COACH</p>
+        </div>
+
+        {hasCoach ? (
+          <div className="flex items-center gap-2 py-2">
+            <div className="w-5 h-5 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center flex-shrink-0">
+              <Check size={11} className="text-olive-light" />
+            </div>
+            <p className="font-mono text-sm text-olive-light">Linked to your coach</p>
+          </div>
+        ) : codeStatus === 'sent' ? (
+          <p className="font-mono text-sm text-olive-light py-2">
+            Request sent to {coachName ? <span className="text-cream">{coachName}</span> : 'your coach'}! They&apos;ll accept shortly.
+          </p>
+        ) : (
+          <form onSubmit={handleSubmitCode} className="space-y-3">
+            <p className="font-mono text-xs text-muted leading-relaxed">
+              Enter the code your coach gave you to link your account.
+            </p>
+            <div>
+              <input
+                type="text"
+                placeholder="BRAN4X7K"
+                value={codeInput}
+                onChange={(e) => { setCodeInput(e.target.value.toUpperCase()); setCodeError(''); setCodeStatus('idle') }}
+                className="w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-olive transition-colors tracking-widest uppercase"
+                maxLength={12}
+              />
+            </div>
+            {codeStatus === 'error' && (
+              <p className="font-mono text-xs text-red-400 anim-fade-in">{codeError}</p>
+            )}
+            <button
+              type="submit"
+              disabled={codeStatus === 'sending' || !codeInput.trim()}
+              className="w-full py-3 rounded-xl font-display font-bold text-sm tracking-widest bg-olive hover:bg-olive-light disabled:opacity-40 disabled:cursor-not-allowed text-bg transition-colors"
+            >
+              {codeStatus === 'sending' ? 'LINKING...' : 'LINK'}
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Coach-assigned targets (read-only) */}

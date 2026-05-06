@@ -1,18 +1,31 @@
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, UserPlus } from 'lucide-react'
 import useStore from '../store'
 import ScrambleText from '../components/ScrambleText'
 import ThemeToggle from '../components/ThemeToggle'
 
 export default function LoginScreen() {
-  const { login } = useStore()
+  const { login, signup } = useStore()
 
-  const [edition, setEdition] = useState('coach') // 'coach' | 'client'
-  const [email, setEmail]     = useState('')
+  const [edition, setEdition]   = useState('coach') // 'coach' | 'client'
+  const [mode, setMode]         = useState('login')  // 'login' | 'signup'
+
+  // Login fields
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
-  const [showPw, setShowPw]   = useState(false)
-  const [error, setError]     = useState('')
-  const [loading, setLoading] = useState(false)
+  const [showPw, setShowPw]     = useState(false)
+  const [error, setError]       = useState('')
+  const [loading, setLoading]   = useState(false)
+
+  // Signup fields
+  const [name, setName]                   = useState('')
+  const [signupEmail, setSignupEmail]     = useState('')
+  const [signupPw, setSignupPw]           = useState('')
+  const [confirmPw, setConfirmPw]         = useState('')
+  const [showSignupPw, setShowSignupPw]   = useState(false)
+  const [signupError, setSignupError]     = useState('')
+  const [signupLoading, setSignupLoading] = useState(false)
+  const [signupSuccess, setSignupSuccess] = useState(false)
 
   const isClient = edition === 'client'
 
@@ -23,9 +36,26 @@ export default function LoginScreen() {
     setPassword('')
     setError('')
     setShowPw(false)
+    setSignupError('')
   }
 
-  const handleSubmit = async (e) => {
+  const switchMode = (m) => {
+    setMode(m)
+    // Reset all fields and errors
+    setEmail('')
+    setPassword('')
+    setError('')
+    setShowPw(false)
+    setName('')
+    setSignupEmail('')
+    setSignupPw('')
+    setConfirmPw('')
+    setShowSignupPw(false)
+    setSignupError('')
+    setSignupSuccess(false)
+  }
+
+  const handleLogin = async (e) => {
     e.preventDefault()
     if (!email || !password) return
     setError('')
@@ -35,11 +65,36 @@ export default function LoginScreen() {
     setLoading(false)
   }
 
+  const handleSignup = async (e) => {
+    e.preventDefault()
+    if (!name || !signupEmail || !signupPw || !confirmPw) return
+    if (signupPw !== confirmPw) {
+      setSignupError('Passwords do not match.')
+      return
+    }
+    if (signupPw.length < 6) {
+      setSignupError('Password must be at least 6 characters.')
+      return
+    }
+    setSignupError('')
+    setSignupLoading(true)
+    const result = await signup(name, signupEmail, signupPw, edition)
+    setSignupLoading(false)
+    if (result.needsConfirmation) {
+      setSignupSuccess(true)
+      return
+    }
+    if (!result.ok) {
+      setSignupError(result.error || 'Sign-up failed. Please try again.')
+    }
+    // If ok and no needsConfirmation, store has already navigated
+  }
+
   const inputCls =
     'w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none transition-colors'
 
-  // Shared field JSX — inlined per face so React keeps them stable in the DOM
-  const emailField = (tabIdx) => (
+  // ── Shared field helpers ──────────────────────────────────────────────────
+  const emailField = (tabIdx, focusCls = 'focus:border-brown') => (
     <div>
       <label className="font-display text-xs text-muted tracking-widest block mb-1.5">EMAIL</label>
       <input
@@ -49,12 +104,12 @@ export default function LoginScreen() {
         value={email}
         tabIndex={tabIdx}
         onChange={(e) => { setEmail(e.target.value); setError('') }}
-        className={`${inputCls} focus:border-brown`}
+        className={`${inputCls} ${focusCls}`}
       />
     </div>
   )
 
-  const passwordField = (tabIdx) => (
+  const passwordField = (tabIdx, focusCls = 'focus:border-brown') => (
     <div>
       <label className="font-display text-xs text-muted tracking-widest block mb-1.5">PASSWORD</label>
       <div className="relative">
@@ -65,11 +120,11 @@ export default function LoginScreen() {
           value={password}
           tabIndex={tabIdx}
           onChange={(e) => { setPassword(e.target.value); setError('') }}
-          className={`${inputCls} pr-11 focus:border-brown`}
+          className={`${inputCls} pr-11 ${focusCls}`}
         />
         <button
           type="button"
-          tabIndex={tabIdx}
+          tabIndex={-1}
           onClick={() => setShowPw((v) => !v)}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-cream transition-colors"
         >
@@ -78,6 +133,104 @@ export default function LoginScreen() {
       </div>
     </div>
   )
+
+  // ── Signup form fields ────────────────────────────────────────────────────
+  const signupForm = (tabIdx, accentFocusCls, btnCls) => {
+    if (signupSuccess) {
+      return (
+        <div className="py-6 text-center space-y-3">
+          <div className="w-12 h-12 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center mx-auto">
+            <UserPlus size={20} className="text-olive-light" />
+          </div>
+          <p className="font-display font-bold text-sm tracking-widest text-cream">CHECK YOUR EMAIL</p>
+          <p className="font-mono text-xs text-muted leading-relaxed">
+            We sent a confirmation link to <span className="text-cream">{signupEmail}</span>.
+            Click it to activate your account.
+          </p>
+          <button
+            type="button"
+            onClick={() => switchMode('login')}
+            className="font-mono text-xs text-brown hover:text-brown-light underline underline-offset-2 transition-colors"
+          >
+            Back to sign in
+          </button>
+        </div>
+      )
+    }
+
+    return (
+      <form onSubmit={handleSignup} className="space-y-3">
+        <div>
+          <label className="font-display text-xs text-muted tracking-widest block mb-1.5">NAME</label>
+          <input
+            type="text"
+            autoComplete="name"
+            placeholder="Your full name"
+            value={name}
+            tabIndex={tabIdx}
+            onChange={(e) => { setName(e.target.value); setSignupError('') }}
+            className={`${inputCls} ${accentFocusCls}`}
+          />
+        </div>
+        <div>
+          <label className="font-display text-xs text-muted tracking-widest block mb-1.5">EMAIL</label>
+          <input
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={signupEmail}
+            tabIndex={tabIdx}
+            onChange={(e) => { setSignupEmail(e.target.value); setSignupError('') }}
+            className={`${inputCls} ${accentFocusCls}`}
+          />
+        </div>
+        <div>
+          <label className="font-display text-xs text-muted tracking-widest block mb-1.5">PASSWORD</label>
+          <div className="relative">
+            <input
+              type={showSignupPw ? 'text' : 'password'}
+              autoComplete="new-password"
+              placeholder="••••••••"
+              value={signupPw}
+              tabIndex={tabIdx}
+              onChange={(e) => { setSignupPw(e.target.value); setSignupError('') }}
+              className={`${inputCls} pr-11 ${accentFocusCls}`}
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              onClick={() => setShowSignupPw((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-cream transition-colors"
+            >
+              {showSignupPw ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
+          </div>
+        </div>
+        <div>
+          <label className="font-display text-xs text-muted tracking-widest block mb-1.5">CONFIRM PASSWORD</label>
+          <input
+            type={showSignupPw ? 'text' : 'password'}
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={confirmPw}
+            tabIndex={tabIdx}
+            onChange={(e) => { setConfirmPw(e.target.value); setSignupError('') }}
+            className={`${inputCls} ${accentFocusCls}`}
+          />
+        </div>
+        {signupError && <p className="font-mono text-xs text-red-400 anim-fade-in">{signupError}</p>}
+        <button
+          type="submit"
+          tabIndex={tabIdx}
+          disabled={signupLoading || !name || !signupEmail || !signupPw || !confirmPw}
+          className={`w-full mt-1 disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover flex items-center justify-center gap-2 ${btnCls}`}
+        >
+          <UserPlus size={15} />
+          {signupLoading ? 'CREATING...' : 'CREATE ACCOUNT'}
+        </button>
+      </form>
+    )
+  }
 
   return (
     <div className="relative flex h-screen w-screen bg-bg items-center justify-center overflow-hidden anim-fade-in">
@@ -125,22 +278,31 @@ export default function LoginScreen() {
             >
               <div className="bg-card border border-border rounded-2xl p-6 shadow-2xl space-y-4">
                 <div>
-                  <p className="font-display font-black text-xl tracking-widest text-cream">COACH SIGN IN</p>
-                  <p className="font-mono text-xs text-muted mt-0.5">Access your coaching dashboard</p>
+                  <p className="font-display font-black text-xl tracking-widest text-cream">
+                    {mode === 'login' ? 'COACH SIGN IN' : 'COACH SIGN UP'}
+                  </p>
+                  <p className="font-mono text-xs text-muted mt-0.5">
+                    {mode === 'login' ? 'Access your coaching dashboard' : 'Create your coach account'}
+                  </p>
                 </div>
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  {emailField(isClient ? -1 : 0)}
-                  {passwordField(isClient ? -1 : 0)}
-                  {error && <p className="font-mono text-xs text-red-400 anim-fade-in">{error}</p>}
-                  <button
-                    type="submit"
-                    tabIndex={isClient ? -1 : 0}
-                    disabled={loading || !email || !password}
-                    className="w-full mt-1 bg-brown hover:bg-brown-light disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
-                  >
-                    {loading ? 'AUTHENTICATING...' : 'LOGIN'}
-                  </button>
-                </form>
+
+                {mode === 'login' ? (
+                  <form onSubmit={handleLogin} className="space-y-3">
+                    {emailField(isClient ? -1 : 0)}
+                    {passwordField(isClient ? -1 : 0)}
+                    {error && <p className="font-mono text-xs text-red-400 anim-fade-in">{error}</p>}
+                    <button
+                      type="submit"
+                      tabIndex={isClient ? -1 : 0}
+                      disabled={loading || !email || !password}
+                      className="w-full mt-1 bg-brown hover:bg-brown-light disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
+                    >
+                      {loading ? 'AUTHENTICATING...' : 'LOGIN'}
+                    </button>
+                  </form>
+                ) : (
+                  signupForm(isClient ? -1 : 0, 'focus:border-brown', 'bg-brown hover:bg-brown-light')
+                )}
               </div>
             </div>
 
@@ -157,22 +319,31 @@ export default function LoginScreen() {
             >
               <div className="bg-card border border-border rounded-2xl p-6 shadow-2xl space-y-4">
                 <div>
-                  <p className="font-display font-black text-xl tracking-widest text-olive-light">CLIENT SIGN IN</p>
-                  <p className="font-mono text-xs text-muted mt-0.5">Access your nutrition log</p>
+                  <p className="font-display font-black text-xl tracking-widest text-olive-light">
+                    {mode === 'login' ? 'CLIENT SIGN IN' : 'CLIENT SIGN UP'}
+                  </p>
+                  <p className="font-mono text-xs text-muted mt-0.5">
+                    {mode === 'login' ? 'Access your nutrition log' : 'Create your client account'}
+                  </p>
                 </div>
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  {emailField(!isClient ? -1 : 0)}
-                  {passwordField(!isClient ? -1 : 0)}
-                  {error && <p className="font-mono text-xs text-red-400 anim-fade-in">{error}</p>}
-                  <button
-                    type="submit"
-                    tabIndex={!isClient ? -1 : 0}
-                    disabled={loading || !email || !password}
-                    className="w-full mt-1 bg-olive hover:bg-olive-light disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
-                  >
-                    {loading ? 'AUTHENTICATING...' : 'LOGIN'}
-                  </button>
-                </form>
+
+                {mode === 'login' ? (
+                  <form onSubmit={handleLogin} className="space-y-3">
+                    {emailField(!isClient ? -1 : 0, 'focus:border-olive')}
+                    {passwordField(!isClient ? -1 : 0, 'focus:border-olive')}
+                    {error && <p className="font-mono text-xs text-red-400 anim-fade-in">{error}</p>}
+                    <button
+                      type="submit"
+                      tabIndex={!isClient ? -1 : 0}
+                      disabled={loading || !email || !password}
+                      className="w-full mt-1 bg-olive hover:bg-olive-light disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
+                    >
+                      {loading ? 'AUTHENTICATING...' : 'LOGIN'}
+                    </button>
+                  </form>
+                ) : (
+                  signupForm(!isClient ? -1 : 0, 'focus:border-olive', 'bg-olive hover:bg-olive-light')
+                )}
               </div>
             </div>
           </div>
@@ -201,6 +372,27 @@ export default function LoginScreen() {
           >
             CLIENT EDITION
           </button>
+        </div>
+
+        {/* Mode toggle */}
+        <div className="text-center mt-3">
+          {mode === 'login' ? (
+            <button
+              onClick={() => switchMode('signup')}
+              className="font-mono text-xs text-muted hover:text-cream transition-colors"
+            >
+              Don&apos;t have an account?{' '}
+              <span className="text-brown underline underline-offset-2">CREATE ACCOUNT</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => switchMode('login')}
+              className="font-mono text-xs text-muted hover:text-cream transition-colors"
+            >
+              Already have an account?{' '}
+              <span className="text-brown underline underline-offset-2">SIGN IN</span>
+            </button>
+          )}
         </div>
 
       </div>

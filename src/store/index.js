@@ -11,6 +11,7 @@ function dbToClient(row) {
   return {
     id:               row.id,
     profileId:        row.profile_id   || null,
+    coachId:          row.coach_id     || null,
     name:             row.name         || '',
     email:            row.email        || '',
     height:           row.height       || '',
@@ -104,7 +105,7 @@ const useStore = create(
       // ── AUTH ──────────────────────────────────────────────────────────────
       isAuthenticated: false,
       authLoading:     true,   // true while initial session check is in flight
-      currentUser:     null,   // { id, name, email, role }
+      currentUser:     null,   // { id, name, email, role, coachCode }
 
       initAuth: async () => {
         if (!supabase) { set({ authLoading: false, isAuthenticated: false }); return }
@@ -125,10 +126,11 @@ const useStore = create(
         }
 
         const currentUser = {
-          id:    profile.id,
-          name:  profile.name,
-          email: session.user.email,
-          role:  profile.role,
+          id:        profile.id,
+          name:      profile.name,
+          email:     session.user.email,
+          role:      profile.role,
+          coachCode: profile.coach_code || null,
         }
 
         await get().loadAllData()
@@ -186,10 +188,11 @@ const useStore = create(
         }
 
         const currentUser = {
-          id:    profile.id,
-          name:  profile.name,
-          email: data.user.email,
-          role:  profile.role,
+          id:        profile.id,
+          name:      profile.name,
+          email:     data.user.email,
+          role:      profile.role,
+          coachCode: profile.coach_code || null,
         }
 
         await get().loadAllData()
@@ -264,7 +267,10 @@ const useStore = create(
         const customFoods  = (foodRows || []).filter((f) => f.source === 'custom').map(dbToFood)
         const scannedFoods = (foodRows || []).filter((f) => f.source !== 'custom').map(dbToFood)
 
-        set({ clients, messages, customFoods, scannedFoods })
+        const { data: reqRows } = await supabase
+          .from('coach_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false })
+
+        set({ clients, messages, customFoods, scannedFoods, coachRequests: reqRows || [] })
       },
 
       // ── THEME ─────────────────────────────────────────────────────────────
@@ -301,6 +307,7 @@ const useStore = create(
             goal_protein:  data.goals?.protein  ?? 150,
             goal_carbs:    data.goals?.carbs    ?? 200,
             goal_fat:      data.goals?.fat      ?? 65,
+            coach_id:      get().currentUser?.id || null,
           })
           .select().single()
 
@@ -503,6 +510,7 @@ const useStore = create(
 
       // ── MESSAGES ──────────────────────────────────────────────────────────
       messages: {},
+      coachRequests: [],
 
       sendMessage: async (clientId, from, text) => {
         const id  = crypto.randomUUID()
@@ -552,6 +560,104 @@ const useStore = create(
             // No-op for now unless we have a dedicated coach profile lookup.
           }
         } catch (_) { /* notification errors should never break messaging */ }
+      },
+
+      signup: async (name, email, password, role) => {
+        if (!supabase) return { ok: false, error: 'Supabase not configured' }
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { data: { name: name.trim(), role } },
+        })
+        if (error) return { ok: false, error: error.message }
+        if (!data.session) return { ok: true, needsConfirmation: true }
+
+        // Profile was auto-created by trigger — fetch it
+        const { data: profileRows } = await supabase.rpc('get_my_profile')
+        const profile = profileRows?.[0] ?? null
+        if (!profile) return { ok: false, error: 'Profile setup failed. Please try again.' }
+
+        const currentUser = {
+          id:        data.user.id,
+          name:      profile.name,
+          email:     data.user.email,
+          role:      profile.role,
+          coachCode: profile.coach_code || null,
+        }
+
+        await get().loadAllData()
+
+        const update = { isAuthenticated: true, currentUser }
+        if (role === 'client') {
+          const clientProfile = get().clients.find(
+            (c) => c.email?.toLowerCase() === email.toLowerCase()
+          )
+          if (clientProfile) {
+            update.activeRole     = 'client'
+            update.activeClientId = clientProfile.id
+            update.activePage     = 'dashboard'
+          }
+        }
+        set(update)
+        return { ok: true }
+      },
+
+      submitCoachCode: async (code) => {
+        const { currentUser } = get()
+        if (!currentUser) return { ok: false, error: 'Not logged in' }
+
+        const { data: coaches, error: coachErr } = await supabase
+          .rpc('get_coach_by_code', { p_code: code.trim().toUpperCase() })
+
+        const coach = coaches?.[0] ?? null
+        if (coachErr || !coach) return { ok: false, error: 'Invalid coach code. Double-check with your coach.' }
+
+        const { error: reqErr } = await supabase.from('coach_requests').insert({
+          client_profile_id: currentUser.id,
+          client_name:       currentUser.name,
+          client_email:      currentUser.email,
+          coach_id:          coach.id,
+          status:            'pending',
+        })
+
+        if (reqErr) {
+          if (reqErr.code === '23505') return { ok: false, error: 'You already sent a request to this coach.' }
+          return { ok: false, error: reqErr.message }
+        }
+        return { ok: true, coachName: coach.name }
+      },
+
+      fetchCoachRequests: async () => {
+        const { data, error } = await supabase
+          .from('coach_requests')
+          .select('*')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+        if (error) { console.error('fetchCoachRequests:', error); return }
+        set({ coachRequests: data || [] })
+      },
+
+      respondToRequest: async (requestId, accept) => {
+        const { coachRequests, currentUser } = get()
+        const request = coachRequests.find((r) => r.id === requestId)
+        if (!request) return { ok: false }
+
+        if (accept) {
+          const { error: linkErr } = await supabase
+            .from('clients')
+            .update({ coach_id: currentUser.id })
+            .eq('profile_id', request.client_profile_id)
+          if (linkErr) { console.error('respondToRequest link:', linkErr); return { ok: false } }
+        }
+
+        await supabase.from('coach_requests').update({
+          status: accept ? 'accepted' : 'rejected',
+        }).eq('id', requestId)
+
+        set((s) => ({ coachRequests: s.coachRequests.filter((r) => r.id !== requestId) }))
+
+        if (accept) await get().loadAllData()
+        return { ok: true }
       },
 
       markMessagesRead: async (clientId, reader) => {
