@@ -115,8 +115,8 @@ const useStore = create(
           return
         }
 
-        const { data: profile } = await supabase
-          .from('profiles').select('*').eq('id', session.user.id).single()
+        const { data: profileRows } = await supabase.rpc('get_my_profile')
+        const profile = profileRows?.[0] ?? null
 
         if (!profile) {
           await supabase.auth.signOut()
@@ -167,12 +167,13 @@ const useStore = create(
         })
         if (error) return { ok: false, error: 'Invalid email or password.' }
 
-        const { data: profile } = await supabase
-          .from('profiles').select('*').eq('id', data.user.id).single()
+        const { data: profileRows, error: profileErr } = await supabase.rpc('get_my_profile')
+        const profile = profileRows?.[0] ?? null
 
         if (!profile) {
+          console.error('[login] get_my_profile failed:', profileErr)
           await supabase.auth.signOut()
-          return { ok: false, error: 'Account not configured. Contact your coach.' }
+          return { ok: false, error: profileErr?.message || 'Account not configured. Contact your coach.' }
         }
 
         if (edition === 'coach' && profile.role === 'client') {
