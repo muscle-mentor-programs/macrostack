@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { MessageCircle, Send } from 'lucide-react'
 import useStore from '../../store'
@@ -11,20 +11,36 @@ function msgTime(ts) {
   return format(d, 'MMM d, h:mm a')
 }
 
+const NAV_H = 80
+
 export default function ClientMessages() {
   const { activeClientId, messages, sendMessage, markMessagesRead } = useStore()
-  const [input, setInput] = useState('')
-  const bottomRef         = useRef(null)
+  const [input, setInput]     = useState('')
+  const [kbHeight, setKbHeight] = useState(0)
 
   const thread = messages[activeClientId] || []
 
+  // Mark messages read whenever thread updates
   useEffect(() => {
     if (activeClientId) markMessagesRead(activeClientId, 'client')
   }, [activeClientId, thread.length])
 
+  // Track software keyboard height via the visualViewport API (iOS + Android)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [thread.length])
+    const vv = window.visualViewport
+    if (!vv) return
+    const sync = () => {
+      // keyboard height = difference between layout height and visual height
+      const kh = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      setKbHeight(kh)
+    }
+    vv.addEventListener('resize', sync)
+    vv.addEventListener('scroll', sync)
+    return () => {
+      vv.removeEventListener('resize', sync)
+      vv.removeEventListener('scroll', sync)
+    }
+  }, [])
 
   const handleSend = () => {
     if (!input.trim()) return
@@ -32,8 +48,17 @@ export default function ClientMessages() {
     setInput('')
   }
 
+  // When keyboard is hidden → sit above the nav bar + safe area
+  // When keyboard is shown  → sit above the keyboard (covers nav, which is correct)
+  const bottomVal = kbHeight > 0
+    ? `${kbHeight}px`
+    : `calc(${NAV_H}px + env(safe-area-inset-bottom, 0px))`
+
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div
+      className="fixed inset-x-0 top-0 flex flex-col bg-bg z-10"
+      style={{ bottom: bottomVal }}
+    >
       {/* Header */}
       <div className="px-5 pt-12 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
@@ -42,19 +67,24 @@ export default function ClientMessages() {
         <p className="font-mono text-xs text-muted mt-1">Chat with your coach</p>
       </div>
 
-      {/* Thread */}
-      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
+      {/* Thread — flex-col-reverse anchors newest messages at the bottom (iMessage style) */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 flex flex-col-reverse gap-4">
         {thread.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
-            <MessageCircle size={36} className="text-dim mb-3 anim-pop" style={{ animationDelay: '100ms' }} />
+          <div className="flex-1 flex flex-col items-center justify-center text-center">
+            <MessageCircle size={36} className="text-dim mb-3 anim-pop" />
             <p className="font-display font-bold text-xl text-muted tracking-widest">NO MESSAGES YET</p>
             <p className="font-mono text-xs text-dim mt-1.5">Your coach will reach out here</p>
           </div>
         ) : (
-          thread.map((msg) => {
+          // Reverse so DOM order is newest-first; flex-col-reverse flips it back
+          // visually so newest = bottom, oldest = top
+          [...thread].reverse().map((msg) => {
             const isClient = msg.from === 'client'
             return (
-              <div key={msg.id} className={`flex ${isClient ? 'justify-end' : 'justify-start'} anim-fade-in`}>
+              <div
+                key={msg.id}
+                className={`flex ${isClient ? 'justify-end' : 'justify-start'} anim-fade-in`}
+              >
                 <div className={`max-w-[80%] flex flex-col gap-1 ${isClient ? 'items-end' : 'items-start'}`}>
                   {!isClient && (
                     <p className="font-display font-bold text-[10px] text-brown-light tracking-widest px-1 mb-0.5">
@@ -76,11 +106,10 @@ export default function ClientMessages() {
             )
           })
         )}
-        <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="px-5 py-3 border-t border-border flex gap-2 flex-shrink-0 bg-surface pb-safe">
+      {/* Input bar — always flush against nav or keyboard */}
+      <div className="flex-shrink-0 flex items-center gap-2 px-4 py-3 bg-surface border-t border-border">
         <input
           type="text"
           placeholder="Message your coach…"
@@ -92,7 +121,7 @@ export default function ClientMessages() {
         <button
           onClick={handleSend}
           disabled={!input.trim()}
-          className="bg-brown hover:bg-brown-light disabled:opacity-40 text-bg px-4 rounded-xl transition-colors"
+          className="flex items-center justify-center bg-brown hover:bg-brown-light disabled:opacity-40 text-bg px-4 py-3 rounded-xl transition-colors"
         >
           <Send size={18} />
         </button>

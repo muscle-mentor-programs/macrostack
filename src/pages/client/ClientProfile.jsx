@@ -97,7 +97,9 @@ export default function ClientProfile() {
 
         <div>
           <label className={lbl}>DATE OF BIRTH</label>
-          <input type="date" value={form.dob} onChange={field('dob')} className={inputCls} />
+          <input type="date" value={form.dob} onChange={field('dob')}
+            className={`${inputCls} [color-scheme:dark] min-w-0`}
+            style={{ colorScheme: 'dark' }} />
         </div>
 
         <div>
