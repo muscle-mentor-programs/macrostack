@@ -233,7 +233,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="relative flex h-screen w-screen bg-bg items-center justify-center overflow-hidden anim-fade-in">
+    <div className="relative w-screen min-h-screen bg-bg overflow-y-auto overflow-x-hidden anim-fade-in">
       {/* Theme toggle */}
       <div className="fixed top-4 right-4 z-10">
         <ThemeToggle compact />
@@ -241,7 +241,7 @@ export default function LoginScreen() {
 
       {/* Subtle grid texture */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        className="pointer-events-none fixed inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage:
             'linear-gradient(#9A7B55 1px, transparent 1px), linear-gradient(90deg, #9A7B55 1px, transparent 1px)',
@@ -249,7 +249,8 @@ export default function LoginScreen() {
         }}
       />
 
-      <div className="w-full max-w-sm px-6 anim-fade-in-up">
+      <div className="flex min-h-screen items-center justify-center">
+      <div className="w-full max-w-sm px-6 py-10 anim-fade-in-up">
 
         {/* Brand */}
         <div className="text-center mb-8 scanline-parent py-3">
@@ -395,6 +396,7 @@ export default function LoginScreen() {
           )}
         </div>
 
+      </div>
       </div>
     </div>
   )
