@@ -19,15 +19,15 @@ export default function RoleSelector() {
           </p>
         </div>
 
-        {/* Role cards — aspect-square on wrapper div guarantees equal sizes */}
-        <div className="grid grid-cols-2 gap-6 anim-stagger">
+        {/* Role cards — stacked on mobile, side-by-side squares on sm+ */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 anim-stagger">
           {/* Coach Portal */}
-          <div className="aspect-square anim-fade-in-up">
+          <div className="aspect-square overflow-hidden anim-fade-in-up">
             <button
               onClick={() => setActiveRole('coach')}
               className="group w-full h-full bg-card border border-border hover:border-brown/60 rounded-2xl p-8 transition-all duration-200 hover:bg-brown/5 glow-hover flex flex-col items-center justify-center text-center"
             >
-              <div className="w-16 h-16 rounded-2xl bg-brown/20 border border-brown/30 flex items-center justify-center mb-5 group-hover:bg-brown/30 transition-colors">
+              <div className="w-16 h-16 rounded-2xl bg-brown/20 border border-brown/30 flex items-center justify-center mb-5 group-hover:bg-brown/30 transition-colors flex-shrink-0">
                 <Monitor size={28} className="text-brown-light" />
               </div>
               <h2 className="font-display font-black text-xl tracking-wider text-cream mb-2">
@@ -45,12 +45,12 @@ export default function RoleSelector() {
           </div>
 
           {/* Client App */}
-          <div className="aspect-square anim-fade-in-up" style={{ animationDelay: '80ms' }}>
+          <div className="aspect-square overflow-hidden anim-fade-in-up" style={{ animationDelay: '80ms' }}>
             <button
               onClick={() => setActiveRole('client')}
               className="group w-full h-full bg-card border border-border hover:border-olive/60 rounded-2xl p-8 transition-all duration-200 hover:bg-olive/5 glow-hover flex flex-col items-center justify-center text-center"
             >
-              <div className="w-16 h-16 rounded-2xl bg-olive/20 border border-olive/30 flex items-center justify-center mb-5 group-hover:bg-olive/30 transition-colors">
+              <div className="w-16 h-16 rounded-2xl bg-olive/20 border border-olive/30 flex items-center justify-center mb-5 group-hover:bg-olive/30 transition-colors flex-shrink-0">
                 <Smartphone size={28} className="text-olive-light" />
               </div>
               <h2 className="font-display font-black text-xl tracking-wider text-cream mb-2">
