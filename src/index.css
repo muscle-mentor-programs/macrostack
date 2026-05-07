@@ -39,13 +39,15 @@ html.light {
 }
 
 html, body, #root {
-  height: 100%;
+  height: var(--app-height, 100%);
   width: 100%;
-  /* No overflow property — iOS Safari treats overflow:clip/hidden as a containing
-     block for position:fixed children, capping bottom:0 at the layout viewport
-     (~810pt) instead of the physical screen (844pt). Without overflow here,
-     fixed elements correctly use the ICB (full 844pt screen). Rubber-band is
-     suppressed by overscroll-behavior below; actual scroll is on <main> only. */
+  /* overflow:hidden clips extra content without allowing scroll at root level.
+     The nav is a flex child (not position:fixed) so the iOS Safari
+     overflow:hidden-as-containing-block bug doesn't affect nav positioning.
+     --app-height is set from window.screen.height so the layout fills the full
+     physical screen (844pt on iPhone 12), pushing the flex-child nav to the
+     actual screen bottom rather than stopping at the layout viewport (~810pt). */
+  overflow: hidden;
   overscroll-behavior: none;
 }
 

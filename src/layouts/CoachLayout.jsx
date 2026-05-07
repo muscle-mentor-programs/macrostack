@@ -12,7 +12,7 @@ export default function CoachLayout({ children }) {
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
     return (
-      <div className="h-full w-full bg-bg">
+      <div className="flex flex-col h-full w-full bg-bg">
         {/* Floating top-right controls */}
         <div className="fixed top-safe right-4 z-30 flex items-center gap-1.5">
           <ThemeToggle compact />
@@ -33,8 +33,8 @@ export default function CoachLayout({ children }) {
           </button>
         </div>
 
-        {/* Scrollable page content — pb-nav clears the fixed nav bar */}
-        <main className="h-full overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-safe-top">
+        {/* Scrollable page content */}
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-safe-top">
           {children}
         </main>
 
