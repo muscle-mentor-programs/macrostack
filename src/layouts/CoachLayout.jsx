@@ -12,9 +12,9 @@ export default function CoachLayout({ children }) {
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
     return (
-      /* h-[100dvh] = dynamic viewport height — correctly handles iOS URL-bar show/hide.
-         w-full instead of w-screen avoids the 100vw horizontal-overflow bug.       */
-      <div className="flex flex-col h-app w-full bg-bg">
+      /* fixed inset-0 = always fills the exact visible viewport on iOS/Android,
+         immune to window.innerHeight staleness and toolbar show/hide quirks.   */
+      <div className="fixed inset-0 flex flex-col bg-bg">
         {/* Floating top-right controls */}
         <div className="fixed top-safe right-4 z-30 flex items-center gap-1.5">
           <ThemeToggle compact />

@@ -9,7 +9,7 @@ export default function ClientLayout({ children }) {
   const isSuperAdmin = currentUser?.role === 'superadmin'
 
   return (
-    <div className="flex flex-col h-app w-full bg-bg">
+    <div className="fixed inset-0 flex flex-col bg-bg">
       {/* Top-right controls: role switch (superadmin only) + theme + logout */}
       <div className="fixed top-safe right-4 z-30 flex items-center gap-2">
         {isSuperAdmin && (
