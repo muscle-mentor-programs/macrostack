@@ -357,6 +357,14 @@ input[type="number"]::-webkit-outer-spin-button {
   height: 100dvh;  /* dynamic viewport — correct on modern iOS Safari */
 }
 
+/* Exact visible-viewport height set by JS (window.innerHeight).
+   This is the only truly reliable value on iOS/Android — use it for
+   the outermost layout containers so nav bars pin to the real bottom. */
+.h-app {
+  height: 100dvh;                    /* instant first-paint (before JS) */
+  height: var(--app-height, 100dvh); /* JS-measured value takes over     */
+}
+
 /* Push layout content below the iOS status bar / notch */
 .pt-safe-top {
   padding-top: env(safe-area-inset-top, 0px);

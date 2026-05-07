@@ -20,7 +20,7 @@ export default function BottomNav() {
     // fixed bottom-0 so the keyboard slides OVER the nav rather than pushing it up
     <nav
       id="client-bottom-nav"
-      className="fixed bottom-0 left-0 right-0 w-full bg-surface border-t border-border nav-safe-bottom z-20"
+      className="flex-shrink-0 w-full bg-surface border-t border-border nav-safe-bottom"
     >
       <div className="grid grid-cols-5">
         {NAV.map(({ id, label, icon: Icon }) => {

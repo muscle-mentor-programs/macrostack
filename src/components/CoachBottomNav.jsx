@@ -18,7 +18,7 @@ export default function CoachBottomNav() {
   )
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 w-full bg-surface border-t border-border nav-safe-bottom z-20">
+    <nav className="flex-shrink-0 w-full bg-surface border-t border-border nav-safe-bottom">
       <div className="grid grid-cols-4">
       {NAV.map(({ id, label, icon: Icon }) => {
         const active = activePage === id

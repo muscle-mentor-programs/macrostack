@@ -14,7 +14,7 @@ export default function CoachLayout({ children }) {
     return (
       /* h-[100dvh] = dynamic viewport height — correctly handles iOS URL-bar show/hide.
          w-full instead of w-screen avoids the 100vw horizontal-overflow bug.       */
-      <div className="flex flex-col h-dvh w-full bg-bg">
+      <div className="flex flex-col h-app w-full bg-bg">
         {/* Floating top-right controls */}
         <div className="fixed top-safe right-4 z-30 flex items-center gap-1.5">
           <ThemeToggle compact />
