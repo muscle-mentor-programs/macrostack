@@ -41,12 +41,12 @@ html.light {
 html, body, #root {
   height: 100%;
   width: 100%;
-  /* overflow: clip clips content without creating a containing block for
-     position:fixed children — fixes the iOS Safari bug where overflow:hidden
-     on an ancestor makes it the containing block for fixed elements, causing
-     the layout to stop short of the physical screen bottom (home indicator area). */
-  overflow: clip;
-  overscroll-behavior: none; /* prevents rubber-band bounce without needing overflow:hidden */
+  /* No overflow property — iOS Safari treats overflow:clip/hidden as a containing
+     block for position:fixed children, capping bottom:0 at the layout viewport
+     (~810pt) instead of the physical screen (844pt). Without overflow here,
+     fixed elements correctly use the ICB (full 844pt screen). Rubber-band is
+     suppressed by overscroll-behavior below; actual scroll is on <main> only. */
+  overscroll-behavior: none;
 }
 
 /* Per CSS Backgrounds spec §2.11.1, the root element's (html) background

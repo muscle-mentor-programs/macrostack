@@ -9,7 +9,7 @@ export default function ClientLayout({ children }) {
   const isSuperAdmin = currentUser?.role === 'superadmin'
 
   return (
-    <div className="flex flex-col h-full w-full bg-bg">
+    <div className="h-full w-full bg-bg">
       {/* Top-right controls: role switch (superadmin only) + theme + logout */}
       <div className="fixed top-safe right-4 z-30 flex items-center gap-2">
         {isSuperAdmin && (
@@ -32,8 +32,8 @@ export default function ClientLayout({ children }) {
         </button>
       </div>
 
-      {/* Scrollable content */}
-      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-safe-top">
+      {/* Scrollable content — pb-nav clears the fixed nav bar */}
+      <main className="h-full overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-safe-top">
         {children}
       </main>
       <BottomNav />
