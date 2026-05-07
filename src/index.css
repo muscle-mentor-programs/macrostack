@@ -50,7 +50,10 @@ html, body, #root {
 }
 
 body {
-  background: var(--color-bg);
+  /* bg-surface matches the nav bar background — if iOS clips the layout
+     container short of the physical bottom, the body color fills the
+     home-indicator strip and it blends invisibly with the nav. */
+  background: var(--color-surface);
   color: var(--color-cream);
   font-family: 'Space Mono', monospace;
   -webkit-font-smoothing: antialiased;
