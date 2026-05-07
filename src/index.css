@@ -49,11 +49,18 @@ html, body, #root {
   overscroll-behavior: none; /* prevents rubber-band bounce without needing overflow:hidden */
 }
 
+/* Per CSS Backgrounds spec §2.11.1, the root element's (html) background
+   covers the ENTIRE canvas — including areas beyond the layout viewport
+   such as the iOS home-indicator zone (810-844 pt) in PWA standalone mode.
+   Body background propagation to canvas is blocked when html has overflow:clip.
+   Setting this directly on html guarantees the home-indicator strip is painted
+   with bg-surface, matching the nav bar and making the strip invisible. */
+html {
+  background-color: var(--color-surface);
+}
+
 body {
-  /* bg-surface matches the nav bar background — if iOS clips the layout
-     container short of the physical bottom, the body color fills the
-     home-indicator strip and it blends invisibly with the nav. */
-  background: var(--color-surface);
+  background: var(--color-bg);
   color: var(--color-cream);
   font-family: 'Space Mono', monospace;
   -webkit-font-smoothing: antialiased;
