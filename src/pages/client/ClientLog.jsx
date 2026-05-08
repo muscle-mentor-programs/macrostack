@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
-import { ChevronLeft, ChevronRight, Plus, Search, X, Trash2, Scan } from 'lucide-react'
+import {
+  ChevronLeft, ChevronRight, Plus, Search, X, Trash2,
+  Scan, Check, ChevronDown,
+} from 'lucide-react'
 import useStore from '../../store'
 import { FOODS, CATEGORIES, MEALS } from '../../data/foods'
 import ScrambleText from '../../components/ScrambleText'
@@ -9,8 +12,7 @@ import ScannedFoodModal from '../../components/ScannedFoodModal'
 
 // Meals always shown even when empty
 const PRIMARY_MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
-
-const WEIGHT_UNITS = ['g', 'ml', 'oz', 'fl oz', 'L']
+const WEIGHT_UNITS  = ['g', 'ml', 'oz', 'fl oz', 'L']
 
 function servingLabel(food) {
   if (!food.servingUnit) return `${food.servingSize}g`
@@ -24,6 +26,7 @@ function entryServingLabel(entry) {
   return entry.quantity === 1 ? `1 ${entry.servingUnit}` : `${entry.quantity} × ${entry.servingUnit}`
 }
 
+// ─── Add Food Modal ──────────────────────────────────────────────────────────
 function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   const { addClientEntry, customFoods, scannedFoods } = useStore()
 
@@ -31,6 +34,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   const [category,    setCategory]    = useState('All')
   const [selected,    setSelected]    = useState(null)
   const [quantity,    setQuantity]    = useState(1)
+  const [grams,       setGrams]       = useState('')
   const [meal,        setMeal]        = useState(defaultMeal || 'Breakfast')
   const [showScanner, setShowScanner] = useState(false)
   const [scannedUPC,  setScannedUPC]  = useState(null)
@@ -44,22 +48,54 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     )
   })
 
-  const scaled = selected
-    ? {
-        calories: selected.calories * quantity,
-        protein:  selected.protein  * quantity,
-        carbs:    selected.carbs    * quantity,
-        fat:      selected.fat      * quantity,
-      }
-    : null
+  const hasGrams = !!(selected?.servingSize)
+  const perG = hasGrams ? {
+    cal:  selected.calories / selected.servingSize,
+    pro:  selected.protein  / selected.servingSize,
+    carb: selected.carbs    / selected.servingSize,
+    fat:  selected.fat      / selected.servingSize,
+  } : null
+
+  const scaled = selected ? (hasGrams ? {
+    calories: perG.cal  * Number(grams  || 0),
+    protein:  perG.pro  * Number(grams  || 0),
+    carbs:    perG.carb * Number(grams  || 0),
+    fat:      perG.fat  * Number(grams  || 0),
+  } : {
+    calories: selected.calories * quantity,
+    protein:  selected.protein  * quantity,
+    carbs:    selected.carbs    * quantity,
+    fat:      selected.fat      * quantity,
+  }) : null
+
+  const handleSelectFood = (food) => {
+    setSelected(food)
+    setQuantity(1)
+    setGrams(food.servingSize ? String(food.servingSize) : '')
+  }
+
+  const handleQtyChange = (val) => {
+    const q = Math.max(0, Number(val) || 0)
+    setQuantity(q)
+    if (selected?.servingSize) setGrams(String(Math.round(q * selected.servingSize)))
+  }
+
+  const handleGramsChange = (val) => {
+    const g = Math.max(0, Number(val) || 0)
+    setGrams(String(g))
+    if (selected?.servingSize) setQuantity(+(g / selected.servingSize).toFixed(3))
+  }
 
   const handleAdd = () => {
     if (!selected) return
+    const qty = hasGrams
+      ? +(Number(grams || 0) / selected.servingSize).toFixed(3)
+      : quantity
     addClientEntry(clientId, {
       name:        selected.name,
       brand:       selected.brand || '',
       foodId:      selected.id,
-      quantity,
+      quantity:    qty,
       servingSize: selected.servingSize,
       servingUnit: selected.servingUnit,
       meal,
@@ -72,22 +108,17 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     onClose()
   }
 
-  const handleScan = (upc) => {
-    setShowScanner(false)
-    setScannedUPC(upc)
-  }
-
-  // After a scanned food is saved or an existing one is chosen,
-  // auto-select it in the food list so the user can immediately log it.
+  const handleScan      = (upc) => { setShowScanner(false); setScannedUPC(upc) }
   const handleAfterSave = (food) => {
     setScannedUPC(null)
-    setSelected(food)
-    setQuantity(1)
+    handleSelectFood(food)
   }
+
+  const inputCls = 'w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-base text-cream focus:outline-none focus:border-brown'
 
   return (
     <div className="fixed inset-0 bg-bg/90 backdrop-blur-sm flex flex-col z-50 anim-fade-in">
-      {/* Header — pad top by safe-area so notch/Dynamic Island never covers it */}
+      {/* Header */}
       <div
         className="flex items-center justify-between px-5 pb-4 border-b border-border bg-card flex-shrink-0"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
@@ -96,10 +127,9 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         <button onClick={onClose} className="text-muted p-1"><X size={22} /></button>
       </div>
 
-      {/* Search + scan button + category filter */}
+      {/* Search + scan + category filter */}
       <div className="px-4 py-3 border-b border-border bg-card space-y-3">
         <div className="flex items-center gap-2">
-          {/* Search input */}
           <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
             <input
@@ -111,7 +141,6 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
               className="w-full bg-surface border border-border rounded-xl pl-9 pr-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown"
             />
           </div>
-          {/* Scan barcode button */}
           <button
             onClick={() => setShowScanner(true)}
             title="Scan a barcode"
@@ -143,7 +172,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         {filtered.map((food) => (
           <button
             key={food.id}
-            onClick={() => { setSelected(food); setQuantity(1) }}
+            onClick={() => handleSelectFood(food)}
             className={`w-full flex items-center justify-between px-5 py-4 border-b border-border/50 text-left ${
               selected?.id === food.id ? 'bg-brown/10 border-l-2 border-l-brown' : ''
             }`}
@@ -178,51 +207,91 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         )}
       </div>
 
-      {/* Config + Add */}
+      {/* Config + Add panel */}
       {selected && (
         <div className="bg-card border-t border-border px-5 py-5 space-y-4 anim-sheet">
+          {/* Food name + serving ref */}
           <div className="flex items-center gap-3">
             <p className="font-mono text-sm text-cream flex-1 truncate">{selected.name}</p>
             <span className="font-mono text-xs text-muted">{servingLabel(selected)}</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="font-display text-xs text-muted tracking-widest block mb-2">QUANTITY</label>
-              <input
-                type="number"
-                min="0.25"
-                step="0.25"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                className="w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-base text-cream focus:outline-none focus:border-brown"
-              />
+
+          {hasGrams ? (
+            /* ── gram-aware layout: SERVINGS | GRAMS then MEAL full-width ── */
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-display text-xs text-muted tracking-widest block mb-2">SERVINGS</label>
+                  <input
+                    type="number" inputMode="decimal" min="0.01" step="0.25"
+                    value={quantity}
+                    onChange={(e) => handleQtyChange(e.target.value)}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="font-display text-xs text-muted tracking-widest block mb-2">GRAMS</label>
+                  <input
+                    type="number" inputMode="decimal" min="1" step="1"
+                    value={grams}
+                    onChange={(e) => handleGramsChange(e.target.value)}
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="font-display text-xs text-muted tracking-widest block mb-2">MEAL</label>
+                <select
+                  value={meal}
+                  onChange={(e) => setMeal(e.target.value)}
+                  className={inputCls}
+                >
+                  {MEALS.map((m) => <option key={m}>{m}</option>)}
+                </select>
+              </div>
+            </>
+          ) : (
+            /* ── no gram data: original QUANTITY | MEAL ── */
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="font-display text-xs text-muted tracking-widest block mb-2">QUANTITY</label>
+                <input
+                  type="number" inputMode="decimal" min="0.25" step="0.25"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className="font-display text-xs text-muted tracking-widest block mb-2">MEAL</label>
+                <select
+                  value={meal}
+                  onChange={(e) => setMeal(e.target.value)}
+                  className={inputCls}
+                >
+                  {MEALS.map((m) => <option key={m}>{m}</option>)}
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="font-display text-xs text-muted tracking-widest block mb-2">MEAL</label>
-              <select
-                value={meal}
-                onChange={(e) => setMeal(e.target.value)}
-                className="w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream focus:outline-none focus:border-brown"
-              >
-                {MEALS.map((m) => <option key={m}>{m}</option>)}
-              </select>
-            </div>
-          </div>
+          )}
+
+          {/* Live macro preview */}
           {scaled && (
             <div className="grid grid-cols-4 gap-2">
               {[
                 { label: 'KCAL', val: scaled.calories, color: 'text-cream' },
                 { label: 'PRO',  val: scaled.protein,  color: 'text-olive-light' },
                 { label: 'CARB', val: scaled.carbs,    color: 'text-brown-light' },
-                { label: 'FAT',  val: scaled.fat,       color: 'text-slategray-light' },
+                { label: 'FAT',  val: scaled.fat,      color: 'text-slategray-light' },
               ].map(({ label, val, color }) => (
                 <div key={label} className="bg-surface border border-border rounded-xl p-3 text-center">
-                  <p className={`font-display font-black text-lg ${color}`}>{val.toFixed(0)}</p>
+                  <p className={`font-display font-black text-lg ${color}`}>{Number(val).toFixed(0)}</p>
                   <p className="font-mono text-xs text-muted">{label}</p>
                 </div>
               ))}
             </div>
           )}
+
           <button
             onClick={handleAdd}
             className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-4 rounded-xl transition-colors"
@@ -232,15 +301,9 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         </div>
       )}
 
-      {/* Barcode scanner overlay */}
       {showScanner && (
-        <BarcodeScanner
-          onScan={handleScan}
-          onClose={() => setShowScanner(false)}
-        />
+        <BarcodeScanner onScan={handleScan} onClose={() => setShowScanner(false)} />
       )}
-
-      {/* Post-scan product modal */}
       {scannedUPC && (
         <ScannedFoodModal
           upc={scannedUPC}
@@ -252,11 +315,17 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   )
 }
 
+// ─── Main Log Page ───────────────────────────────────────────────────────────
 export default function ClientLog() {
-  const { activeClientId, clients, removeClientEntry, getClientTotalsForDate, logDate, setLogDate } = useStore()
+  const {
+    activeClientId, clients,
+    removeClientEntry, updateClientEntry,
+    getClientTotalsForDate, logDate, setLogDate,
+  } = useStore()
 
-  // null = modal closed; string = open with that meal pre-selected
   const [modalMeal, setModalMeal] = useState(null)
+  // editState: { id, qty, grams, servingSize, perQty: { cal, pro, carb, fat } }
+  const [editState, setEditState] = useState(null)
 
   const client  = clients.find((c) => c.id === activeClientId)
   const entries = client?.log?.[logDate] || []
@@ -266,7 +335,6 @@ export default function ClientLog() {
   const prev = () => setLogDate(format(subDays(parsedDate, 1), 'yyyy-MM-dd'))
   const next = () => setLogDate(format(addDays(parsedDate, 1), 'yyyy-MM-dd'))
 
-  // Group entries by meal
   const mealGroups = entries.reduce((acc, e) => {
     const m = e.meal || 'Other'
     if (!acc[m]) acc[m] = []
@@ -274,11 +342,68 @@ export default function ClientLog() {
     return acc
   }, {})
 
-  // Always show primary meals; append any extra meal types that have entries
   const extraMeals = [...new Set(
     entries.map((e) => e.meal || 'Other').filter((m) => !PRIMARY_MEALS.includes(m))
   )]
   const allSections = [...PRIMARY_MEALS, ...extraMeals]
+
+  // ── Edit handlers ──────────────────────────────────────────────────────────
+  const openEdit = (entry) => {
+    if (editState?.id === entry.id) { setEditState(null); return }
+    const q = entry.quantity || 1
+    setEditState({
+      id:          entry.id,
+      qty:         q,
+      grams:       entry.servingSize ? String(Math.round(q * entry.servingSize)) : '',
+      servingSize: entry.servingSize || null,
+      perQty: {
+        cal:  (entry.calories || 0) / q,
+        pro:  (entry.protein  || 0) / q,
+        carb: (entry.carbs    || 0) / q,
+        fat:  (entry.fat      || 0) / q,
+      },
+    })
+  }
+
+  const editQtyChange = (val) => {
+    const q = Math.max(0, Number(val) || 0)
+    setEditState((s) => ({
+      ...s,
+      qty:   q,
+      grams: s.servingSize ? String(Math.round(q * s.servingSize)) : s.grams,
+    }))
+  }
+
+  const editGramsChange = (val) => {
+    const g = Math.max(0, Number(val) || 0)
+    setEditState((s) => ({
+      ...s,
+      grams: String(g),
+      qty:   s.servingSize ? +(g / s.servingSize).toFixed(3) : s.qty,
+    }))
+  }
+
+  const saveEdit = () => {
+    if (!editState) return
+    const { id, qty, perQty } = editState
+    updateClientEntry(activeClientId, logDate, id, {
+      quantity: qty,
+      calories: Math.round(perQty.cal  * qty * 10) / 10,
+      protein:  Math.round(perQty.pro  * qty * 10) / 10,
+      carbs:    Math.round(perQty.carb * qty * 10) / 10,
+      fat:      Math.round(perQty.fat  * qty * 10) / 10,
+    })
+    setEditState(null)
+  }
+
+  const editPreview = editState ? {
+    cal:  Math.round(editState.perQty.cal  * editState.qty),
+    pro:  Math.round(editState.perQty.pro  * editState.qty),
+    carb: Math.round(editState.perQty.carb * editState.qty),
+    fat:  Math.round(editState.perQty.fat  * editState.qty),
+  } : null
+
+  const inpCls = 'w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown'
 
   return (
     <div className="flex flex-col min-h-full">
@@ -304,7 +429,7 @@ export default function ClientLog() {
           { label: 'KCAL', val: totals.calories, color: 'text-cream' },
           { label: 'PRO',  val: totals.protein,  color: 'text-olive-light' },
           { label: 'CARB', val: totals.carbs,    color: 'text-brown-light' },
-          { label: 'FAT',  val: totals.fat,       color: 'text-slategray-light' },
+          { label: 'FAT',  val: totals.fat,      color: 'text-slategray-light' },
         ].map(({ label, val, color }, i) => (
           <div key={label} className={`py-3 text-center ${i < 3 ? 'border-r border-border' : ''}`}>
             <p className={`font-display font-black text-xl ${color}`}>{val.toFixed(0)}</p>
@@ -322,7 +447,11 @@ export default function ClientLog() {
             { cal: 0, pro: 0 }
           )
           return (
-            <div key={meal} className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up" style={{ animationDelay: `${sectionIdx * 65 + 80}ms` }}>
+            <div
+              key={meal}
+              className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up"
+              style={{ animationDelay: `${sectionIdx * 65 + 80}ms` }}
+            >
               {/* Section header */}
               <div className="flex items-center justify-between px-4 py-3 bg-surface">
                 <div className="flex items-center gap-2 min-w-0">
@@ -355,30 +484,116 @@ export default function ClientLog() {
                 </button>
               ) : (
                 <div className="divide-y divide-border">
-                  {items.map((entry) => (
-                    <div key={entry.id} className="flex items-center px-4 py-3 gap-3 group">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-mono text-sm text-cream truncate">{entry.name}</p>
-                        <p className="font-mono text-xs text-muted">{entryServingLabel(entry)}</p>
+                  {items.map((entry) => {
+                    const isEditing = editState?.id === entry.id
+                    return (
+                      <div key={entry.id}>
+                        {/* Entry row — tap to expand / collapse edit */}
+                        <button
+                          onClick={() => openEdit(entry)}
+                          className={`w-full flex items-center px-4 py-3 gap-3 text-left transition-colors ${
+                            isEditing ? 'bg-brown/5' : 'hover:bg-surface/40'
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="font-mono text-sm text-cream truncate">{entry.name}</p>
+                            <p className="font-mono text-xs text-muted">{entryServingLabel(entry)}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="font-display font-bold text-sm text-cream">
+                              {entry.calories.toFixed(0)} kcal
+                            </p>
+                            <p className="font-mono text-xs text-olive-light">
+                              {entry.protein.toFixed(0)}p{' '}
+                              <span className="text-brown-light">{entry.carbs.toFixed(0)}c</span>{' '}
+                              <span className="text-slategray-light">{entry.fat.toFixed(0)}f</span>
+                            </p>
+                          </div>
+                          <ChevronDown
+                            size={14}
+                            className={`text-dim flex-shrink-0 transition-transform duration-200 ${
+                              isEditing ? 'rotate-180 text-brown-light' : ''
+                            }`}
+                          />
+                        </button>
+
+                        {/* Inline edit panel */}
+                        {isEditing && editState && (
+                          <div className="px-4 pb-4 pt-3 bg-surface/60 border-t border-border/60 space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="font-display text-xs text-muted tracking-widest block mb-1.5">
+                                  SERVINGS
+                                </label>
+                                <input
+                                  type="number" inputMode="decimal" min="0.01" step="0.25"
+                                  value={editState.qty}
+                                  onChange={(e) => editQtyChange(e.target.value)}
+                                  className={inpCls}
+                                />
+                              </div>
+                              {editState.servingSize ? (
+                                <div>
+                                  <label className="font-display text-xs text-muted tracking-widest block mb-1.5">
+                                    GRAMS
+                                  </label>
+                                  <input
+                                    type="number" inputMode="decimal" min="1" step="1"
+                                    value={editState.grams}
+                                    onChange={(e) => editGramsChange(e.target.value)}
+                                    className={inpCls}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="flex items-end pb-2">
+                                  <p className="font-mono text-xs text-dim">
+                                    {entry.servingUnit || 'serving'}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Live macro preview */}
+                            {editPreview && (
+                              <div className="grid grid-cols-4 gap-1.5">
+                                {[
+                                  { l: 'KCAL', v: editPreview.cal,  c: 'text-cream' },
+                                  { l: 'PRO',  v: editPreview.pro,  c: 'text-olive-light' },
+                                  { l: 'CARB', v: editPreview.carb, c: 'text-brown-light' },
+                                  { l: 'FAT',  v: editPreview.fat,  c: 'text-slategray-light' },
+                                ].map(({ l, v, c }) => (
+                                  <div key={l} className="bg-card border border-border rounded-lg p-2 text-center">
+                                    <p className={`font-display font-bold text-sm ${c}`}>{v}</p>
+                                    <p className="font-mono text-[10px] text-dim">{l}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Save + Delete */}
+                            <div className="flex gap-2">
+                              <button
+                                onClick={saveEdit}
+                                className="flex-1 flex items-center justify-center gap-1.5 bg-brown hover:bg-brown-light text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors"
+                              >
+                                <Check size={13} />
+                                SAVE
+                              </button>
+                              <button
+                                onClick={() => {
+                                  removeClientEntry(activeClientId, logDate, entry.id)
+                                  setEditState(null)
+                                }}
+                                className="flex items-center justify-center px-4 border border-red-900/40 text-red-400 hover:text-red-300 hover:border-red-400/60 py-2.5 rounded-lg transition-colors"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-display font-bold text-sm text-cream">
-                          {entry.calories.toFixed(0)} kcal
-                        </p>
-                        <p className="font-mono text-xs text-olive-light">
-                          {entry.protein.toFixed(0)}p{' '}
-                          <span className="text-brown-light">{entry.carbs.toFixed(0)}c</span>{' '}
-                          <span className="text-slategray-light">{entry.fat.toFixed(0)}f</span>
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => removeClientEntry(activeClientId, logDate, entry.id)}
-                        className="text-dim hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1 flex-shrink-0"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>

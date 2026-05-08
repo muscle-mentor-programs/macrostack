@@ -58,6 +58,14 @@ function MacroChip({ label, current, goal, color, delay = 0 }) {
   )
 }
 
+const WEIGHT_UNITS = ['g', 'ml', 'oz', 'fl oz', 'L']
+
+function entryServingLabel(entry) {
+  if (!entry.servingUnit || entry.quantity == null) return entry.amount ? `${entry.amount}g` : '1 serving'
+  if (WEIGHT_UNITS.includes(entry.servingUnit)) return `${Math.round(entry.quantity * entry.servingSize)} ${entry.servingUnit}`
+  return entry.quantity === 1 ? `1 ${entry.servingUnit}` : `${entry.quantity} × ${entry.servingUnit}`
+}
+
 const MEAL_ORDER = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 const MEAL_COLORS = {
   Breakfast: 'text-brown-light',
@@ -311,14 +319,18 @@ export default function ClientDashboard() {
                   </div>
                   <div className="divide-y divide-border">
                     {items.map((entry) => (
-                      <div key={entry.id} className="flex items-center justify-between px-4 py-3">
-                        <div>
-                          <p className="font-mono text-sm text-cream">{entry.name}</p>
-                          <p className="font-mono text-xs text-muted">{entry.brand || ''}</p>
+                      <div key={entry.id} className="flex items-center justify-between px-4 py-3 gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-mono text-sm text-cream truncate">{entry.name}</p>
+                          <p className="font-mono text-xs text-muted">{entryServingLabel(entry)}</p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex-shrink-0">
                           <p className="font-display font-bold text-sm text-cream">{entry.calories.toFixed(0)}</p>
-                          <p className="font-mono text-xs text-olive-light">{entry.protein.toFixed(0)}p</p>
+                          <p className="font-mono text-xs text-olive-light">
+                            {entry.protein.toFixed(0)}p{' '}
+                            <span className="text-brown-light">{entry.carbs.toFixed(0)}c</span>{' '}
+                            <span className="text-slategray-light">{entry.fat.toFixed(0)}f</span>
+                          </p>
                         </div>
                       </div>
                     ))}

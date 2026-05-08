@@ -440,6 +440,30 @@ const useStore = create(
         await supabase.from('food_log').delete().eq('id', entryId)
       },
 
+      updateClientEntry: async (clientId, date, entryId, updates) => {
+        set((s) => ({
+          clients: s.clients.map((c) => {
+            if (c.id !== clientId) return c
+            return {
+              ...c,
+              log: {
+                ...c.log,
+                [date]: (c.log[date] || []).map((e) =>
+                  e.id === entryId ? { ...e, ...updates } : e
+                ),
+              },
+            }
+          }),
+        }))
+        await supabase.from('food_log').update({
+          quantity: updates.quantity,
+          calories: updates.calories,
+          protein:  updates.protein,
+          carbs:    updates.carbs,
+          fat:      updates.fat,
+        }).eq('id', entryId)
+      },
+
       getClientTotalsForDate: (clientId, date) =>
         calcTotals(get().clients.find((c) => c.id === clientId)?.log?.[date]),
 
