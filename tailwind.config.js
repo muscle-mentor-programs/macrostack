@@ -29,7 +29,7 @@ export default {
       },
       fontFamily: {
         display: ['"Barlow Condensed"', 'sans-serif'],
-        mono: ['"Space Mono"', 'monospace'],
+        mono: ['"Courier Prime"', '"Courier New"', 'monospace'],
       },
     },
   },
