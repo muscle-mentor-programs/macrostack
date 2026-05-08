@@ -276,10 +276,21 @@ const useStore = create(
 
       // ── THEME ─────────────────────────────────────────────────────────────
       theme: 'dark',
+      setTheme: (name) => {
+        set({ theme: name })
+        const html = document.documentElement
+        html.classList.remove('light', 'forest-dark', 'forest-light', 'ocean-dark', 'ocean-light')
+        if (name !== 'dark') html.classList.add(name)
+      },
+
       toggleTheme: () => {
-        const next = get().theme === 'dark' ? 'light' : 'dark'
+        const { theme } = get()
+        const CYCLE = { 'dark': 'light', 'light': 'dark', 'forest-dark': 'forest-light', 'forest-light': 'forest-dark', 'ocean-dark': 'ocean-light', 'ocean-light': 'ocean-dark' }
+        const next = CYCLE[theme] || 'dark'
         set({ theme: next })
-        document.documentElement.classList.toggle('light', next === 'light')
+        const html = document.documentElement
+        html.classList.remove('light', 'forest-dark', 'forest-light', 'ocean-dark', 'ocean-light')
+        if (next !== 'dark') html.classList.add(next)
       },
 
       // ── ROLE / NAVIGATION ─────────────────────────────────────────────────

@@ -70,7 +70,9 @@ export default function App() {
 
   // Apply theme class
   useEffect(() => {
-    document.documentElement.classList.toggle('light', theme === 'light')
+    const html = document.documentElement
+    html.classList.remove('light', 'forest-dark', 'forest-light', 'ocean-dark', 'ocean-light')
+    if (theme !== 'dark') html.classList.add(theme)
   }, [theme])
 
   // Check Supabase session on mount

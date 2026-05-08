@@ -135,6 +135,266 @@ html.light .placeholder-muted::placeholder { color: #9A948C !important; }
 /* Native form controls (select options, date pickers, etc.) */
 html.light { color-scheme: light; }
 
+/* ─────────────────────────────────────────────
+   FOREST DARK THEME
+───────────────────────────────────────────── */
+html.forest-dark {
+  --color-bg:      #090D09;
+  --color-surface: #0F180F;
+  --color-card:    #162016;
+  --color-border:  #243024;
+  --color-cream:   #DAE8D8;
+  --color-muted:   #6B806A;
+  --color-dim:     #2C3E2C;
+  color-scheme: dark;
+}
+
+html.forest-dark .bg-bg      { background-color: #090D09 !important; }
+html.forest-dark .bg-surface { background-color: #0F180F !important; }
+html.forest-dark .bg-card    { background-color: #162016 !important; }
+html.forest-dark .bg-dim     { background-color: #2C3E2C !important; }
+html.forest-dark .bg-bg\/80  { background-color: rgba(9,13,9,0.88) !important; }
+html.forest-dark .bg-bg\/90  { background-color: rgba(9,13,9,0.94) !important; }
+
+html.forest-dark .hover\:bg-bg:hover      { background-color: #090D09 !important; }
+html.forest-dark .hover\:bg-surface:hover { background-color: #0F180F !important; }
+html.forest-dark .hover\:bg-card:hover    { background-color: #162016 !important; }
+
+html.forest-dark .text-cream { color: #DAE8D8 !important; }
+html.forest-dark .text-muted { color: #6B806A !important; }
+html.forest-dark .text-dim   { color: #3A4E3A !important; }
+html.forest-dark .hover\:text-cream:hover { color: #DAE8D8 !important; }
+html.forest-dark .hover\:text-muted:hover { color: #6B806A !important; }
+html.forest-dark .group:hover .group-hover\:text-cream { color: #DAE8D8 !important; }
+
+html.forest-dark .border-border        { border-color: #243024 !important; }
+html.forest-dark .border-border\/50    { border-color: rgba(36,48,36,0.5) !important; }
+html.forest-dark .border-l-border      { border-left-color:   #243024 !important; }
+html.forest-dark .border-t-border      { border-top-color:    #243024 !important; }
+html.forest-dark .border-b-border      { border-bottom-color: #243024 !important; }
+html.forest-dark .border-r-border      { border-right-color:  #243024 !important; }
+html.forest-dark .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #243024 !important; }
+html.forest-dark .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(36,48,36,0.5) !important; }
+html.forest-dark .placeholder-muted::placeholder { color: #4A5E4A !important; }
+
+/* Forest accent (replaces brown) */
+html.forest-dark .bg-brown         { background-color: #558A55 !important; }
+html.forest-dark .bg-brown-light   { background-color: #6EAA6E !important; }
+html.forest-dark .bg-brown-dark    { background-color: #3A6B3A !important; }
+html.forest-dark .hover\:bg-brown:hover       { background-color: #558A55 !important; }
+html.forest-dark .hover\:bg-brown-light:hover { background-color: #6EAA6E !important; }
+html.forest-dark .text-brown       { color: #558A55 !important; }
+html.forest-dark .text-brown-light { color: #6EAA6E !important; }
+html.forest-dark .text-brown-dark  { color: #3A6B3A !important; }
+html.forest-dark .hover\:text-brown:hover       { color: #558A55 !important; }
+html.forest-dark .hover\:text-brown-light:hover { color: #6EAA6E !important; }
+html.forest-dark .group:hover .group-hover\:text-brown { color: #558A55 !important; }
+html.forest-dark .border-brown        { border-color: #558A55 !important; }
+html.forest-dark .border-brown\/20    { border-color: rgba(85,138,85,0.2) !important; }
+html.forest-dark .border-brown\/30    { border-color: rgba(85,138,85,0.3) !important; }
+html.forest-dark .border-brown\/40    { border-color: rgba(85,138,85,0.4) !important; }
+html.forest-dark .border-brown\/50    { border-color: rgba(85,138,85,0.5) !important; }
+html.forest-dark .border-t-brown      { border-top-color: #558A55 !important; }
+html.forest-dark .bg-brown\/10        { background-color: rgba(85,138,85,0.1) !important; }
+html.forest-dark .bg-brown\/20        { background-color: rgba(85,138,85,0.2) !important; }
+html.forest-dark .bg-brown\/30        { background-color: rgba(85,138,85,0.3) !important; }
+html.forest-dark .focus\:border-brown:focus    { border-color: #558A55 !important; }
+
+/* ─────────────────────────────────────────────
+   FOREST LIGHT THEME
+───────────────────────────────────────────── */
+html.forest-light {
+  --color-bg:      #D2E8D0;
+  --color-surface: #C4DCC2;
+  --color-card:    #B4D0B2;
+  --color-border:  #92BA90;
+  --color-cream:   #182418;
+  --color-muted:   #4A6E4A;
+  --color-dim:     #A4C8A2;
+  color-scheme: light;
+}
+
+html.forest-light .bg-bg      { background-color: #D2E8D0 !important; }
+html.forest-light .bg-surface { background-color: #C4DCC2 !important; }
+html.forest-light .bg-card    { background-color: #B4D0B2 !important; }
+html.forest-light .bg-dim     { background-color: #A4C8A2 !important; }
+html.forest-light .bg-bg\/80  { background-color: rgba(210,232,208,0.88) !important; }
+html.forest-light .bg-bg\/90  { background-color: rgba(210,232,208,0.94) !important; }
+
+html.forest-light .hover\:bg-bg:hover      { background-color: #D2E8D0 !important; }
+html.forest-light .hover\:bg-surface:hover { background-color: #C4DCC2 !important; }
+html.forest-light .hover\:bg-card:hover    { background-color: #B4D0B2 !important; }
+
+html.forest-light .text-cream { color: #182418 !important; }
+html.forest-light .text-muted { color: #4A6E4A !important; }
+html.forest-light .text-dim   { color: #8AB88A !important; }
+html.forest-light .hover\:text-cream:hover { color: #182418 !important; }
+html.forest-light .hover\:text-muted:hover { color: #4A6E4A !important; }
+html.forest-light .group:hover .group-hover\:text-cream { color: #182418 !important; }
+
+html.forest-light .border-border        { border-color: #92BA90 !important; }
+html.forest-light .border-border\/50    { border-color: rgba(146,186,144,0.5) !important; }
+html.forest-light .border-l-border      { border-left-color:   #92BA90 !important; }
+html.forest-light .border-t-border      { border-top-color:    #92BA90 !important; }
+html.forest-light .border-b-border      { border-bottom-color: #92BA90 !important; }
+html.forest-light .border-r-border      { border-right-color:  #92BA90 !important; }
+html.forest-light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #92BA90 !important; }
+html.forest-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(146,186,144,0.5) !important; }
+html.forest-light .placeholder-muted::placeholder { color: #7AA87A !important; }
+
+/* Forest accent (same green as dark) */
+html.forest-light .bg-brown         { background-color: #558A55 !important; }
+html.forest-light .bg-brown-light   { background-color: #6EAA6E !important; }
+html.forest-light .bg-brown-dark    { background-color: #3A6B3A !important; }
+html.forest-light .hover\:bg-brown:hover       { background-color: #558A55 !important; }
+html.forest-light .hover\:bg-brown-light:hover { background-color: #6EAA6E !important; }
+html.forest-light .text-brown       { color: #558A55 !important; }
+html.forest-light .text-brown-light { color: #6EAA6E !important; }
+html.forest-light .text-brown-dark  { color: #3A6B3A !important; }
+html.forest-light .hover\:text-brown:hover       { color: #558A55 !important; }
+html.forest-light .hover\:text-brown-light:hover { color: #6EAA6E !important; }
+html.forest-light .group:hover .group-hover\:text-brown { color: #558A55 !important; }
+html.forest-light .border-brown        { border-color: #558A55 !important; }
+html.forest-light .border-brown\/20    { border-color: rgba(85,138,85,0.2) !important; }
+html.forest-light .border-brown\/30    { border-color: rgba(85,138,85,0.3) !important; }
+html.forest-light .border-brown\/40    { border-color: rgba(85,138,85,0.4) !important; }
+html.forest-light .border-brown\/50    { border-color: rgba(85,138,85,0.5) !important; }
+html.forest-light .border-t-brown      { border-top-color: #558A55 !important; }
+html.forest-light .bg-brown\/10        { background-color: rgba(85,138,85,0.1) !important; }
+html.forest-light .bg-brown\/20        { background-color: rgba(85,138,85,0.2) !important; }
+html.forest-light .bg-brown\/30        { background-color: rgba(85,138,85,0.3) !important; }
+html.forest-light .focus\:border-brown:focus    { border-color: #558A55 !important; }
+
+/* ─────────────────────────────────────────────
+   OCEAN DARK THEME
+───────────────────────────────────────────── */
+html.ocean-dark {
+  --color-bg:      #08090F;
+  --color-surface: #0E1220;
+  --color-card:    #141B2E;
+  --color-border:  #1E2C40;
+  --color-cream:   #D8E6F4;
+  --color-muted:   #607890;
+  --color-dim:     #253650;
+  color-scheme: dark;
+}
+
+html.ocean-dark .bg-bg      { background-color: #08090F !important; }
+html.ocean-dark .bg-surface { background-color: #0E1220 !important; }
+html.ocean-dark .bg-card    { background-color: #141B2E !important; }
+html.ocean-dark .bg-dim     { background-color: #253650 !important; }
+html.ocean-dark .bg-bg\/80  { background-color: rgba(8,9,15,0.88) !important; }
+html.ocean-dark .bg-bg\/90  { background-color: rgba(8,9,15,0.94) !important; }
+
+html.ocean-dark .hover\:bg-bg:hover      { background-color: #08090F !important; }
+html.ocean-dark .hover\:bg-surface:hover { background-color: #0E1220 !important; }
+html.ocean-dark .hover\:bg-card:hover    { background-color: #141B2E !important; }
+
+html.ocean-dark .text-cream { color: #D8E6F4 !important; }
+html.ocean-dark .text-muted { color: #607890 !important; }
+html.ocean-dark .text-dim   { color: #2E4060 !important; }
+html.ocean-dark .hover\:text-cream:hover { color: #D8E6F4 !important; }
+html.ocean-dark .hover\:text-muted:hover { color: #607890 !important; }
+html.ocean-dark .group:hover .group-hover\:text-cream { color: #D8E6F4 !important; }
+
+html.ocean-dark .border-border        { border-color: #1E2C40 !important; }
+html.ocean-dark .border-border\/50    { border-color: rgba(30,44,64,0.5) !important; }
+html.ocean-dark .border-l-border      { border-left-color:   #1E2C40 !important; }
+html.ocean-dark .border-t-border      { border-top-color:    #1E2C40 !important; }
+html.ocean-dark .border-b-border      { border-bottom-color: #1E2C40 !important; }
+html.ocean-dark .border-r-border      { border-right-color:  #1E2C40 !important; }
+html.ocean-dark .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #1E2C40 !important; }
+html.ocean-dark .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(30,44,64,0.5) !important; }
+html.ocean-dark .placeholder-muted::placeholder { color: #48607A !important; }
+
+/* Ocean accent (replaces brown with steel blue) */
+html.ocean-dark .bg-brown         { background-color: #4878B0 !important; }
+html.ocean-dark .bg-brown-light   { background-color: #6494CC !important; }
+html.ocean-dark .bg-brown-dark    { background-color: #305A8C !important; }
+html.ocean-dark .hover\:bg-brown:hover       { background-color: #4878B0 !important; }
+html.ocean-dark .hover\:bg-brown-light:hover { background-color: #6494CC !important; }
+html.ocean-dark .text-brown       { color: #4878B0 !important; }
+html.ocean-dark .text-brown-light { color: #6494CC !important; }
+html.ocean-dark .text-brown-dark  { color: #305A8C !important; }
+html.ocean-dark .hover\:text-brown:hover       { color: #4878B0 !important; }
+html.ocean-dark .hover\:text-brown-light:hover { color: #6494CC !important; }
+html.ocean-dark .group:hover .group-hover\:text-brown { color: #4878B0 !important; }
+html.ocean-dark .border-brown        { border-color: #4878B0 !important; }
+html.ocean-dark .border-brown\/20    { border-color: rgba(72,120,176,0.2) !important; }
+html.ocean-dark .border-brown\/30    { border-color: rgba(72,120,176,0.3) !important; }
+html.ocean-dark .border-brown\/40    { border-color: rgba(72,120,176,0.4) !important; }
+html.ocean-dark .border-brown\/50    { border-color: rgba(72,120,176,0.5) !important; }
+html.ocean-dark .border-t-brown      { border-top-color: #4878B0 !important; }
+html.ocean-dark .bg-brown\/10        { background-color: rgba(72,120,176,0.1) !important; }
+html.ocean-dark .bg-brown\/20        { background-color: rgba(72,120,176,0.2) !important; }
+html.ocean-dark .bg-brown\/30        { background-color: rgba(72,120,176,0.3) !important; }
+html.ocean-dark .focus\:border-brown:focus    { border-color: #4878B0 !important; }
+
+/* ─────────────────────────────────────────────
+   OCEAN LIGHT THEME
+───────────────────────────────────────────── */
+html.ocean-light {
+  --color-bg:      #D0DEF0;
+  --color-surface: #C0D0E6;
+  --color-card:    #B0C2DC;
+  --color-border:  #8AAACB;
+  --color-cream:   #141E30;
+  --color-muted:   #3E607A;
+  --color-dim:     #9AB8D0;
+  color-scheme: light;
+}
+
+html.ocean-light .bg-bg      { background-color: #D0DEF0 !important; }
+html.ocean-light .bg-surface { background-color: #C0D0E6 !important; }
+html.ocean-light .bg-card    { background-color: #B0C2DC !important; }
+html.ocean-light .bg-dim     { background-color: #9AB8D0 !important; }
+html.ocean-light .bg-bg\/80  { background-color: rgba(208,222,240,0.88) !important; }
+html.ocean-light .bg-bg\/90  { background-color: rgba(208,222,240,0.94) !important; }
+
+html.ocean-light .hover\:bg-bg:hover      { background-color: #D0DEF0 !important; }
+html.ocean-light .hover\:bg-surface:hover { background-color: #C0D0E6 !important; }
+html.ocean-light .hover\:bg-card:hover    { background-color: #B0C2DC !important; }
+
+html.ocean-light .text-cream { color: #141E30 !important; }
+html.ocean-light .text-muted { color: #3E607A !important; }
+html.ocean-light .text-dim   { color: #7A9AB8 !important; }
+html.ocean-light .hover\:text-cream:hover { color: #141E30 !important; }
+html.ocean-light .hover\:text-muted:hover { color: #3E607A !important; }
+html.ocean-light .group:hover .group-hover\:text-cream { color: #141E30 !important; }
+
+html.ocean-light .border-border        { border-color: #8AAACB !important; }
+html.ocean-light .border-border\/50    { border-color: rgba(138,170,203,0.5) !important; }
+html.ocean-light .border-l-border      { border-left-color:   #8AAACB !important; }
+html.ocean-light .border-t-border      { border-top-color:    #8AAACB !important; }
+html.ocean-light .border-b-border      { border-bottom-color: #8AAACB !important; }
+html.ocean-light .border-r-border      { border-right-color:  #8AAACB !important; }
+html.ocean-light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #8AAACB !important; }
+html.ocean-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(138,170,203,0.5) !important; }
+html.ocean-light .placeholder-muted::placeholder { color: #6090AE !important; }
+
+/* Ocean accent (same blue as dark) */
+html.ocean-light .bg-brown         { background-color: #4878B0 !important; }
+html.ocean-light .bg-brown-light   { background-color: #6494CC !important; }
+html.ocean-light .bg-brown-dark    { background-color: #305A8C !important; }
+html.ocean-light .hover\:bg-brown:hover       { background-color: #4878B0 !important; }
+html.ocean-light .hover\:bg-brown-light:hover { background-color: #6494CC !important; }
+html.ocean-light .text-brown       { color: #4878B0 !important; }
+html.ocean-light .text-brown-light { color: #6494CC !important; }
+html.ocean-light .text-brown-dark  { color: #305A8C !important; }
+html.ocean-light .hover\:text-brown:hover       { color: #4878B0 !important; }
+html.ocean-light .hover\:text-brown-light:hover { color: #6494CC !important; }
+html.ocean-light .group:hover .group-hover\:text-brown { color: #4878B0 !important; }
+html.ocean-light .border-brown        { border-color: #4878B0 !important; }
+html.ocean-light .border-brown\/20    { border-color: rgba(72,120,176,0.2) !important; }
+html.ocean-light .border-brown\/30    { border-color: rgba(72,120,176,0.3) !important; }
+html.ocean-light .border-brown\/40    { border-color: rgba(72,120,176,0.4) !important; }
+html.ocean-light .border-brown\/50    { border-color: rgba(72,120,176,0.5) !important; }
+html.ocean-light .border-t-brown      { border-top-color: #4878B0 !important; }
+html.ocean-light .bg-brown\/10        { background-color: rgba(72,120,176,0.1) !important; }
+html.ocean-light .bg-brown\/20        { background-color: rgba(72,120,176,0.2) !important; }
+html.ocean-light .bg-brown\/30        { background-color: rgba(72,120,176,0.3) !important; }
+html.ocean-light .focus\:border-brown:focus    { border-color: #4878B0 !important; }
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
