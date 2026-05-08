@@ -122,7 +122,7 @@ export default function ClientProfile() {
           <label className={lbl}>DATE OF BIRTH</label>
           <div className="overflow-hidden rounded-xl">
             <input type="date" value={form.dob} onChange={field('dob')}
-              className={`${inputCls} text-center`}
+              className={inputCls}
               style={{ colorScheme: 'dark', display: 'block', width: '100%', maxWidth: '100%' }} />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { format, parseISO, subDays } from 'date-fns'
+import { format, parseISO, subDays, addDays } from 'date-fns'
 import { Plus, X, User, Edit2, Trash2, ChevronRight, Check, Calculator, BookOpen, Sparkles, Star, StarOff, Pencil } from 'lucide-react'
 import useStore from '../../store'
 import AnimatedNumber from '../../components/AnimatedNumber'
@@ -637,8 +637,9 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   const today = format(new Date(), 'yyyy-MM-dd')
   const todayTotals = getClientTotalsForDate(client.id, today)
 
+  const weekStart = subDays(new Date(), new Date().getDay())
   const days = Array.from({ length: 7 }, (_, i) => {
-    const date = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd')
+    const date = format(addDays(weekStart, i), 'yyyy-MM-dd')
     const logged = (client.log?.[date] || []).length > 0
     const cal = (client.log?.[date] || []).reduce((s, e) => s + e.calories, 0)
     return { date, logged, cal }
@@ -791,7 +792,20 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                       <div key={key}>
                         <label className={`font-display text-xs tracking-widest block mb-1.5 ${color}`}>{label}</label>
                         <input type="number" value={goals[key]}
-                          onChange={(e) => setGoals((p) => ({ ...p, [key]: e.target.value }))}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            setGoals((p) => {
+                              const next = { ...p, [key]: val }
+                              if (key !== 'calories') {
+                                next.calories = Math.round(
+                                  Number(next.protein || 0) * 4 +
+                                  Number(next.carbs   || 0) * 4 +
+                                  Number(next.fat     || 0) * 9
+                                )
+                              }
+                              return next
+                            })
+                          }}
                           className="w-full bg-card border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown" />
                       </div>
                     ))}

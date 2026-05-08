@@ -19,10 +19,9 @@ export default function CoachLayout({ children }) {
           <button
             onClick={() => setActiveRole(null)}
             title="Switch to Client App"
-            className="h-9 px-3 flex items-center gap-1.5 rounded-xl bg-card border border-olive/40 text-olive hover:text-olive-light hover:border-olive/70 hover:bg-olive/10 transition-all shadow-sm"
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-card border border-olive/40 text-olive hover:text-olive-light hover:border-olive/70 hover:bg-olive/10 transition-all shadow-sm"
           >
-            <Smartphone size={13} />
-            <span className="font-display font-bold text-[10px] tracking-widest">CLIENT</span>
+            <Smartphone size={15} />
           </button>
           <button
             onClick={logout}

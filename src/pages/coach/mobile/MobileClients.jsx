@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { format, parseISO, subDays } from 'date-fns'
+import { format, parseISO, subDays, addDays } from 'date-fns'
 import {
   Plus, X, User, Check, ChevronLeft, Trash2, Calculator,
   BookOpen, Sparkles, Star, Pencil, Edit2, Search, ChevronRight,
@@ -461,8 +461,9 @@ function ClientDetailScreen({ client, onBack }) {
   const today      = format(new Date(), 'yyyy-MM-dd')
   const todayTotals = getClientTotalsForDate(client.id, today)
 
+  const weekStart = subDays(new Date(), new Date().getDay())
   const days = Array.from({ length: 7 }, (_, i) => {
-    const date = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd')
+    const date = format(addDays(weekStart, i), 'yyyy-MM-dd')
     return { date, logged: (client.log?.[date] || []).length > 0 }
   })
   const compliance = Math.round((days.filter((d) => d.logged).length / 7) * 100)
@@ -596,7 +597,20 @@ function ClientDetailScreen({ client, onBack }) {
                       <div key={key}>
                         <label className={`font-display text-xs tracking-widest block mb-1.5 ${color}`}>{label}</label>
                         <input type="number" value={goals[key]}
-                          onChange={(e) => setGoals((p) => ({ ...p, [key]: e.target.value }))}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            setGoals((p) => {
+                              const next = { ...p, [key]: val }
+                              if (key !== 'calories') {
+                                next.calories = Math.round(
+                                  Number(next.protein || 0) * 4 +
+                                  Number(next.carbs   || 0) * 4 +
+                                  Number(next.fat     || 0) * 9
+                                )
+                              }
+                              return next
+                            })
+                          }}
                           className={inp} />
                       </div>
                     ))}
