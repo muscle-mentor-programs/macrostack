@@ -285,11 +285,24 @@ function AddClientModal({ onClose }) {
                 <div key={key}>
                   <label className={`font-display text-xs tracking-widest block mb-1.5 ${color}`}>{label}</label>
                   <input type="number" value={targets[key]}
-                    onChange={(e) => setTargets((p) => ({ ...p, [key]: e.target.value }))}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      setTargets((prev) => {
+                        const next = { ...prev, [key]: val }
+                        if (key !== 'calories') {
+                          const p = Number(key === 'protein' ? val : prev.protein) || 0
+                          const c = Number(key === 'carbs'   ? val : prev.carbs)   || 0
+                          const f = Number(key === 'fat'     ? val : prev.fat)     || 0
+                          next.calories = String(Math.round(p * 4 + c * 4 + f * 9))
+                        }
+                        return next
+                      })
+                    }}
                     className={inputCls} />
                 </div>
               ))}
             </div>
+            <p className="font-mono text-[10px] text-dim mt-2">Editing protein, carbs, or fat auto-updates calories · calories can also be set directly</p>
           </div>
         </div>
 
