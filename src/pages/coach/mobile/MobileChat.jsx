@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { ChevronLeft, ChevronRight, MessageCircle, Send } from 'lucide-react'
 import useStore from '../../../store'
@@ -15,16 +15,11 @@ function msgTime(ts) {
 function ThreadScreen({ client, onBack }) {
   const { messages, sendMessage, markMessagesRead } = useStore()
   const [input, setInput] = useState('')
-  const bottomRef = useRef(null)
   const thread = messages[client.id] || []
 
   useEffect(() => {
     markMessagesRead(client.id, 'coach')
   }, [client.id, thread.length]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [thread.length])
 
   const handleSend = () => {
     if (!input.trim()) return
@@ -53,8 +48,8 @@ function ThreadScreen({ client, onBack }) {
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto bg-bg px-4 py-4 space-y-3">
+      {/* Messages — flex-col-reverse anchors newest at bottom (iMessage style) */}
+      <div className="flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse gap-3">
         {thread.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <MessageCircle size={36} className="text-dim mb-3" />
@@ -64,7 +59,7 @@ function ThreadScreen({ client, onBack }) {
             </p>
           </div>
         ) : (
-          thread.map((msg) => {
+          [...thread].reverse().map((msg) => {
             const isCoach = msg.from === 'coach'
             return (
               <div key={msg.id} className={`flex ${isCoach ? 'justify-end' : 'justify-start'}`}>
@@ -84,7 +79,6 @@ function ThreadScreen({ client, onBack }) {
             )
           })
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input bar */}

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { MessageCircle, Send } from 'lucide-react'
 import useStore from '../../store'
@@ -15,7 +15,6 @@ export default function CoachChat() {
   const { clients, messages, sendMessage, markMessagesRead } = useStore()
   const [selectedId, setSelectedId] = useState(null)
   const [input, setInput]           = useState('')
-  const bottomRef = useRef(null)
 
   const selectedClient = clients.find((c) => c.id === selectedId)
   const thread         = messages[selectedId] || []
@@ -29,11 +28,6 @@ export default function CoachChat() {
   useEffect(() => {
     if (selectedId) markMessagesRead(selectedId, 'coach')
   }, [selectedId, thread.length])
-
-  // Auto-scroll to bottom
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [thread.length])
 
   const handleSend = () => {
     if (!input.trim() || !selectedId) return
@@ -129,8 +123,8 @@ export default function CoachChat() {
             </div>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+          {/* Messages — flex-col-reverse anchors newest at bottom (iMessage style) */}
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse gap-4">
             {thread.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
                 <MessageCircle size={36} className="text-dim mb-3 anim-pop" />
@@ -140,7 +134,7 @@ export default function CoachChat() {
                 </p>
               </div>
             ) : (
-              thread.map((msg) => {
+              [...thread].reverse().map((msg) => {
                 const isCoach = msg.from === 'coach'
                 return (
                   <div key={msg.id} className={`flex ${isCoach ? 'justify-end' : 'justify-start'}`}>
@@ -160,7 +154,6 @@ export default function CoachChat() {
                 )
               })
             )}
-            <div ref={bottomRef} />
           </div>
 
           {/* Input */}
