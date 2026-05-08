@@ -104,6 +104,20 @@ iOS-specific considerations implemented:
 
 ---
 
+## TODO
+
+- [ ] **Set up Gmail SMTP for client invite emails** — Resend requires a verified domain (not yet set up). Use Gmail SMTP instead:
+  1. Create/use a Gmail account (e.g. `macrostack.coach@gmail.com`)
+  2. Enable 2-Step Verification on that Google account
+  3. Go to **myaccount.google.com → Security → App Passwords** → generate one for Mail
+  4. Supabase Dashboard → **Authentication → SMTP Settings**:
+     - Host: `smtp.gmail.com` · Port: `587`
+     - Username: Gmail address · Password: 16-char App Password
+     - Sender email: Gmail address · Sender name: `MacroStack`
+  5. Test by adding a client with an email — invite should arrive within seconds
+
+---
+
 ## Accounts & Access
 
 | Resource | Account |
