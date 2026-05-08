@@ -53,6 +53,8 @@ function AddClientModal({ onClose }) {
   // Basic info
   const [name, setName]   = useState('')
   const [email, setEmail] = useState('')
+  const [saving,     setSaving]     = useState(false)
+  const [inviteSent, setInviteSent] = useState(false)
 
   // Calculator
   const [sex, setSex]               = useState('male')
@@ -101,9 +103,11 @@ function AddClientModal({ onClose }) {
     })
   }
 
-  const handleSave = () => {
-    if (!name.trim()) return
-    addClient({
+  const handleSave = async () => {
+    if (!name.trim() || saving) return
+    const hasEmail = Boolean(email.trim())
+    setSaving(true)
+    const id = await addClient({
       name: name.trim(),
       email: email.trim(),
       goals: {
@@ -113,7 +117,13 @@ function AddClientModal({ onClose }) {
         fat:      Number(targets.fat)      || 65,
       },
     })
-    onClose()
+    setSaving(false)
+    if (id && hasEmail) {
+      setInviteSent(true)
+      setTimeout(onClose, 1600)
+    } else {
+      onClose()
+    }
   }
 
   const inputCls = 'w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors'
@@ -285,12 +295,18 @@ function AddClientModal({ onClose }) {
 
         {/* Footer */}
         <div className="flex gap-3 px-6 pb-6">
-          <button onClick={handleSave}
-            className="flex-1 bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-colors glow-hover">
-            ADD CLIENT
+          <button onClick={handleSave} disabled={saving || inviteSent}
+            className={`flex-1 flex items-center justify-center gap-2 font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-all disabled:opacity-70 ${
+              inviteSent
+                ? 'bg-olive text-bg'
+                : 'bg-brown hover:bg-brown-light text-bg glow-hover'
+            }`}>
+            {inviteSent ? (
+              <><Check size={14} /> INVITE SENT</>
+            ) : saving ? 'ADDING…' : 'ADD CLIENT'}
           </button>
-          <button onClick={onClose}
-            className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors">
+          <button onClick={onClose} disabled={saving || inviteSent}
+            className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors disabled:opacity-40">
             CANCEL
           </button>
         </div>

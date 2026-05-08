@@ -48,6 +48,8 @@ function AddClientScreen({ onClose }) {
   const { addClient } = useStore()
   const [name, setName]   = useState('')
   const [email, setEmail] = useState('')
+  const [saving,     setSaving]     = useState(false)
+  const [inviteSent, setInviteSent] = useState(false)
 
   const [sex,         setSex]         = useState('male')
   const [age,         setAge]         = useState('')
@@ -72,13 +74,21 @@ function AddClientScreen({ onClose }) {
     setTargets({ calories: String(result.calories), protein: String(result.protein), carbs: String(result.carbs), fat: String(result.fat) })
   }
 
-  const handleSave = () => {
-    if (!name.trim()) return
-    addClient({
+  const handleSave = async () => {
+    if (!name.trim() || saving) return
+    const hasEmail = Boolean(email.trim())
+    setSaving(true)
+    const id = await addClient({
       name: name.trim(), email: email.trim(),
       goals: { calories: Number(targets.calories) || 2000, protein: Number(targets.protein) || 150, carbs: Number(targets.carbs) || 200, fat: Number(targets.fat) || 65 },
     })
-    onClose()
+    setSaving(false)
+    if (id && hasEmail) {
+      setInviteSent(true)
+      setTimeout(onClose, 1600)
+    } else {
+      onClose()
+    }
   }
 
   const inp = 'w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors'
@@ -191,10 +201,17 @@ function AddClientScreen({ onClose }) {
       </div>
 
       <div className="px-5 pb-6 pt-3 border-t border-border bg-surface">
-        <button onClick={handleSave} disabled={!name.trim()}
-          className="w-full flex items-center justify-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest py-4 rounded-xl transition-colors">
-          <Plus size={16} />
-          ADD CLIENT
+        <button onClick={handleSave} disabled={!name.trim() || saving || inviteSent}
+          className={`w-full flex items-center justify-center gap-2 font-display font-bold text-sm tracking-widest py-4 rounded-xl transition-all disabled:opacity-40 ${
+            inviteSent ? 'bg-olive text-bg' : 'bg-brown hover:bg-brown-light text-bg'
+          }`}>
+          {inviteSent ? (
+            <><Check size={16} /> INVITE SENT</>
+          ) : saving ? (
+            'ADDING…'
+          ) : (
+            <><Plus size={16} /> ADD CLIENT</>
+          )}
         </button>
       </div>
     </div>
