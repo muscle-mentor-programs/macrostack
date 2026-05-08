@@ -327,20 +327,25 @@ const useStore = create(
           })
           .select().single()
 
-        if (error) { console.error('addClient:', error); return null }
+        if (error) { console.error('addClient:', error); return { id: null, inviteSent: false } }
 
         const client = { ...dbToClient(row), log: {}, weightLog: [], mealPlans: [] }
         set((s) => ({ clients: [...s.clients, client] }))
 
         // Send invite email via Supabase Edge Function
+        let inviteSent = false
         if (hasEmail) {
           const { error: inviteError } = await supabase.functions.invoke('invite-client', {
             body: { email: data.email.trim(), clientName: data.name || 'there' },
           })
-          if (inviteError) console.error('invite-client:', inviteError)
+          if (inviteError) {
+            console.error('invite-client error:', inviteError)
+          } else {
+            inviteSent = true
+          }
         }
 
-        return row.id
+        return { id: row.id, inviteSent }
       },
 
       // Re-send an invite for a client that is still pending

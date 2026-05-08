@@ -10,39 +10,43 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    // Verify caller is an authenticated coach
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) throw new Error('Missing authorization header')
 
-    const supabaseCallerClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
-    )
-
-    const { data: { user }, error: userError } = await supabaseCallerClient.auth.getUser()
-    if (userError || !user) throw new Error('Unauthorized')
-
-    const { data: profile } = await supabaseCallerClient
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['coach', 'superadmin'].includes(profile.role)) {
-      throw new Error('Only coaches can invite clients')
-    }
-
-    // Send the invite using the service role key
+    // Use the service-role client for everything — this bypasses RLS entirely,
+    // so we never hit the recursive policy issue that can block profile reads.
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
+    // Verify the caller's JWT using the admin client (no RLS involved)
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token)
+    if (userError || !user) throw new Error('Unauthorized')
+
+    // Fetch the caller's role via service role (bypasses RLS entirely)
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Profile lookup error:', profileError.message)
+      throw new Error('Could not verify user role: ' + profileError.message)
+    }
+
+    if (!profile || !['coach', 'superadmin'].includes(profile.role)) {
+      throw new Error('Only coaches can invite clients')
+    }
+
     const { email, clientName } = await req.json()
     if (!email) throw new Error('email is required')
 
     const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      // Explicit redirect so the invite link always points to the live app
+      redirectTo: 'https://macrostack-plum.vercel.app',
       data: { role: 'client', name: clientName ?? email.split('@')[0] },
     })
 
@@ -54,6 +58,7 @@ serve(async (req) => {
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
+    console.error('invite-client error:', message)
     return new Response(JSON.stringify({ error: message }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
       status: 400,

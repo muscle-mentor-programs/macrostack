@@ -48,8 +48,9 @@ function AddClientScreen({ onClose }) {
   const { addClient } = useStore()
   const [name, setName]   = useState('')
   const [email, setEmail] = useState('')
-  const [saving,     setSaving]     = useState(false)
-  const [inviteSent, setInviteSent] = useState(false)
+  const [saving,      setSaving]      = useState(false)
+  const [inviteSent,  setInviteSent]  = useState(false)
+  const [inviteError, setInviteError] = useState(false)
 
   const [sex,         setSex]         = useState('male')
   const [age,         setAge]         = useState('')
@@ -78,17 +79,35 @@ function AddClientScreen({ onClose }) {
     if (!name.trim() || saving) return
     const hasEmail = Boolean(email.trim())
     setSaving(true)
-    const id = await addClient({
+    setInviteError(false)
+    const result = await addClient({
       name: name.trim(), email: email.trim(),
       goals: { calories: Number(targets.calories) || 2000, protein: Number(targets.protein) || 150, carbs: Number(targets.carbs) || 200, fat: Number(targets.fat) || 65 },
     })
     setSaving(false)
+    const { id, inviteSent: sent } = result || {}
     if (id && hasEmail) {
-      setInviteSent(true)
-      setTimeout(onClose, 1600)
+      if (sent) {
+        setInviteSent(true)
+        setTimeout(onClose, 1600)
+      } else {
+        setInviteError(true)
+      }
     } else {
       onClose()
     }
+  }
+
+  const handleRetryInvite = async () => {
+    if (!email.trim() || saving) return
+    setSaving(true)
+    setInviteError(false)
+    const { resendInvite, clients } = useStore.getState()
+    const match = [...clients].reverse().find((c) => c.email?.toLowerCase() === email.trim().toLowerCase())
+    if (match) await resendInvite(match.id)
+    setSaving(false)
+    setInviteSent(true)
+    setTimeout(onClose, 1600)
   }
 
   const inp = 'w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors'
@@ -215,15 +234,28 @@ function AddClientScreen({ onClose }) {
         </div>
       </div>
 
-      <div className="px-5 pb-6 pt-3 border-t border-border bg-surface">
-        <button onClick={handleSave} disabled={!name.trim() || saving || inviteSent}
+      <div className="px-5 pb-6 pt-3 border-t border-border bg-surface space-y-3">
+        {inviteError && (
+          <p className="font-mono text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-xl px-3 py-2 text-center">
+            Client added, but invite email failed. Tap RETRY to try again.
+          </p>
+        )}
+        <button
+          onClick={inviteError ? handleRetryInvite : handleSave}
+          disabled={!name.trim() || saving || inviteSent}
           className={`w-full flex items-center justify-center gap-2 font-display font-bold text-sm tracking-widest py-4 rounded-xl transition-all disabled:opacity-40 ${
-            inviteSent ? 'bg-olive text-bg' : 'bg-brown hover:bg-brown-light text-bg'
+            inviteSent
+              ? 'bg-olive text-bg'
+              : inviteError
+              ? 'bg-amber-600 hover:bg-amber-500 text-bg'
+              : 'bg-brown hover:bg-brown-light text-bg'
           }`}>
           {inviteSent ? (
             <><Check size={16} /> INVITE SENT</>
           ) : saving ? (
-            'ADDING…'
+            'SENDING…'
+          ) : inviteError ? (
+            'RETRY INVITE'
           ) : (
             <><Plus size={16} /> ADD CLIENT</>
           )}

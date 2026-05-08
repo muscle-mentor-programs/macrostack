@@ -53,8 +53,9 @@ function AddClientModal({ onClose }) {
   // Basic info
   const [name, setName]   = useState('')
   const [email, setEmail] = useState('')
-  const [saving,     setSaving]     = useState(false)
-  const [inviteSent, setInviteSent] = useState(false)
+  const [saving,      setSaving]      = useState(false)
+  const [inviteSent,  setInviteSent]  = useState(false)
+  const [inviteError, setInviteError] = useState(false)
 
   // Calculator
   const [sex, setSex]               = useState('male')
@@ -107,7 +108,8 @@ function AddClientModal({ onClose }) {
     if (!name.trim() || saving) return
     const hasEmail = Boolean(email.trim())
     setSaving(true)
-    const id = await addClient({
+    setInviteError(false)
+    const result = await addClient({
       name: name.trim(),
       email: email.trim(),
       goals: {
@@ -118,12 +120,33 @@ function AddClientModal({ onClose }) {
       },
     })
     setSaving(false)
+    const { id, inviteSent } = result || {}
     if (id && hasEmail) {
-      setInviteSent(true)
-      setTimeout(onClose, 1600)
+      if (inviteSent) {
+        setInviteSent(true)
+        setTimeout(onClose, 1600)
+      } else {
+        setInviteError(true)
+      }
     } else {
       onClose()
     }
+  }
+
+  // Retry just the invite email for the already-created client
+  const handleRetryInvite = async () => {
+    if (!email.trim() || saving) return
+    setSaving(true)
+    setInviteError(false)
+    const { resendInvite, clients } = useStore.getState()
+    // Find the most recently added client with this email
+    const match = [...clients].reverse().find((c) => c.email?.toLowerCase() === email.trim().toLowerCase())
+    if (match) {
+      await resendInvite(match.id)
+    }
+    setSaving(false)
+    setInviteSent(true)
+    setTimeout(onClose, 1600)
   }
 
   const inputCls = 'w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors'
@@ -307,21 +330,32 @@ function AddClientModal({ onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 px-6 pb-6">
-          <button onClick={handleSave} disabled={saving || inviteSent}
-            className={`flex-1 flex items-center justify-center gap-2 font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-all disabled:opacity-70 ${
-              inviteSent
-                ? 'bg-olive text-bg'
-                : 'bg-brown hover:bg-brown-light text-bg glow-hover'
-            }`}>
-            {inviteSent ? (
-              <><Check size={14} /> INVITE SENT</>
-            ) : saving ? 'ADDING…' : 'ADD CLIENT'}
-          </button>
-          <button onClick={onClose} disabled={saving || inviteSent}
-            className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors disabled:opacity-40">
-            CANCEL
-          </button>
+        <div className="px-6 pb-6 space-y-3">
+          {inviteError && (
+            <p className="font-mono text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2 text-center">
+              Client added, but the invite email failed to send. You can resend it from their card.
+            </p>
+          )}
+          <div className="flex gap-3">
+            <button
+              onClick={inviteError ? handleRetryInvite : handleSave}
+              disabled={saving || inviteSent}
+              className={`flex-1 flex items-center justify-center gap-2 font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-all disabled:opacity-70 ${
+                inviteSent
+                  ? 'bg-olive text-bg'
+                  : inviteError
+                  ? 'bg-amber-600 hover:bg-amber-500 text-bg'
+                  : 'bg-brown hover:bg-brown-light text-bg glow-hover'
+              }`}>
+              {inviteSent ? (
+                <><Check size={14} /> INVITE SENT</>
+              ) : saving ? 'SENDING…' : inviteError ? 'RETRY INVITE' : 'ADD CLIENT'}
+            </button>
+            <button onClick={onClose} disabled={saving || inviteSent}
+              className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors disabled:opacity-40">
+              {inviteError ? 'CLOSE' : 'CANCEL'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
