@@ -647,6 +647,12 @@ input[type="number"]::-webkit-outer-spin-button {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+/* Client layout: clears notch + the fixed top-right buttons (h-9 at top+12px)
+   plus 20px breathing room so page titles never kiss the buttons */
+.pt-client-top {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 20px);
+}
+
 /* Fixed elements near the top — clears status bar + 12 px breathing room */
 .top-safe {
   top: calc(env(safe-area-inset-top, 0px) + 12px);

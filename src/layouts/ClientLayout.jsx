@@ -33,7 +33,7 @@ export default function ClientLayout({ children }) {
       </div>
 
       {/* Scrollable content */}
-      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-safe-top">
+      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-client-top">
         {children}
       </main>
       <BottomNav />
