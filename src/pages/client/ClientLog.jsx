@@ -87,8 +87,11 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
 
   return (
     <div className="fixed inset-0 bg-bg/90 backdrop-blur-sm flex flex-col z-50 anim-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card">
+      {/* Header — pad top by safe-area so notch/Dynamic Island never covers it */}
+      <div
+        className="flex items-center justify-between px-5 pb-4 border-b border-border bg-card flex-shrink-0"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+      >
         <h3 className="font-display font-black text-xl tracking-widest text-cream">ADD FOOD</h3>
         <button onClick={onClose} className="text-muted p-1"><X size={22} /></button>
       </div>
