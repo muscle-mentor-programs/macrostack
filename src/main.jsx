@@ -14,6 +14,12 @@ function setAppHeight() {
 setAppHeight()
 window.addEventListener('orientationchange', setAppHeight)
 
+// Supabase processes and removes the #access_token hash immediately on load,
+// so we capture the invite flag in sessionStorage before that happens.
+if (window.location.hash.includes('type=invite')) {
+  sessionStorage.setItem('macrostack-post-invite', '1')
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

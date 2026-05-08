@@ -25,6 +25,7 @@ function dbToClient(row) {
       fat:      row.goal_fat      ?? 65,
     },
     activeMealPlanId: row.active_meal_plan_id || null,
+    status:           row.status || 'active',
     createdAt:        row.created_at,
     log:       {},
     weightLog: [],
@@ -298,16 +299,20 @@ const useStore = create(
       setViewingClientId: (id, tab = null) => set({ viewingClientId: id, viewingClientTab: tab }),
 
       addClient: async (data) => {
+        const hasEmail = Boolean(data.email?.trim())
+
         const { data: row, error } = await supabase
           .from('clients')
           .insert({
-            name:         data.name  || 'New Client',
-            email:        data.email || '',
+            name:          data.name  || 'New Client',
+            email:         data.email || '',
             goal_calories: data.goals?.calories ?? 2000,
             goal_protein:  data.goals?.protein  ?? 150,
             goal_carbs:    data.goals?.carbs    ?? 200,
             goal_fat:      data.goals?.fat      ?? 65,
             coach_id:      get().currentUser?.id || null,
+            // mark pending until the client accepts the invite and creates an account
+            status:        hasEmail ? 'pending' : 'active',
           })
           .select().single()
 
@@ -316,21 +321,25 @@ const useStore = create(
         const client = { ...dbToClient(row), log: {}, weightLog: [], mealPlans: [] }
         set((s) => ({ clients: [...s.clients, client] }))
 
-        // Fire-and-forget welcome email
-        if (data.email) {
-          fetch('/api/email/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              type:           'welcome',
-              recipientEmail: data.email,
-              name:           data.name || 'there',
-              role:           'client',
-            }),
-          }).catch(() => {})
+        // Send invite email via Supabase Edge Function
+        if (hasEmail) {
+          const { error: inviteError } = await supabase.functions.invoke('invite-client', {
+            body: { email: data.email.trim(), clientName: data.name || 'there' },
+          })
+          if (inviteError) console.error('invite-client:', inviteError)
         }
 
         return row.id
+      },
+
+      // Re-send an invite for a client that is still pending
+      resendInvite: async (clientId) => {
+        const client = get().clients.find((c) => c.id === clientId)
+        if (!client?.email) return
+        const { error } = await supabase.functions.invoke('invite-client', {
+          body: { email: client.email, clientName: client.name },
+        })
+        if (error) console.error('resendInvite:', error)
       },
 
       removeClient: async (id) => {

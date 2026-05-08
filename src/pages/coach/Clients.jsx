@@ -876,7 +876,14 @@ export default function Clients() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="font-mono text-sm text-cream truncate">{client.name}</p>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="font-mono text-sm text-cream truncate">{client.name}</p>
+                          {client.status === 'pending' && (
+                            <span className="flex-shrink-0 font-display font-bold text-[8px] tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/30 rounded px-1 py-0.5">
+                              PENDING
+                            </span>
+                          )}
+                        </div>
                         <span className="font-display font-bold text-xs text-muted ml-2 flex-shrink-0">{calPct}%</span>
                       </div>
                       <div className="w-full bg-dim rounded-full h-1 mb-1.5">

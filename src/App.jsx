@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import useStore from './store'
 import useIsMobile from './hooks/useIsMobile'
 
@@ -8,6 +8,7 @@ import ClientLayout from './layouts/ClientLayout'
 
 // Auth
 import LoginScreen from './pages/LoginScreen'
+import SetPasswordScreen from './pages/SetPasswordScreen'
 
 // Role entry points
 import RoleSelector from './pages/RoleSelector'
@@ -62,6 +63,11 @@ export default function App() {
   } = useStore()
   const isMobile = useIsMobile()
 
+  // True when the user landed via an email invite link and still needs to set a password
+  const [postInvite, setPostInvite] = useState(
+    () => sessionStorage.getItem('macrostack-post-invite') === '1'
+  )
+
   // Apply theme class
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
@@ -85,6 +91,11 @@ export default function App() {
   }
 
   if (!isAuthenticated) return <LoginScreen />
+
+  // Invited client just confirmed their email — make them set a password first
+  if (postInvite) {
+    return <SetPasswordScreen onDone={() => setPostInvite(false)} />
+  }
 
   if (!activeRole) {
     if (currentUser?.role === 'client') return <ClientSelector />
