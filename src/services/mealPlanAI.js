@@ -1,9 +1,29 @@
 import { FOODS } from '../data/foods'
 
-// Build a compact food catalogue for the AI prompt (keeps tokens low)
+// Build a compact food catalogue for the AI prompt.
+// Samples up to MAX_PER_CAT foods per category so the prompt stays well
+// within token limits and Vercel's function timeout.
+const MAX_PER_CAT = 10
+
 function buildFoodList(customFoods = []) {
-  const all = [...FOODS, ...customFoods]
-  return all.map((f) => ({
+  // Group built-in foods by category and take a representative slice
+  const byCategory = {}
+  for (const f of FOODS) {
+    const cat = f.category || 'Other'
+    if (!byCategory[cat]) byCategory[cat] = []
+    if (byCategory[cat].length < MAX_PER_CAT) byCategory[cat].push(f)
+  }
+
+  const sampled = Object.values(byCategory).flat()
+
+  // Always include all custom foods (coach's own additions)
+  const customIds = new Set(customFoods.map((f) => f.id))
+  const combined  = [
+    ...sampled.filter((f) => !customIds.has(f.id)),
+    ...customFoods,
+  ]
+
+  return combined.map((f) => ({
     id:    f.id,
     name:  f.name,
     brand: f.brand || '',

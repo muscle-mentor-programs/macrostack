@@ -631,6 +631,12 @@ input[type="number"]::-webkit-outer-spin-button {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* ── Nav bar elevation — heavy shadow in dark themes, subtle in light ──────── */
+.nav-elevated { box-shadow: 0 -6px 24px rgba(0,0,0,0.45); }
+html.light        .nav-elevated { box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
+html.forest-light .nav-elevated { box-shadow: 0 -2px 12px rgba(0,20,0,0.08); }
+html.ocean-light  .nav-elevated { box-shadow: 0 -2px 12px rgba(0,10,30,0.08); }
+
 /* ─────────────────────────────────────────────
    SAFE AREA / iOS HOME BAR SUPPORT
    viewport-fit=cover is set in index.html so we

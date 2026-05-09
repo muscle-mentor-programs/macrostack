@@ -19,7 +19,7 @@ export default function BottomNav() {
   return (
     <nav
       id="client-bottom-nav"
-      className="fixed bottom-0 left-0 right-0 w-full bg-card/95 backdrop-blur-sm border-t border-border shadow-[0_-6px_24px_rgba(0,0,0,0.45)] nav-safe-bottom z-20"
+      className="fixed bottom-0 left-0 right-0 w-full bg-card/95 backdrop-blur-sm border-t border-border nav-elevated nav-safe-bottom z-20"
     >
       <div className="grid grid-cols-5">
         {NAV.map(({ id, label, icon: Icon }) => {
