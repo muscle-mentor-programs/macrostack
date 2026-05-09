@@ -207,9 +207,13 @@ function FoodModal({ initial = null, onSave, onClose }) {
 
 export default function MyFoods() {
   const {
+    currentUser,
     customFoods, addCustomFood, removeCustomFood, updateCustomFood,
-    scannedFoods, removeScannedFood,
+    scannedFoods, removeScannedFood, updateScannedFood,
+    overrideFoods, upsertFoodOverride, removeFoodOverride,
   } = useStore()
+
+  const isSuperadmin = currentUser?.role === 'superadmin'
 
   const [query,       setQuery]       = useState('')
   const [filter,      setFilter]      = useState('all')   // 'all' | 'builtin' | 'custom' | 'scanned'
@@ -218,9 +222,16 @@ export default function MyFoods() {
   const [showScanner, setShowScanner] = useState(false)
   const [scannedUPC,  setScannedUPC]  = useState(null)
 
+  const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
+
   const allFoods = useMemo(
-    () => [...FOODS, ...customFoods, ...scannedFoods],
-    [customFoods, scannedFoods]
+    () => [
+      ...FOODS.filter((f) => !overrideIds.has(f.id)),
+      ...overrideFoods,
+      ...customFoods,
+      ...scannedFoods,
+    ],
+    [customFoods, scannedFoods, overrideFoods, overrideIds]
   )
 
   const filtered = useMemo(() => {
@@ -246,7 +257,15 @@ export default function MyFoods() {
 
   const handleSave = (data) => {
     if (editTarget) {
-      updateCustomFood(editTarget.id, data)
+      const isOverride = overrideFoods.some((f) => f.id === editTarget.id)
+      const isBuiltIn  = !editTarget.id.startsWith('custom_') && !editTarget.id.startsWith('scanned_') && !isOverride
+      if (isBuiltIn || isOverride) {
+        upsertFoodOverride(editTarget.id, { ...data, category: editTarget.category || 'Custom' })
+      } else if (editTarget.id.startsWith('custom_')) {
+        updateCustomFood(editTarget.id, data)
+      } else {
+        updateScannedFood(editTarget.id, data)
+      }
     } else {
       addCustomFood(data)
     }
@@ -345,6 +364,8 @@ export default function MyFoods() {
           {filtered.map((food, foodIdx) => {
             const isCustom  = food.id.startsWith('custom_')
             const isScanned = food.id.startsWith('scanned_')
+            const isOverride = overrideIds.has(food.id)
+            const isBuiltIn  = !isCustom && !isScanned && !isOverride
             return (
               <div
                 key={food.id}
@@ -363,6 +384,11 @@ export default function MyFoods() {
                     {isScanned && (
                       <span className="font-display text-[10px] text-olive-light bg-olive/10 border border-olive/20 px-1.5 py-0.5 rounded flex-shrink-0">
                         SCANNED
+                      </span>
+                    )}
+                    {isOverride && (
+                      <span className="font-display text-[10px] text-slategray-light bg-slategray/10 border border-slategray/20 px-1.5 py-0.5 rounded flex-shrink-0">
+                        EDITED
                       </span>
                     )}
                   </div>
@@ -384,31 +410,26 @@ export default function MyFoods() {
                 {/* Fat + actions */}
                 <div className="flex items-center justify-end gap-1.5 self-center">
                   <span className="font-display font-bold text-sm text-slategray-light">{food.fat.toFixed(1)}g</span>
-                  {isCustom && (
-                    <>
-                      <button
-                        onClick={() => openEdit(food)}
-                        title="Edit"
-                        className="text-dim hover:text-brown-light transition-colors opacity-0 group-hover:opacity-100 p-1"
-                      >
-                        <Pencil size={12} />
-                      </button>
-                      <button
-                        onClick={() => removeCustomFood(food.id)}
-                        title="Delete"
-                        className="text-dim hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </>
+                  {/* Edit button: custom foods always; superadmin gets all types */}
+                  {(isCustom || (isSuperadmin && !isBuiltIn) || (isSuperadmin && isBuiltIn)) && (
+                    <button onClick={() => openEdit(food)} title="Edit"
+                      className="text-dim hover:text-brown-light transition-colors opacity-0 group-hover:opacity-100 p-1">
+                      <Pencil size={12} />
+                    </button>
                   )}
-                  {isScanned && (
-                    <button
-                      onClick={() => removeScannedFood(food.id)}
-                      title="Delete scanned food"
-                      className="text-dim hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1"
-                    >
+                  {/* Delete / revert */}
+                  {(isCustom || (isSuperadmin && isScanned)) && (
+                    <button onClick={() => isCustom ? removeCustomFood(food.id) : removeScannedFood(food.id)}
+                      title="Delete"
+                      className="text-dim hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1">
                       <Trash2 size={12} />
+                    </button>
+                  )}
+                  {/* Revert override back to original built-in values */}
+                  {isSuperadmin && isOverride && (
+                    <button onClick={() => removeFoodOverride(food.id)} title="Revert to original"
+                      className="text-dim hover:text-olive-light transition-colors opacity-0 group-hover:opacity-100 p-1 font-display text-[9px] tracking-widest">
+                      REVERT
                     </button>
                   )}
                 </div>

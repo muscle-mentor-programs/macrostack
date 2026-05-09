@@ -166,9 +166,13 @@ function FoodForm({ initial = null, onSave, onClose }) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function MobileMyFoods() {
   const {
+    currentUser,
     customFoods, addCustomFood, removeCustomFood, updateCustomFood,
-    scannedFoods, removeScannedFood,
+    scannedFoods, removeScannedFood, updateScannedFood,
+    overrideFoods, upsertFoodOverride, removeFoodOverride,
   } = useStore()
+
+  const isSuperadmin = currentUser?.role === 'superadmin'
 
   const [query,       setQuery]       = useState('')
   const [filter,      setFilter]      = useState('all')
@@ -177,9 +181,16 @@ export default function MobileMyFoods() {
   const [showScanner, setShowScanner] = useState(false)
   const [scannedUPC,  setScannedUPC]  = useState(null)
 
+  const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
+
   const allFoods = useMemo(
-    () => [...FOODS, ...customFoods, ...scannedFoods],
-    [customFoods, scannedFoods]
+    () => [
+      ...FOODS.filter((f) => !overrideIds.has(f.id)),
+      ...overrideFoods,
+      ...customFoods,
+      ...scannedFoods,
+    ],
+    [customFoods, scannedFoods, overrideFoods, overrideIds]
   )
 
   const filtered = useMemo(() => {
@@ -202,7 +213,15 @@ export default function MobileMyFoods() {
 
   const handleSave = (data) => {
     if (editTarget) {
-      updateCustomFood(editTarget.id, data)
+      const isOverride = overrideFoods.some((f) => f.id === editTarget.id)
+      const isBuiltIn  = !editTarget.id.startsWith('custom_') && !editTarget.id.startsWith('scanned_') && !isOverride
+      if (isBuiltIn || isOverride) {
+        upsertFoodOverride(editTarget.id, { ...data, category: editTarget.category || 'Custom' })
+      } else if (editTarget.id.startsWith('custom_')) {
+        updateCustomFood(editTarget.id, data)
+      } else {
+        updateScannedFood(editTarget.id, data)
+      }
     } else {
       addCustomFood(data)
     }
@@ -272,8 +291,10 @@ export default function MobileMyFoods() {
       {/* Food list */}
       <div className="flex-1 divide-y divide-border/50 pb-28">
         {filtered.map((food, idx) => {
-          const isCustom  = food.id.startsWith('custom_')
-          const isScanned = food.id.startsWith('scanned_')
+          const isCustom   = food.id.startsWith('custom_')
+          const isScanned  = food.id.startsWith('scanned_')
+          const isOverride = overrideIds.has(food.id)
+          const isBuiltIn  = !isCustom && !isScanned && !isOverride
           return (
             <div
               key={food.id}
@@ -294,6 +315,11 @@ export default function MobileMyFoods() {
                       SCANNED
                     </span>
                   )}
+                  {isOverride && (
+                    <span className="font-display text-[9px] text-slategray-light bg-slategray/10 border border-slategray/20 px-1.5 py-0.5 rounded flex-shrink-0">
+                      EDITED
+                    </span>
+                  )}
                 </div>
                 <p className="font-mono text-xs text-muted mt-0.5">
                   {food.brand ? `${food.brand} · ` : ''}{servingLabel(food)}
@@ -306,10 +332,11 @@ export default function MobileMyFoods() {
                 </div>
               </div>
 
-              {/* Actions — visible on custom/scanned */}
-              {(isCustom || isScanned) && (
+              {/* Actions */}
+              {(isCustom || isScanned || (isSuperadmin && (isBuiltIn || isOverride))) && (
                 <div className="flex gap-1 ml-2 flex-shrink-0">
-                  {isCustom && (
+                  {/* Edit button: custom always; superadmin gets all types */}
+                  {(isCustom || isSuperadmin) && (
                     <button
                       onClick={() => openEdit(food)}
                       className="w-8 h-8 flex items-center justify-center rounded-lg text-dim hover:text-brown-light hover:bg-brown/10 transition-colors"
@@ -317,12 +344,24 @@ export default function MobileMyFoods() {
                       <Pencil size={13} />
                     </button>
                   )}
-                  <button
-                    onClick={() => isCustom ? removeCustomFood(food.id) : removeScannedFood(food.id)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-dim hover:text-red-400 hover:bg-red-400/10 transition-colors"
-                  >
-                    <Trash2 size={13} />
-                  </button>
+                  {/* Delete: custom always; superadmin for scanned */}
+                  {(isCustom || (isSuperadmin && isScanned)) && (
+                    <button
+                      onClick={() => isCustom ? removeCustomFood(food.id) : removeScannedFood(food.id)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-dim hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                  {/* Revert override back to original built-in values */}
+                  {isSuperadmin && isOverride && (
+                    <button
+                      onClick={() => removeFoodOverride(food.id)}
+                      className="h-8 px-2 flex items-center justify-center rounded-lg text-dim hover:text-olive-light hover:bg-olive/10 transition-colors font-display text-[9px] tracking-widest"
+                    >
+                      REVERT
+                    </button>
+                  )}
                 </div>
               )}
             </div>

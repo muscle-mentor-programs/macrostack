@@ -28,7 +28,7 @@ function entryServingLabel(entry) {
 
 // ─── Add Food Modal ──────────────────────────────────────────────────────────
 function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
-  const { addClientEntry, customFoods, scannedFoods } = useStore()
+  const { addClientEntry, customFoods, scannedFoods, overrideFoods } = useStore()
 
   const [query,       setQuery]       = useState('')
   const [category,    setCategory]    = useState('All')
@@ -39,7 +39,13 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   const [showScanner, setShowScanner] = useState(false)
   const [scannedUPC,  setScannedUPC]  = useState(null)
 
-  const allFoods = [...FOODS, ...customFoods, ...scannedFoods]
+  const overrideIds = new Set(overrideFoods.map((f) => f.id))
+  const allFoods = [
+    ...FOODS.filter((f) => !overrideIds.has(f.id)),
+    ...overrideFoods,
+    ...customFoods,
+    ...scannedFoods,
+  ]
   const filtered = allFoods.filter((f) => {
     const q = query.toLowerCase()
     return (

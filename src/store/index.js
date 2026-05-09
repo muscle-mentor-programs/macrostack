@@ -157,7 +157,7 @@ const useStore = create(
             set({
               isAuthenticated: false, currentUser: null,
               activeRole: null, activeClientId: null,
-              clients: [], messages: {}, customFoods: [], scannedFoods: [],
+              clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [],
             })
           }
         })
@@ -220,7 +220,7 @@ const useStore = create(
         set({
           isAuthenticated: false, currentUser: null,
           activeRole: null, activeClientId: null,
-          clients: [], messages: {}, customFoods: [], scannedFoods: [],
+          clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [],
         })
       },
 
@@ -265,13 +265,14 @@ const useStore = create(
         const { data: foodRows } = await supabase
           .from('custom_foods').select('*').order('created_at', { ascending: true })
 
-        const customFoods  = (foodRows || []).filter((f) => f.source === 'custom').map(dbToFood)
-        const scannedFoods = (foodRows || []).filter((f) => f.source !== 'custom').map(dbToFood)
+        const customFoods   = (foodRows || []).filter((f) => f.source === 'custom').map(dbToFood)
+        const overrideFoods = (foodRows || []).filter((f) => f.source === 'override').map(dbToFood)
+        const scannedFoods  = (foodRows || []).filter((f) => f.source !== 'custom' && f.source !== 'override').map(dbToFood)
 
         const { data: reqRows } = await supabase
           .from('coach_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false })
 
-        set({ clients, messages, customFoods, scannedFoods, coachRequests: reqRows || [] })
+        set({ clients, messages, customFoods, scannedFoods, overrideFoods, coachRequests: reqRows || [] })
       },
 
       // ── THEME ─────────────────────────────────────────────────────────────
@@ -764,6 +765,7 @@ const useStore = create(
 
       // ── SCANNED FOODS (synchronous return value required by ScannedFoodModal) ──
       scannedFoods: [],
+      overrideFoods: [],
 
       addScannedFood: (food) => {
         const { scannedFoods } = get()
@@ -799,6 +801,50 @@ const useStore = create(
 
       removeScannedFood: async (id) => {
         set((s) => ({ scannedFoods: s.scannedFoods.filter((f) => f.id !== id) }))
+        await supabase.from('custom_foods').delete().eq('id', id)
+      },
+
+      updateScannedFood: async (id, updates) => {
+        set((s) => ({ scannedFoods: s.scannedFoods.map((f) => f.id === id ? { ...f, ...updates } : f) }))
+        const dbUpd = {}
+        if (updates.name        !== undefined) dbUpd.name         = updates.name
+        if (updates.brand       !== undefined) dbUpd.brand        = updates.brand
+        if (updates.servingSize !== undefined) dbUpd.serving_size = updates.servingSize
+        if (updates.servingUnit !== undefined) dbUpd.serving_unit = updates.servingUnit
+        if (updates.calories    !== undefined) dbUpd.calories     = updates.calories
+        if (updates.protein     !== undefined) dbUpd.protein      = updates.protein
+        if (updates.carbs       !== undefined) dbUpd.carbs        = updates.carbs
+        if (updates.fat         !== undefined) dbUpd.fat          = updates.fat
+        await supabase.from('custom_foods').update(dbUpd).eq('id', id)
+      },
+
+      upsertFoodOverride: async (originalId, foodData) => {
+        const existing = get().overrideFoods.find((f) => f.id === originalId)
+        const food = { ...foodData, id: originalId }
+        if (existing) {
+          set((s) => ({ overrideFoods: s.overrideFoods.map((f) => f.id === originalId ? food : f) }))
+          await supabase.from('custom_foods').update({
+            name: food.name, brand: food.brand || '',
+            serving_size: food.servingSize, serving_unit: food.servingUnit || null,
+            calories: food.calories ?? 0, protein: food.protein ?? 0,
+            carbs: food.carbs ?? 0, fat: food.fat ?? 0,
+            fiber: food.fiber ?? 0, sugar: food.sugar ?? 0, sodium: food.sodium ?? 0,
+          }).eq('id', originalId)
+        } else {
+          set((s) => ({ overrideFoods: [...s.overrideFoods, food] }))
+          await supabase.from('custom_foods').insert({
+            id: originalId, source: 'override',
+            name: food.name, brand: food.brand || '',
+            serving_size: food.servingSize, serving_unit: food.servingUnit || null,
+            calories: food.calories ?? 0, protein: food.protein ?? 0,
+            carbs: food.carbs ?? 0, fat: food.fat ?? 0,
+            fiber: food.fiber ?? 0, sugar: food.sugar ?? 0, sodium: food.sodium ?? 0,
+          })
+        }
+      },
+
+      removeFoodOverride: async (id) => {
+        set((s) => ({ overrideFoods: s.overrideFoods.filter((f) => f.id !== id) }))
         await supabase.from('custom_foods').delete().eq('id', id)
       },
 
