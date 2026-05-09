@@ -5,6 +5,7 @@ import { FOODS } from '../../../data/foods'
 import ScrambleText from '../../../components/ScrambleText'
 import BarcodeScanner from '../../../components/BarcodeScanner'
 import ScannedFoodModal from '../../../components/ScannedFoodModal'
+import { rankFoods } from '../../../utils/foodSearch'
 
 const SERVING_UNITS = [
   'g', 'oz', 'ml', 'fl oz', 'bar', 'scoop', 'cup',
@@ -194,18 +195,15 @@ export default function MobileMyFoods() {
   )
 
   const filtered = useMemo(() => {
-    const q = query.toLowerCase()
-    return allFoods.filter((f) => {
-      const matchQ    = f.name.toLowerCase().includes(q) || (f.brand && f.brand.toLowerCase().includes(q))
+    const base = allFoods.filter((f) => {
       const isCustom  = f.id.startsWith('custom_')
       const isScanned = f.id.startsWith('scanned_')
-      const matchF =
-        filter === 'all'     ? true      :
-        filter === 'custom'  ? isCustom  :
-        filter === 'scanned' ? isScanned :
-        /* builtin */          (!isCustom && !isScanned)
-      return matchQ && matchF
+      return filter === 'all'     ? true      :
+             filter === 'custom'  ? isCustom  :
+             filter === 'scanned' ? isScanned :
+             /* builtin */         (!isCustom && !isScanned)
     })
+    return rankFoods(base, query)
   }, [allFoods, query, filter])
 
   const openAdd  = () => { setEditTarget(null); setShowForm(true) }

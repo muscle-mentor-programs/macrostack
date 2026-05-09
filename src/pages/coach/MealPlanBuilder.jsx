@@ -3,6 +3,7 @@ import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight, Mail, Downlo
 import useStore from '../../store'
 import { FOODS, CATEGORIES } from '../../data/foods'
 import { mealPlanPDFBase64, downloadMealPlanPDF } from '../../lib/generateMealPlanPDF'
+import { rankFoods, getRecentFoodIdsFromClients } from '../../utils/foodSearch'
 
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 const WEIGHT_UNITS = ['g', 'ml', 'oz', 'fl oz', 'L']
@@ -38,8 +39,11 @@ function makeEmptyDay(label) {
 }
 
 export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose }) {
-  const { customFoods } = useStore()
+  const { customFoods, clients } = useStore()
   const allFoods = useMemo(() => [...FOODS, ...customFoods], [customFoods])
+
+  // Foods used by any client in the last 30 days float to the top
+  const recentFoodIds = useMemo(() => getRecentFoodIdsFromClients(clients), [clients])
 
   // ── Plan meta ─────────────────────────────────────────────────
   const [planName, setPlanName] = useState(initialPlan?.planName || '')
@@ -62,13 +66,9 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const [downloading, setDownloading] = useState(false)
 
   const filtered = useMemo(() => {
-    const q = query.toLowerCase()
-    return allFoods.filter(
-      (f) =>
-        (f.name.toLowerCase().includes(q) || (f.brand && f.brand.toLowerCase().includes(q))) &&
-        (category === 'All' || f.category === category)
-    )
-  }, [allFoods, query, category])
+    const base = category === 'All' ? allFoods : allFoods.filter((f) => f.category === category)
+    return rankFoods(base, query, recentFoodIds)
+  }, [allFoods, query, category, recentFoodIds])
 
   const scaledPreview = selectedFood
     ? {

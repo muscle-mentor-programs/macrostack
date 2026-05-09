@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { format } from 'date-fns'
 import { PlusCircle, Flame } from 'lucide-react'
 import useStore from '../store'
@@ -21,8 +22,20 @@ function entryServingLabel(entry) {
 }
 
 function CalorieRing({ current, goal }) {
-  const pct = Math.min((current / (goal || 1)) * 100, 100)
-  const data = [{ value: pct, fill: '#9A7B55' }]
+  const theme = useStore((s) => s.theme)
+
+  const accentColor = useMemo(() => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim()
+    return v || '#9A7B55'
+  }, [theme])
+
+  const trackColor = useMemo(() => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue('--color-dim').trim()
+    return v || '#3A3733'
+  }, [theme])
+
+  const pct  = Math.min((current / (goal || 1)) * 100, 100)
+  const data = [{ value: pct, fill: accentColor }]
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: 180, height: 180 }}>
@@ -36,7 +49,7 @@ function CalorieRing({ current, goal }) {
         >
           <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
           <RadialBar
-            background={{ fill: '#2A2724' }}
+            background={{ fill: trackColor }}
             dataKey="value"
             angleAxisId={0}
             cornerRadius={6}

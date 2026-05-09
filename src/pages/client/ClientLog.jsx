@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, Plus, Search, X, Trash2,
   Scan, Check, ChevronDown,
 } from 'lucide-react'
 import useStore from '../../store'
-import { FOODS, CATEGORIES, MEALS } from '../../data/foods'
+import { FOODS, MEALS } from '../../data/foods'
 import ScrambleText from '../../components/ScrambleText'
 import BarcodeScanner from '../../components/BarcodeScanner'
 import ScannedFoodModal from '../../components/ScannedFoodModal'
+import { rankFoods, getRecentFoodIds } from '../../utils/foodSearch'
 
 // Meals always shown even when empty
 const PRIMARY_MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
@@ -28,10 +29,9 @@ function entryServingLabel(entry) {
 
 // ─── Add Food Modal ──────────────────────────────────────────────────────────
 function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
-  const { addClientEntry, customFoods, scannedFoods, overrideFoods } = useStore()
+  const { addClientEntry, customFoods, scannedFoods, overrideFoods, clients } = useStore()
 
   const [query,       setQuery]       = useState('')
-  const [category,    setCategory]    = useState('All')
   const [selected,    setSelected]    = useState(null)
   const [quantity,    setQuantity]    = useState(1)
   const [grams,       setGrams]       = useState('')
@@ -39,20 +39,24 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   const [showScanner, setShowScanner] = useState(false)
   const [scannedUPC,  setScannedUPC]  = useState(null)
 
-  const overrideIds = new Set(overrideFoods.map((f) => f.id))
-  const allFoods = [
+  const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
+
+  const allFoods = useMemo(() => [
     ...FOODS.filter((f) => !overrideIds.has(f.id)),
     ...overrideFoods,
     ...customFoods,
     ...scannedFoods,
-  ]
-  const filtered = allFoods.filter((f) => {
-    const q = query.toLowerCase()
-    return (
-      (f.name.toLowerCase().includes(q) || (f.brand && f.brand.toLowerCase().includes(q))) &&
-      (category === 'All' || f.category === category)
-    )
-  })
+  ], [overrideIds, overrideFoods, customFoods, scannedFoods])
+
+  // Recently-used food IDs for this client (last 30 days)
+  const recentFoodIds = useMemo(() => {
+    const client = clients.find((c) => c.id === clientId)
+    return getRecentFoodIds(client?.log || {})
+  }, [clients, clientId])
+
+  // Ranked list: relevance + recency sort across all foods
+  const filtered = useMemo(() => rankFoods(allFoods, query, recentFoodIds),
+    [allFoods, query, recentFoodIds])
 
   const hasGrams = !!(selected?.servingSize)
   const perG = hasGrams ? {
@@ -133,8 +137,8 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         <button onClick={onClose} className="text-muted p-1"><X size={22} /></button>
       </div>
 
-      {/* Search + scan + category filter */}
-      <div className="px-4 py-3 border-b border-border bg-card space-y-3">
+      {/* Search + scan */}
+      <div className="px-4 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
@@ -154,22 +158,6 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
           >
             <Scan size={20} />
           </button>
-        </div>
-
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`font-display font-semibold text-xs tracking-widest px-3 py-1.5 rounded-full whitespace-nowrap transition-colors flex-shrink-0 ${
-                category === cat
-                  ? 'bg-brown text-bg'
-                  : 'bg-surface border border-border text-muted'
-              }`}
-            >
-              {cat.toUpperCase()}
-            </button>
-          ))}
         </div>
       </div>
 

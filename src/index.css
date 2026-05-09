@@ -17,6 +17,11 @@
   --color-cream:   #E8E4DC;
   --color-muted:   #7A756E;
   --color-dim:     #3A3733;
+  --color-accent:  #9A7B55;
+}
+
+html.light {
+  --color-accent: #9A7B55;
 }
 
 html.light {
@@ -146,6 +151,7 @@ html.forest-dark {
   --color-cream:   #DAE8D8;
   --color-muted:   #6B806A;
   --color-dim:     #2C3E2C;
+  --color-accent:  #558A55;
   color-scheme: dark;
 }
 
@@ -211,6 +217,7 @@ html.forest-light {
   --color-cream:   #182418;
   --color-muted:   #4A6E4A;
   --color-dim:     #A8C8A6;
+  --color-accent:  #558A55;
   color-scheme: light;
 }
 
@@ -276,6 +283,7 @@ html.ocean-dark {
   --color-cream:   #D8E6F4;
   --color-muted:   #607890;
   --color-dim:     #253650;
+  --color-accent:  #4878B0;
   color-scheme: dark;
 }
 
@@ -341,6 +349,7 @@ html.ocean-light {
   --color-cream:   #141E30;
   --color-muted:   #3E607A;
   --color-dim:     #A0BCD2;
+  --color-accent:  #4878B0;
   color-scheme: light;
 }
 
