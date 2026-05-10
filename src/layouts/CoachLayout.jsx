@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { Smartphone, LogOut } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import CoachBottomNav from '../components/CoachBottomNav'
@@ -6,13 +7,13 @@ import useStore from '../store'
 import useIsMobile from '../hooks/useIsMobile'
 
 export default function CoachLayout({ children }) {
-  const { logout, setActiveRole } = useStore()
+  const { logout, setActiveRole, activePage } = useStore()
   const isMobile = useIsMobile()
 
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
     return (
-      <div className="flex flex-col h-full w-full bg-bg">
+      <div className="flex flex-col h-full w-full bg-bg overflow-hidden">
         {/* Floating top-right controls */}
         <div className="fixed top-safe right-4 z-30 flex items-center gap-1.5">
           <ThemeToggle compact />
@@ -34,7 +35,7 @@ export default function CoachLayout({ children }) {
 
         {/* Scrollable page content */}
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-safe-top">
-          {children}
+          <Fragment key={activePage}>{children}</Fragment>
         </main>
 
         {/* Persistent bottom navigation */}
@@ -48,7 +49,7 @@ export default function CoachLayout({ children }) {
     <div className="flex h-screen w-screen overflow-hidden bg-bg">
       <Sidebar />
       <main className="flex-1 overflow-hidden">
-        {children}
+        <Fragment key={activePage}>{children}</Fragment>
       </main>
     </div>
   )

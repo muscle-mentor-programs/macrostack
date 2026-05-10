@@ -1,10 +1,11 @@
+import { Fragment } from 'react'
 import { Monitor, LogOut } from 'lucide-react'
 import BottomNav from '../components/BottomNav'
 import ThemeToggle from '../components/ThemeToggle'
 import useStore from '../store'
 
 export default function ClientLayout({ children }) {
-  const { logout, currentUser, setActiveRole } = useStore()
+  const { logout, currentUser, setActiveRole, activePage } = useStore()
 
   const isSuperAdmin = currentUser?.role === 'superadmin'
 
@@ -33,7 +34,7 @@ export default function ClientLayout({ children }) {
       </div>
 
       <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-client-top">
-        {children}
+        <Fragment key={activePage}>{children}</Fragment>
       </main>
       <BottomNav />
     </div>
