@@ -68,8 +68,11 @@ export default function ClientMessages() {
       className="fixed inset-x-0 top-0 flex flex-col bg-bg z-10"
       style={{ bottom: overlayBottom }}
     >
-      {/* Header */}
-      <div className="px-5 pt-12 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down">
+      {/* Header — safe-area-aware top padding so content clears the fixed top-right buttons */}
+      <div
+        className="px-5 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 68px)' }}
+      >
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="MESSAGES" duration={750} />
         </h1>
