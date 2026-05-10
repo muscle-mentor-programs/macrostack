@@ -394,6 +394,7 @@ export default function CoachDashboard() {
   const {
     clients, setActivePage, setViewingClientId,
     currentUser, coachRequests, fetchCoachRequests, respondToRequest,
+    setPendingChatClientId,
   } = useStore()
   const [editClient,      setEditClient]      = useState(null)
   const [emailModal,      setEmailModal]      = useState(false)
@@ -424,6 +425,7 @@ export default function CoachDashboard() {
   }
 
   const handleChat = (clientId) => {
+    setPendingChatClientId(clientId)
     setActivePage('chat')
   }
 

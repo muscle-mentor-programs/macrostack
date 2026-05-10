@@ -12,9 +12,17 @@ function msgTime(ts) {
 }
 
 export default function CoachChat() {
-  const { clients, messages, sendMessage, markMessagesRead } = useStore()
+  const { clients, messages, sendMessage, markMessagesRead, pendingChatClientId, setPendingChatClientId } = useStore()
   const [selectedId, setSelectedId] = useState(null)
   const [input, setInput]           = useState('')
+
+  // Auto-open thread when arriving from coach dashboard message icon
+  useEffect(() => {
+    if (pendingChatClientId) {
+      setSelectedId(pendingChatClientId)
+      setPendingChatClientId(null)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedClient = clients.find((c) => c.id === selectedId)
   const thread         = messages[selectedId] || []
@@ -109,7 +117,7 @@ export default function CoachChat() {
 
       {/* ── Right: thread ─────────────────────────────────── */}
       {selectedClient ? (
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div key={selectedId} className="flex-1 flex flex-col overflow-hidden anim-fade-in">
           {/* Thread header */}
           <div className="flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0">
             <div className="w-9 h-9 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
@@ -137,7 +145,7 @@ export default function CoachChat() {
               [...thread].reverse().map((msg) => {
                 const isCoach = msg.from === 'coach'
                 return (
-                  <div key={msg.id} className={`flex ${isCoach ? 'justify-end' : 'justify-start'}`}>
+                  <div key={msg.id} className={`flex anim-fade-in ${isCoach ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[68%] flex flex-col gap-1 ${isCoach ? 'items-end' : 'items-start'}`}>
                       <div
                         className={`px-4 py-2.5 font-mono text-sm leading-relaxed ${

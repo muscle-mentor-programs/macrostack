@@ -4,6 +4,8 @@ import { ChevronLeft, ChevronRight, MessageCircle, Send } from 'lucide-react'
 import useStore from '../../../store'
 import ScrambleText from '../../../components/ScrambleText'
 
+
+
 function msgTime(ts) {
   const d = parseISO(ts)
   if (isToday(d))     return format(d, 'h:mm a')
@@ -28,7 +30,7 @@ function ThreadScreen({ client, onBack }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-surface z-40 flex flex-col anim-slide-right overflow-hidden">
+    <div className="fixed inset-0 bg-surface z-40 flex flex-col overflow-hidden anim-slide-right">
       {/* Header — bg-surface extends all the way to the status bar */}
       <div className="flex items-center gap-3 px-4 pt-14 pb-4 border-b border-border flex-shrink-0">
         <button
@@ -62,7 +64,7 @@ function ThreadScreen({ client, onBack }) {
           [...thread].reverse().map((msg) => {
             const isCoach = msg.from === 'coach'
             return (
-              <div key={msg.id} className={`flex ${isCoach ? 'justify-end' : 'justify-start'}`}>
+              <div key={msg.id} className={`flex anim-fade-in ${isCoach ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[78%] flex flex-col gap-1 ${isCoach ? 'items-end' : 'items-start'}`}>
                   <div
                     className={`px-4 py-3 font-mono text-sm leading-relaxed ${
@@ -105,8 +107,16 @@ function ThreadScreen({ client, onBack }) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function MobileChat() {
-  const { clients, messages } = useStore()
+  const { clients, messages, pendingChatClientId, setPendingChatClientId } = useStore()
   const [selectedId, setSelectedId] = useState(null)
+
+  // If coach tapped the chat icon on a specific client card, open that thread immediately
+  useEffect(() => {
+    if (pendingChatClientId) {
+      setSelectedId(pendingChatClientId)
+      setPendingChatClientId(null)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedClient = clients.find((c) => c.id === selectedId)
 

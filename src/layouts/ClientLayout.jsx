@@ -4,7 +4,7 @@ import ThemeToggle from '../components/ThemeToggle'
 import useStore from '../store'
 
 export default function ClientLayout({ children }) {
-  const { logout, currentUser, setActiveRole } = useStore()
+  const { logout, currentUser, setActiveRole, activePage } = useStore()
 
   const isSuperAdmin = currentUser?.role === 'superadmin'
 
@@ -32,9 +32,11 @@ export default function ClientLayout({ children }) {
         </button>
       </div>
 
-      {/* Scrollable content */}
+      {/* Scrollable content — keyed on activePage so each switch triggers anim-fade-in */}
       <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-client-top">
-        {children}
+        <div key={activePage} className="anim-fade-in">
+          {children}
+        </div>
       </main>
       <BottomNav />
     </div>

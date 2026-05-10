@@ -562,6 +562,11 @@ const useStore = create(
       messages: {},
       coachRequests: [],
 
+      // Ephemeral: when coach taps the chat icon on a client card, this is set
+      // so the chat page auto-opens that client's thread on mount.
+      pendingChatClientId: null,
+      setPendingChatClientId: (id) => set({ pendingChatClientId: id }),
+
       // ── KAY AI CHAT ───────────────────────────────────────────────────────
       // Local-only; persisted to localStorage so history survives refresh.
       kayThreads: {},  // { [clientId]: [{ id, from:'user'|'kay', text, timestamp }] }

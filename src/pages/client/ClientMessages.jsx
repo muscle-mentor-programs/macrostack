@@ -174,7 +174,7 @@ export default function ClientMessages() {
 
   return (
     <div
-      className={`fixed inset-x-0 top-0 flex flex-col bg-bg ${overlayZ}`}
+      className={`fixed inset-x-0 top-0 flex flex-col bg-bg anim-slide-right ${overlayZ}`}
       style={{ bottom: overlayBottom }}
     >
       {/* Thread header */}

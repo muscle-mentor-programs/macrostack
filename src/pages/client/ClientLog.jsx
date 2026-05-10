@@ -517,7 +517,7 @@ export default function ClientLog() {
 
                         {/* Inline edit panel */}
                         {isEditing && editState && (
-                          <div className="px-4 pb-4 pt-3 bg-surface/60 border-t border-border/60 space-y-3">
+                          <div className="px-4 pb-4 pt-3 bg-surface/60 border-t border-border/60 space-y-3 anim-fade-in-up">
                             <div className="grid grid-cols-2 gap-3">
                               <div>
                                 <label className="font-display text-xs text-muted tracking-widest block mb-1.5">

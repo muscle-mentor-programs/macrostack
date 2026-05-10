@@ -27,7 +27,7 @@ function QuickEditSheet({ client, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end anim-fade-in" onClick={onClose}>
       <div
-        className="bg-card border-t border-border rounded-t-2xl p-6 space-y-5 shadow-2xl"
+        className="bg-card border-t border-border rounded-t-2xl p-6 space-y-5 shadow-2xl anim-sheet"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -89,7 +89,7 @@ function EmailSheet({ clients, preselectedId, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col anim-fade-in bg-bg/80 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="flex-1 flex flex-col bg-card mt-16 rounded-t-2xl overflow-hidden"
+        className="flex-1 flex flex-col bg-card mt-16 rounded-t-2xl overflow-hidden anim-sheet"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
@@ -313,6 +313,7 @@ export default function MobileCoachDashboard() {
   const {
     clients, setActivePage, setViewingClientId,
     currentUser, coachRequests, fetchCoachRequests, respondToRequest,
+    setPendingChatClientId,
   } = useStore()
 
   const [editClient,     setEditClient]     = useState(null)
@@ -343,7 +344,10 @@ export default function MobileCoachDashboard() {
 
   const activePlans = clients.filter((c) => c.activeMealPlanId).length
 
-  const handleChat = () => setActivePage('chat')
+  const handleChat = (clientId) => {
+    setPendingChatClientId(clientId)
+    setActivePage('chat')
+  }
 
   const handleMealPlans = (clientId) => {
     setViewingClientId(clientId, 'mealplans')

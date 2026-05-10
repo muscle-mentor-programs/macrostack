@@ -29,22 +29,23 @@ export default function BottomNav() {
             <button
               key={id}
               onClick={() => setActivePage(id)}
-              className={`relative flex flex-col items-center justify-center py-3.5 gap-1 transition-colors ${
+              className={`relative flex flex-col items-center justify-center py-3.5 gap-1 transition-all duration-150 ${
                 active ? 'text-brown-light' : 'text-muted'
               }`}
             >
-              <div className="relative">
-                <Icon size={active ? 20 : 18} strokeWidth={active ? 2.5 : 1.5} />
+              <div className="relative transition-transform duration-150" style={{ transform: active ? 'scale(1.1)' : 'scale(1)' }}>
+                <Icon size={active ? 20 : 18} strokeWidth={active ? 2.5 : 1.5} className="transition-all duration-150" />
                 {badge > 0 && (
                   <span className="absolute -top-1 -right-1.5 w-4 h-4 rounded-full bg-brown flex items-center justify-center font-mono text-[9px] text-bg font-bold">
                     {badge > 9 ? '9+' : badge}
                   </span>
                 )}
               </div>
-              <span className={`font-display font-bold tracking-wider ${active ? 'text-[9px]' : 'text-[8px]'}`}>{label}</span>
-              {active && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-brown rounded-full shadow-[0_0_8px_var(--color-accent)]" />
-              )}
+              <span className={`font-display font-bold tracking-wider transition-all duration-150 ${active ? 'text-[9px]' : 'text-[8px]'}`}>{label}</span>
+              {/* Always rendered — transitions opacity & scaleX instead of unmounting */}
+              <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-brown rounded-full shadow-[0_0_8px_var(--color-accent)] transition-all duration-200 ${
+                active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+              }`} />
             </button>
           )
         })}
