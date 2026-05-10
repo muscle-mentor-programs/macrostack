@@ -23,9 +23,10 @@ export default function ClientMessages() {
     kayThreads, sendKayMessage, kayTyping,
   } = useStore()
 
-  const [input,      setInput]      = useState('')
-  const [kbHeight,   setKbHeight]   = useState(0)
-  const [navH,       setNavH]       = useState(57)
+  const [input,        setInput]        = useState('')
+  const [kbHeight,     setKbHeight]     = useState(0)
+  const [navH,         setNavH]         = useState(57)
+  const [inputFocused, setInputFocused] = useState(false)
   // null = list view, 'coach' | 'kay' = thread view
   const [openThread, setOpenThread] = useState(null)
 
@@ -71,8 +72,14 @@ export default function ClientMessages() {
     setInput('')
   }
 
+  // Keyboard is "active" when it's physically up (iOS) or when input is focused (Android
+  // resizes the layout viewport so kbHeight stays ~0, but we still want to cover the nav)
+  const kbActive           = kbHeight > 0 || inputFocused
   const overlayBottom      = kbHeight > 0 ? `${kbHeight}px` : '0px'
-  const inputPaddingBottom = kbHeight > 0 ? '12px' : `${navH + 8}px`
+  const inputPaddingBottom = kbActive ? '12px' : `${navH + 8}px`
+  // Raise above the BottomNav (z-20) when keyboard is open so it's fully covered.
+  // Drop back to z-10 when keyboard closes so the nav is visible again.
+  const overlayZ           = kbActive ? 'z-[25]' : 'z-10'
 
   const coachUnread  = coachThread.filter((m) => m.from === 'coach' && !m.readByClient).length
   const coachLastMsg = coachThread[coachThread.length - 1] || null
@@ -167,7 +174,7 @@ export default function ClientMessages() {
 
   return (
     <div
-      className="fixed inset-x-0 top-0 flex flex-col bg-bg z-10"
+      className={`fixed inset-x-0 top-0 flex flex-col bg-bg ${overlayZ}`}
       style={{ bottom: overlayBottom }}
     >
       {/* Thread header */}
@@ -176,7 +183,7 @@ export default function ClientMessages() {
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 68px)' }}
       >
         <button
-          onClick={() => { setOpenThread(null); setInput('') }}
+          onClick={() => { setOpenThread(null); setInput(''); setInputFocused(false) }}
           className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0"
         >
           <ChevronLeft size={22} />
@@ -286,6 +293,8 @@ export default function ClientMessages() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          onFocus={() => setInputFocused(true)}
+          onBlur={() => setInputFocused(false)}
           disabled={isKay && kayTyping}
           className="flex-1 bg-bg border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors disabled:opacity-50"
         />
