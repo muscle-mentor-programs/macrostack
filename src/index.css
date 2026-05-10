@@ -584,7 +584,7 @@ input[type="number"]::-webkit-outer-spin-button {
   margin-left: 2px;
   vertical-align: middle;
   animation: cursorBlink 1s step-start infinite;
-  color: #9A7B55;
+  color: var(--color-accent);
 }
 
 /* Glow pulse on hover */
@@ -618,7 +618,7 @@ input[type="number"]::-webkit-outer-spin-button {
   content: attr(data-text);
   position: absolute;
   inset: 0;
-  color: #B8996F;
+  color: var(--color-accent);
   opacity: 0;
   transition: opacity 0.1s;
 }
