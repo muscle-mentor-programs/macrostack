@@ -631,6 +631,17 @@ input[type="number"]::-webkit-outer-spin-button {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* ── Nav bar background — theme-aware semi-transparent card colour ───────────
+   Tailwind bakes the hardcoded hex from tailwind.config into bg-card/95,
+   so opacity variants are immune to the html.* overrides. We use a custom
+   class here that we can override per theme instead.                        */
+.nav-bg { background-color: rgba(28,26,24,0.95); }          /* dark (default) */
+html.light        .nav-bg { background-color: rgba(242,238,231,0.95) !important; }
+html.forest-dark  .nav-bg { background-color: rgba(22,32,22,0.95)   !important; }
+html.forest-light .nav-bg { background-color: rgba(232,244,230,0.95) !important; }
+html.ocean-dark   .nav-bg { background-color: rgba(20,27,46,0.95)   !important; }
+html.ocean-light  .nav-bg { background-color: rgba(226,238,248,0.95) !important; }
+
 /* ── Nav bar elevation — heavy shadow in dark themes, subtle in light ──────── */
 .nav-elevated { box-shadow: 0 -6px 24px rgba(0,0,0,0.45); }
 html.light        .nav-elevated { box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
