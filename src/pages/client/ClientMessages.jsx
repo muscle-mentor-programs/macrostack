@@ -21,6 +21,7 @@ export default function ClientMessages() {
   const {
     activeClientId, messages, sendMessage, markMessagesRead,
     kayThreads, sendKayMessage, kayTyping,
+    setNavHidden,
   } = useStore()
 
   const [input,        setInput]        = useState('')
@@ -62,6 +63,15 @@ export default function ClientMessages() {
     }
   }, [])
 
+  // Hide the bottom nav while the keyboard is open inside a chat thread.
+  // z-index doesn't work reliably across stacking contexts, so we slide
+  // the nav out of view instead and restore it on cleanup.
+  useEffect(() => {
+    const shouldHide = kbActive && openThread !== null
+    setNavHidden(shouldHide)
+    return () => setNavHidden(false) // restore when unmounting (page change)
+  }, [kbActive, openThread])
+
   const handleSend = () => {
     if (!input.trim()) return
     if (openThread === 'coach') {
@@ -72,14 +82,10 @@ export default function ClientMessages() {
     setInput('')
   }
 
-  // Keyboard is "active" when it's physically up (iOS) or when input is focused (Android
-  // resizes the layout viewport so kbHeight stays ~0, but we still want to cover the nav)
+  // Keyboard is "active" when it's physically up (iOS) or input is focused (Android).
   const kbActive           = kbHeight > 0 || inputFocused
   const overlayBottom      = kbHeight > 0 ? `${kbHeight}px` : '0px'
   const inputPaddingBottom = kbActive ? '12px' : `${navH + 8}px`
-  // Raise above the BottomNav (z-20) when keyboard is open so it's fully covered.
-  // Drop back to z-10 when keyboard closes so the nav is visible again.
-  const overlayZ           = kbActive ? 'z-[25]' : 'z-10'
 
   const coachUnread  = coachThread.filter((m) => m.from === 'coach' && !m.readByClient).length
   const coachLastMsg = coachThread[coachThread.length - 1] || null
@@ -174,7 +180,7 @@ export default function ClientMessages() {
 
   return (
     <div
-      className={`fixed inset-x-0 top-0 flex flex-col bg-bg anim-slide-right ${overlayZ}`}
+      className="fixed inset-x-0 top-0 flex flex-col bg-bg z-30 anim-slide-right"
       style={{ bottom: overlayBottom }}
     >
       {/* Thread header */}

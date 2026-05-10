@@ -10,7 +10,7 @@ const NAV = [
 ]
 
 export default function BottomNav() {
-  const { activePage, setActivePage, activeClientId, messages } = useStore()
+  const { activePage, setActivePage, activeClientId, messages, navHidden } = useStore()
 
   const unread = (messages[activeClientId] || []).filter(
     (m) => m.from === 'coach' && !m.readByClient
@@ -19,7 +19,9 @@ export default function BottomNav() {
   return (
     <nav
       id="client-bottom-nav"
-      className="fixed bottom-0 left-0 right-0 w-full nav-bg backdrop-blur-sm border-t border-border nav-elevated nav-safe-bottom z-20"
+      className={`fixed bottom-0 left-0 right-0 w-full nav-bg backdrop-blur-sm border-t border-border nav-elevated nav-safe-bottom z-20 transition-transform duration-200 ${
+        navHidden ? 'translate-y-full' : ''
+      }`}
     >
       <div className="grid grid-cols-5">
         {NAV.map(({ id, label, icon: Icon }) => {

@@ -562,6 +562,10 @@ const useStore = create(
       messages: {},
       coachRequests: [],
 
+      // Hides the client BottomNav (e.g. when keyboard is open in chat thread)
+      navHidden: false,
+      setNavHidden: (v) => set({ navHidden: v }),
+
       // Ephemeral: when coach taps the chat icon on a client card, this is set
       // so the chat page auto-opens that client's thread on mount.
       pendingChatClientId: null,
@@ -607,8 +611,10 @@ const useStore = create(
           })
 
           if (!res.ok) {
-            const errText = await res.text()
-            throw new Error(`API ${res.status}: ${errText}`)
+            let errBody = {}
+            try { errBody = await res.json() } catch { /* non-JSON error */ }
+            const detail = errBody.error?.message || errBody.error || `HTTP ${res.status}`
+            throw new Error(detail)
           }
 
           const data  = await res.json()
@@ -629,10 +635,17 @@ const useStore = create(
           }))
         } catch (e) {
           console.error('Kay AI error:', e)
+          // Surface the actual error so it's diagnosable (API key missing, quota, etc.)
+          const isKeyMissing = e.message?.toLowerCase().includes('api_key') ||
+                               e.message?.toLowerCase().includes('api key') ||
+                               e.message?.toLowerCase().includes('anthropic_api_key')
+          const errText = isKeyMissing
+            ? 'API key not configured on the server. Please contact your coach to set this up.'
+            : (e.message || 'Having trouble connecting right now. Please try again.')
           const errMsg = {
             id:        crypto.randomUUID(),
             from:      'kay',
-            text:      'Sorry, I\'m having trouble connecting right now. Please try again in a moment.',
+            text:      errText,
             timestamp: new Date().toISOString(),
           }
           set((s) => ({
