@@ -276,7 +276,7 @@ const useStore = create(
       },
 
       // ── THEME ─────────────────────────────────────────────────────────────
-      theme: 'dark',
+      theme: 'ocean-light',
       setTheme: (name) => {
         set({ theme: name })
         const html = document.documentElement
