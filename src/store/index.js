@@ -562,6 +562,84 @@ const useStore = create(
       messages: {},
       coachRequests: [],
 
+      // ── KAY AI CHAT ───────────────────────────────────────────────────────
+      // Local-only; persisted to localStorage so history survives refresh.
+      kayThreads: {},  // { [clientId]: [{ id, from:'user'|'kay', text, timestamp }] }
+      kayTyping:  false,
+
+      sendKayMessage: async (clientId, userText) => {
+        const userMsg = {
+          id:        crypto.randomUUID(),
+          from:      'user',
+          text:      userText,
+          timestamp: new Date().toISOString(),
+        }
+        // Optimistic: add user message, start typing indicator
+        set((s) => ({
+          kayThreads: {
+            ...s.kayThreads,
+            [clientId]: [...(s.kayThreads[clientId] || []), userMsg],
+          },
+          kayTyping: true,
+        }))
+
+        try {
+          const { kayThreads } = get()
+          const history = (kayThreads[clientId] || []).map((m) => ({
+            role:    m.from === 'user' ? 'user' : 'assistant',
+            content: m.text,
+          }))
+
+          const res = await fetch('/api/ai/v1/messages', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model:      'claude-opus-4-5',
+              max_tokens: 1024,
+              system: `You are Kay, a PhD-level nutrition scientist and registered dietitian with 15 years of clinical experience. You provide evidence-based, practical nutrition guidance with warmth and clarity. Keep responses concise and actionable — this is a mobile chat, not a report. You complement the client's coach-set macro goals rather than override them. Never diagnose medical conditions. If asked something outside nutrition science, gently redirect back to nutrition topics.`,
+              messages: history,
+            }),
+          })
+
+          if (!res.ok) {
+            const errText = await res.text()
+            throw new Error(`API ${res.status}: ${errText}`)
+          }
+
+          const data  = await res.json()
+          const reply = data.content?.[0]?.text || 'Sorry, I couldn\'t respond right now. Please try again.'
+
+          const kayMsg = {
+            id:        crypto.randomUUID(),
+            from:      'kay',
+            text:      reply,
+            timestamp: new Date().toISOString(),
+          }
+          set((s) => ({
+            kayThreads: {
+              ...s.kayThreads,
+              [clientId]: [...(s.kayThreads[clientId] || []), kayMsg],
+            },
+            kayTyping: false,
+          }))
+        } catch (e) {
+          console.error('Kay AI error:', e)
+          const errMsg = {
+            id:        crypto.randomUUID(),
+            from:      'kay',
+            text:      'Sorry, I\'m having trouble connecting right now. Please try again in a moment.',
+            timestamp: new Date().toISOString(),
+          }
+          set((s) => ({
+            kayThreads: {
+              ...s.kayThreads,
+              [clientId]: [...(s.kayThreads[clientId] || []), errMsg],
+            },
+            kayTyping: false,
+          }))
+        }
+      },
+
       sendMessage: async (clientId, from, text) => {
         const id  = crypto.randomUUID()
         const msg = {
@@ -855,7 +933,7 @@ const useStore = create(
     {
       name: 'macrostack-ui',
       // Only persist UI preferences — all data comes from Supabase
-      partialize: (state) => ({ theme: state.theme }),
+      partialize: (state) => ({ theme: state.theme, kayThreads: state.kayThreads }),
     }
   )
 )

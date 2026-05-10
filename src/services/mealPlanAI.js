@@ -96,16 +96,17 @@ Respond with ONLY this JSON shape (no markdown):
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-opus-4-5',
+      model:      'claude-sonnet-4-5',
       max_tokens: 8000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
+      system:     systemPrompt,
+      messages:   [{ role: 'user', content: userPrompt }],
     }),
   })
 
   if (!response.ok) {
-    const err = await response.text()
-    throw new Error(`AI API error ${response.status}: ${err}`)
+    let errDetail = ''
+    try { errDetail = await response.text() } catch (_) {}
+    throw new Error(`AI API error ${response.status}${errDetail ? ': ' + errDetail : ''}`)
   }
 
   const data = await response.json()
