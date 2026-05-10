@@ -594,7 +594,7 @@ const useStore = create(
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              model:      'claude-opus-4-5',
+              model:      'claude-3-5-sonnet-20241022',
               max_tokens: 1024,
               system: `You are Kay, a PhD-level nutrition scientist and registered dietitian with 15 years of clinical experience. You provide evidence-based, practical nutrition guidance with warmth and clarity. Keep responses concise and actionable — this is a mobile chat, not a report. You complement the client's coach-set macro goals rather than override them. Never diagnose medical conditions. If asked something outside nutrition science, gently redirect back to nutrition topics.`,
               messages: history,

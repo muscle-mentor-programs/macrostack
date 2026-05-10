@@ -96,7 +96,7 @@ Respond with ONLY this JSON shape (no markdown):
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model:      'claude-sonnet-4-5',
+      model:      'claude-3-5-sonnet-20241022',
       max_tokens: 8000,
       system:     systemPrompt,
       messages:   [{ role: 'user', content: userPrompt }],
