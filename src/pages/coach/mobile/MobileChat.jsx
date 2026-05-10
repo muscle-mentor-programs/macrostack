@@ -142,7 +142,7 @@ export default function MobileChat() {
           <p className="font-mono text-sm text-dim mt-1">Add clients to start chatting</p>
         </div>
       ) : (
-        <div className="flex-1 divide-y divide-border/50 pb-20">
+        <div className="px-4 py-4 space-y-3 pb-20">
           {clients.map((client, i) => {
             const lastMsg = (messages[client.id] || []).slice(-1)[0]
             const unread  = unreadFor(client.id)
@@ -150,41 +150,52 @@ export default function MobileChat() {
               <button
                 key={client.id}
                 onClick={() => setSelectedId(client.id)}
-                style={{ animationDelay: `${Math.min(i, 12) * 25}ms` }}
-                className="anim-row w-full flex items-center px-4 py-4 text-left hover:bg-surface/50 active:bg-surface transition-colors"
+                style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}
+                className={`anim-fade-in-up w-full bg-card border rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface ${
+                  unread > 0 ? 'border-brown/40 hover:border-brown/60' : 'border-border hover:border-border/80'
+                }`}
               >
-                <div className="flex-1 min-w-0">
-                  {/* Line 1 — name + unread badge */}
-                  <div className="flex items-center gap-2 min-w-0">
-                    <p className="font-mono text-sm text-cream truncate">{client.name}</p>
-                    {unread > 0 && (
-                      <span className="font-display font-bold text-[9px] text-bg bg-brown px-1.5 py-0.5 rounded flex-shrink-0">
-                        {unread > 9 ? '9+' : unread}
-                      </span>
-                    )}
-                  </div>
+                {/* Avatar */}
+                <div className="w-11 h-11 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
+                  <span className="font-display font-black text-base text-brown-light">
+                    {client.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
 
-                  {/* Line 2 — last message preview + timestamp */}
-                  <div className="flex items-baseline justify-between gap-2 mt-0.5">
-                    <p className={`font-mono text-xs truncate ${unread > 0 ? 'text-cream' : 'text-muted'}`}>
-                      {lastMsg
-                        ? `${lastMsg.from === 'coach' ? 'You: ' : ''}${lastMsg.text}`
-                        : 'No messages yet — tap to start'}
+                <div className="flex-1 min-w-0">
+                  {/* Name + timestamp */}
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="font-display font-bold text-sm text-cream tracking-wide truncate">
+                      {client.name}
                     </p>
                     {lastMsg && (
-                      <p className="font-mono text-[10px] text-dim flex-shrink-0">
+                      <p className="font-mono text-[10px] text-dim flex-shrink-0 ml-2">
                         {msgTime(lastMsg.timestamp)}
                       </p>
                     )}
                   </div>
 
-                  {/* Line 3 — email */}
-                  <p className="font-mono text-xs text-dim mt-1">
+                  {/* Message preview */}
+                  <p className={`font-mono text-xs truncate ${unread > 0 ? 'text-cream' : 'text-muted'}`}>
+                    {lastMsg
+                      ? `${lastMsg.from === 'coach' ? 'You: ' : ''}${lastMsg.text}`
+                      : 'No messages yet — tap to start'}
+                  </p>
+
+                  {/* Email */}
+                  <p className="font-mono text-[10px] text-dim mt-0.5 truncate">
                     {client.email || 'No email on file'}
                   </p>
                 </div>
 
-                <ChevronRight size={14} className="text-dim flex-shrink-0 ml-3" />
+                {/* Unread badge or chevron */}
+                {unread > 0 ? (
+                  <span className="w-5 h-5 rounded-full bg-brown flex items-center justify-center font-mono text-[9px] text-bg font-bold flex-shrink-0">
+                    {unread > 9 ? '9+' : unread}
+                  </span>
+                ) : (
+                  <ChevronRight size={14} className="text-dim flex-shrink-0" />
+                )}
               </button>
             )
           })}
