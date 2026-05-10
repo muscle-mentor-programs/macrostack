@@ -6,7 +6,7 @@ import useStore from '../store'
 import useIsMobile from '../hooks/useIsMobile'
 
 export default function CoachLayout({ children }) {
-  const { logout, setActiveRole, activePage } = useStore()
+  const { logout, setActiveRole } = useStore()
   const isMobile = useIsMobile()
 
   /* ── Mobile layout ─────────────────────────────────────────── */
@@ -34,9 +34,7 @@ export default function CoachLayout({ children }) {
 
         {/* Scrollable page content */}
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-safe-top">
-          <div key={activePage} className="anim-fade-in">
-            {children}
-          </div>
+          {children}
         </main>
 
         {/* Persistent bottom navigation */}
@@ -50,9 +48,7 @@ export default function CoachLayout({ children }) {
     <div className="flex h-screen w-screen overflow-hidden bg-bg">
       <Sidebar />
       <main className="flex-1 overflow-hidden">
-        <div key={activePage} className="anim-fade-in h-full">
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   )

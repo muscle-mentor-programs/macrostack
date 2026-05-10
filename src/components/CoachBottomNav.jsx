@@ -9,7 +9,7 @@ const NAV = [
 ]
 
 export default function CoachBottomNav() {
-  const { activePage, setActivePage, clients, messages } = useStore()
+  const { activePage, setActivePage, clients, messages, navHidden } = useStore()
 
   const totalUnread = clients.reduce(
     (n, c) =>
@@ -18,7 +18,9 @@ export default function CoachBottomNav() {
   )
 
   return (
-    <nav className="flex-shrink-0 w-full nav-bg backdrop-blur-sm border-t border-border nav-elevated nav-safe-bottom">
+    <nav className={`flex-shrink-0 w-full nav-bg backdrop-blur-sm border-t border-border nav-elevated nav-safe-bottom transition-transform duration-200 ${
+      navHidden ? 'translate-y-full' : ''
+    }`}>
       <div className="grid grid-cols-4">
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = activePage === id

@@ -15,13 +15,18 @@ function msgTime(ts) {
 
 // ── Thread screen ─────────────────────────────────────────────────────────────
 function ThreadScreen({ client, onBack }) {
-  const { messages, sendMessage, markMessagesRead } = useStore()
+  const { messages, sendMessage, markMessagesRead, setNavHidden } = useStore()
   const [input, setInput] = useState('')
   const thread = messages[client.id] || []
 
   useEffect(() => {
     markMessagesRead(client.id, 'coach')
   }, [client.id, thread.length]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Hide CoachBottomNav while keyboard is open
+  useEffect(() => {
+    return () => setNavHidden(false) // restore on unmount
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSend = () => {
     if (!input.trim()) return
@@ -91,6 +96,8 @@ function ThreadScreen({ client, onBack }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          onFocus={() => setNavHidden(true)}
+          onBlur={() => setNavHidden(false)}
           className="flex-1 bg-bg border border-border rounded-2xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
         />
         <button
