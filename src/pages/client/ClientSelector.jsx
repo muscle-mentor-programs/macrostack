@@ -1,17 +1,16 @@
-import { User, ArrowLeft, LogOut } from 'lucide-react'
+import { User, ArrowLeft } from 'lucide-react'
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
-import ThemeToggle from '../../components/ThemeToggle'
 
 export default function ClientSelector() {
-  const { clients, setActiveClientId, setActiveRole, logout, currentUser } = useStore()
+  const { clients, setActiveClientId, setActiveRole, currentUser } = useStore()
   const isClientUser = currentUser?.role === 'client'
 
   return (
     <div className="flex flex-col h-screen bg-bg px-6 pt-12 pb-8">
-      {/* Top row: back (coach only) + theme + logout */}
-      <div className="flex items-center justify-between mb-10 anim-fade-in-down">
-        {!isClientUser ? (
+      {/* Back button — coaches only; client users skip this row entirely */}
+      {!isClientUser && (
+        <div className="mb-10 anim-fade-in-down">
           <button
             onClick={() => setActiveRole(null)}
             className="flex items-center gap-2 text-muted hover:text-cream w-fit transition-colors"
@@ -19,20 +18,8 @@ export default function ClientSelector() {
             <ArrowLeft size={16} />
             <span className="font-display font-semibold text-sm tracking-widest">BACK</span>
           </button>
-        ) : (
-          <div />
-        )}
-        <div className="flex items-center gap-2">
-          <ThemeToggle compact />
-          <button
-            onClick={logout}
-            title="Log out"
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-card border border-border text-muted hover:text-red-400 hover:border-red-400/30 transition-all"
-          >
-            <LogOut size={15} />
-          </button>
         </div>
-      </div>
+      )}
 
       {/* Header */}
       <div className="mb-8 anim-fade-in-up" style={{ animationDelay: '50ms' }}>
