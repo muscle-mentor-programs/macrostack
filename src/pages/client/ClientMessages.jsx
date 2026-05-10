@@ -40,6 +40,10 @@ export default function ClientMessages() {
   const coachThread = messages[activeClientId] || []
   const kayThread   = kayThreads[activeClientId] || []
 
+  // Keyboard is "active" when it's physically up (iOS) or input is focused (Android).
+  // Must be declared before any useEffect that references it.
+  const kbActive           = kbHeight > 0 || inputFocused
+
   // Measure nav bar height once
   useEffect(() => {
     const el = document.getElementById('client-bottom-nav')
@@ -87,9 +91,6 @@ export default function ClientMessages() {
     }
     setInput('')
   }
-
-  // Keyboard is "active" when it's physically up (iOS) or input is focused (Android).
-  const kbActive           = kbHeight > 0 || inputFocused
   const overlayBottom      = kbHeight > 0 ? `${kbHeight}px` : '0px'
   const inputPaddingBottom = kbActive ? '12px' : `${navH + 8}px`
 
