@@ -5,10 +5,16 @@ import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 
 function msgTime(ts) {
-  const d = parseISO(ts)
-  if (isToday(d))     return format(d, 'h:mm a')
-  if (isYesterday(d)) return `Yesterday ${format(d, 'h:mm a')}`
-  return format(d, 'MMM d, h:mm a')
+  if (!ts) return ''
+  try {
+    const d = parseISO(ts)
+    if (isNaN(d.getTime())) return ''
+    if (isToday(d))     return format(d, 'h:mm a')
+    if (isYesterday(d)) return `Yesterday ${format(d, 'h:mm a')}`
+    return format(d, 'MMM d, h:mm a')
+  } catch {
+    return ''
+  }
 }
 
 export default function CoachChat() {
