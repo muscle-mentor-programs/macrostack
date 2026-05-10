@@ -33,7 +33,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
 
   const [query,       setQuery]       = useState('')
   const [selected,    setSelected]    = useState(null)
-  const [quantity,    setQuantity]    = useState(1)
+  const [quantity,    setQuantity]    = useState('1')
   const [grams,       setGrams]       = useState('')
   const [meal,        setMeal]        = useState(defaultMeal || 'Breakfast')
   const [showScanner, setShowScanner] = useState(false)
@@ -72,35 +72,39 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     carbs:    perG.carb * Number(grams  || 0),
     fat:      perG.fat  * Number(grams  || 0),
   } : {
-    calories: selected.calories * quantity,
-    protein:  selected.protein  * quantity,
-    carbs:    selected.carbs    * quantity,
-    fat:      selected.fat      * quantity,
+    calories: selected.calories * (Number(quantity) || 0),
+    protein:  selected.protein  * (Number(quantity) || 0),
+    carbs:    selected.carbs    * (Number(quantity) || 0),
+    fat:      selected.fat      * (Number(quantity) || 0),
   }) : null
 
   const handleSelectFood = (food) => {
     setSelected(food)
-    setQuantity(1)
+    setQuantity('1')
     setGrams(food.servingSize ? String(food.servingSize) : '')
   }
 
+  // Keep values as strings so the field can be fully cleared while typing.
+  // Numeric conversion only happens when syncing the linked field or on save.
   const handleQtyChange = (val) => {
-    const q = Math.max(0, Number(val) || 0)
-    setQuantity(q)
-    if (selected?.servingSize) setGrams(String(Math.round(q * selected.servingSize)))
+    setQuantity(val)
+    if (selected?.servingSize && val !== '') {
+      setGrams(String(Math.round(Math.max(0, Number(val)) * selected.servingSize)))
+    }
   }
 
   const handleGramsChange = (val) => {
-    const g = Math.max(0, Number(val) || 0)
-    setGrams(String(g))
-    if (selected?.servingSize) setQuantity(+(g / selected.servingSize).toFixed(3))
+    setGrams(val)
+    if (selected?.servingSize && val !== '') {
+      setQuantity(String(+(Math.max(0, Number(val)) / selected.servingSize).toFixed(3)))
+    }
   }
 
   const handleAdd = () => {
     if (!selected) return
     const qty = hasGrams
       ? +(Number(grams || 0) / selected.servingSize).toFixed(3)
-      : quantity
+      : Number(quantity) || 1
     addClientEntry(clientId, {
       name:        selected.name,
       brand:       selected.brand || '',
@@ -252,7 +256,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
                 <input
                   type="number" inputMode="decimal" min="0.25" step="0.25"
                   value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  onChange={(e) => setQuantity(e.target.value)}
                   className={inputCls}
                 />
               </div>

@@ -60,7 +60,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const [category, setCategory]   = useState('All')
   const [targetMeal, setTargetMeal] = useState('Breakfast')
   const [selectedFood, setSelectedFood] = useState(null)
-  const [quantity, setQuantity]   = useState(1)
+  const [quantity, setQuantity]   = useState('1')
   const [saved, setSaved]         = useState(false)
   const [emailStatus, setEmailStatus] = useState('idle') // 'idle' | 'sending' | 'sent' | 'error'
   const [downloading, setDownloading] = useState(false)
@@ -72,10 +72,10 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
 
   const scaledPreview = selectedFood
     ? {
-        calories: parseFloat((selectedFood.calories * quantity).toFixed(1)),
-        protein:  parseFloat((selectedFood.protein  * quantity).toFixed(1)),
-        carbs:    parseFloat((selectedFood.carbs    * quantity).toFixed(1)),
-        fat:      parseFloat((selectedFood.fat      * quantity).toFixed(1)),
+        calories: parseFloat((selectedFood.calories * (Number(quantity) || 0)).toFixed(1)),
+        protein:  parseFloat((selectedFood.protein  * (Number(quantity) || 0)).toFixed(1)),
+        carbs:    parseFloat((selectedFood.carbs    * (Number(quantity) || 0)).toFixed(1)),
+        fat:      parseFloat((selectedFood.fat      * (Number(quantity) || 0)).toFixed(1)),
       }
     : null
 
@@ -87,7 +87,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
       foodId:      selectedFood.id,
       name:        selectedFood.name,
       brand:       selectedFood.brand || '',
-      quantity,
+      quantity:    Number(quantity) || 1,
       servingSize: selectedFood.servingSize,
       servingUnit: selectedFood.servingUnit || 'g',
       calories:    scaledPreview.calories,
@@ -109,7 +109,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
       )
     )
     setSelectedFood(null)
-    setQuantity(1)
+    setQuantity('1')
   }
 
   const removeItem = (mealName, itemId) => {
@@ -436,7 +436,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
             {filtered.map((food) => (
               <button
                 key={food.id}
-                onClick={() => { setSelectedFood(food); setQuantity(1) }}
+                onClick={() => { setSelectedFood(food); setQuantity('1') }}
                 className={`w-full flex items-center justify-between px-5 py-3 border-b border-border/50 text-left transition-colors ${
                   selectedFood?.id === food.id ? 'bg-brown/10 border-l-2 border-l-brown' : 'hover:bg-card'
                 }`}
@@ -479,7 +479,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                     min="0.25"
                     step="0.25"
                     value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    onChange={(e) => setQuantity(e.target.value)}
                     className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-base text-cream focus:outline-none focus:border-brown"
                   />
                 </div>
