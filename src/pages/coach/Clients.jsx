@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import { Plus, X, User, Edit2, Trash2, ChevronRight, Check, Calculator, BookOpen, Sparkles, Star, StarOff, Pencil } from 'lucide-react'
 import useStore from '../../store'
@@ -884,8 +884,14 @@ export default function Clients() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedId,   setSelectedId]   = useState(viewingClientId || null)
   const [initialTab,   setInitialTab]   = useState(viewingClientTab || 'overview')
-  const [detailWidth,  setDetailWidth]  = useState(620)
+  const [detailWidth,  setDetailWidth]  = useState(null)
   const containerRef = useRef(null)
+
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      setDetailWidth(Math.floor(containerRef.current.offsetWidth / 2))
+    }
+  }, [])
   const today = format(new Date(), 'yyyy-MM-dd')
 
   // Consume the navigation hint from the store once (clear after reading)
@@ -1050,7 +1056,7 @@ export default function Clients() {
 
       {/* Client detail panel */}
       {selectedClient && (
-        <div className="flex-shrink-0 overflow-hidden" style={{ width: detailWidth }}>
+        <div className="flex-shrink-0 overflow-hidden" style={{ width: detailWidth ?? '50%' }}>
           <ClientDetail
             key={selectedClient.id}
             client={selectedClient}
