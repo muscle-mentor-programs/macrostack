@@ -22,14 +22,35 @@ function msgTime(ts) {
 // ── Thread screen ─────────────────────────────────────────────────────────────
 function ThreadScreen({ client, onBack }) {
   const { messages, sendMessage, markMessagesRead, setNavHidden } = useStore()
-  const [input, setInput] = useState('')
+  const [input,    setInput]    = useState('')
+  const [kbHeight, setKbHeight] = useState(0)
   const thread = messages[client.id] || []
 
   useEffect(() => {
     markMessagesRead(client.id, 'coach')
   }, [client.id, thread.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Hide CoachBottomNav while keyboard is open
+  // Track software keyboard height so the input bar stays directly above it
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const sync = () => {
+      const kh = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      setKbHeight(kh)
+    }
+    vv.addEventListener('resize', sync)
+    vv.addEventListener('scroll', sync)
+    return () => {
+      vv.removeEventListener('resize', sync)
+      vv.removeEventListener('scroll', sync)
+    }
+  }, [])
+
+  // Show/hide bottom nav based on keyboard state
+  useEffect(() => {
+    setNavHidden(kbHeight > 0)
+  }, [kbHeight]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     return () => setNavHidden(false) // restore on unmount
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -41,9 +62,12 @@ function ThreadScreen({ client, onBack }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-surface z-40 flex flex-col overflow-hidden anim-slide-right">
-      {/* Header — bg-surface extends all the way to the status bar */}
-      <div className="flex items-center gap-3 px-4 pt-14 pb-4 border-b border-border flex-shrink-0">
+    <div
+      className="fixed inset-x-0 top-0 bg-surface z-40 flex flex-col overflow-hidden anim-slide-right"
+      style={{ bottom: kbHeight > 0 ? `${kbHeight}px` : '0px' }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
         <button
           onClick={onBack}
           className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0"
@@ -61,7 +85,7 @@ function ThreadScreen({ client, onBack }) {
         </div>
       </div>
 
-      {/* Messages — flex-col-reverse anchors newest at bottom (iMessage style) */}
+      {/* Messages — flex-col-reverse anchors newest at bottom */}
       <div className="flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse gap-3">
         {thread.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
@@ -94,16 +118,20 @@ function ThreadScreen({ client, onBack }) {
         )}
       </div>
 
-      {/* Input bar */}
-      <div className="px-4 py-3 border-t border-border bg-surface flex gap-2 flex-shrink-0 pb-safe">
+      {/* Input bar — padding-bottom clears home indicator when keyboard is down */}
+      <div
+        className="px-4 border-t border-border bg-surface flex gap-2 flex-shrink-0"
+        style={{
+          paddingTop:    '12px',
+          paddingBottom: kbHeight > 0 ? '12px' : 'env(safe-area-inset-bottom, 12px)',
+        }}
+      >
         <input
           type="text"
           placeholder={`Message ${client.name.split(' ')[0]}…`}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          onFocus={() => setNavHidden(true)}
-          onBlur={() => setNavHidden(false)}
           className="flex-1 bg-bg border border-border rounded-2xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
         />
         <button
