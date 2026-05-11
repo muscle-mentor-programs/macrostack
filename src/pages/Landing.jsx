@@ -16,16 +16,12 @@ function LogoMark({ size = 32 }) {
 
 /* ═══════════════════════════════════════════════════════
    SCROLL ROOT CONTEXT
-   Passes the landing page's scroll container to every
-   IntersectionObserver so reveals fire against the
-   container viewport (not the locked html/body).
 ═══════════════════════════════════════════════════════ */
 const ScrollRoot = createContext(null)
 
-/* ── scroll-reveal hook ──────────────────────────────── */
 function useReveal(threshold = 0.12) {
   const root = useContext(ScrollRoot)
-  const ref = useRef(null)
+  const ref  = useRef(null)
   const [visible, setVisible] = useState(false)
   useEffect(() => {
     const el = ref.current; if (!el) return
@@ -39,7 +35,6 @@ function useReveal(threshold = 0.12) {
   return [ref, visible]
 }
 
-/* ── generic reveal wrapper ──────────────────────────── */
 function Reveal({ children, className = '', delay = 0, y = 22, x = 0 }) {
   const [ref, visible] = useReveal()
   return (
@@ -57,7 +52,6 @@ function Reveal({ children, className = '', delay = 0, y = 22, x = 0 }) {
   )
 }
 
-/* ── count-up number ─────────────────────────────────── */
 function CountUp({ to, suffix = '', prefix = '', dur = 1800 }) {
   const [val, setVal] = useState(0)
   const [ref, visible] = useReveal(0.3)
@@ -74,32 +68,26 @@ function CountUp({ to, suffix = '', prefix = '', dur = 1800 }) {
   return <span ref={ref}>{prefix}{val.toLocaleString()}{suffix}</span>
 }
 
-/* ── animated macro progress bar ─────────────────────── */
-function MacroBar({ label, value, max, colorClass, bgClass, delay = 0 }) {
+function MacroBar({ label, value, max, colorClass, delay = 0 }) {
   const [ref, visible] = useReveal(0.05)
   const pct = Math.min((value / max) * 100, 100)
   return (
     <div ref={ref} className="space-y-1.5">
       <div className="flex justify-between items-baseline">
         <span className="font-display text-xs tracking-widest text-muted">{label}</span>
-        <span className="font-mono text-xs text-cream">
-          {value}<span className="text-muted">/{max}g</span>
-        </span>
+        <span className="font-mono text-xs text-cream">{value}<span className="text-muted">/{max}g</span></span>
       </div>
       <div className="h-1.5 rounded-full bg-dim overflow-hidden">
         <div
           className={`h-full rounded-full ${colorClass}`}
-          style={{
-            width: visible ? `${pct}%` : '0%',
-            transition: `width 1.3s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
-          }}
+          style={{ width: visible ? `${pct}%` : '0%', transition: `width 1.3s cubic-bezier(0.16,1,0.3,1) ${delay}ms` }}
         />
       </div>
     </div>
   )
 }
 
-/* ── hero right-side mock dashboard ─────────────────── */
+/* ── hero mock dashboard ──────────────────────────── */
 function HeroDashboard() {
   const [ref, visible] = useReveal(0.05)
   return (
@@ -112,15 +100,12 @@ function HeroDashboard() {
       }}
       className="relative"
     >
-      {/* Glow behind card */}
       <div className="absolute inset-0 rounded-2xl pointer-events-none"
         style={{ boxShadow: '0 0 80px -16px rgba(154,123,85,0.22)', borderRadius: '16px' }} />
 
-      {/* Main card */}
       <div className="relative bg-card border border-border rounded-2xl overflow-hidden"
         style={{ boxShadow: '0 32px 64px -16px rgba(0,0,0,0.7)' }}>
 
-        {/* Window chrome */}
         <div className="flex items-center gap-1.5 px-4 py-3 border-b border-border bg-surface">
           <div className="w-2.5 h-2.5 rounded-full bg-dim" />
           <div className="w-2.5 h-2.5 rounded-full bg-dim" />
@@ -129,7 +114,6 @@ function HeroDashboard() {
         </div>
 
         <div className="p-5 space-y-5">
-          {/* Header row */}
           <div className="flex items-start justify-between">
             <div>
               <p className="font-mono text-xs text-muted tracking-widest">TODAY'S MACROS</p>
@@ -142,19 +126,17 @@ function HeroDashboard() {
             </div>
           </div>
 
-          {/* Macro bars */}
           <div className="space-y-3">
-            <MacroBar label="PROTEIN" value={145} max={160} colorClass="bg-olive" delay={400} />
-            <MacroBar label="CARBS"   value={220} max={250} colorClass="bg-brown"  delay={560} />
+            <MacroBar label="PROTEIN" value={145} max={160} colorClass="bg-olive"     delay={400} />
+            <MacroBar label="CARBS"   value={220} max={250} colorClass="bg-brown"     delay={560} />
             <MacroBar label="FAT"     value={52}  max={65}  colorClass="bg-slategray" delay={720} />
           </div>
 
-          {/* Meal list */}
           <div className="space-y-0 border-t border-border pt-4">
             {[
-              { meal: 'BREAKFAST', items: 'Oats, Eggs, Banana',  cal: 540 },
-              { meal: 'LUNCH',     items: 'Chicken Rice Bowl',   cal: 720 },
-              { meal: 'DINNER',    items: 'Salmon, Broccoli…',   cal: 580 },
+              { meal: 'BREAKFAST', items: 'Oats, Eggs, Banana', cal: 540 },
+              { meal: 'LUNCH',     items: 'Chicken Rice Bowl',  cal: 720 },
+              { meal: 'DINNER',    items: 'Salmon, Broccoli…',  cal: 580 },
             ].map(({ meal, items, cal }, i) => (
               <div key={meal}
                 className="flex items-center justify-between py-2.5 border-b border-border/50 last:border-0"
@@ -175,9 +157,9 @@ function HeroDashboard() {
         </div>
       </div>
 
-      {/* Floating badge — AI */}
+      {/* Floating badge — AI · liquid glass */}
       <div
-        className="absolute -right-5 top-10 bg-surface border border-border rounded-xl px-3 py-2 flex items-center gap-2 shadow-xl"
+        className="glass absolute -right-5 top-10 rounded-xl px-3 py-2 flex items-center gap-2"
         style={{ animation: 'float 3.2s ease-in-out infinite' }}
       >
         <div className="w-5 h-5 rounded bg-brown/20 flex items-center justify-center">
@@ -186,9 +168,9 @@ function HeroDashboard() {
         <span className="font-mono text-xs text-cream whitespace-nowrap">AI FOOD SEARCH</span>
       </div>
 
-      {/* Floating badge — Coach */}
+      {/* Floating badge — Coach · liquid glass */}
       <div
-        className="absolute -left-5 bottom-16 bg-surface border border-border rounded-xl px-3 py-2 flex items-center gap-2 shadow-xl"
+        className="glass absolute -left-5 bottom-16 rounded-xl px-3 py-2 flex items-center gap-2"
         style={{ animation: 'float 3.2s ease-in-out infinite 1.6s' }}
       >
         <div className="w-5 h-5 rounded bg-olive/20 flex items-center justify-center">
@@ -203,17 +185,16 @@ function HeroDashboard() {
   )
 }
 
-/* ── mock coach client list card ─────────────────────── */
+/* ── mock coach dashboard ─────────────────────────── */
 function CoachMockup() {
   const [ref, visible] = useReveal(0.1)
   const clients = [
-    { name: 'Grayson H.', pct: 94, label: 'ON TRACK',        c: 'olive'     },
-    { name: 'Alex M.',    pct: 78, label: 'NEEDS CHECK-IN',  c: 'brown'     },
-    { name: 'Jordan K.',  pct: 105,label: 'OVER TARGET',     c: 'slategray' },
-    { name: 'Sam R.',     pct: 88, label: 'ON TRACK',        c: 'olive'     },
-    { name: 'Casey L.',   pct: 62, label: 'NEEDS ATTENTION', c: 'brown'     },
+    { name: 'Grayson H.', pct: 94,  label: 'ON TRACK',        c: 'olive'     },
+    { name: 'Alex M.',    pct: 78,  label: 'NEEDS CHECK-IN',  c: 'brown'     },
+    { name: 'Jordan K.',  pct: 105, label: 'OVER TARGET',     c: 'slategray' },
+    { name: 'Sam R.',     pct: 88,  label: 'ON TRACK',        c: 'olive'     },
+    { name: 'Casey L.',   pct: 62,  label: 'NEEDS ATTENTION', c: 'brown'     },
   ]
-  // Static color maps (Tailwind requires static class names)
   const iconBg  = { olive: 'bg-olive/20',      brown: 'bg-brown/20',     slategray: 'bg-slategray/20'     }
   const iconBdr = { olive: 'border-olive/30',  brown: 'border-brown/30', slategray: 'border-slategray/30' }
   const iconTxt = { olive: 'text-olive-light', brown: 'text-brown-light',slategray: 'text-slategray-light'}
@@ -230,7 +211,6 @@ function CoachMockup() {
       }}
       className="bg-card border border-border rounded-2xl overflow-hidden"
     >
-      {/* Header */}
       <div className="px-5 py-4 border-b border-border bg-surface flex items-center justify-between">
         <div>
           <p className="font-mono text-xs text-muted tracking-widest">COACH PORTAL</p>
@@ -241,7 +221,6 @@ function CoachMockup() {
         </div>
       </div>
 
-      {/* Tab bar */}
       <div className="flex border-b border-border">
         {['ALL', 'ON TRACK', 'NEEDS ATTENTION'].map((tab, i) => (
           <div key={tab} className={`flex-1 text-center py-2.5 font-display text-xs tracking-widest ${i === 0 ? 'text-brown-light border-b-2 border-brown' : 'text-muted'}`}>
@@ -250,7 +229,6 @@ function CoachMockup() {
         ))}
       </div>
 
-      {/* Client rows */}
       <div className="divide-y divide-border">
         {clients.map(({ name, pct, label, c }, i) => (
           <div
@@ -270,10 +248,7 @@ function CoachMockup() {
               <div className="h-1 bg-dim rounded-full mt-1.5 overflow-hidden w-full">
                 <div
                   className={`h-full rounded-full ${barBg[c]}`}
-                  style={{
-                    width: visible ? `${Math.min(pct, 100)}%` : '0%',
-                    transition: `width 1.1s cubic-bezier(0.16,1,0.3,1) ${450 + i * 80}ms`,
-                  }}
+                  style={{ width: visible ? `${Math.min(pct, 100)}%` : '0%', transition: `width 1.1s cubic-bezier(0.16,1,0.3,1) ${450 + i * 80}ms` }}
                 />
               </div>
             </div>
@@ -288,7 +263,7 @@ function CoachMockup() {
   )
 }
 
-/* ── mock mobile client app ──────────────────────────── */
+/* ── mock mobile client app ───────────────────────── */
 function ClientMockup() {
   const [ref, visible] = useReveal(0.1)
   return (
@@ -304,13 +279,8 @@ function ClientMockup() {
     >
       <div
         className="bg-card border border-border rounded-3xl overflow-hidden"
-        style={{
-          maxWidth: '260px',
-          margin: '0 auto',
-          boxShadow: '0 32px 64px -16px rgba(0,0,0,0.65), 0 0 36px -12px rgba(107,122,82,0.15)',
-        }}
+        style={{ maxWidth: '260px', margin: '0 auto', boxShadow: '0 32px 64px -16px rgba(0,0,0,0.65), 0 0 36px -12px rgba(107,122,82,0.15)' }}
       >
-        {/* Status bar */}
         <div className="bg-surface px-5 pt-4 pb-2 flex items-center justify-between">
           <span className="font-mono text-xs text-muted">9:41</span>
           <div className="flex gap-1">
@@ -321,28 +291,12 @@ function ClientMockup() {
         </div>
 
         <div className="px-4 pb-6 pt-3 space-y-4">
-          {/* Greeting */}
-          <div
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? 'none' : 'translateY(10px)',
-              transition: 'opacity 0.5s ease 300ms, transform 0.5s ease 300ms',
-            }}
-          >
+          <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(10px)', transition: 'opacity 0.5s ease 300ms, transform 0.5s ease 300ms' }}>
             <p className="font-mono text-xs text-muted tracking-widest">MONDAY · MAY 11</p>
-            <p className="font-display font-black text-2xl leading-tight mt-0.5">
-              HEY,<br/><span className="text-olive-light">GRAYSON!</span>
-            </p>
+            <p className="font-display font-black text-2xl leading-tight mt-0.5">HEY,<br/><span className="text-olive-light">GRAYSON!</span></p>
           </div>
 
-          {/* Calories ring-style summary */}
-          <div
-            className="bg-surface rounded-xl p-3 border border-border"
-            style={{
-              opacity: visible ? 1 : 0,
-              transition: 'opacity 0.5s ease 400ms',
-            }}
-          >
+          <div className="bg-surface rounded-xl p-3 border border-border" style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.5s ease 400ms' }}>
             <div className="flex items-baseline justify-between mb-3">
               <span className="font-mono text-xs text-muted">CALORIES</span>
               <span className="font-display font-black text-lg">1,240 <span className="text-muted text-sm font-normal">/ 2,200</span></span>
@@ -354,15 +308,8 @@ function ClientMockup() {
             </div>
           </div>
 
-          {/* Coach card */}
-          <div
-            className="bg-surface rounded-xl p-3 border border-border flex items-center gap-3"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? 'none' : 'translateY(8px)',
-              transition: 'opacity 0.5s ease 700ms, transform 0.5s ease 700ms',
-            }}
-          >
+          <div className="bg-surface rounded-xl p-3 border border-border flex items-center gap-3"
+            style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(8px)', transition: 'opacity 0.5s ease 700ms, transform 0.5s ease 700ms' }}>
             <div className="w-9 h-9 rounded-xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
               <span className="font-display font-black text-sm text-brown-light">B</span>
             </div>
@@ -375,18 +322,11 @@ function ClientMockup() {
             </div>
           </div>
 
-          {/* Meal list preview */}
-          <div
-            className="space-y-1.5"
-            style={{
-              opacity: visible ? 1 : 0,
-              transition: 'opacity 0.5s ease 820ms',
-            }}
-          >
+          <div className="space-y-1.5" style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.5s ease 820ms' }}>
             <p className="font-display font-bold text-xs tracking-widest text-muted">TODAY'S MEALS</p>
             {[
               { name: 'BREAKFAST', desc: 'Oats · Eggs', cal: 480 },
-              { name: 'LUNCH',     desc: 'Chicken bowl',cal: 760 },
+              { name: 'LUNCH',     desc: 'Chicken bowl', cal: 760 },
             ].map(({ name, desc, cal }) => (
               <div key={name} className="bg-surface rounded-lg px-3 py-2 flex items-center justify-between border border-border">
                 <div>
@@ -400,9 +340,9 @@ function ClientMockup() {
         </div>
       </div>
 
-      {/* Floating notification */}
+      {/* Floating notification · liquid glass */}
       <div
-        className="absolute -right-4 top-20 bg-surface border border-border rounded-xl px-3 py-2 shadow-xl"
+        className="glass absolute -right-4 top-20 rounded-xl px-3 py-2"
         style={{ animation: 'float 3.5s ease-in-out infinite 0.8s' }}
       >
         <p className="font-mono text-xs text-brown-light">✓ LOG SUBMITTED</p>
@@ -436,7 +376,6 @@ export default function Landing({ onGetStarted }) {
     solo:     useRef(null),
   }
 
-  /* Nav transparency on scroll */
   useEffect(() => {
     const el = containerRef.current; if (!el) return
     const h = () => setNavSolid(el.scrollTop > 56)
@@ -444,40 +383,23 @@ export default function Landing({ onGetStarted }) {
     return () => el.removeEventListener('scroll', h)
   }, [])
 
-  /* Hero entrance */
   useEffect(() => {
     const t = setTimeout(() => setHeroVisible(true), 80)
     return () => clearTimeout(t)
   }, [])
 
   const goto = (id) => {
-    const el = sectionRefs[id]?.current
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    sectionRefs[id]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     setMenuOpen(false)
   }
 
-  /* ─── render ─────────────────────────────────────── */
   return (
     <ScrollRoot.Provider value={containerRef}>
 
-      {/* ── extra keyframes not in app's index.css ─── */}
       <style>{`
-        @keyframes heroLine {
-          from { width: 0; opacity: 0; }
-          to   { width: 100%; opacity: 1; }
-        }
-        @keyframes termBlink {
-          0%,100% { opacity: 1; }
-          50%      { opacity: 0; }
-        }
-        @keyframes gridPulse {
-          0%,100% { opacity: 0.5; }
-          50%      { opacity: 1; }
-        }
-        @keyframes scanDown {
-          from { transform: translateY(-100%); }
-          to   { transform: translateY(100vh); }
-        }
+        @keyframes heroLine  { from { width:0;opacity:0 } to { width:100%;opacity:1 } }
+        @keyframes scanDown  { from { transform:translateY(-100%) } to { transform:translateY(100vh) } }
+
         .landing-grid {
           background-image:
             linear-gradient(rgba(154,123,85,0.055) 1px, transparent 1px),
@@ -485,119 +407,142 @@ export default function Landing({ onGetStarted }) {
           background-size: 52px 52px;
         }
         .landing-scan::after {
-          content: '';
-          position: absolute;
-          inset: 0;
+          content:''; position:absolute; inset:0; pointer-events:none;
           background: linear-gradient(to bottom, transparent 40%, rgba(154,123,85,0.04) 50%, transparent 60%);
           animation: scanDown 5s linear infinite;
-          pointer-events: none;
         }
-        .glow-brown-btn:hover {
-          box-shadow: 0 0 28px 6px rgba(154,123,85,0.28);
+
+        /* ── LIQUID GLASS UTILITIES ── */
+        .glass {
+          background: rgba(255,255,255,0.045);
+          backdrop-filter: blur(22px) saturate(180%);
+          -webkit-backdrop-filter: blur(22px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.09);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 4px 24px rgba(0,0,0,0.18);
         }
-        .glow-olive-btn:hover {
-          box-shadow: 0 0 28px 6px rgba(107,122,82,0.28);
+        /* warm tint — brown accent */
+        .glass-warm {
+          background: rgba(154,123,85,0.07);
+          backdrop-filter: blur(22px) saturate(180%);
+          -webkit-backdrop-filter: blur(22px) saturate(180%);
+          border: 1px solid rgba(154,123,85,0.18);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.15);
         }
+        /* olive tint */
+        .glass-olive {
+          background: rgba(107,122,82,0.07);
+          backdrop-filter: blur(22px) saturate(180%);
+          -webkit-backdrop-filter: blur(22px) saturate(180%);
+          border: 1px solid rgba(107,122,82,0.18);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.15);
+        }
+        /* slate tint */
+        .glass-slate {
+          background: rgba(90,100,114,0.07);
+          backdrop-filter: blur(22px) saturate(180%);
+          -webkit-backdrop-filter: blur(22px) saturate(180%);
+          border: 1px solid rgba(90,100,114,0.18);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.15);
+        }
+        /* section-level dark glass (replaces bg-surface on full-width sections) */
+        .glass-section {
+          background: rgba(14,14,12,0.38);
+          backdrop-filter: blur(28px) saturate(160%);
+          -webkit-backdrop-filter: blur(28px) saturate(160%);
+        }
+        /* ghost button */
+        .glass-btn {
+          background: rgba(255,255,255,0.05);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255,255,255,0.10);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+          transition: background 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .glass-btn:hover {
+          background: rgba(255,255,255,0.09);
+          border-color: rgba(154,123,85,0.45);
+          color: #E8E4DC;
+        }
+
+        .glow-brown-btn:hover { box-shadow: 0 0 28px 6px rgba(154,123,85,0.28); }
+        .glow-olive-btn:hover  { box-shadow: 0 0 28px 6px rgba(107,122,82,0.28); }
       `}</style>
 
-      <div
-        ref={containerRef}
-        className="h-full w-full overflow-y-auto bg-bg text-cream"
-        style={{ scrollBehavior: 'smooth' }}
-      >
+      <div ref={containerRef} className="h-full w-full overflow-y-auto bg-bg text-cream" style={{ scrollBehavior: 'smooth' }}>
 
-        {/* ════════════════════════════════════════
-            NAVBAR
-        ════════════════════════════════════════ */}
+        {/* ══ NAVBAR ════════════════════════════════ */}
         <nav
           className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
           style={{
-            background: navSolid ? 'rgba(28,26,24,0.18)' : 'transparent',
-            backdropFilter: navSolid ? 'blur(12px)' : 'none',
-            borderBottom: navSolid ? '1px solid rgba(42,39,36,0.15)' : 'none',
+            background:     navSolid ? 'rgba(28,26,24,0.09)' : 'transparent',
+            backdropFilter: navSolid ? 'blur(22px) saturate(180%)' : 'none',
+            WebkitBackdropFilter: navSolid ? 'blur(22px) saturate(180%)' : 'none',
+            borderBottom:   navSolid ? '1px solid rgba(255,255,255,0.07)' : 'none',
+            boxShadow:      navSolid ? 'inset 0 -1px 0 rgba(255,255,255,0.04)' : 'none',
           }}
         >
           <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
-
-            {/* Logo */}
-            <button
-              onClick={() => goto('hero')}
-              className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
-            >
+            <button onClick={() => goto('hero')} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
               <LogoMark size={34} />
               <span className="font-display font-black text-2xl tracking-widest leading-none">
                 MACRO<span className="text-brown-light">STACK</span>
               </span>
             </button>
 
-            {/* Desktop nav links */}
             <div className="hidden md:flex items-center gap-7">
               {NAV_LINKS.map(({ label, id }) => (
-                <button
-                  key={id}
-                  onClick={() => goto(id)}
-                  className="font-display text-xs tracking-widest text-muted hover:text-cream transition-colors relative group"
-                >
+                <button key={id} onClick={() => goto(id)}
+                  className="font-display text-xs tracking-widest text-muted hover:text-cream transition-colors relative group">
                   {label}
                   <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-brown transition-all duration-300 group-hover:w-full" />
                 </button>
               ))}
             </div>
 
-            {/* Desktop CTAs */}
             <div className="hidden md:flex items-center gap-3">
-              <button
-                onClick={onGetStarted}
-                className="font-display text-xs tracking-widest text-muted hover:text-cream transition-colors px-3 py-1.5"
-              >
+              <button onClick={onGetStarted}
+                className="font-display text-xs tracking-widest text-muted hover:text-cream transition-colors px-3 py-1.5">
                 SIGN IN
               </button>
-              <button
-                onClick={onGetStarted}
-                className="font-display font-bold text-xs tracking-widest bg-brown hover:bg-brown-light text-bg px-5 py-2 rounded-lg transition-all glow-brown-btn"
-              >
+              <button onClick={onGetStarted}
+                className="font-display font-bold text-xs tracking-widest bg-brown hover:bg-brown-light text-bg px-5 py-2 rounded-lg transition-all glow-brown-btn">
                 GET STARTED
               </button>
             </div>
 
-            {/* Mobile hamburger */}
-            <button
-              className="md:hidden flex flex-col gap-1.5 p-1.5"
-              onClick={() => setMenuOpen(o => !o)}
-              aria-label="Toggle menu"
-            >
+            <button className="md:hidden flex flex-col gap-1.5 p-1.5" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">
               <span className={`block w-5 h-px bg-cream transition-all duration-300 ${menuOpen ? 'translate-y-2.5 rotate-45' : ''}`} />
               <span className={`block w-5 h-px bg-cream transition-all duration-300 ${menuOpen ? 'opacity-0 scale-x-0' : ''}`} />
               <span className={`block w-5 h-px bg-cream transition-all duration-300 ${menuOpen ? '-translate-y-2.5 -rotate-45' : ''}`} />
             </button>
           </div>
 
-          {/* Mobile dropdown */}
+          {/* Mobile dropdown · liquid glass */}
           <div
             className="md:hidden overflow-hidden transition-all duration-300"
-            style={{ maxHeight: menuOpen ? '360px' : '0', background: 'rgba(28,26,24,0.19)', backdropFilter: 'blur(12px)' }}
+            style={{
+              maxHeight: menuOpen ? '360px' : '0',
+              background: 'rgba(14,14,12,0.12)',
+              backdropFilter: 'blur(22px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(22px) saturate(180%)',
+              borderBottom: menuOpen ? '1px solid rgba(255,255,255,0.07)' : 'none',
+            }}
           >
-            <div className="px-5 py-4 border-t border-border space-y-1">
+            <div className="px-5 py-4 border-t border-white/5 space-y-1">
               {NAV_LINKS.map(({ label, id }) => (
-                <button
-                  key={id}
-                  onClick={() => goto(id)}
-                  className="block w-full text-left font-display text-sm tracking-widest text-muted hover:text-cream py-2.5 transition-colors"
-                >
+                <button key={id} onClick={() => goto(id)}
+                  className="block w-full text-left font-display text-sm tracking-widest text-muted hover:text-cream py-2.5 transition-colors">
                   {label}
                 </button>
               ))}
-              <div className="pt-3 border-t border-border space-y-2">
-                <button
-                  onClick={onGetStarted}
-                  className="block w-full font-display font-bold text-sm tracking-widest bg-brown text-bg py-3 rounded-lg text-center"
-                >
+              <div className="pt-3 border-t border-white/5 space-y-2">
+                <button onClick={onGetStarted}
+                  className="block w-full font-display font-bold text-sm tracking-widest bg-brown text-bg py-3 rounded-lg text-center">
                   GET STARTED FREE
                 </button>
-                <button
-                  onClick={onGetStarted}
-                  className="block w-full font-display text-sm tracking-widest border border-border text-muted py-3 rounded-lg text-center"
-                >
+                <button onClick={onGetStarted}
+                  className="glass-btn block w-full font-display text-sm tracking-widest text-muted py-3 rounded-lg text-center">
                   SIGN IN
                 </button>
               </div>
@@ -605,14 +550,8 @@ export default function Landing({ onGetStarted }) {
           </div>
         </nav>
 
-        {/* ════════════════════════════════════════
-            HERO
-        ════════════════════════════════════════ */}
-        <section
-          ref={sectionRefs.hero}
-          className="relative min-h-screen flex items-center pt-14 overflow-hidden landing-grid landing-scan"
-        >
-          {/* Background glow orbs */}
+        {/* ══ HERO ══════════════════════════════════ */}
+        <section ref={sectionRefs.hero} className="relative min-h-screen flex items-center pt-14 overflow-hidden landing-grid landing-scan">
           <div className="absolute top-1/3 left-1/4 w-[700px] h-[700px] rounded-full pointer-events-none"
             style={{ background: 'radial-gradient(circle, rgba(154,123,85,0.07) 0%, transparent 65%)', transform: 'translate(-50%,-50%)' }} />
           <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full pointer-events-none"
@@ -620,148 +559,94 @@ export default function Landing({ onGetStarted }) {
 
           <div className="relative max-w-6xl mx-auto px-5 w-full py-24 lg:py-32">
             <div className="grid md:grid-cols-2 gap-14 lg:gap-20 items-center">
-
-              {/* ─ Left: copy ─────────────────── */}
               <div>
-                {/* Eyebrow */}
-                <div
-                  className="flex items-center gap-3 mb-6"
-                  style={{
-                    opacity: heroVisible ? 1 : 0,
-                    transform: heroVisible ? 'none' : 'translateY(10px)',
-                    transition: 'opacity 0.5s ease 100ms, transform 0.5s ease 100ms',
-                  }}
-                >
+                <div className="flex items-center gap-3 mb-6"
+                  style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(10px)', transition: 'opacity 0.5s ease 100ms, transform 0.5s ease 100ms' }}>
                   <span className="w-8 h-px bg-brown" style={{ animation: heroVisible ? 'heroLine 0.6s ease 200ms both' : 'none' }} />
                   <span className="font-mono text-xs tracking-widest text-brown">PRECISION NUTRITION PLATFORM</span>
                   <span className="font-mono text-xs text-dim animate-pulse">_</span>
                 </div>
 
-                {/* Main headline */}
-                <h1
-                  className="font-display font-black leading-none tracking-wide mb-6"
-                  style={{ fontSize: 'clamp(3.2rem,7.5vw,5.5rem)' }}
-                >
+                <h1 className="font-display font-black leading-none tracking-wide mb-6" style={{ fontSize: 'clamp(3.2rem,7.5vw,5.5rem)' }}>
                   {['TRACK.', 'OPTIMIZE.', <span key="p" className="text-brown-light">PERFORM.</span>].map((word, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        opacity: heroVisible ? 1 : 0,
-                        transform: heroVisible ? 'none' : 'translateY(28px)',
-                        transition: `opacity 0.6s ease ${200 + i * 140}ms, transform 0.6s cubic-bezier(0.16,1,0.3,1) ${200 + i * 140}ms`,
-                        display: 'block',
-                      }}
-                    >
+                    <div key={i} style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(28px)', transition: `opacity 0.6s ease ${200 + i * 140}ms, transform 0.6s cubic-bezier(0.16,1,0.3,1) ${200 + i * 140}ms`, display: 'block' }}>
                       {word}
                     </div>
                   ))}
                 </h1>
 
-                {/* Description */}
-                <p
-                  className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md"
-                  style={{
-                    opacity: heroVisible ? 1 : 0,
-                    transform: heroVisible ? 'none' : 'translateY(16px)',
-                    transition: 'opacity 0.6s ease 620ms, transform 0.6s ease 620ms',
-                  }}
-                >
+                <p className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md"
+                  style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(16px)', transition: 'opacity 0.6s ease 620ms, transform 0.6s ease 620ms' }}>
                   The nutrition OS for serious athletes and the coaches who guide them.
                   Precision macro tracking, real-time coaching tools, and AI-powered food data — all in one platform.
                 </p>
 
-                {/* CTA buttons */}
-                <div
-                  className="flex flex-wrap gap-3 mb-12"
-                  style={{
-                    opacity: heroVisible ? 1 : 0,
-                    transform: heroVisible ? 'none' : 'translateY(16px)',
-                    transition: 'opacity 0.6s ease 760ms, transform 0.6s ease 760ms',
-                  }}
-                >
-                  <button
-                    onClick={onGetStarted}
-                    className="font-display font-bold text-sm tracking-widest bg-brown hover:bg-brown-light text-bg px-7 py-3.5 rounded-lg transition-all glow-brown-btn"
-                  >
+                <div className="flex flex-wrap gap-3 mb-12"
+                  style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(16px)', transition: 'opacity 0.6s ease 760ms, transform 0.6s ease 760ms' }}>
+                  <button onClick={onGetStarted}
+                    className="font-display font-bold text-sm tracking-widest bg-brown hover:bg-brown-light text-bg px-7 py-3.5 rounded-lg transition-all glow-brown-btn">
                     START FOR FREE →
                   </button>
-                  <button
-                    onClick={onGetStarted}
-                    className="font-display font-bold text-sm tracking-widest border border-border hover:border-brown/50 text-muted hover:text-cream px-7 py-3.5 rounded-lg transition-all"
-                  >
+                  <button onClick={onGetStarted}
+                    className="glass-btn font-display font-bold text-sm tracking-widest text-muted px-7 py-3.5 rounded-lg">
                     SIGN IN
                   </button>
                 </div>
 
-                {/* Stats strip */}
+                {/* Stats strip · liquid glass pill */}
                 <div
-                  className="flex flex-wrap gap-8 pt-7 border-t border-border"
-                  style={{
-                    opacity: heroVisible ? 1 : 0,
-                    transition: 'opacity 0.6s ease 900ms',
-                  }}
+                  className="glass inline-flex flex-wrap gap-8 px-6 py-4 rounded-2xl"
+                  style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 0.6s ease 900ms' }}
                 >
                   {[
-                    { to: 10000, suffix: '+', label: 'FOODS IN DB'       },
-                    { to: 3,     suffix: '',  label: 'USER ROLES'         },
-                    { to: 100,   suffix: '%', label: 'FREE TO START'      },
+                    { to: 10000, suffix: '+', label: 'FOODS IN DB'  },
+                    { to: 3,     suffix: '',  label: 'USER ROLES'   },
+                    { to: 100,   suffix: '%', label: 'FREE TO START'},
                   ].map(({ to, suffix, label }) => (
                     <div key={label}>
-                      <div className="font-display font-black text-3xl text-brown-light">
-                        <CountUp to={to} suffix={suffix} />
-                      </div>
+                      <div className="font-display font-black text-3xl text-brown-light"><CountUp to={to} suffix={suffix} /></div>
                       <div className="font-mono text-xs text-muted tracking-widest mt-0.5">{label}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* ─ Right: mock dashboard ────────── */}
-              <div className="hidden md:block">
-                <HeroDashboard />
-              </div>
+              <div className="hidden md:block"><HeroDashboard /></div>
             </div>
           </div>
 
-          {/* Scroll indicator */}
-          <div
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-            style={{
-              opacity: heroVisible ? 0.5 : 0,
-              transition: 'opacity 0.6s ease 1200ms',
-            }}
-          >
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            style={{ opacity: heroVisible ? 0.5 : 0, transition: 'opacity 0.6s ease 1200ms' }}>
             <span className="font-mono text-xs tracking-widest text-dim">SCROLL</span>
             <div className="w-px h-8 bg-gradient-to-b from-dim to-transparent" style={{ animation: 'float 2s ease-in-out infinite' }} />
           </div>
         </section>
 
-        {/* ════════════════════════════════════════
-            STATS TICKER
-        ════════════════════════════════════════ */}
-        <section className="border-y border-border bg-surface py-10 overflow-hidden">
+        {/* ══ STATS TICKER · glass section ═════════ */}
+        <section className="glass-section border-y border-white/5 py-12 overflow-hidden">
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               {[
-                { to: 10000, suffix: '+', label: 'FOODS IN DATABASE',  delay: 0   },
-                { to: 3,     suffix: '',  label: 'COACHING TIERS',     delay: 100 },
-                { to: 100,   suffix: '%', label: 'MACRO PRECISION',    delay: 200 },
-                { to: 24,    suffix: '/7',label: 'ALWAYS AVAILABLE',   delay: 300 },
+                { to: 10000, suffix: '+', label: 'FOODS IN DATABASE', delay: 0   },
+                { to: 3,     suffix: '',  label: 'COACHING TIERS',    delay: 100 },
+                { to: 100,   suffix: '%', label: 'MACRO PRECISION',   delay: 200 },
+                { to: 24,    suffix: '/7',label: 'ALWAYS AVAILABLE',  delay: 300 },
               ].map(({ to, suffix, label, delay }) => (
                 <Reveal key={label} delay={delay} className="text-center">
-                  <div className="font-display font-black text-4xl md:text-5xl text-brown-light">
-                    <CountUp to={to} suffix={suffix} />
+                  {/* Each stat in its own glass pill */}
+                  <div className="glass rounded-xl py-4 px-2">
+                    <div className="font-display font-black text-4xl md:text-5xl text-brown-light">
+                      <CountUp to={to} suffix={suffix} />
+                    </div>
+                    <div className="font-mono text-xs text-muted tracking-widest mt-2">{label}</div>
                   </div>
-                  <div className="font-mono text-xs text-muted tracking-widest mt-2">{label}</div>
                 </Reveal>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ════════════════════════════════════════
-            FEATURES
-        ════════════════════════════════════════ */}
+        {/* ══ FEATURES · glass cards ════════════════ */}
         <section ref={sectionRefs.features} className="py-28 relative overflow-hidden">
           <div className="absolute inset-0 landing-grid opacity-50 pointer-events-none" />
 
@@ -778,83 +663,43 @@ export default function Landing({ onGetStarted }) {
 
             <div className="grid md:grid-cols-3 gap-5">
               {[
-                {
-                  symbol: '◎',
-                  color:  'brown',
-                  title:  'PRECISION TRACKING',
-                  desc:   'Log every meal with exact macros. Barcode scanner, custom foods, and AI-powered search mean no calorie goes unaccounted for.',
-                  tags:   ['BARCODE SCAN', 'CUSTOM FOODS', 'SEARCH'],
-                  delay:  0,
-                },
-                {
-                  symbol: '↗',
-                  color:  'olive',
-                  title:  'COACH CONNECT',
-                  desc:   'Coaches manage unlimited clients, set individual macro targets, monitor daily logs, and communicate in real time — one dashboard.',
-                  tags:   ['CLIENT DASHBOARD', 'MACRO TARGETS', 'MESSAGING'],
-                  delay:  120,
-                },
-                {
-                  symbol: '✦',
-                  color:  'slategray',
-                  title:  'AI FOOD INTEL',
-                  desc:   'Our AI identifies nutrition data for virtually any food — by name, brand, or description. No barcode required.',
-                  tags:   ['ANY FOOD', 'INSTANT DATA', 'VERIFIED'],
-                  delay:  240,
-                },
-              ].map(({ symbol, color, title, desc, tags, delay }) => {
-                const iconBg  = { brown: 'bg-brown/20',     olive: 'bg-olive/20',     slategray: 'bg-slategray/20'     }
-                const iconBdr = { brown: 'border-brown/30', olive: 'border-olive/30', slategray: 'border-slategray/30' }
-                const iconTxt = { brown: 'text-brown-light',olive: 'text-olive-light',slategray: 'text-slategray-light'}
-                const tagBg   = { brown: 'bg-brown/10 text-brown-light border-brown/20',
-                                  olive: 'bg-olive/10 text-olive-light border-olive/20',
-                                  slategray: 'bg-slategray/10 text-slategray-light border-slategray/20' }
-                const cardHov = { brown: 'hover:border-brown/40',olive: 'hover:border-olive/40',slategray: 'hover:border-slategray/40'}
-                return (
-                  <Reveal key={title} delay={delay}>
-                    <div className={`bg-card border border-border ${cardHov[color]} rounded-xl p-6 h-full group transition-all duration-300 hover:-translate-y-1`}
-                      style={{ ':hover': { boxShadow: '0 12px 32px -8px rgba(0,0,0,0.4)' } }}>
-                      {/* Icon */}
-                      <div className={`w-11 h-11 rounded-xl ${iconBg[color]} border ${iconBdr[color]} flex items-center justify-center mb-5 transition-all`}>
-                        <span className={`${iconTxt[color]} text-xl`}>{symbol}</span>
-                      </div>
-                      <h3 className="font-display font-black text-xl tracking-widest mb-3">{title}</h3>
-                      <p className="font-mono text-sm text-muted leading-relaxed mb-5">{desc}</p>
-                      {/* Tag chips */}
-                      <div className="flex flex-wrap gap-2">
-                        {tags.map(tag => (
-                          <span key={tag} className={`font-mono text-xs px-2 py-0.5 rounded border ${tagBg[color]}`}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+                { symbol: '◎', glassClass: 'glass-warm',  iconBg: 'bg-brown/20',     iconBdr: 'border-brown/30',     iconTxt: 'text-brown-light',    tagCls: 'bg-brown/10 text-brown-light border-brown/20',     title: 'PRECISION TRACKING', desc: 'Log every meal with exact macros. Barcode scanner, custom foods, and AI-powered search mean no calorie goes unaccounted for.',                       tags: ['BARCODE SCAN','CUSTOM FOODS','SEARCH'],             delay: 0   },
+                { symbol: '↗', glassClass: 'glass-olive', iconBg: 'bg-olive/20',     iconBdr: 'border-olive/30',     iconTxt: 'text-olive-light',    tagCls: 'bg-olive/10 text-olive-light border-olive/20',     title: 'COACH CONNECT',      desc: 'Coaches manage unlimited clients, set individual macro targets, monitor daily logs, and communicate in real time — one dashboard.',                tags: ['CLIENT DASHBOARD','MACRO TARGETS','MESSAGING'],     delay: 120 },
+                { symbol: '✦', glassClass: 'glass-slate', iconBg: 'bg-slategray/20', iconBdr: 'border-slategray/30', iconTxt: 'text-slategray-light', tagCls: 'bg-slategray/10 text-slategray-light border-slategray/20', title: 'AI FOOD INTEL',      desc: 'Our AI identifies nutrition data for virtually any food — by name, brand, or description. No barcode required.',                                    tags: ['ANY FOOD','INSTANT DATA','VERIFIED'],               delay: 240 },
+              ].map(({ symbol, glassClass, iconBg, iconBdr, iconTxt, tagCls, title, desc, tags, delay }) => (
+                <Reveal key={title} delay={delay}>
+                  <div className={`${glassClass} rounded-xl p-6 h-full group transition-all duration-300 hover:-translate-y-1`}
+                    style={{ ':hover': { boxShadow: '0 12px 32px -8px rgba(0,0,0,0.4)' } }}>
+                    <div className={`w-11 h-11 rounded-xl ${iconBg} border ${iconBdr} flex items-center justify-center mb-5`}>
+                      <span className={`${iconTxt} text-xl`}>{symbol}</span>
                     </div>
-                  </Reveal>
-                )
-              })}
+                    <h3 className="font-display font-black text-xl tracking-widest mb-3">{title}</h3>
+                    <p className="font-mono text-sm text-muted leading-relaxed mb-5">{desc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map(tag => (
+                        <span key={tag} className={`glass font-mono text-xs px-2 py-0.5 rounded ${tagCls}`} style={{ border: 'none' }}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* ════════════════════════════════════════
-            FOR COACHES
-        ════════════════════════════════════════ */}
-        <section ref={sectionRefs.coaches} className="py-28 bg-surface relative overflow-hidden">
-          {/* Decorative corner accent */}
+        {/* ══ FOR COACHES · glass section bg ═══════ */}
+        <section ref={sectionRefs.coaches} className="py-28 glass-section relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none opacity-30"
             style={{ background: 'radial-gradient(circle at 100% 0%, rgba(154,123,85,0.15) 0%, transparent 60%)' }} />
 
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
-
-              {/* Left: copy */}
               <div>
                 <Reveal>
                   <p className="font-mono text-xs tracking-widest text-brown mb-3">— FOR COACHES —</p>
-                  <h2
-                    className="font-display font-black leading-none tracking-wide mb-5"
-                    style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}
-                  >
+                  <h2 className="font-display font-black leading-none tracking-wide mb-5" style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}>
                     MANAGE YOUR<br/><span className="text-brown-light">ENTIRE ROSTER.</span>
                   </h2>
                   <p className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md">
@@ -866,10 +711,10 @@ export default function Landing({ onGetStarted }) {
                 <div className="space-y-4 mb-10">
                   {[
                     { title: 'CLIENT DASHBOARD',  desc: 'See all clients at a glance — who hit their targets, who needs attention, who messaged you today.' },
-                    { title: 'CUSTOM TARGETS',     desc: 'Set individual calorie and macro goals for each client based on their body composition and objectives.' },
-                    { title: 'REAL-TIME LOG VIEW', desc: "Watch any client's food log update as they track throughout the day — no waiting for weekly reports." },
-                    { title: 'DIRECT MESSAGING',   desc: 'In-app coach-client messaging keeps all communication organized and searchable in one place.' },
-                    { title: 'COACH CODE',         desc: 'Share your unique 6-digit code so new clients link to you instantly when they sign up.' },
+                    { title: 'CUSTOM TARGETS',    desc: 'Set individual calorie and macro goals for each client based on their body composition and objectives.' },
+                    { title: 'REAL-TIME LOG VIEW',desc: "Watch any client's food log update as they track throughout the day — no waiting for weekly reports." },
+                    { title: 'DIRECT MESSAGING',  desc: 'In-app coach-client messaging keeps all communication organized and searchable in one place.' },
+                    { title: 'COACH CODE',        desc: 'Share your unique 6-digit code so new clients link to you instantly when they sign up.' },
                   ].map(({ title, desc }, i) => (
                     <Reveal key={title} delay={i * 80}>
                       <div className="flex gap-4 group">
@@ -884,24 +729,18 @@ export default function Landing({ onGetStarted }) {
                 </div>
 
                 <Reveal delay={480}>
-                  <button
-                    onClick={onGetStarted}
-                    className="font-display font-bold text-sm tracking-widest bg-brown hover:bg-brown-light text-bg px-7 py-3.5 rounded-lg transition-all glow-brown-btn"
-                  >
+                  <button onClick={onGetStarted}
+                    className="font-display font-bold text-sm tracking-widest bg-brown hover:bg-brown-light text-bg px-7 py-3.5 rounded-lg transition-all glow-brown-btn">
                     START COACHING →
                   </button>
                 </Reveal>
               </div>
-
-              {/* Right: mockup */}
               <CoachMockup />
             </div>
           </div>
         </section>
 
-        {/* ════════════════════════════════════════
-            FOR CLIENTS
-        ════════════════════════════════════════ */}
+        {/* ══ FOR CLIENTS ══════════════════════════ */}
         <section ref={sectionRefs.clients} className="py-28 relative overflow-hidden">
           <div className="absolute inset-0 landing-grid opacity-40 pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-72 h-72 pointer-events-none opacity-30"
@@ -909,35 +748,25 @@ export default function Landing({ onGetStarted }) {
 
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
-
-              {/* Left: mockup */}
-              <div className="relative">
-                <ClientMockup />
-              </div>
-
-              {/* Right: copy */}
+              <div className="relative"><ClientMockup /></div>
               <div>
                 <Reveal>
                   <p className="font-mono text-xs tracking-widest text-olive mb-3">— FOR CLIENTS —</p>
-                  <h2
-                    className="font-display font-black leading-none tracking-wide mb-5"
-                    style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}
-                  >
+                  <h2 className="font-display font-black leading-none tracking-wide mb-5" style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}>
                     FOLLOW YOUR<br/><span className="text-olive-light">PERSONALIZED PLAN.</span>
                   </h2>
                   <p className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md">
-                    Your coach sets the targets. You log the food. MacroStack shows you exactly
-                    where you stand — every single day.
+                    Your coach sets the targets. You log the food. MacroStack shows you exactly where you stand — every single day.
                   </p>
                 </Reveal>
 
                 <div className="space-y-4 mb-10">
                   {[
-                    { title: 'PERSONALIZED TARGETS',  desc: 'Calories and macros set specifically for your body composition, goals, and timeline by your coach.' },
-                    { title: 'FAST FOOD LOGGING',      desc: 'Search thousands of foods, scan barcodes, or use AI to log any meal in under 10 seconds.' },
-                    { title: 'WEIGHT TREND TRACKING',  desc: 'Log your weight daily and watch a smooth trend line show your real progress over time.' },
-                    { title: 'COACH MESSAGING',        desc: 'Direct line to your coach for questions, check-ins, or when you need a plan adjustment.' },
-                    { title: 'DAILY PROGRESS VIEW',    desc: 'See your calorie and macro breakdown in real time — no guessing if you\'re on track today.' },
+                    { title: 'PERSONALIZED TARGETS', desc: 'Calories and macros set specifically for your body composition, goals, and timeline by your coach.' },
+                    { title: 'FAST FOOD LOGGING',    desc: 'Search thousands of foods, scan barcodes, or use AI to log any meal in under 10 seconds.' },
+                    { title: 'WEIGHT TREND',         desc: 'Log your weight daily and watch a smooth trend line show your real progress over time.' },
+                    { title: 'COACH MESSAGING',      desc: 'Direct line to your coach for questions, check-ins, or when you need a plan adjustment.' },
+                    { title: 'DAILY PROGRESS',       desc: "See your calorie and macro breakdown in real time — no guessing if you're on track today." },
                   ].map(({ title, desc }, i) => (
                     <Reveal key={title} delay={i * 80}>
                       <div className="flex gap-4 group">
@@ -952,10 +781,8 @@ export default function Landing({ onGetStarted }) {
                 </div>
 
                 <Reveal delay={480}>
-                  <button
-                    onClick={onGetStarted}
-                    className="font-display font-bold text-sm tracking-widest bg-olive hover:bg-olive-light text-bg px-7 py-3.5 rounded-lg transition-all glow-olive-btn"
-                  >
+                  <button onClick={onGetStarted}
+                    className="font-display font-bold text-sm tracking-widest bg-olive hover:bg-olive-light text-bg px-7 py-3.5 rounded-lg transition-all glow-olive-btn">
                     JOIN AS A CLIENT →
                   </button>
                 </Reveal>
@@ -964,69 +791,33 @@ export default function Landing({ onGetStarted }) {
           </div>
         </section>
 
-        {/* ════════════════════════════════════════
-            FOR INDIVIDUALS / SOLO
-        ════════════════════════════════════════ */}
-        <section ref={sectionRefs.solo} className="py-28 bg-surface relative overflow-hidden">
+        {/* ══ INDIVIDUALS · glass section + glass cards */}
+        <section ref={sectionRefs.solo} className="py-28 glass-section relative overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none"
             style={{ background: 'radial-gradient(ellipse, rgba(90,100,114,0.08) 0%, transparent 70%)' }} />
 
           <div className="max-w-6xl mx-auto px-5">
             <Reveal className="text-center mb-16">
               <p className="font-mono text-xs tracking-widest text-slategray-light mb-3">— FOR INDIVIDUALS —</p>
-              <h2
-                className="font-display font-black tracking-wide leading-none"
-                style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}
-              >
+              <h2 className="font-display font-black tracking-wide leading-none" style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}>
                 NO COACH?<br/><span className="text-slategray-light">NO PROBLEM.</span>
               </h2>
               <p className="font-mono text-sm text-muted mt-5 max-w-lg mx-auto leading-relaxed">
-                MacroStack's full tracking suite is available to anyone who wants to take control of their nutrition independently —
-                no coach connection required.
+                MacroStack's full tracking suite is available to anyone who wants to take control of their nutrition independently.
               </p>
             </Reveal>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                {
-                  sym: '◎',
-                  title: 'FULL FOOD DATABASE',
-                  desc: 'Access thousands of foods with verified nutrition data. Search by name, brand, or scan a barcode.',
-                  delay: 0,
-                },
-                {
-                  sym: '✦',
-                  title: 'AI FOOD SEARCH',
-                  desc: "Describe any food and our AI returns accurate nutrition data instantly — no barcode, no problem.",
-                  delay: 60,
-                },
-                {
-                  sym: '↑',
-                  title: 'WEIGHT TRACKING',
-                  desc: 'Log your weight daily. Watch a trend line smooth out the noise and show your real trajectory.',
-                  delay: 120,
-                },
-                {
-                  sym: '→',
-                  title: 'SET YOUR OWN TARGETS',
-                  desc: "Use the built-in macro calculator or enter custom goals. You're in complete control.",
-                  delay: 180,
-                },
-                {
-                  sym: '■',
-                  title: 'CUSTOM FOODS',
-                  desc: "Add any food that isn't in the database. Your entries are saved for fast re-use.",
-                  delay: 240,
-                },
-                {
-                  sym: '◆',
-                  title: 'UPGRADE ANYTIME',
-                  desc: 'Start solo and connect with a coach whenever you\'re ready. All your data transfers seamlessly.',
-                  delay: 300,
-                },
+                { sym: '◎', title: 'FULL FOOD DATABASE', desc: 'Access thousands of foods with verified nutrition data. Search by name, brand, or scan a barcode.',                                   delay: 0   },
+                { sym: '✦', title: 'AI FOOD SEARCH',     desc: 'Describe any food and our AI returns accurate nutrition data instantly — no barcode, no problem.',                                   delay: 60  },
+                { sym: '↑', title: 'WEIGHT TRACKING',    desc: 'Log your weight daily. Watch a trend line smooth out the noise and show your real trajectory.',                                     delay: 120 },
+                { sym: '→', title: 'SET YOUR TARGETS',   desc: "Use the built-in macro calculator or enter custom goals. You're in complete control.",                                              delay: 180 },
+                { sym: '■', title: 'CUSTOM FOODS',       desc: "Add any food that isn't in the database. Your entries are saved for fast re-use.",                                                  delay: 240 },
+                { sym: '◆', title: 'UPGRADE ANYTIME',    desc: "Start solo and connect with a coach whenever you're ready. All your data transfers seamlessly.",                                    delay: 300 },
               ].map(({ sym, title, desc, delay }) => (
                 <Reveal key={title} delay={delay}>
-                  <div className="bg-card border border-border hover:border-slategray/40 rounded-xl p-5 h-full group transition-all duration-300 hover:-translate-y-0.5">
+                  <div className="glass-slate rounded-xl p-5 h-full group transition-all duration-300 hover:-translate-y-0.5">
                     <span className="text-slategray-light text-xl block mb-4">{sym}</span>
                     <h3 className="font-display font-bold text-sm tracking-widest mb-2 text-cream">{title}</h3>
                     <p className="font-mono text-xs text-muted leading-relaxed">{desc}</p>
@@ -1036,35 +827,25 @@ export default function Landing({ onGetStarted }) {
             </div>
 
             <Reveal delay={360} className="text-center mt-12">
-              <button
-                onClick={onGetStarted}
-                className="font-display font-bold text-sm tracking-widest border border-slategray/40 hover:border-slategray text-slategray-light hover:text-cream px-7 py-3.5 rounded-lg transition-all"
-              >
+              <button onClick={onGetStarted}
+                className="glass-btn font-display font-bold text-sm tracking-widest text-slategray-light px-7 py-3.5 rounded-lg">
                 START TRACKING FREE →
               </button>
             </Reveal>
           </div>
         </section>
 
-        {/* ════════════════════════════════════════
-            FINAL CTA
-        ════════════════════════════════════════ */}
+        {/* ══ FINAL CTA ═════════════════════════════ */}
         <section className="py-36 relative overflow-hidden landing-grid landing-scan">
-          {/* Big centered glow */}
           <div className="absolute top-1/2 left-1/2 w-[900px] h-[500px] pointer-events-none"
             style={{ background: 'radial-gradient(ellipse, rgba(154,123,85,0.1) 0%, transparent 65%)', transform: 'translate(-50%,-50%)' }} />
 
           <div className="relative max-w-2xl mx-auto px-5 text-center">
             <Reveal>
               <p className="font-mono text-xs tracking-widest text-brown mb-5 flex items-center justify-center gap-3">
-                <span className="w-8 h-px bg-brown" />
-                READY TO START?
-                <span className="w-8 h-px bg-brown" />
+                <span className="w-8 h-px bg-brown" /> READY TO START? <span className="w-8 h-px bg-brown" />
               </p>
-              <h2
-                className="font-display font-black leading-none tracking-wide mb-6"
-                style={{ fontSize: 'clamp(3rem,8vw,5.5rem)' }}
-              >
+              <h2 className="font-display font-black leading-none tracking-wide mb-6" style={{ fontSize: 'clamp(3rem,8vw,5.5rem)' }}>
                 YOUR MACROS<br/><span className="text-brown-light">AWAIT.</span>
               </h2>
               <p className="font-mono text-sm text-muted leading-relaxed mb-10 max-w-md mx-auto">
@@ -1073,24 +854,20 @@ export default function Landing({ onGetStarted }) {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                  onClick={onGetStarted}
-                  className="font-display font-bold text-base tracking-widest bg-brown hover:bg-brown-light text-bg px-9 py-4 rounded-lg transition-all glow-brown-btn"
-                >
+                <button onClick={onGetStarted}
+                  className="font-display font-bold text-base tracking-widest bg-brown hover:bg-brown-light text-bg px-9 py-4 rounded-lg transition-all glow-brown-btn">
                   GET STARTED FREE
                 </button>
-                <button
-                  onClick={onGetStarted}
-                  className="font-display font-bold text-base tracking-widest border border-border hover:border-brown/40 text-muted hover:text-cream px-9 py-4 rounded-lg transition-all"
-                >
+                <button onClick={onGetStarted}
+                  className="glass-btn font-display font-bold text-base tracking-widest text-muted px-9 py-4 rounded-lg">
                   SIGN IN
                 </button>
               </div>
 
-              {/* Trust signals */}
-              <div className="mt-10 flex flex-wrap justify-center gap-6 text-dim">
+              {/* Trust signals · glass pill */}
+              <div className="glass inline-flex flex-wrap justify-center gap-6 mt-10 px-6 py-3 rounded-2xl">
                 {['FREE TO START', 'NO CREDIT CARD', 'COACH OR SOLO'].map(t => (
-                  <span key={t} className="font-mono text-xs tracking-widest flex items-center gap-2">
+                  <span key={t} className="font-mono text-xs tracking-widest text-dim flex items-center gap-2">
                     <span className="text-brown/60">✓</span> {t}
                   </span>
                 ))}
@@ -1099,10 +876,8 @@ export default function Landing({ onGetStarted }) {
           </div>
         </section>
 
-        {/* ════════════════════════════════════════
-            FOOTER
-        ════════════════════════════════════════ */}
-        <footer className="border-t border-border bg-surface py-10">
+        {/* ══ FOOTER · glass section ════════════════ */}
+        <footer className="glass-section border-t border-white/5 py-10">
           <div className="max-w-6xl mx-auto px-5">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
@@ -1117,19 +892,14 @@ export default function Landing({ onGetStarted }) {
 
               <div className="flex flex-wrap justify-center gap-6">
                 {NAV_LINKS.map(({ label, id }) => (
-                  <button
-                    key={id}
-                    onClick={() => goto(id)}
-                    className="font-mono text-xs text-muted hover:text-cream tracking-widest transition-colors"
-                  >
+                  <button key={id} onClick={() => goto(id)}
+                    className="font-mono text-xs text-muted hover:text-cream tracking-widest transition-colors">
                     {label}
                   </button>
                 ))}
               </div>
 
-              <p className="font-mono text-xs text-dim">
-                © 2026 MACROSTACK
-              </p>
+              <p className="font-mono text-xs text-dim">© 2026 MACROSTACK</p>
             </div>
           </div>
         </footer>
