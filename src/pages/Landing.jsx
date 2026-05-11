@@ -742,7 +742,7 @@ export default function Landing({ onGetStarted }) {
                   style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 0.6s ease 900ms' }}
                 >
                   {[
-                    { to: 376,   suffix: '',  label: 'FOODS IN DB'  },
+                    { to: 1270,  suffix: '+', label: 'FOODS IN DB'  },
                     { to: 100,   suffix: '%', label: 'FREE TO START'},
                   ].map(({ to, suffix, label }) => (
                     <div key={label}>
@@ -769,7 +769,7 @@ export default function Landing({ onGetStarted }) {
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
               {[
-                { to: 376,   suffix: '',   label: 'FOODS IN DATABASE', delay: 0   },
+                { to: 1270,  suffix: '+',  label: 'FOODS IN DATABASE', delay: 0   },
                 { to: 100,   suffix: '%', label: 'MACRO PRECISION',   delay: 150 },
                 { to: 24,    suffix: '/7',label: 'ALWAYS AVAILABLE',  delay: 300 },
               ].map(({ to, suffix, label, delay }) => (
