@@ -70,9 +70,9 @@ export default function ClientWeight() {
   const isBackfill = logDate !== todayStr
 
   return (
-    <div className="flex flex-col min-h-full pb-24">
+    <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="relative px-5 pt-12 pb-5 anim-fade-in-down glass-panel accent-line">
+      <div className="relative px-5 pt-mobile-header pb-5 anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="WEIGHT" duration={750} />
         </h1>

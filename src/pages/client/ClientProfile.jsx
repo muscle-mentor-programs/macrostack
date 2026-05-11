@@ -84,9 +84,9 @@ export default function ClientProfile() {
   const lbl = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
-    <div className="flex flex-col min-h-full pb-8">
+    <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="relative px-5 pt-12 pb-5 anim-fade-in-down glass-panel accent-line">
+      <div className="relative px-5 pt-mobile-header pb-5 anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="PROFILE" duration={750} />
         </h1>

@@ -360,9 +360,9 @@ export default function MobileCoachDashboard() {
     'text-red-400'
 
   return (
-    <div className="px-4 pt-14 pb-6 space-y-5 w-full overflow-x-hidden">
-      {/* Header */}
-      <div className="glass-panel accent-line relative anim-fade-in-down">
+    <div className="flex flex-col w-full overflow-x-hidden">
+      {/* Header — starts at y=0, background covers status bar */}
+      <div className="glass-panel accent-line relative anim-fade-in-down px-4 pt-mobile-header pb-4 flex-shrink-0">
         <h2 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="DASHBOARD" duration={800} />
         </h2>
@@ -370,6 +370,7 @@ export default function MobileCoachDashboard() {
           {format(new Date(), 'EEEE, MMMM d, yyyy')}
         </p>
       </div>
+      <div className="px-4 pt-4 pb-4 space-y-5">
 
       {/* Summary stats row */}
       <div className="grid grid-cols-3 gap-3">
@@ -487,7 +488,9 @@ export default function MobileCoachDashboard() {
         </div>
       )}
 
-      {/* Modals */}
+      </div>{/* end content wrapper */}
+
+      {/* Modals (fixed overlays) */}
       {editClient && <QuickEditSheet client={editClient} onClose={() => setEditClient(null)} />}
       {showEmail && (
         <EmailSheet

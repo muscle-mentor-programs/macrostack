@@ -28,9 +28,9 @@ export default function ClientProgress() {
   const avgFat      = daysLogged > 0 ? calData.reduce((s, d) => s + d.fat, 0)     / daysLogged : 0
 
   return (
-    <div className="flex flex-col min-h-full pb-4">
+    <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="px-5 pt-12 pb-6 anim-fade-in-down">
+      <div className="px-5 pt-mobile-header pb-6 anim-fade-in-down">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="PROGRESS" duration={750} />
         </h1>

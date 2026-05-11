@@ -684,6 +684,12 @@ html.ocean-light  .nav-elevated { box-shadow: 0 -2px 12px rgba(0,10,30,0.08); }
   padding-top: calc(env(safe-area-inset-top, 0px) + 20px);
 }
 
+/* Mobile page headers — background starts at y=0 (covers status bar), text
+   starts 56px below the safe-area bottom so it clears the fixed top buttons */
+.pt-mobile-header {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 56px);
+}
+
 /* Fixed elements near the top — clears status bar + 12 px breathing room */
 .top-safe {
   top: calc(env(safe-area-inset-top, 0px) + 12px);

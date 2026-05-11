@@ -273,7 +273,7 @@ export default function MobileMyFoods() {
   return (
     <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
-      <div className="glass-panel accent-line relative px-4 pt-14 pb-4 anim-fade-in-down">
+      <div className="glass-panel accent-line relative px-4 pt-mobile-header pb-4 anim-fade-in-down">
         <div className="flex items-start justify-between">
           <div>
             <h2 className="font-display font-black text-3xl tracking-wider text-cream">
@@ -296,7 +296,7 @@ export default function MobileMyFoods() {
       </div>
 
       {/* Sticky search + filter bar */}
-      <div className="sticky top-0 z-10 bg-bg px-4 pt-2 pb-3 border-y border-border space-y-3">
+      <div className="sticky top-0 z-10 bg-bg/95 backdrop-blur-sm px-4 pt-2 pb-3 border-b border-border space-y-3">
         {/* Search */}
         <div className="flex items-center gap-3 bg-bg border border-border rounded-xl px-4 py-2.5 focus-within:border-brown transition-colors">
           <Search size={14} className="text-muted flex-shrink-0" />

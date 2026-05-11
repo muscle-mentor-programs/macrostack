@@ -690,9 +690,9 @@ export default function MobileClients() {
   })
 
   return (
-    <div className="px-4 pt-14 pb-6 w-full overflow-x-hidden">
-      {/* Header */}
-      <div className="glass-panel accent-line relative flex items-center justify-between mb-4 anim-fade-in-down">
+    <div className="flex flex-col w-full overflow-x-hidden">
+      {/* Header — starts at y=0, background covers status bar */}
+      <div className="glass-panel accent-line relative flex items-center justify-between px-4 pt-mobile-header pb-4 anim-fade-in-down flex-shrink-0">
         <div>
           <h2 className="font-display font-black text-3xl tracking-wider text-cream">
             <ScrambleText text="USERS" duration={700} />
@@ -710,9 +710,10 @@ export default function MobileClients() {
         </button>
       </div>
 
+      <div className="px-4 pt-4 pb-4 space-y-4">
       {/* Search */}
       {clients.length > 0 && (
-        <div className="relative mb-4">
+        <div className="relative">
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
           <input
             type="text"
@@ -800,6 +801,8 @@ export default function MobileClients() {
           )}
         </div>
       )}
+
+      </div>{/* end content wrapper */}
 
       {/* Add client screen */}
       {showAddScreen && <AddClientScreen onClose={() => setShowAddScreen(false)} />}

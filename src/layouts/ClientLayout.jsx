@@ -76,7 +76,7 @@ export default function ClientLayout({ children }) {
       </div>
 
       {/* Scrollable page content with entrance animation */}
-      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav pt-client-top">
+      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
         <div key={activePage} className="anim-page-reveal min-h-full">
           {children}
         </div>
