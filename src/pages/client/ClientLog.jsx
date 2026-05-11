@@ -221,7 +221,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
                 <div>
                   <label className="font-display text-xs text-muted tracking-widest block mb-2">SERVINGS</label>
                   <input
-                    type="number" inputMode="decimal" min="0.01" step="0.25"
+                    type="text" inputMode="decimal"
                     value={quantity}
                     onChange={(e) => handleQtyChange(e.target.value)}
                     className={inputCls}
@@ -230,7 +230,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
                 <div>
                   <label className="font-display text-xs text-muted tracking-widest block mb-2">GRAMS</label>
                   <input
-                    type="number" inputMode="decimal" min="1" step="1"
+                    type="text" inputMode="decimal"
                     value={grams}
                     onChange={(e) => handleGramsChange(e.target.value)}
                     className={inputCls}
@@ -254,7 +254,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
               <div>
                 <label className="font-display text-xs text-muted tracking-widest block mb-2">QUANTITY</label>
                 <input
-                  type="number" inputMode="decimal" min="0.25" step="0.25"
+                  type="text" inputMode="decimal"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   className={inputCls}
@@ -524,7 +524,7 @@ export default function ClientLog() {
                                   SERVINGS
                                 </label>
                                 <input
-                                  type="number" inputMode="decimal" min="0.01" step="0.25"
+                                  type="text" inputMode="decimal"
                                   value={editState.qty}
                                   onChange={(e) => editQtyChange(e.target.value)}
                                   className={inpCls}
@@ -536,7 +536,7 @@ export default function ClientLog() {
                                     GRAMS
                                   </label>
                                   <input
-                                    type="number" inputMode="decimal" min="1" step="1"
+                                    type="text" inputMode="decimal"
                                     value={editState.grams}
                                     onChange={(e) => editGramsChange(e.target.value)}
                                     className={inpCls}

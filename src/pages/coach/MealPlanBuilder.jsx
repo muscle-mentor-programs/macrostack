@@ -478,9 +478,8 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                 <div className="flex-1">
                   <label className="font-display text-xs text-muted tracking-widest block mb-1.5">QUANTITY</label>
                   <input
-                    type="number"
-                    min="0.25"
-                    step="0.25"
+                    type="text"
+                    inputMode="decimal"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-base text-cream focus:outline-none focus:border-brown"

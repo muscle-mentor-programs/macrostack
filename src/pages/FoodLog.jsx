@@ -30,7 +30,7 @@ function AddFoodModal({ onClose }) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
   const [selected, setSelected] = useState(null)
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity] = useState('1')
   const [meal, setMeal] = useState('Breakfast')
 
   const allFoods = [...FOODS, ...customFoods]
@@ -41,12 +41,14 @@ function AddFoodModal({ onClose }) {
     return matchQ && matchC
   })
 
+  const qtyNum = Number(quantity) || 0
+
   const scaled = selected
     ? {
-        calories: selected.calories * quantity,
-        protein: selected.protein * quantity,
-        carbs: selected.carbs * quantity,
-        fat: selected.fat * quantity,
+        calories: selected.calories * qtyNum,
+        protein: selected.protein * qtyNum,
+        carbs: selected.carbs * qtyNum,
+        fat: selected.fat * qtyNum,
       }
     : null
 
@@ -56,7 +58,7 @@ function AddFoodModal({ onClose }) {
       name: selected.name,
       brand: selected.brand || '',
       foodId: selected.id,
-      quantity,
+      quantity: qtyNum || 1,
       servingSize: selected.servingSize,
       servingUnit: selected.servingUnit,
       meal,
@@ -151,11 +153,10 @@ function AddFoodModal({ onClose }) {
                   QTY · <span className="text-brown-light">{selected ? servingLabel(selected) : ''}</span>
                 </label>
                 <input
-                  type="number"
-                  min="0.25"
-                  step="0.25"
+                  type="text"
+                  inputMode="decimal"
                   value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  onChange={(e) => setQuantity(e.target.value)}
                   className="w-full bg-card border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
                 />
               </div>
