@@ -258,9 +258,9 @@ function AISearchPanel({ onAdded }) {
   }
 
   return (
-    <div className="border-t border-border bg-surface/50">
+    <div className="border-t border-border" style={{ background: 'rgba(42,39,36,0.98)' }}>
       {/* Panel header */}
-      <div className="px-8 py-4 flex items-center gap-3 border-b border-border">
+      <div className="px-8 py-4 flex items-center gap-3 border-b border-border/80" style={{ background: 'rgba(58,55,51,0.6)' }}>
         <Sparkles size={15} className="text-brown-light flex-shrink-0" />
         <div className="flex-1">
           <p className="font-display font-bold text-sm tracking-widest text-cream">AI FOOD SEARCH</p>
@@ -269,7 +269,7 @@ function AISearchPanel({ onAdded }) {
       </div>
 
       {/* Search input */}
-      <div className="px-8 py-4 flex gap-3 border-b border-border">
+      <div className="px-8 py-4 flex gap-3 border-b border-border/80">
         <div className="relative flex-1">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
@@ -278,7 +278,8 @@ function AISearchPanel({ onAdded }) {
             value={aiQuery}
             onChange={(e) => setAiQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="w-full bg-card border border-border rounded-lg pl-9 pr-4 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
+            className="w-full border border-border/80 rounded-lg pl-9 pr-4 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
+            style={{ background: 'rgba(58,55,51,0.7)' }}
           />
         </div>
         <button
@@ -300,20 +301,23 @@ function AISearchPanel({ onAdded }) {
 
       {/* Results */}
       {results.length > 0 && (
-        <div className="divide-y divide-border/50 max-h-72 overflow-y-auto">
+        <div className="max-h-72 overflow-y-auto divide-y divide-border/40">
           {results.map((food, idx) => {
             const alreadyExists = existingNames.has(food.name.toLowerCase().trim())
             const wasAdded      = added[idx]
             return (
               <div
                 key={idx}
-                className="grid grid-cols-9 px-8 py-3 items-center hover:bg-card transition-colors"
+                className="grid grid-cols-9 px-8 py-3 items-center transition-colors"
+                style={{ background: 'transparent' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(154,123,85,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 {/* Name + brand */}
                 <div className="col-span-3 min-w-0 pr-4">
                   <p className="font-mono text-sm text-cream truncate">{food.name}</p>
                   {food.brand && <p className="font-mono text-xs text-muted truncate">{food.brand}</p>}
-                  <p className="font-mono text-[10px] text-dim">{servingLabelAI(food)}</p>
+                  <p className="font-mono text-[10px] text-muted">{servingLabelAI(food)}</p>
                 </div>
                 {/* Serving */}
                 <div className="col-span-2 font-mono text-xs text-muted">{servingLabelAI(food)}</div>
@@ -325,11 +329,11 @@ function AISearchPanel({ onAdded }) {
                 <div className="flex items-center justify-end gap-2">
                   <span className="font-display font-bold text-sm text-slategray-light">{food.fat.toFixed(1)}g</span>
                   {wasAdded ? (
-                    <span className="font-display text-[10px] text-olive-light bg-olive/10 border border-olive/20 px-2 py-1 rounded flex-shrink-0">
+                    <span className="font-display text-[10px] text-olive-light bg-olive/15 border border-olive/30 px-2 py-1 rounded flex-shrink-0">
                       ADDED
                     </span>
                   ) : alreadyExists ? (
-                    <span className="font-display text-[10px] text-dim bg-card border border-border px-2 py-1 rounded flex-shrink-0">
+                    <span className="font-display text-[10px] text-muted border border-border px-2 py-1 rounded flex-shrink-0" style={{ background: 'rgba(58,55,51,0.6)' }}>
                       EXISTS
                     </span>
                   ) : (
@@ -350,7 +354,7 @@ function AISearchPanel({ onAdded }) {
       {/* Empty state after search */}
       {!loading && results.length === 0 && aiQuery && !error && (
         <div className="px-8 py-6 text-center">
-          <p className="font-mono text-sm text-dim">No results returned. Try a more specific query.</p>
+          <p className="font-mono text-sm text-muted">No results returned. Try a more specific query.</p>
         </div>
       )}
     </div>
