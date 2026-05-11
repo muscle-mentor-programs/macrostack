@@ -233,7 +233,7 @@ export default function LoginScreen({ onBack }) {
   }
 
   return (
-    <div className="relative h-full w-full bg-bg overflow-y-auto anim-fade-in">
+    <div className="fixed inset-0 bg-bg overflow-y-auto anim-fade-in">
       {/* Back to landing */}
       {onBack && (
         <div className="fixed top-safe left-4 z-10">
