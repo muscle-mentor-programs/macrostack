@@ -7,7 +7,7 @@ import ThemeToggle from '../components/ThemeToggle'
 export default function LoginScreen({ onBack }) {
   const { login, signup } = useStore()
 
-  const [edition, setEdition]   = useState('coach') // 'coach' | 'client'
+  const [edition, setEdition]   = useState('client') // 'coach' | 'client'
   const [mode, setMode]         = useState('login')  // 'login' | 'signup'
 
   // Login fields
@@ -369,16 +369,6 @@ export default function LoginScreen({ onBack }) {
         {/* Edition toggle */}
         <div className="flex gap-2 mt-4">
           <button
-            onClick={() => switchEdition('coach')}
-            className={`flex-1 py-2.5 rounded-xl font-display font-bold text-xs tracking-widest transition-all duration-200 ${
-              !isClient
-                ? 'bg-brown text-bg shadow-sm'
-                : 'bg-card border border-border text-muted hover:text-cream'
-            }`}
-          >
-            COACH EDITION
-          </button>
-          <button
             onClick={() => switchEdition('client')}
             className={`flex-1 py-2.5 rounded-xl font-display font-bold text-xs tracking-widest transition-all duration-200 ${
               isClient
@@ -387,6 +377,16 @@ export default function LoginScreen({ onBack }) {
             }`}
           >
             CLIENT EDITION
+          </button>
+          <button
+            onClick={() => switchEdition('coach')}
+            className={`flex-1 py-2.5 rounded-xl font-display font-bold text-xs tracking-widest transition-all duration-200 ${
+              !isClient
+                ? 'bg-brown text-bg shadow-sm'
+                : 'bg-card border border-border text-muted hover:text-cream'
+            }`}
+          >
+            COACH EDITION
           </button>
         </div>
 
