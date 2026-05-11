@@ -35,7 +35,8 @@ function useReveal(threshold = 0.12) {
   return [ref, visible]
 }
 
-function Reveal({ children, className = '', delay = 0, y = 22, x = 0 }) {
+/* ── upgraded Reveal: blur + scale + spring easing ── */
+function Reveal({ children, className = '', delay = 0, y = 64, x = 0 }) {
   const [ref, visible] = useReveal()
   return (
     <div
@@ -43,13 +44,87 @@ function Reveal({ children, className = '', delay = 0, y = 22, x = 0 }) {
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? 'none' : `translate(${x}px,${y}px)`,
-        transition: `opacity 0.65s ease ${delay}ms, transform 0.65s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+        transform: visible ? 'none' : `translate(${x}px,${y}px) scale(0.93)`,
+        filter: visible ? 'blur(0px)' : 'blur(10px)',
+        transition: [
+          `opacity 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+          `transform 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+          `filter 0.7s ease ${delay}ms`,
+        ].join(', '),
       }}
     >
       {children}
     </div>
   )
+}
+
+/* ── SplitReveal: word-by-word animation for headings ── */
+function SplitReveal({ children, className = '', delay = 0, wordDelay = 100 }) {
+  const [ref, visible] = useReveal()
+  const words = String(children).split(' ')
+  return (
+    <span ref={ref} className={className}>
+      {words.map((word, i) => (
+        <span
+          key={i}
+          style={{
+            display: 'inline-block',
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0px)' : 'translateY(48px)',
+            filter: visible ? 'blur(0px)' : 'blur(6px)',
+            transition: [
+              `opacity 0.75s cubic-bezier(0.16,1,0.3,1) ${delay + i * wordDelay}ms`,
+              `transform 0.75s cubic-bezier(0.16,1,0.3,1) ${delay + i * wordDelay}ms`,
+              `filter 0.55s ease ${delay + i * wordDelay}ms`,
+            ].join(', '),
+            marginRight: i < words.length - 1 ? '0.3em' : '0',
+          }}
+        >
+          {word}
+        </span>
+      ))}
+    </span>
+  )
+}
+
+/* ── ScrollProgress: fixed bar at very top ── */
+function ScrollProgress({ containerRef }) {
+  const [pct, setPct] = useState(0)
+  useEffect(() => {
+    const el = containerRef.current; if (!el) return
+    const h = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el
+      setPct(Math.min((scrollTop / (scrollHeight - clientHeight)) * 100, 100))
+    }
+    el.addEventListener('scroll', h, { passive: true })
+    return () => el.removeEventListener('scroll', h)
+  }, [containerRef])
+  return (
+    <div className="fixed top-0 left-0 right-0 h-[2px] z-[60] pointer-events-none">
+      <div
+        style={{
+          height: '100%',
+          width: `${pct}%`,
+          background: 'linear-gradient(90deg, #9A7B55, #C4A882, #6B7A52)',
+          transition: 'width 0.08s linear',
+          boxShadow: '0 0 12px 2px rgba(154,123,85,0.6)',
+        }}
+      />
+    </div>
+  )
+}
+
+/* ── useParallax: scroll-driven offset ── */
+function useParallax(speed = 0.15) {
+  const root = useContext(ScrollRoot)
+  const [offset, setOffset] = useState(0)
+  useEffect(() => {
+    const el = root?.current; if (!el) return
+    const h = () => setOffset(el.scrollTop * speed)
+    el.addEventListener('scroll', h, { passive: true })
+    return () => el.removeEventListener('scroll', h)
+  }, [root, speed])
+  return offset
 }
 
 function CountUp({ to, suffix = '', prefix = '', dur = 1800 }) {
@@ -95,8 +170,13 @@ function HeroDashboard() {
       ref={ref}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? 'none' : 'translateY(32px)',
-        transition: 'opacity 0.8s ease 200ms, transform 0.8s cubic-bezier(0.16,1,0.3,1) 200ms',
+        transform: visible ? 'none' : 'translateY(64px) scale(0.9)',
+        filter: visible ? 'blur(0px)' : 'blur(12px)',
+        transition: [
+          'opacity 0.9s cubic-bezier(0.16,1,0.3,1) 200ms',
+          'transform 0.9s cubic-bezier(0.16,1,0.3,1) 200ms',
+          'filter 0.7s ease 200ms',
+        ].join(', '),
       }}
       className="relative"
     >
@@ -205,8 +285,13 @@ function CoachMockup() {
       ref={ref}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? 'none' : 'translateX(28px)',
-        transition: 'opacity 0.7s ease 200ms, transform 0.7s cubic-bezier(0.16,1,0.3,1) 200ms',
+        transform: visible ? 'none' : 'translateX(60px) scale(0.92)',
+        filter: visible ? 'blur(0px)' : 'blur(12px)',
+        transition: [
+          'opacity 0.9s cubic-bezier(0.16,1,0.3,1) 200ms',
+          'transform 0.9s cubic-bezier(0.16,1,0.3,1) 200ms',
+          'filter 0.7s ease 200ms',
+        ].join(', '),
         boxShadow: '0 24px 56px -12px rgba(0,0,0,0.6), 0 0 40px -12px rgba(154,123,85,0.12)',
       }}
       className="bg-card border border-border rounded-2xl overflow-hidden"
@@ -271,8 +356,13 @@ function ClientMockup() {
       ref={ref}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? 'none' : 'translateX(-28px)',
-        transition: 'opacity 0.7s ease 200ms, transform 0.7s cubic-bezier(0.16,1,0.3,1) 200ms',
+        transform: visible ? 'none' : 'translateX(-60px) scale(0.92)',
+        filter: visible ? 'blur(0px)' : 'blur(12px)',
+        transition: [
+          'opacity 0.9s cubic-bezier(0.16,1,0.3,1) 200ms',
+          'transform 0.9s cubic-bezier(0.16,1,0.3,1) 200ms',
+          'filter 0.7s ease 200ms',
+        ].join(', '),
         maxWidth: '260px',
       }}
       className="relative mx-auto"
@@ -393,12 +483,44 @@ export default function Landing({ onGetStarted }) {
     setMenuOpen(false)
   }
 
+  /* ── parallax for hero blobs ── */
+  const [parallaxY, setParallaxY] = useState(0)
+  useEffect(() => {
+    const el = containerRef.current; if (!el) return
+    const h = () => setParallaxY(el.scrollTop * 0.2)
+    el.addEventListener('scroll', h, { passive: true })
+    return () => el.removeEventListener('scroll', h)
+  }, [])
+
   return (
     <ScrollRoot.Provider value={containerRef}>
 
       <style>{`
         @keyframes heroLine  { from { width:0;opacity:0 } to { width:100%;opacity:1 } }
         @keyframes scanDown  { from { transform:translateY(-100%) } to { transform:translateY(100vh) } }
+        @keyframes float     { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-8px) } }
+
+        @keyframes shimmer {
+          0%   { background-position: -200% center }
+          100% { background-position:  200% center }
+        }
+        @keyframes glowPulse {
+          0%, 100% { opacity: 0.4 }
+          50%       { opacity: 1 }
+        }
+        @keyframes driftBlob {
+          0%,100% { transform: translate(-50%,-50%) scale(1) }
+          40%     { transform: translate(-44%,-58%) scale(1.1) }
+          70%     { transform: translate(-56%,-44%) scale(0.92) }
+        }
+        @keyframes lineReveal {
+          from { transform: scaleX(0); transform-origin: left center }
+          to   { transform: scaleX(1); transform-origin: left center }
+        }
+        @keyframes fadeUp {
+          from { opacity:0; transform: translateY(24px); filter: blur(6px) }
+          to   { opacity:1; transform: none; filter: blur(0) }
+        }
 
         .landing-grid {
           background-image:
@@ -468,6 +590,8 @@ export default function Landing({ onGetStarted }) {
         .glow-brown-btn:hover { box-shadow: 0 0 28px 6px rgba(154,123,85,0.28); }
         .glow-olive-btn:hover  { box-shadow: 0 0 28px 6px rgba(107,122,82,0.28); }
       `}</style>
+
+      <ScrollProgress containerRef={containerRef} />
 
       <div ref={containerRef} className="h-full w-full overflow-y-auto bg-bg text-cream" style={{ scrollBehavior: 'smooth' }}>
 
@@ -552,10 +676,19 @@ export default function Landing({ onGetStarted }) {
 
         {/* ══ HERO ══════════════════════════════════ */}
         <section ref={sectionRefs.hero} className="relative min-h-screen flex items-center pt-14 overflow-hidden landing-grid landing-scan">
+          {/* Parallax blobs */}
           <div className="absolute top-1/3 left-1/4 w-[700px] h-[700px] rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(154,123,85,0.07) 0%, transparent 65%)', transform: 'translate(-50%,-50%)' }} />
+            style={{
+              background: 'radial-gradient(circle, rgba(154,123,85,0.07) 0%, transparent 65%)',
+              transform: `translate(-50%,-50%) translateY(${parallaxY * 0.6}px)`,
+              animation: 'driftBlob 18s ease-in-out infinite',
+            }} />
           <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(107,122,82,0.05) 0%, transparent 65%)' }} />
+            style={{
+              background: 'radial-gradient(circle, rgba(107,122,82,0.05) 0%, transparent 65%)',
+              transform: `translateY(${parallaxY * 0.4}px)`,
+              animation: 'driftBlob 22s ease-in-out infinite 4s',
+            }} />
 
           <div className="relative max-w-6xl mx-auto px-5 w-full py-24 lg:py-32">
             <div className="grid md:grid-cols-2 gap-14 lg:gap-20 items-center">
@@ -569,7 +702,17 @@ export default function Landing({ onGetStarted }) {
 
                 <h1 className="font-display font-black leading-none tracking-wide mb-6" style={{ fontSize: 'clamp(3.2rem,7.5vw,5.5rem)' }}>
                   {['TRACK.', 'OPTIMIZE.', <span key="p" className="text-brown-light">PERFORM.</span>].map((word, i) => (
-                    <div key={i} style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(28px)', transition: `opacity 0.6s ease ${200 + i * 140}ms, transform 0.6s cubic-bezier(0.16,1,0.3,1) ${200 + i * 140}ms`, display: 'block' }}>
+                    <div key={i} style={{
+                      opacity: heroVisible ? 1 : 0,
+                      transform: heroVisible ? 'none' : `translateY(72px) scale(0.88)`,
+                      filter: heroVisible ? 'blur(0px)' : 'blur(12px)',
+                      transition: [
+                        `opacity 0.85s cubic-bezier(0.16,1,0.3,1) ${160 + i * 160}ms`,
+                        `transform 0.85s cubic-bezier(0.16,1,0.3,1) ${160 + i * 160}ms`,
+                        `filter 0.65s ease ${160 + i * 160}ms`,
+                      ].join(', '),
+                      display: 'block',
+                    }}>
                       {word}
                     </div>
                   ))}
@@ -628,9 +771,9 @@ export default function Landing({ onGetStarted }) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               {[
                 { to: 10000, suffix: '+', label: 'FOODS IN DATABASE', delay: 0   },
-                { to: 3,     suffix: '',  label: 'COACHING TIERS',    delay: 100 },
-                { to: 100,   suffix: '%', label: 'MACRO PRECISION',   delay: 200 },
-                { to: 24,    suffix: '/7',label: 'ALWAYS AVAILABLE',  delay: 300 },
+                { to: 3,     suffix: '',  label: 'COACHING TIERS',    delay: 150 },
+                { to: 100,   suffix: '%', label: 'MACRO PRECISION',   delay: 300 },
+                { to: 24,    suffix: '/7',label: 'ALWAYS AVAILABLE',  delay: 450 },
               ].map(({ to, suffix, label, delay }) => (
                 <Reveal key={label} delay={delay} className="text-center">
                   {/* Each stat in its own glass pill */}
@@ -652,9 +795,12 @@ export default function Landing({ onGetStarted }) {
 
           <div className="relative max-w-6xl mx-auto px-5">
             <Reveal className="text-center mb-16">
+              <div className="w-8 h-px bg-brown/70 mb-3 mx-auto" style={{ animation: 'lineReveal 0.6s cubic-bezier(0.16,1,0.3,1) both' }} />
               <p className="font-mono text-xs tracking-widest text-brown mb-3">— WHAT WE OFFER —</p>
               <h2 className="font-display font-black tracking-wide" style={{ fontSize: 'clamp(2.5rem,6vw,4rem)' }}>
-                BUILT FOR<br/>PERFORMANCE
+                <SplitReveal delay={200}>BUILT FOR</SplitReveal>
+                <br/>
+                <SplitReveal delay={400}>PERFORMANCE</SplitReveal>
               </h2>
               <p className="font-mono text-sm text-muted mt-4 max-w-lg mx-auto leading-relaxed">
                 Three tools in one platform — everything an athlete or coach needs to operate at the highest level.
@@ -664,12 +810,14 @@ export default function Landing({ onGetStarted }) {
             <div className="grid md:grid-cols-3 gap-5">
               {[
                 { symbol: '◎', glassClass: 'glass-warm',  iconBg: 'bg-brown/20',     iconBdr: 'border-brown/30',     iconTxt: 'text-brown-light',    tagCls: 'bg-brown/10 text-brown-light border-brown/20',     title: 'PRECISION TRACKING', desc: 'Log every meal with exact macros. Barcode scanner, custom foods, and AI-powered search mean no calorie goes unaccounted for.',                       tags: ['BARCODE SCAN','CUSTOM FOODS','SEARCH'],             delay: 0   },
-                { symbol: '↗', glassClass: 'glass-olive', iconBg: 'bg-olive/20',     iconBdr: 'border-olive/30',     iconTxt: 'text-olive-light',    tagCls: 'bg-olive/10 text-olive-light border-olive/20',     title: 'COACH CONNECT',      desc: 'Coaches manage unlimited clients, set individual macro targets, monitor daily logs, and communicate in real time — one dashboard.',                tags: ['CLIENT DASHBOARD','MACRO TARGETS','MESSAGING'],     delay: 120 },
-                { symbol: '✦', glassClass: 'glass-slate', iconBg: 'bg-slategray/20', iconBdr: 'border-slategray/30', iconTxt: 'text-slategray-light', tagCls: 'bg-slategray/10 text-slategray-light border-slategray/20', title: 'AI FOOD INTEL',      desc: 'Our AI identifies nutrition data for virtually any food — by name, brand, or description. No barcode required.',                                    tags: ['ANY FOOD','INSTANT DATA','VERIFIED'],               delay: 240 },
+                { symbol: '↗', glassClass: 'glass-olive', iconBg: 'bg-olive/20',     iconBdr: 'border-olive/30',     iconTxt: 'text-olive-light',    tagCls: 'bg-olive/10 text-olive-light border-olive/20',     title: 'COACH CONNECT',      desc: 'Coaches manage unlimited clients, set individual macro targets, monitor daily logs, and communicate in real time — one dashboard.',                tags: ['CLIENT DASHBOARD','MACRO TARGETS','MESSAGING'],     delay: 180 },
+                { symbol: '✦', glassClass: 'glass-slate', iconBg: 'bg-slategray/20', iconBdr: 'border-slategray/30', iconTxt: 'text-slategray-light', tagCls: 'bg-slategray/10 text-slategray-light border-slategray/20', title: 'AI FOOD INTEL',      desc: 'Our AI identifies nutrition data for virtually any food — by name, brand, or description. No barcode required.',                                    tags: ['ANY FOOD','INSTANT DATA','VERIFIED'],               delay: 360 },
               ].map(({ symbol, glassClass, iconBg, iconBdr, iconTxt, tagCls, title, desc, tags, delay }) => (
                 <Reveal key={title} delay={delay}>
-                  <div className={`${glassClass} rounded-xl p-6 h-full group transition-all duration-300 hover:-translate-y-1`}
-                    style={{ ':hover': { boxShadow: '0 12px 32px -8px rgba(0,0,0,0.4)' } }}>
+                  <div
+                    className={`${glassClass} rounded-xl p-6 h-full group hover:-translate-y-2 hover:shadow-2xl`}
+                    style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
+                  >
                     <div className={`w-11 h-11 rounded-xl ${iconBg} border ${iconBdr} flex items-center justify-center mb-5`}>
                       <span className={`${iconTxt} text-xl`}>{symbol}</span>
                     </div>
@@ -698,9 +846,12 @@ export default function Landing({ onGetStarted }) {
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
                 <Reveal>
+                  <div className="w-8 h-px bg-brown/70 mb-3" />
                   <p className="font-mono text-xs tracking-widest text-brown mb-3">— FOR COACHES —</p>
                   <h2 className="font-display font-black leading-none tracking-wide mb-5" style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}>
-                    MANAGE YOUR<br/><span className="text-brown-light">ENTIRE ROSTER.</span>
+                    <SplitReveal delay={200}>MANAGE YOUR</SplitReveal>
+                    <br/>
+                    <SplitReveal delay={400} className="text-brown-light">ENTIRE ROSTER.</SplitReveal>
                   </h2>
                   <p className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md">
                     Everything you need to run a data-driven coaching practice.
@@ -716,7 +867,7 @@ export default function Landing({ onGetStarted }) {
                     { title: 'DIRECT MESSAGING',  desc: 'In-app coach-client messaging keeps all communication organized and searchable in one place.' },
                     { title: 'COACH CODE',        desc: 'Share your unique 6-digit code so new clients link to you instantly when they sign up.' },
                   ].map(({ title, desc }, i) => (
-                    <Reveal key={title} delay={i * 80}>
+                    <Reveal key={title} delay={i * 120}>
                       <div className="flex gap-4 group">
                         <div className="w-0.5 rounded-full bg-brown/30 group-hover:bg-brown/60 flex-shrink-0 transition-colors" style={{ minHeight: '2.5rem' }} />
                         <div className="pb-1">
@@ -751,9 +902,12 @@ export default function Landing({ onGetStarted }) {
               <div className="relative"><ClientMockup /></div>
               <div>
                 <Reveal>
+                  <div className="w-8 h-px bg-olive/70 mb-3" />
                   <p className="font-mono text-xs tracking-widest text-olive mb-3">— FOR CLIENTS —</p>
                   <h2 className="font-display font-black leading-none tracking-wide mb-5" style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}>
-                    FOLLOW YOUR<br/><span className="text-olive-light">PERSONALIZED PLAN.</span>
+                    <SplitReveal delay={200}>FOLLOW YOUR</SplitReveal>
+                    <br/>
+                    <SplitReveal delay={400} className="text-olive-light">PERSONALIZED PLAN.</SplitReveal>
                   </h2>
                   <p className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md">
                     Your coach sets the targets. You log the food. MacroStack shows you exactly where you stand — every single day.
@@ -768,7 +922,7 @@ export default function Landing({ onGetStarted }) {
                     { title: 'COACH MESSAGING',      desc: 'Direct line to your coach for questions, check-ins, or when you need a plan adjustment.' },
                     { title: 'DAILY PROGRESS',       desc: "See your calorie and macro breakdown in real time — no guessing if you're on track today." },
                   ].map(({ title, desc }, i) => (
-                    <Reveal key={title} delay={i * 80}>
+                    <Reveal key={title} delay={i * 120}>
                       <div className="flex gap-4 group">
                         <div className="w-0.5 rounded-full bg-olive/30 group-hover:bg-olive/60 flex-shrink-0 transition-colors" style={{ minHeight: '2.5rem' }} />
                         <div className="pb-1">
@@ -798,9 +952,12 @@ export default function Landing({ onGetStarted }) {
 
           <div className="max-w-6xl mx-auto px-5">
             <Reveal className="text-center mb-16">
+              <div className="w-8 h-px bg-slategray/70 mb-3 mx-auto" />
               <p className="font-mono text-xs tracking-widest text-slategray-light mb-3">— FOR INDIVIDUALS —</p>
               <h2 className="font-display font-black tracking-wide leading-none" style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}>
-                NO COACH?<br/><span className="text-slategray-light">NO PROBLEM.</span>
+                <SplitReveal delay={200}>NO COACH?</SplitReveal>
+                <br/>
+                <SplitReveal delay={400} className="text-slategray-light">NO PROBLEM.</SplitReveal>
               </h2>
               <p className="font-mono text-sm text-muted mt-5 max-w-lg mx-auto leading-relaxed">
                 MacroStack's full tracking suite is available to anyone who wants to take control of their nutrition independently.
@@ -810,14 +967,17 @@ export default function Landing({ onGetStarted }) {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
                 { sym: '◎', title: 'FULL FOOD DATABASE', desc: 'Access thousands of foods with verified nutrition data. Search by name, brand, or scan a barcode.',                                   delay: 0   },
-                { sym: '✦', title: 'AI FOOD SEARCH',     desc: 'Describe any food and our AI returns accurate nutrition data instantly — no barcode, no problem.',                                   delay: 60  },
-                { sym: '↑', title: 'WEIGHT TRACKING',    desc: 'Log your weight daily. Watch a trend line smooth out the noise and show your real trajectory.',                                     delay: 120 },
-                { sym: '→', title: 'SET YOUR TARGETS',   desc: "Use the built-in macro calculator or enter custom goals. You're in complete control.",                                              delay: 180 },
-                { sym: '■', title: 'CUSTOM FOODS',       desc: "Add any food that isn't in the database. Your entries are saved for fast re-use.",                                                  delay: 240 },
-                { sym: '◆', title: 'UPGRADE ANYTIME',    desc: "Start solo and connect with a coach whenever you're ready. All your data transfers seamlessly.",                                    delay: 300 },
+                { sym: '✦', title: 'AI FOOD SEARCH',     desc: 'Describe any food and our AI returns accurate nutrition data instantly — no barcode, no problem.',                                   delay: 90  },
+                { sym: '↑', title: 'WEIGHT TRACKING',    desc: 'Log your weight daily. Watch a trend line smooth out the noise and show your real trajectory.',                                     delay: 180 },
+                { sym: '→', title: 'SET YOUR TARGETS',   desc: "Use the built-in macro calculator or enter custom goals. You're in complete control.",                                              delay: 270 },
+                { sym: '■', title: 'CUSTOM FOODS',       desc: "Add any food that isn't in the database. Your entries are saved for fast re-use.",                                                  delay: 360 },
+                { sym: '◆', title: 'UPGRADE ANYTIME',    desc: "Start solo and connect with a coach whenever you're ready. All your data transfers seamlessly.",                                    delay: 450 },
               ].map(({ sym, title, desc, delay }) => (
                 <Reveal key={title} delay={delay}>
-                  <div className="glass-slate rounded-xl p-5 h-full group transition-all duration-300 hover:-translate-y-0.5">
+                  <div
+                    className="glass-slate rounded-xl p-5 h-full group hover:-translate-y-2 hover:shadow-2xl"
+                    style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
+                  >
                     <span className="text-slategray-light text-xl block mb-4">{sym}</span>
                     <h3 className="font-display font-bold text-sm tracking-widest mb-2 text-cream">{title}</h3>
                     <p className="font-mono text-xs text-muted leading-relaxed">{desc}</p>
@@ -846,7 +1006,9 @@ export default function Landing({ onGetStarted }) {
                 <span className="w-8 h-px bg-brown" /> READY TO START? <span className="w-8 h-px bg-brown" />
               </p>
               <h2 className="font-display font-black leading-none tracking-wide mb-6" style={{ fontSize: 'clamp(3rem,8vw,5.5rem)' }}>
-                YOUR MACROS<br/><span className="text-brown-light">AWAIT.</span>
+                <SplitReveal delay={200}>YOUR MACROS</SplitReveal>
+                <br/>
+                <SplitReveal delay={400} className="text-brown-light">AWAIT.</SplitReveal>
               </h2>
               <p className="font-mono text-sm text-muted leading-relaxed mb-10 max-w-md mx-auto">
                 Join athletes and coaches already using MacroStack to hit their targets every single day.
@@ -884,9 +1046,12 @@ export default function Landing({ onGetStarted }) {
 
           <div className="relative max-w-6xl mx-auto px-5">
             <Reveal className="text-center mb-14">
+              <div className="w-8 h-px bg-brown/70 mb-3 mx-auto" />
               <p className="font-mono text-xs tracking-widest text-brown mb-3">— THE MACROSTACK BRIEF —</p>
               <h2 className="font-display font-black tracking-wide" style={{ fontSize: 'clamp(2.5rem,6vw,4rem)' }}>
-                SCIENCE MEETS<br/>PRACTICE
+                <SplitReveal delay={200}>SCIENCE MEETS</SplitReveal>
+                <br/>
+                <SplitReveal delay={400}>PRACTICE</SplitReveal>
               </h2>
               <p className="font-mono text-sm text-muted mt-4 max-w-lg mx-auto leading-relaxed">
                 Evidence-based insights on nutrition, performance, and the research actually worth knowing about.
@@ -897,7 +1062,10 @@ export default function Landing({ onGetStarted }) {
 
               {/* ── BLOG 1 ── */}
               <Reveal delay={0}>
-                <article className="glass-warm rounded-2xl overflow-hidden h-full flex flex-col group transition-all duration-300 hover:-translate-y-1">
+                <article
+                  className="glass-warm rounded-2xl overflow-hidden h-full flex flex-col group hover:-translate-y-2 hover:shadow-2xl"
+                  style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
+                >
                   {/* Header band */}
                   <div className="px-6 pt-6 pb-4 border-b border-brown/15">
                     <div className="flex items-center gap-2 mb-4">
@@ -953,8 +1121,11 @@ export default function Landing({ onGetStarted }) {
               </Reveal>
 
               {/* ── BLOG 2 ── */}
-              <Reveal delay={120}>
-                <article className="glass-olive rounded-2xl overflow-hidden h-full flex flex-col group transition-all duration-300 hover:-translate-y-1">
+              <Reveal delay={180}>
+                <article
+                  className="glass-olive rounded-2xl overflow-hidden h-full flex flex-col group hover:-translate-y-2 hover:shadow-2xl"
+                  style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
+                >
                   <div className="px-6 pt-6 pb-4 border-b border-olive/15">
                     <div className="flex items-center gap-2 mb-4">
                       <span className="font-mono text-xs text-olive-light tracking-widest px-2 py-0.5 rounded glass-olive">TRACKING</span>
@@ -1004,8 +1175,11 @@ export default function Landing({ onGetStarted }) {
               </Reveal>
 
               {/* ── BLOG 3 ── */}
-              <Reveal delay={240}>
-                <article className="glass-slate rounded-2xl overflow-hidden h-full flex flex-col group transition-all duration-300 hover:-translate-y-1">
+              <Reveal delay={360}>
+                <article
+                  className="glass-slate rounded-2xl overflow-hidden h-full flex flex-col group hover:-translate-y-2 hover:shadow-2xl"
+                  style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
+                >
                   <div className="px-6 pt-6 pb-4 border-b border-slategray/15">
                     <div className="flex items-center gap-2 mb-4">
                       <span className="font-mono text-xs text-slategray-light tracking-widest px-2 py-0.5 rounded glass-slate">BODY COMPOSITION</span>
