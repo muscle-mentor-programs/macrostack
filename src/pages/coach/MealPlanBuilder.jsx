@@ -196,7 +196,10 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   return (
     <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in">
       {/* ── Top bar ─────────────────────────────────────────── */}
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-border bg-card flex-shrink-0">
+      <div
+        className="flex items-center gap-4 px-6 border-b border-border bg-card flex-shrink-0"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: '16px' }}
+      >
         <button onClick={onClose} className="text-muted hover:text-cream transition-colors">
           <X size={18} />
         </button>

@@ -431,7 +431,12 @@ input[type="number"]::-webkit-outer-spin-button {
 
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(24px); }
-  to   { opacity: 1; transform: translateX(0); }
+  to   { opacity: 1; }
+  /* No transform in "to" so the animation fill-mode doesn't leave a
+     transform: translateX(0) on the element after it ends. Any non-none
+     transform on an ancestor breaks fixed positioning of descendants
+     (CSS spec §9.3.1), which would trap the MealPlanBuilder overlay
+     inside the ClientDetail panel instead of covering the full viewport. */
 }
 
 @keyframes slideInLeft {
