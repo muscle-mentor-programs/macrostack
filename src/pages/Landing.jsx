@@ -414,53 +414,53 @@ export default function Landing({ onGetStarted }) {
 
         /* ── LIQUID GLASS UTILITIES ── */
         .glass {
-          background: rgba(255,255,255,0.045);
+          background: rgba(255,255,255,0.022);
           backdrop-filter: blur(22px) saturate(180%);
           -webkit-backdrop-filter: blur(22px) saturate(180%);
-          border: 1px solid rgba(255,255,255,0.09);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 4px 24px rgba(0,0,0,0.18);
+          border: 1px solid rgba(255,255,255,0.07);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.10);
         }
         /* warm tint — brown accent */
         .glass-warm {
-          background: rgba(154,123,85,0.07);
+          background: rgba(154,123,85,0.04);
           backdrop-filter: blur(22px) saturate(180%);
           -webkit-backdrop-filter: blur(22px) saturate(180%);
-          border: 1px solid rgba(154,123,85,0.18);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.15);
+          border: 1px solid rgba(154,123,85,0.12);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.08);
         }
         /* olive tint */
         .glass-olive {
-          background: rgba(107,122,82,0.07);
+          background: rgba(107,122,82,0.04);
           backdrop-filter: blur(22px) saturate(180%);
           -webkit-backdrop-filter: blur(22px) saturate(180%);
-          border: 1px solid rgba(107,122,82,0.18);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.15);
+          border: 1px solid rgba(107,122,82,0.12);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.08);
         }
         /* slate tint */
         .glass-slate {
-          background: rgba(90,100,114,0.07);
+          background: rgba(90,100,114,0.04);
           backdrop-filter: blur(22px) saturate(180%);
           -webkit-backdrop-filter: blur(22px) saturate(180%);
-          border: 1px solid rgba(90,100,114,0.18);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.15);
+          border: 1px solid rgba(90,100,114,0.12);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.08);
         }
-        /* section-level dark glass (replaces bg-surface on full-width sections) */
+        /* section-level glass — matches navbar opacity */
         .glass-section {
-          background: rgba(14,14,12,0.38);
-          backdrop-filter: blur(28px) saturate(160%);
-          -webkit-backdrop-filter: blur(28px) saturate(160%);
+          background: rgba(14,14,12,0.09);
+          backdrop-filter: blur(28px) saturate(180%);
+          -webkit-backdrop-filter: blur(28px) saturate(180%);
         }
         /* ghost button */
         .glass-btn {
-          background: rgba(255,255,255,0.05);
+          background: rgba(255,255,255,0.03);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255,255,255,0.10);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
           transition: background 0.2s, border-color 0.2s, color 0.2s;
         }
         .glass-btn:hover {
-          background: rgba(255,255,255,0.09);
+          background: rgba(255,255,255,0.07);
           border-color: rgba(154,123,85,0.45);
           color: #E8E4DC;
         }
