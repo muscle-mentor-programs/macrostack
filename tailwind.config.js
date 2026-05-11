@@ -23,6 +23,16 @@ export default {
           light: '#8A9AB0',
           dark: '#424D59',
         },
+        blue: {
+          DEFAULT: '#4A80C4',
+          light: '#6B9FD8',
+          dark: '#355F96',
+        },
+        green: {
+          DEFAULT: '#3D8B5E',
+          light: '#56AA7C',
+          dark: '#2E6A47',
+        },
         cream: '#E8E4DC',
         muted: '#7A756E',
         dim: '#3A3733',

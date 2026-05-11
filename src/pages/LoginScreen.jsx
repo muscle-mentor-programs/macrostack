@@ -94,7 +94,7 @@ export default function LoginScreen({ onBack }) {
     'w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none transition-colors'
 
   // ── Shared field helpers ──────────────────────────────────────────────────
-  const emailField = (tabIdx, focusCls = 'focus:border-brown') => (
+  const emailField = (tabIdx, focusCls = 'focus:border-green') => (
     <div>
       <label className="font-display text-xs text-muted tracking-widest block mb-1.5">EMAIL</label>
       <input
@@ -109,7 +109,7 @@ export default function LoginScreen({ onBack }) {
     </div>
   )
 
-  const passwordField = (tabIdx, focusCls = 'focus:border-brown') => (
+  const passwordField = (tabIdx, focusCls = 'focus:border-green') => (
     <div>
       <label className="font-display text-xs text-muted tracking-widest block mb-1.5">PASSWORD</label>
       <div className="relative">
@@ -139,8 +139,8 @@ export default function LoginScreen({ onBack }) {
     if (signupSuccess) {
       return (
         <div className="py-6 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center mx-auto">
-            <UserPlus size={20} className="text-olive-light" />
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${isClient ? 'bg-blue/20 border border-blue/30' : 'bg-green/20 border border-green/30'}`}>
+            <UserPlus size={20} className={isClient ? 'text-blue-light' : 'text-green-light'} />
           </div>
           <p className="font-display font-bold text-sm tracking-widest text-cream">CHECK YOUR EMAIL</p>
           <p className="font-mono text-xs text-muted leading-relaxed">
@@ -311,13 +311,13 @@ export default function LoginScreen({ onBack }) {
                       type="submit"
                       tabIndex={isClient ? -1 : 0}
                       disabled={loading || !email || !password}
-                      className="w-full mt-1 bg-brown hover:bg-brown-light disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
+                      className="w-full mt-1 bg-green hover:bg-green-light disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
                     >
                       {loading ? 'AUTHENTICATING...' : 'LOGIN'}
                     </button>
                   </form>
                 ) : (
-                  signupForm(isClient ? -1 : 0, 'focus:border-brown', 'bg-brown hover:bg-brown-light')
+                  signupForm(isClient ? -1 : 0, 'focus:border-green', 'bg-green hover:bg-green-light')
                 )}
               </div>
             </div>
@@ -335,7 +335,7 @@ export default function LoginScreen({ onBack }) {
             >
               <div className="bg-card border border-border rounded-2xl p-6 shadow-2xl space-y-4">
                 <div>
-                  <p className="font-display font-black text-xl tracking-widest text-olive-light">
+                  <p className="font-display font-black text-xl tracking-widest text-blue-light">
                     {mode === 'login' ? 'CLIENT SIGN IN' : 'CLIENT SIGN UP'}
                   </p>
                   <p className="font-mono text-xs text-muted mt-0.5">
@@ -345,20 +345,20 @@ export default function LoginScreen({ onBack }) {
 
                 {mode === 'login' ? (
                   <form onSubmit={handleLogin} className="space-y-3">
-                    {emailField(!isClient ? -1 : 0, 'focus:border-olive')}
-                    {passwordField(!isClient ? -1 : 0, 'focus:border-olive')}
+                    {emailField(!isClient ? -1 : 0, 'focus:border-blue')}
+                    {passwordField(!isClient ? -1 : 0, 'focus:border-blue')}
                     {error && <p className="font-mono text-xs text-red-400 anim-fade-in">{error}</p>}
                     <button
                       type="submit"
                       tabIndex={!isClient ? -1 : 0}
                       disabled={loading || !email || !password}
-                      className="w-full mt-1 bg-olive hover:bg-olive-light disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
+                      className="w-full mt-1 bg-blue hover:bg-blue-light disabled:opacity-40 disabled:cursor-not-allowed text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
                     >
                       {loading ? 'AUTHENTICATING...' : 'LOGIN'}
                     </button>
                   </form>
                 ) : (
-                  signupForm(!isClient ? -1 : 0, 'focus:border-olive', 'bg-olive hover:bg-olive-light')
+                  signupForm(!isClient ? -1 : 0, 'focus:border-blue', 'bg-blue hover:bg-blue-light')
                 )}
               </div>
             </div>
@@ -372,7 +372,7 @@ export default function LoginScreen({ onBack }) {
             onClick={() => switchEdition('client')}
             className={`flex-1 py-2.5 rounded-xl font-display font-bold text-xs tracking-widest transition-all duration-200 ${
               isClient
-                ? 'bg-olive text-bg shadow-sm'
+                ? 'bg-blue text-bg shadow-sm'
                 : 'bg-card border border-border text-muted hover:text-cream'
             }`}
           >
@@ -382,7 +382,7 @@ export default function LoginScreen({ onBack }) {
             onClick={() => switchEdition('coach')}
             className={`flex-1 py-2.5 rounded-xl font-display font-bold text-xs tracking-widest transition-all duration-200 ${
               !isClient
-                ? 'bg-brown text-bg shadow-sm'
+                ? 'bg-green text-bg shadow-sm'
                 : 'bg-card border border-border text-muted hover:text-cream'
             }`}
           >
