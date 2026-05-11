@@ -512,9 +512,9 @@ export default function Landing({ onGetStarted }) {
         <nav
           className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
           style={{
-            background: navSolid ? 'rgba(28,26,24,0.96)' : 'transparent',
+            background: navSolid ? 'rgba(28,26,24,0.72)' : 'transparent',
             backdropFilter: navSolid ? 'blur(12px)' : 'none',
-            borderBottom: navSolid ? '1px solid rgba(42,39,36,0.8)' : 'none',
+            borderBottom: navSolid ? '1px solid rgba(42,39,36,0.4)' : 'none',
           }}
         >
           <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
@@ -575,7 +575,7 @@ export default function Landing({ onGetStarted }) {
           {/* Mobile dropdown */}
           <div
             className="md:hidden overflow-hidden transition-all duration-300"
-            style={{ maxHeight: menuOpen ? '360px' : '0', background: 'rgba(28,26,24,0.98)', backdropFilter: 'blur(12px)' }}
+            style={{ maxHeight: menuOpen ? '360px' : '0', background: 'rgba(28,26,24,0.75)', backdropFilter: 'blur(12px)' }}
           >
             <div className="px-5 py-4 border-t border-border space-y-1">
               {NAV_LINKS.map(({ label, id }) => (
