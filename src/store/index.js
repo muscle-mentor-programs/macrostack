@@ -127,11 +127,15 @@ const useStore = create(
         }
 
         const currentUser = {
-          id:        profile.id,
-          name:      profile.name,
-          email:     session.user.email,
-          role:      profile.role,
-          coachCode: profile.coach_code || null,
+          id:          profile.id,
+          name:        profile.name,
+          email:       session.user.email,
+          role:        profile.role,
+          coachCode:   profile.coach_code   || null,
+          bio:         profile.bio          || '',
+          specialties: profile.specialties  || '',
+          credentials: profile.credentials  || '',
+          website:     profile.website      || '',
         }
 
         await get().loadAllData()
@@ -146,6 +150,10 @@ const useStore = create(
             update.activeRole     = 'client'
             update.activeClientId = clientProfile.id
             update.activePage     = 'dashboard'
+            if (clientProfile.coachId) {
+              // load coach profile async — don't await so auth finishes fast
+              setTimeout(() => get().loadCoachProfile(clientProfile.coachId), 0)
+            }
           }
         }
 
@@ -158,6 +166,7 @@ const useStore = create(
               isAuthenticated: false, currentUser: null,
               activeRole: null, activeClientId: null,
               clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [],
+              coachProfile: null,
             })
           }
         })
@@ -189,11 +198,15 @@ const useStore = create(
         }
 
         const currentUser = {
-          id:        profile.id,
-          name:      profile.name,
-          email:     data.user.email,
-          role:      profile.role,
-          coachCode: profile.coach_code || null,
+          id:          profile.id,
+          name:        profile.name,
+          email:       data.user.email,
+          role:        profile.role,
+          coachCode:   profile.coach_code   || null,
+          bio:         profile.bio          || '',
+          specialties: profile.specialties  || '',
+          credentials: profile.credentials  || '',
+          website:     profile.website      || '',
         }
 
         await get().loadAllData()
@@ -208,6 +221,9 @@ const useStore = create(
             update.activeRole     = 'client'
             update.activeClientId = clientProfile.id
             update.activePage     = 'dashboard'
+            if (clientProfile.coachId) {
+              setTimeout(() => get().loadCoachProfile(clientProfile.coachId), 0)
+            }
           }
         }
 
@@ -221,6 +237,7 @@ const useStore = create(
           isAuthenticated: false, currentUser: null,
           activeRole: null, activeClientId: null,
           clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [],
+          coachProfile: null,
         })
       },
 
@@ -740,11 +757,15 @@ Rules:
         if (!profile) return { ok: false, error: 'Profile setup failed. Please try again.' }
 
         const currentUser = {
-          id:        data.user.id,
-          name:      profile.name,
-          email:     data.user.email,
-          role:      profile.role,
-          coachCode: profile.coach_code || null,
+          id:          data.user.id,
+          name:        profile.name,
+          email:       data.user.email,
+          role:        profile.role,
+          coachCode:   profile.coach_code   || null,
+          bio:         profile.bio          || '',
+          specialties: profile.specialties  || '',
+          credentials: profile.credentials  || '',
+          website:     profile.website      || '',
         }
 
         await get().loadAllData()
@@ -758,6 +779,9 @@ Rules:
             update.activeRole     = 'client'
             update.activeClientId = clientProfile.id
             update.activePage     = 'dashboard'
+            if (clientProfile.coachId) {
+              setTimeout(() => get().loadCoachProfile(clientProfile.coachId), 0)
+            }
           }
         }
         set(update)
@@ -958,6 +982,62 @@ Rules:
       removeFoodOverride: async (id) => {
         set((s) => ({ overrideFoods: s.overrideFoods.filter((f) => f.id !== id) }))
         await supabase.from('custom_foods').delete().eq('id', id)
+      },
+
+      // Add an AI-sourced food to the shared database (superadmin only)
+      addAIFood: async (food) => {
+        const id = crypto.randomUUID()
+        const newFood = { ...food, id, source: 'ai' }
+        // AI foods end up in scannedFoods (loadAllData puts source!='custom'&&!='override' there)
+        set((s) => ({ scannedFoods: [...s.scannedFoods, { ...newFood }] }))
+        const { error } = await supabase.from('custom_foods').insert({
+          id,
+          name:         food.name,
+          brand:        food.brand        || '',
+          serving_size: food.servingSize  || null,
+          serving_unit: food.servingUnit  || null,
+          calories:     food.calories     ?? 0,
+          protein:      food.protein      ?? 0,
+          carbs:        food.carbs        ?? 0,
+          fat:          food.fat          ?? 0,
+          source:       'ai',
+        })
+        if (error) {
+          console.error('addAIFood insert:', error)
+          set((s) => ({ scannedFoods: s.scannedFoods.filter((f) => f.id !== id) }))
+          return { ok: false, error: error.message }
+        }
+        return { ok: true, food: newFood }
+      },
+
+      // ── COACH PROFILE ─────────────────────────────────────────────────────
+      coachProfile: null,  // { id, name, bio, specialties, credentials, website }
+
+      // Called on client login — loads their coach's public profile
+      loadCoachProfile: async (coachId) => {
+        if (!supabase || !coachId) return
+        const { data, error } = await supabase.rpc('get_coach_profile', { p_coach_id: coachId })
+        if (!error && data?.[0]) {
+          set({ coachProfile: data[0] })
+        }
+      },
+
+      // Called when a coach saves changes to their profile
+      updateCoachProfile: async (updates) => {
+        const { currentUser } = get()
+        if (!currentUser?.id) return { ok: false }
+        const dbUpdates = {}
+        if (updates.bio         !== undefined) dbUpdates.bio         = updates.bio
+        if (updates.specialties !== undefined) dbUpdates.specialties = updates.specialties
+        if (updates.credentials !== undefined) dbUpdates.credentials = updates.credentials
+        if (updates.website     !== undefined) dbUpdates.website     = updates.website
+        if (updates.name        !== undefined) dbUpdates.name        = updates.name
+        const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id)
+        if (error) { console.error('updateCoachProfile:', error); return { ok: false, error: error.message } }
+        set((s) => ({
+          currentUser: s.currentUser ? { ...s.currentUser, ...updates } : s.currentUser,
+        }))
+        return { ok: true }
       },
 
       // ── CLIENT SELECTOR ───────────────────────────────────────────────────

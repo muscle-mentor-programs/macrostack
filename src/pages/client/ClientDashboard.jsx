@@ -222,7 +222,7 @@ function MealPlanSection({ client, onLogMeal }) {
 }
 
 export default function ClientDashboard() {
-  const { activeClientId, clients, getClientTotalsForDate, logDate, setActivePage, setActiveClientId, setActiveRole, addClientEntry } = useStore()
+  const { activeClientId, clients, getClientTotalsForDate, logDate, setActivePage, setActiveClientId, setActiveRole, addClientEntry, coachProfile } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
   const totals = getClientTotalsForDate(activeClientId, logDate)
   const remaining = (client?.goals?.calories || 0) - totals.calories
@@ -359,6 +359,36 @@ export default function ClientDashboard() {
 
       {/* Meal Plan Section */}
       <MealPlanSection client={client} onLogMeal={handleLogMeal} />
+
+      {/* Your Coach card */}
+      {coachProfile && (
+        <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '400ms' }}>
+          <h2 className="font-display font-bold text-sm tracking-widest text-muted mb-3">YOUR COACH</h2>
+          <button
+            onClick={() => setActivePage('coach')}
+            className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all"
+          >
+            <div className="w-11 h-11 rounded-xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
+              <span className="font-display font-black text-lg text-brown-light">
+                {(coachProfile.name || 'C').charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-bold text-sm text-cream">{coachProfile.name}</p>
+              {coachProfile.credentials && (
+                <p className="font-mono text-xs text-muted truncate">{coachProfile.credentials}</p>
+              )}
+              {!coachProfile.credentials && coachProfile.specialties && (
+                <p className="font-mono text-xs text-muted truncate">{coachProfile.specialties.split(',')[0].trim()}</p>
+              )}
+              {!coachProfile.credentials && !coachProfile.specialties && (
+                <p className="font-mono text-xs text-muted">Nutrition Coach</p>
+              )}
+            </div>
+            <ChevronRight size={14} className="text-dim flex-shrink-0" />
+          </button>
+        </div>
+      )}
 
       {/* FAB */}
       <button

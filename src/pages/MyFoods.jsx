@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus, Trash2, Search, X, Pencil, Check, Database, Scan } from 'lucide-react'
+import { Plus, Trash2, Search, X, Pencil, Check, Database, Scan, Sparkles, Loader2 } from 'lucide-react'
 import useStore from '../store'
 import { FOODS } from '../data/foods'
 import ScrambleText from '../components/ScrambleText'
@@ -206,6 +206,157 @@ function FoodModal({ initial = null, onSave, onClose }) {
   )
 }
 
+// ── Superadmin AI Food Search Panel ──────────────────────────────────────────
+
+function servingLabelAI(food) {
+  const wt = ['g', 'ml', 'oz', 'fl oz']
+  if (!food.servingUnit || wt.includes(food.servingUnit)) return `${food.servingSize} ${food.servingUnit || 'g'}`
+  return `1 ${food.servingUnit} · ${food.servingSize}g`
+}
+
+function AISearchPanel({ onAdded }) {
+  const { addAIFood, customFoods } = useStore()
+  const [aiQuery,   setAiQuery]   = useState('')
+  const [results,   setResults]   = useState([])
+  const [loading,   setLoading]   = useState(false)
+  const [error,     setError]     = useState(null)
+  const [added,     setAdded]     = useState({}) // { [idx]: true } — tracks which results were added
+
+  const existingNames = useMemo(
+    () => new Set(customFoods.map((f) => f.name.toLowerCase().trim())),
+    [customFoods]
+  )
+
+  const handleSearch = async () => {
+    if (!aiQuery.trim()) return
+    setLoading(true)
+    setError(null)
+    setResults([])
+    setAdded({})
+    try {
+      const res = await fetch('/api/ai/food-search', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ query: aiQuery.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      setResults(data.foods || [])
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAdd = async (food, idx) => {
+    const result = await addAIFood(food)
+    if (result.ok) {
+      setAdded((p) => ({ ...p, [idx]: true }))
+      onAdded?.()
+    }
+  }
+
+  return (
+    <div className="border-t border-border bg-surface/50">
+      {/* Panel header */}
+      <div className="px-8 py-4 flex items-center gap-3 border-b border-border">
+        <Sparkles size={15} className="text-brown-light flex-shrink-0" />
+        <div className="flex-1">
+          <p className="font-display font-bold text-sm tracking-widest text-cream">AI FOOD SEARCH</p>
+          <p className="font-mono text-xs text-muted">Superadmin — search &amp; add foods to the shared database</p>
+        </div>
+      </div>
+
+      {/* Search input */}
+      <div className="px-8 py-4 flex gap-3 border-b border-border">
+        <div className="relative flex-1">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            type="text"
+            placeholder="e.g. Greek yogurt, almond butter, protein bars…"
+            value={aiQuery}
+            onChange={(e) => setAiQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            className="w-full bg-card border border-border rounded-lg pl-9 pr-4 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
+          />
+        </div>
+        <button
+          onClick={handleSearch}
+          disabled={loading || !aiQuery.trim()}
+          className="flex items-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest px-5 py-2 rounded-lg transition-colors glow-hover"
+        >
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+          {loading ? 'SEARCHING…' : 'SEARCH'}
+        </button>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="px-8 py-3 bg-red-500/10 border-b border-red-500/20">
+          <p className="font-mono text-xs text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* Results */}
+      {results.length > 0 && (
+        <div className="divide-y divide-border/50 max-h-72 overflow-y-auto">
+          {results.map((food, idx) => {
+            const alreadyExists = existingNames.has(food.name.toLowerCase().trim())
+            const wasAdded      = added[idx]
+            return (
+              <div
+                key={idx}
+                className="grid grid-cols-9 px-8 py-3 items-center hover:bg-card transition-colors"
+              >
+                {/* Name + brand */}
+                <div className="col-span-3 min-w-0 pr-4">
+                  <p className="font-mono text-sm text-cream truncate">{food.name}</p>
+                  {food.brand && <p className="font-mono text-xs text-muted truncate">{food.brand}</p>}
+                  <p className="font-mono text-[10px] text-dim">{servingLabelAI(food)}</p>
+                </div>
+                {/* Serving */}
+                <div className="col-span-2 font-mono text-xs text-muted">{servingLabelAI(food)}</div>
+                {/* Macros */}
+                <div className="font-display font-bold text-sm text-cream text-right">{food.calories.toFixed(0)}</div>
+                <div className="font-display font-bold text-sm text-olive-light text-right">{food.protein.toFixed(1)}g</div>
+                <div className="font-display font-bold text-sm text-brown-light text-right">{food.carbs.toFixed(1)}g</div>
+                {/* Add button */}
+                <div className="flex items-center justify-end gap-2">
+                  <span className="font-display font-bold text-sm text-slategray-light">{food.fat.toFixed(1)}g</span>
+                  {wasAdded ? (
+                    <span className="font-display text-[10px] text-olive-light bg-olive/10 border border-olive/20 px-2 py-1 rounded flex-shrink-0">
+                      ADDED
+                    </span>
+                  ) : alreadyExists ? (
+                    <span className="font-display text-[10px] text-dim bg-card border border-border px-2 py-1 rounded flex-shrink-0">
+                      EXISTS
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleAdd(food, idx)}
+                      className="font-display text-[10px] text-bg bg-brown hover:bg-brown-light px-2 py-1 rounded flex-shrink-0 transition-colors tracking-widest"
+                    >
+                      + ADD
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Empty state after search */}
+      {!loading && results.length === 0 && aiQuery && !error && (
+        <div className="px-8 py-6 text-center">
+          <p className="font-mono text-sm text-dim">No results returned. Try a more specific query.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function MyFoods() {
   const {
     currentUser,
@@ -216,12 +367,13 @@ export default function MyFoods() {
 
   const isSuperadmin = currentUser?.role === 'superadmin'
 
-  const [query,       setQuery]       = useState('')
-  const [filter,      setFilter]      = useState('all')   // 'all' | 'builtin' | 'custom' | 'scanned'
-  const [showModal,   setShowModal]   = useState(false)
-  const [editTarget,  setEditTarget]  = useState(null)
-  const [showScanner, setShowScanner] = useState(false)
-  const [scannedUPC,  setScannedUPC]  = useState(null)
+  const [query,        setQuery]       = useState('')
+  const [filter,       setFilter]      = useState('all')   // 'all' | 'builtin' | 'custom' | 'scanned'
+  const [showModal,    setShowModal]   = useState(false)
+  const [editTarget,   setEditTarget]  = useState(null)
+  const [showScanner,  setShowScanner] = useState(false)
+  const [scannedUPC,   setScannedUPC]  = useState(null)
+  const [showAISearch, setShowAISearch] = useState(false)
 
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
 
@@ -289,6 +441,20 @@ export default function MyFoods() {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
+          {isSuperadmin && (
+            <button
+              onClick={() => setShowAISearch((v) => !v)}
+              className={`flex items-center gap-2 font-display font-bold text-sm tracking-widest px-4 py-2.5 rounded-lg transition-colors ${
+                showAISearch
+                  ? 'bg-brown/20 border border-brown/40 text-brown-light'
+                  : 'bg-surface border border-border text-muted hover:text-cream hover:border-brown'
+              }`}
+              title="AI Food Search"
+            >
+              <Sparkles size={15} />
+              AI SEARCH
+            </button>
+          )}
           <button
             onClick={() => setShowScanner(true)}
             className="flex items-center gap-2 bg-surface border border-border text-muted hover:text-cream hover:border-brown font-display font-bold text-sm tracking-widest px-4 py-2.5 rounded-lg transition-colors"
@@ -306,6 +472,11 @@ export default function MyFoods() {
           </button>
         </div>
       </div>
+
+      {/* Superadmin AI search panel (collapsible) */}
+      {isSuperadmin && showAISearch && (
+        <AISearchPanel onAdded={() => {}} />
+      )}
 
       {/* Search + source filter */}
       <div className="px-8 py-4 border-b border-border flex-shrink-0 flex items-center gap-4">

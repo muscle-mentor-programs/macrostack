@@ -1,13 +1,14 @@
 import useStore from '../store'
 import ScrambleText from './ScrambleText'
 import ThemeToggle from './ThemeToggle'
-import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut } from 'lucide-react'
+import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User } from 'lucide-react'
 
 const NAV = [
   { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
   { id: 'clients',   label: 'CLIENTS',   icon: Users            },
   { id: 'chat',      label: 'CHAT',      icon: MessageCircle    },
   { id: 'foods',     label: 'MY FOODS',  icon: Utensils         },
+  { id: 'profile',   label: 'PROFILE',   icon: User             },
 ]
 
 export default function Sidebar() {

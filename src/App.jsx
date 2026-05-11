@@ -17,6 +17,7 @@ import ClientSelector from './pages/client/ClientSelector'
 // Coach pages — desktop
 import CoachDashboard from './pages/coach/CoachDashboard'
 import CoachChat      from './pages/coach/CoachChat'
+import CoachProfile   from './pages/coach/CoachProfile'
 import MyFoods        from './pages/MyFoods'
 import Clients        from './pages/coach/Clients'
 
@@ -27,17 +28,19 @@ import MobileChat           from './pages/coach/mobile/MobileChat'
 import MobileMyFoods        from './pages/coach/mobile/MobileMyFoods'
 
 // Client pages (always mobile)
-import ClientDashboard from './pages/client/ClientDashboard'
-import ClientLog       from './pages/client/ClientLog'
-import ClientWeight    from './pages/client/ClientWeight'
-import ClientMessages  from './pages/client/ClientMessages'
-import ClientProfile   from './pages/client/ClientProfile'
+import ClientDashboard    from './pages/client/ClientDashboard'
+import ClientLog          from './pages/client/ClientLog'
+import ClientWeight       from './pages/client/ClientWeight'
+import ClientMessages     from './pages/client/ClientMessages'
+import ClientProfile      from './pages/client/ClientProfile'
+import ClientCoachProfile from './pages/client/ClientCoachProfile'
 
 const COACH_PAGES_DESKTOP = {
   dashboard: CoachDashboard,
   clients:   Clients,
   chat:      CoachChat,
   foods:     MyFoods,
+  profile:   CoachProfile,
 }
 
 const COACH_PAGES_MOBILE = {
@@ -45,6 +48,7 @@ const COACH_PAGES_MOBILE = {
   clients:   MobileClients,
   chat:      MobileChat,
   foods:     MobileMyFoods,
+  profile:   CoachProfile,
 }
 
 const CLIENT_PAGES = {
@@ -53,6 +57,7 @@ const CLIENT_PAGES = {
   weight:    ClientWeight,
   messages:  ClientMessages,
   profile:   ClientProfile,
+  coach:     ClientCoachProfile,
 }
 
 export default function App() {

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, MessageCircle, Utensils } from 'lucide-react'
+import { LayoutDashboard, Users, MessageCircle, Utensils, User } from 'lucide-react'
 import useStore from '../store'
 
 const NAV = [
@@ -6,6 +6,7 @@ const NAV = [
   { id: 'clients',   label: 'CLIENTS', icon: Users           },
   { id: 'chat',      label: 'CHAT',    icon: MessageCircle   },
   { id: 'foods',     label: 'FOODS',   icon: Utensils        },
+  { id: 'profile',   label: 'PROFILE', icon: User            },
 ]
 
 export default function CoachBottomNav() {
@@ -21,7 +22,7 @@ export default function CoachBottomNav() {
     <nav className={`flex-shrink-0 w-full nav-bg backdrop-blur-sm border-t border-border nav-elevated nav-safe-bottom transition-transform duration-200 ${
       navHidden ? 'translate-y-full' : ''
     }`}>
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-5">
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = activePage === id
           const badge  = id === 'chat' && totalUnread > 0 ? totalUnread : 0
