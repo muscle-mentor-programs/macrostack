@@ -7,6 +7,7 @@ import CoachLayout from './layouts/CoachLayout'
 import ClientLayout from './layouts/ClientLayout'
 
 // Auth
+import Landing from './pages/Landing'
 import LoginScreen from './pages/LoginScreen'
 import SetPasswordScreen from './pages/SetPasswordScreen'
 
@@ -68,6 +69,9 @@ export default function App() {
   } = useStore()
   const isMobile = useIsMobile()
 
+  // Controls whether the login screen is shown over the landing page
+  const [showLogin, setShowLogin] = useState(false)
+
   // True when the user landed via an email invite link and still needs to set a password
   const [postInvite, setPostInvite] = useState(
     () => sessionStorage.getItem('macrostack-post-invite') === '1'
@@ -97,7 +101,10 @@ export default function App() {
     )
   }
 
-  if (!isAuthenticated) return <LoginScreen />
+  if (!isAuthenticated) {
+    if (showLogin) return <LoginScreen onBack={() => setShowLogin(false)} />
+    return <Landing onGetStarted={() => setShowLogin(true)} />
+  }
 
   // Invited client just confirmed their email — make them set a password first
   if (postInvite) {

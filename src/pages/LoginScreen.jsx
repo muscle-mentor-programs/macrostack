@@ -4,7 +4,7 @@ import useStore from '../store'
 import ScrambleText from '../components/ScrambleText'
 import ThemeToggle from '../components/ThemeToggle'
 
-export default function LoginScreen() {
+export default function LoginScreen({ onBack }) {
   const { login, signup } = useStore()
 
   const [edition, setEdition]   = useState('coach') // 'coach' | 'client'
@@ -234,6 +234,18 @@ export default function LoginScreen() {
 
   return (
     <div className="relative flex h-full w-full bg-bg items-center justify-center overflow-hidden pt-safe-top anim-fade-in">
+      {/* Back to landing */}
+      {onBack && (
+        <div className="fixed top-safe left-4 z-10">
+          <button
+            onClick={onBack}
+            className="font-mono text-xs text-muted hover:text-cream tracking-widest flex items-center gap-1.5 py-2 transition-colors"
+          >
+            ← BACK
+          </button>
+        </div>
+      )}
+
       {/* Theme toggle */}
       <div className="fixed top-safe right-4 z-10">
         <ThemeToggle compact />
