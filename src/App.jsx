@@ -61,6 +61,12 @@ const CLIENT_PAGES = {
   coach:     ClientCoachProfile,
 }
 
+// True when running as an installed PWA (homescreen shortcut).
+// Checked once at module load — doesn't change during a session.
+const IS_PWA =
+  window.matchMedia('(display-mode: standalone)').matches ||
+  window.navigator.standalone === true
+
 export default function App() {
   const {
     isAuthenticated, authLoading, currentUser,
@@ -69,8 +75,9 @@ export default function App() {
   } = useStore()
   const isMobile = useIsMobile()
 
-  // Controls whether the login screen is shown over the landing page
-  const [showLogin, setShowLogin] = useState(false)
+  // Controls whether the login screen is shown over the landing page.
+  // Start on login immediately when launched from the homescreen.
+  const [showLogin, setShowLogin] = useState(IS_PWA)
 
   // True when the user landed via an email invite link and still needs to set a password
   const [postInvite, setPostInvite] = useState(
@@ -102,7 +109,7 @@ export default function App() {
   }
 
   if (!isAuthenticated) {
-    if (showLogin) return <LoginScreen onBack={() => setShowLogin(false)} />
+    if (showLogin) return <LoginScreen onBack={IS_PWA ? null : () => setShowLogin(false)} />
     return <Landing onGetStarted={() => setShowLogin(true)} />
   }
 
