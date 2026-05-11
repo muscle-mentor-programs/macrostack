@@ -265,6 +265,9 @@ export default function LoginScreen({ onBack }) {
 
         {/* Brand */}
         <div className="text-center mb-8 scanline-parent py-3">
+          <div className="flex justify-center mb-3">
+            <img src="/logo.svg" width="56" height="56" alt="MacroStack logo" />
+          </div>
           <h1 className="font-display font-black text-6xl tracking-widest leading-none text-cream">
             <ScrambleText text="MACRO" duration={900} />
             <br />

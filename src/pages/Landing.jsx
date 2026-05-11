@@ -1,5 +1,19 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
+/* ── inline logo mark (transparent-bg MS diamond) ── */
+function LogoMark({ size = 32 }) {
+  return (
+    <img
+      src="/logo.svg"
+      width={size}
+      height={size}
+      alt=""
+      aria-hidden="true"
+      style={{ display: 'block', flexShrink: 0 }}
+    />
+  )
+}
+
 /* ═══════════════════════════════════════════════════════
    SCROLL ROOT CONTEXT
    Passes the landing page's scroll container to every
@@ -508,9 +522,12 @@ export default function Landing({ onGetStarted }) {
             {/* Logo */}
             <button
               onClick={() => goto('hero')}
-              className="font-display font-black text-2xl tracking-widest leading-none hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
             >
-              MACRO<span className="text-brown-light">STACK</span>
+              <LogoMark size={34} />
+              <span className="font-display font-black text-2xl tracking-widest leading-none">
+                MACRO<span className="text-brown-light">STACK</span>
+              </span>
             </button>
 
             {/* Desktop nav links */}
@@ -1089,8 +1106,11 @@ export default function Landing({ onGetStarted }) {
           <div className="max-w-6xl mx-auto px-5">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <div className="font-display font-black text-2xl tracking-widest">
-                  MACRO<span className="text-brown-light">STACK</span>
+                <div className="flex items-center gap-2">
+                  <LogoMark size={30} />
+                  <span className="font-display font-black text-2xl tracking-widest">
+                    MACRO<span className="text-brown-light">STACK</span>
+                  </span>
                 </div>
                 <p className="font-mono text-xs text-muted mt-1">PRECISION NUTRITION PLATFORM</p>
               </div>

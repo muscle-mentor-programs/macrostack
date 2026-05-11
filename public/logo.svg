@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <!-- Gradient for front card face (subtle top-to-bottom sheen) -->
+    <linearGradient id="cardFront" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#EAF2FA"/>
+      <stop offset="100%" stop-color="#C8DAF0"/>
+    </linearGradient>
+    <!-- Gradient for mid card -->
+    <linearGradient id="cardMid" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#C0D4E8"/>
+      <stop offset="100%" stop-color="#A4BCDA"/>
+    </linearGradient>
+    <!-- Gradient for back card -->
+    <linearGradient id="cardBack" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#A4BCDA"/>
+      <stop offset="100%" stop-color="#8AAACB"/>
+    </linearGradient>
+    <!-- Subtle drop shadow for front card -->
+    <filter id="fShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-color="#0D1F44" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- ── BACK CARD (shifted +10,+10 from front) ── -->
+  <rect
+    x="29" y="29" width="52" height="52" rx="10" ry="10"
+    fill="url(#cardBack)"
+    transform="rotate(45 55 55)"
+  />
+
+  <!-- ── MIDDLE CARD (shifted +5,+5 from front) ── -->
+  <rect
+    x="24" y="24" width="52" height="52" rx="10" ry="10"
+    fill="url(#cardMid)"
+    transform="rotate(45 50 50)"
+  />
+
+  <!-- ── FRONT CARD ── -->
+  <rect
+    x="19" y="19" width="52" height="52" rx="10" ry="10"
+    fill="url(#cardFront)"
+    stroke="#B8CEE6"
+    stroke-width="0.6"
+    filter="url(#fShadow)"
+    transform="rotate(45 45 45)"
+  />
+
+  <!-- ── MS LETTERING ── -->
+  <!-- Using two separate tspan/text so we can color them individually -->
+  <text
+    x="45" y="50"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="'Barlow Condensed', 'Arial Narrow', Arial, sans-serif"
+    font-weight="900"
+    font-size="27"
+    letter-spacing="-0.5"
+  >
+    <tspan fill="#3060A0">M</tspan><tspan fill="#1A3D78">S</tspan>
+  </text>
+</svg>
