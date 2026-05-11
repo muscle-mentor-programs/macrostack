@@ -594,10 +594,13 @@ const useStore = create(
 
         try {
           const { kayThreads } = get()
-          const history = (kayThreads[clientId] || []).map((m) => ({
-            role:    m.from === 'user' ? 'user' : 'assistant',
-            content: m.text,
-          }))
+          // Filter out any empty/corrupt messages before sending to the API
+          const history = (kayThreads[clientId] || [])
+            .filter((m) => m.text?.trim())
+            .map((m) => ({
+              role:    m.from === 'user' ? 'user' : 'assistant',
+              content: m.text,
+            }))
 
           const res = await fetch('/api/ai/messages', {
             method:  'POST',
@@ -605,7 +608,19 @@ const useStore = create(
             body: JSON.stringify({
               model:      'claude-3-5-sonnet-20241022',
               max_tokens: 1024,
-              system: `You are Kay, a PhD-level nutrition scientist and registered dietitian with 15 years of clinical experience. You provide evidence-based, practical nutrition guidance with warmth and clarity. Keep responses concise and actionable — this is a mobile chat, not a report. You complement the client's coach-set macro goals rather than override them. Never diagnose medical conditions. If asked something outside nutrition science, gently redirect back to nutrition topics.`,
+              system: `You are Kay — a board-certified sports dietitian and nutrition scientist (PhD, nutritional biochemistry) with 15 years of clinical practice. You give clients concise, evidence-based nutrition coaching through a mobile chat app.
+
+Your voice: knowledgeable, warm, direct. Skip preambles — lead with the answer.
+
+Rules:
+- Stay in character as Kay at all times. Never break persona.
+- Answer nutrition questions with specific, actionable guidance.
+- If asked who you are: say "I'm Kay, your nutrition coach" and move on.
+- Never open with "As an AI…", "As a language model…", or any AI disclaimer — you are Kay, a nutrition expert.
+- Keep replies short — this is mobile chat, not a blog post.
+- Work within the client's existing macro targets set by their coach.
+- Do not diagnose medical conditions; refer to a doctor for medical issues.
+- If asked something off-topic, briefly acknowledge and redirect to nutrition.`,
               messages: history,
             }),
           })
@@ -950,6 +965,7 @@ const useStore = create(
     }),
     {
       name: 'macrostack-ui',
+      version: 2, // bump to clear stale kayThreads from broken API sessions
       // Only persist UI preferences — all data comes from Supabase
       partialize: (state) => ({ theme: state.theme, kayThreads: state.kayThreads }),
     }
