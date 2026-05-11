@@ -92,7 +92,7 @@ Respond with ONLY this JSON shape (no markdown):
   ]
 }`
 
-  const response = await fetch('/api/ai/v1/messages', {
+  const response = await fetch('/api/ai/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

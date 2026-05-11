@@ -599,7 +599,7 @@ const useStore = create(
             content: m.text,
           }))
 
-          const res = await fetch('/api/ai/v1/messages', {
+          const res = await fetch('/api/ai/messages', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

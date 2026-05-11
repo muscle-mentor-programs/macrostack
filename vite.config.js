@@ -22,13 +22,13 @@ export default defineConfig({
     {
       name: 'anthropic-proxy',
       configureServer(server) {
-        server.middlewares.use('/api/ai', (req, res) => {
+        // Matches the production endpoint: POST /api/ai/messages
+        server.middlewares.use('/api/ai/messages', (req, res) => {
           let body = ''
           req.on('data', (chunk) => { body += chunk })
           req.on('end', async () => {
             try {
-              const url = `https://api.anthropic.com${req.url}`
-              const response = await fetch(url, {
+              const response = await fetch('https://api.anthropic.com/v1/messages', {
                 method:  req.method,
                 headers: {
                   'content-type':      'application/json',

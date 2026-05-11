@@ -1,5 +1,8 @@
 {
   "functions": {
+    "api/ai/messages.js": {
+      "maxDuration": 60
+    },
     "api/ai/[...path].js": {
       "maxDuration": 60
     }
