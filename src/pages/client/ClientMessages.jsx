@@ -270,6 +270,15 @@ export default function ClientMessages() {
           [...activeThread].reverse().map((msg) => {
             const isSelf = msg.from === 'client' || msg.from === 'user'
             const senderLabel = isKay ? 'KAY PhD' : 'COACH'
+            if (msg.isError) {
+              return (
+                <div key={msg.id} className="flex justify-center anim-fade-in">
+                  <p className="font-mono text-xs text-red-400/80 bg-red-400/10 border border-red-400/20 rounded-xl px-3 py-2 text-center max-w-[85%]">
+                    ⚠ {msg.text}
+                  </p>
+                </div>
+              )
+            }
             return (
               <div key={msg.id} className={`flex ${isSelf ? 'justify-end' : 'justify-start'} anim-fade-in`}>
                 <div className={`max-w-[80%] flex flex-col gap-1 ${isSelf ? 'items-end' : 'items-start'}`}>

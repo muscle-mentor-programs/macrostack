@@ -594,9 +594,9 @@ const useStore = create(
 
         try {
           const { kayThreads } = get()
-          // Filter out any empty/corrupt messages before sending to the API
+          // Filter out empty/corrupt messages and error messages before sending
           const history = (kayThreads[clientId] || [])
-            .filter((m) => m.text?.trim())
+            .filter((m) => m.text?.trim() && !m.isError)
             .map((m) => ({
               role:    m.from === 'user' ? 'user' : 'assistant',
               content: m.text,
@@ -661,6 +661,7 @@ Rules:
             from:      'kay',
             text:      errText,
             timestamp: new Date().toISOString(),
+            isError:   true,   // excluded from API history, styled differently in UI
           }
           set((s) => ({
             kayThreads: {

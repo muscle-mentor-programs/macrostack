@@ -716,140 +716,155 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
 
       <div className="flex-1 overflow-y-auto">
         {tab === 'overview' && (
-          <div className="p-6 space-y-6">
-            {/* Today's macros */}
-            <div className="anim-fade-in-up">
-              <p className="font-display text-xs text-muted tracking-widest mb-3">TODAY'S INTAKE</p>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: 'CALORIES', val: todayTotals.calories, goal: client.goals.calories, text: 'text-cream',            bar: 'bg-brown'    },
-                  { label: 'PROTEIN',  val: todayTotals.protein,  goal: client.goals.protein,  text: 'text-olive-light',      bar: 'bg-olive'    },
-                  { label: 'CARBS',    val: todayTotals.carbs,    goal: client.goals.carbs,    text: 'text-brown-light',      bar: 'bg-brown'    },
-                  { label: 'FAT',      val: todayTotals.fat,      goal: client.goals.fat,      text: 'text-slategray-light',  bar: 'bg-slategray' },
-                ].map(({ label, val, goal, text, bar }, i) => {
-                  const pct = Math.min(Math.round((val / (goal || 1)) * 100), 100)
-                  return (
-                    <div key={label} className="bg-card border border-border rounded-xl p-3 anim-fade-in-up"
-                      style={{ animationDelay: `${i * 50}ms` }}>
-                      <div className="flex justify-between items-baseline mb-1.5">
-                        <p className="font-display text-xs text-muted tracking-widest">{label}</p>
-                        <p className="font-mono text-xs text-dim">{pct}%</p>
-                      </div>
-                      <p className={`font-display font-black text-xl ${text}`}>
-                        <AnimatedNumber value={val} duration={700} delay={i * 60} />
-                        <span className="font-normal text-muted text-xs"> / {goal}</span>
-                      </p>
-                      <div className="mt-2 w-full bg-dim rounded-full h-1">
-                        <div className={`h-1 rounded-full bar-fill ${pct >= 100 ? 'bg-red-400' : bar}`}
-                          style={{ width: `${pct}%`, animationDelay: `${i * 60 + 100}ms` }} />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+          <div className="p-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 gap-6">
 
-            {/* 7-day compliance */}
-            <div className="anim-fade-in-up" style={{ animationDelay: '150ms' }}>
-              <div className="flex items-center justify-between mb-3">
-                <p className="font-display text-xs text-muted tracking-widest">7-DAY COMPLIANCE</p>
-                <span className="font-display font-bold text-sm text-olive-light">
-                  <AnimatedNumber value={compliance} duration={800} />%
-                </span>
-              </div>
-              <div className="flex gap-1.5">
-                {days.map((d, i) => (
-                  <div key={d.date} className="flex-1 anim-fade-in-up" style={{ animationDelay: `${i * 40 + 200}ms` }}>
-                    <div className={`h-10 rounded ${d.logged ? 'bg-olive/40 border border-olive/30' : 'bg-dim'} flex items-center justify-center`}>
-                      {d.logged && <div className="w-1.5 h-1.5 rounded-full bg-olive-light" />}
-                    </div>
-                    <p className="font-mono text-xs text-dim text-center mt-1">
-                      {format(parseISO(d.date), 'E').charAt(0)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Goals editor */}
-            <div className="anim-fade-in-up" style={{ animationDelay: '200ms' }}>
-              <div className="flex items-center justify-between mb-3">
-                <p className="font-display text-xs text-muted tracking-widest">NUTRITION TARGETS</p>
-                <button onClick={() => setEditGoals(!editGoals)}
-                  className="font-display text-xs text-brown hover:text-brown-light tracking-widest transition-colors">
-                  {editGoals ? 'CANCEL' : 'EDIT'}
-                </button>
-              </div>
-              {editGoals ? (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+              {/* ── Left column: today's intake + 7-day compliance ── */}
+              <div className="space-y-5">
+                {/* Today's macros */}
+                <div className="anim-fade-in-up">
+                  <p className="font-display text-xs text-muted tracking-widest mb-3">TODAY'S INTAKE</p>
+                  <div className="grid grid-cols-2 gap-2.5">
                     {[
-                      { key: 'calories', label: 'CALORIES', color: 'text-cream' },
-                      { key: 'protein',  label: 'PROTEIN',  color: 'text-olive-light' },
-                      { key: 'carbs',    label: 'CARBS',    color: 'text-brown-light' },
-                      { key: 'fat',      label: 'FAT',      color: 'text-slategray-light' },
-                    ].map(({ key, label, color }) => (
-                      <div key={key}>
-                        <label className={`font-display text-xs tracking-widest block mb-1.5 ${color}`}>{label}</label>
-                        <input type="number" value={goals[key]}
-                          onChange={(e) => {
-                            const val = e.target.value
-                            setGoals((p) => {
-                              const next = { ...p, [key]: val }
-                              if (key !== 'calories') {
-                                next.calories = Math.round(
-                                  Number(next.protein || 0) * 4 +
-                                  Number(next.carbs   || 0) * 4 +
-                                  Number(next.fat     || 0) * 9
-                                )
-                              }
-                              return next
-                            })
-                          }}
-                          className="w-full bg-card border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown" />
+                      { label: 'CALORIES', val: todayTotals.calories, goal: client.goals.calories, text: 'text-cream',           bar: 'bg-brown'     },
+                      { label: 'PROTEIN',  val: todayTotals.protein,  goal: client.goals.protein,  text: 'text-olive-light',     bar: 'bg-olive'     },
+                      { label: 'CARBS',    val: todayTotals.carbs,    goal: client.goals.carbs,    text: 'text-brown-light',     bar: 'bg-brown'     },
+                      { label: 'FAT',      val: todayTotals.fat,      goal: client.goals.fat,      text: 'text-slategray-light', bar: 'bg-slategray' },
+                    ].map(({ label, val, goal, text, bar }, i) => {
+                      const pct = Math.min(Math.round((val / (goal || 1)) * 100), 100)
+                      return (
+                        <div key={label} className="bg-card border border-border rounded-xl p-3 anim-fade-in-up"
+                          style={{ animationDelay: `${i * 50}ms` }}>
+                          <div className="flex justify-between items-baseline mb-1.5">
+                            <p className="font-display text-xs text-muted tracking-widest">{label}</p>
+                            <p className="font-mono text-xs text-dim">{pct}%</p>
+                          </div>
+                          <p className={`font-display font-black text-xl ${text}`}>
+                            <AnimatedNumber value={val} duration={700} delay={i * 60} />
+                            <span className="font-normal text-muted text-xs"> / {goal}</span>
+                          </p>
+                          <div className="mt-2 w-full bg-dim rounded-full h-1">
+                            <div className={`h-1 rounded-full bar-fill ${pct >= 100 ? 'bg-red-400' : bar}`}
+                              style={{ width: `${pct}%`, animationDelay: `${i * 60 + 100}ms` }} />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* 7-day compliance */}
+                <div className="anim-fade-in-up" style={{ animationDelay: '150ms' }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="font-display text-xs text-muted tracking-widest">7-DAY COMPLIANCE</p>
+                    <span className="font-display font-bold text-sm text-olive-light">
+                      <AnimatedNumber value={compliance} duration={800} />%
+                    </span>
+                  </div>
+                  <div className="flex gap-1.5">
+                    {days.map((d, i) => (
+                      <div key={d.date} className="flex-1 anim-fade-in-up" style={{ animationDelay: `${i * 40 + 200}ms` }}>
+                        <div className={`h-9 rounded ${d.logged ? 'bg-olive/40 border border-olive/30' : 'bg-dim'} flex items-center justify-center`}>
+                          {d.logged && <div className="w-1.5 h-1.5 rounded-full bg-olive-light" />}
+                        </div>
+                        <p className="font-mono text-xs text-dim text-center mt-1">
+                          {format(parseISO(d.date), 'E').charAt(0)}
+                        </p>
                       </div>
                     ))}
                   </div>
-                  <button onClick={saveGoals}
-                    className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-colors">
-                    SAVE TARGETS
+                </div>
+              </div>
+
+              {/* ── Right column: targets + meta + danger ── */}
+              <div className="space-y-5">
+                {/* Goals editor */}
+                <div className="anim-fade-in-up" style={{ animationDelay: '100ms' }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="font-display text-xs text-muted tracking-widest">NUTRITION TARGETS</p>
+                    <button onClick={() => setEditGoals(!editGoals)}
+                      className="font-display text-xs text-brown hover:text-brown-light tracking-widest transition-colors">
+                      {editGoals ? 'CANCEL' : 'EDIT'}
+                    </button>
+                  </div>
+                  {editGoals ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { key: 'calories', label: 'CALORIES', color: 'text-cream' },
+                          { key: 'protein',  label: 'PROTEIN',  color: 'text-olive-light' },
+                          { key: 'carbs',    label: 'CARBS',    color: 'text-brown-light' },
+                          { key: 'fat',      label: 'FAT',      color: 'text-slategray-light' },
+                        ].map(({ key, label, color }) => (
+                          <div key={key}>
+                            <label className={`font-display text-xs tracking-widest block mb-1.5 ${color}`}>{label}</label>
+                            <input type="number" value={goals[key]}
+                              onChange={(e) => {
+                                const val = e.target.value
+                                setGoals((p) => {
+                                  const next = { ...p, [key]: val }
+                                  if (key !== 'calories') {
+                                    next.calories = Math.round(
+                                      Number(next.protein || 0) * 4 +
+                                      Number(next.carbs   || 0) * 4 +
+                                      Number(next.fat     || 0) * 9
+                                    )
+                                  }
+                                  return next
+                                })
+                              }}
+                              className="w-full bg-card border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown" />
+                          </div>
+                        ))}
+                      </div>
+                      <button onClick={saveGoals}
+                        className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-colors">
+                        SAVE TARGETS
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: 'CALORIES', val: client.goals.calories, color: 'text-cream' },
+                        { label: 'PROTEIN',  val: client.goals.protein,  color: 'text-olive-light' },
+                        { label: 'CARBS',    val: client.goals.carbs,    color: 'text-brown-light' },
+                        { label: 'FAT',      val: client.goals.fat,      color: 'text-slategray-light' },
+                      ].map(({ label, val, color }, i) => (
+                        <div key={label} className="bg-card border border-border rounded-lg p-3">
+                          <p className={`font-display font-bold text-lg ${color}`}>
+                            <AnimatedNumber value={val} duration={700} delay={i * 50} />
+                          </p>
+                          <p className="font-mono text-xs text-muted">{label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Client meta */}
+                <div className="bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '200ms' }}>
+                  <p className="font-display text-xs text-muted tracking-widest mb-2">CLIENT INFO</p>
+                  <p className="font-mono text-xs text-dim">
+                    Member since {format(parseISO(client.createdAt), 'MMM d, yyyy')}
+                  </p>
+                  {client.email && (
+                    <p className="font-mono text-xs text-muted mt-1 truncate">{client.email}</p>
+                  )}
+                </div>
+
+                {/* Danger zone */}
+                <div className="border border-red-900/30 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '250ms' }}>
+                  <p className="font-display text-xs text-red-400/70 tracking-widest mb-3">DANGER ZONE</p>
+                  <button
+                    onClick={() => { removeClient(client.id); onClose() }}
+                    className="flex items-center gap-2 text-red-400 hover:text-red-300 font-display font-bold text-xs tracking-widest transition-colors"
+                  >
+                    <Trash2 size={13} />
+                    REMOVE CLIENT
                   </button>
                 </div>
-              ) : (
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { label: 'KCAL', val: client.goals.calories, color: 'text-cream' },
-                    { label: 'PRO',  val: client.goals.protein,  color: 'text-olive-light' },
-                    { label: 'CARB', val: client.goals.carbs,    color: 'text-brown-light' },
-                    { label: 'FAT',  val: client.goals.fat,      color: 'text-slategray-light' },
-                  ].map(({ label, val, color }, i) => (
-                    <div key={label} className="bg-card border border-border rounded-lg p-2.5 text-center">
-                      <p className={`font-display font-bold text-base ${color}`}>
-                        <AnimatedNumber value={val} duration={700} delay={i * 50} />
-                      </p>
-                      <p className="font-mono text-xs text-muted">{label}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+              </div>
 
-            <div className="text-center pt-4 border-t border-border">
-              <p className="font-mono text-xs text-dim">
-                Client since {format(parseISO(client.createdAt), 'MMMM d, yyyy')}
-              </p>
-            </div>
-
-            {/* Danger zone */}
-            <div className="border border-red-900/30 rounded-xl p-4">
-              <p className="font-display text-xs text-red-400/70 tracking-widest mb-3">DANGER ZONE</p>
-              <button
-                onClick={() => { removeClient(client.id); onClose() }}
-                className="flex items-center gap-2 text-red-400 hover:text-red-300 font-display font-bold text-xs tracking-widest transition-colors"
-              >
-                <Trash2 size={13} />
-                REMOVE CLIENT
-              </button>
             </div>
           </div>
         )}
