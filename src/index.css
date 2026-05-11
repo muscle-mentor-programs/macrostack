@@ -25,13 +25,13 @@ html.light {
 }
 
 html.light {
-  --color-bg:      #F0EDE6;
-  --color-surface: #F7F4F0;
+  --color-bg:      #F9F8F6;
+  --color-surface: #FDFCFB;
   --color-card:    #FFFFFF;
-  --color-border:  #D4CFC8;
+  --color-border:  #E2DDD8;
   --color-cream:   #1A1814;
   --color-muted:   #6A6560;
-  --color-dim:     #CEC9C2;
+  --color-dim:     #D5CFC8;
 }
 
 /* ─────────────────────────────────────────────
@@ -96,19 +96,19 @@ body {
 ───────────────────────────────────────────── */
 
 /* Backgrounds */
-html.light .bg-bg      { background-color: #F0EDE6 !important; }
-html.light .bg-surface { background-color: #F7F4F0 !important; }
-html.light .bg-card    { background-color: #FFFFFF !important; box-shadow: 0 1px 6px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
-html.light .bg-dim     { background-color: #CEC9C2 !important; }
+html.light .bg-bg      { background-color: #F9F8F6 !important; }
+html.light .bg-surface { background-color: #FDFCFB !important; }
+html.light .bg-card    { background-color: #FFFFFF !important; box-shadow: 0 1px 6px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
+html.light .bg-dim     { background-color: #D5CFC8 !important; }
 
 /* Transparent modal backdrops */
-html.light .bg-bg\/80  { background-color: rgba(240,237,230,0.88) !important; }
-html.light .bg-bg\/90  { background-color: rgba(240,237,230,0.94) !important; }
+html.light .bg-bg\/80  { background-color: rgba(249,248,246,0.88) !important; }
+html.light .bg-bg\/90  { background-color: rgba(249,248,246,0.94) !important; }
 
 /* Hover backgrounds */
-html.light .hover\:bg-bg:hover      { background-color: #F0EDE6 !important; }
-html.light .hover\:bg-surface:hover { background-color: #F7F4F0 !important; }
-html.light .hover\:bg-card:hover    { background-color: #F5F3EF !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
+html.light .hover\:bg-bg:hover      { background-color: #F9F8F6 !important; }
+html.light .hover\:bg-surface:hover { background-color: #FDFCFB !important; }
+html.light .hover\:bg-card:hover    { background-color: #F5F4F2 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
 
 /* Text */
 html.light .text-cream { color: #1A1814 !important; }
@@ -123,16 +123,16 @@ html.light .hover\:text-muted:hover { color: #6A6560 !important; }
 html.light .group:hover .group-hover\:text-cream { color: #1A1814 !important; }
 
 /* Borders */
-html.light .border-border        { border-color: #D4CFC8 !important; }
-html.light .border-border\/50    { border-color: rgba(212,207,200,0.5) !important; }
-html.light .border-l-border      { border-left-color: #D4CFC8 !important; }
-html.light .border-t-border      { border-top-color: #D4CFC8 !important; }
-html.light .border-b-border      { border-bottom-color: #D4CFC8 !important; }
-html.light .border-r-border      { border-right-color: #D4CFC8 !important; }
+html.light .border-border        { border-color: #E2DDD8 !important; }
+html.light .border-border\/50    { border-color: rgba(226,221,216,0.5) !important; }
+html.light .border-l-border      { border-left-color: #E2DDD8 !important; }
+html.light .border-t-border      { border-top-color: #E2DDD8 !important; }
+html.light .border-b-border      { border-bottom-color: #E2DDD8 !important; }
+html.light .border-r-border      { border-right-color: #E2DDD8 !important; }
 
 /* Dividers */
-html.light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #D4CFC8 !important; }
-html.light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(212,207,200,0.5) !important; }
+html.light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #E2DDD8 !important; }
+html.light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(226,221,216,0.5) !important; }
 
 /* Input placeholders */
 html.light .placeholder-muted::placeholder { color: #9A948C !important; }
@@ -210,27 +210,27 @@ html.forest-dark .focus\:border-brown:focus    { border-color: #558A55 !importan
    FOREST LIGHT THEME
 ───────────────────────────────────────────── */
 html.forest-light {
-  --color-bg:      #BACFB8;
-  --color-surface: #C6DAC4;
-  --color-card:    #E8F4E6;
-  --color-border:  #98BC96;
+  --color-bg:      #F5FAF5;
+  --color-surface: #FAFDF9;
+  --color-card:    #FFFFFF;
+  --color-border:  #C0D8BF;
   --color-cream:   #182418;
   --color-muted:   #4A6E4A;
-  --color-dim:     #A8C8A6;
+  --color-dim:     #D4EDD3;
   --color-accent:  #558A55;
   color-scheme: light;
 }
 
-html.forest-light .bg-bg      { background-color: #BACFB8 !important; }
-html.forest-light .bg-surface { background-color: #C6DAC4 !important; }
-html.forest-light .bg-card    { background-color: #E8F4E6 !important; box-shadow: 0 1px 6px rgba(0,30,0,0.09), inset 0 1px 0 rgba(255,255,255,0.60) !important; }
-html.forest-light .bg-dim     { background-color: #A8C8A6 !important; }
-html.forest-light .bg-bg\/80  { background-color: rgba(186,207,184,0.88) !important; }
-html.forest-light .bg-bg\/90  { background-color: rgba(186,207,184,0.94) !important; }
+html.forest-light .bg-bg      { background-color: #F5FAF5 !important; }
+html.forest-light .bg-surface { background-color: #FAFDF9 !important; }
+html.forest-light .bg-card    { background-color: #FFFFFF !important; box-shadow: 0 1px 6px rgba(0,30,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
+html.forest-light .bg-dim     { background-color: #D4EDD3 !important; }
+html.forest-light .bg-bg\/80  { background-color: rgba(245,250,245,0.88) !important; }
+html.forest-light .bg-bg\/90  { background-color: rgba(245,250,245,0.94) !important; }
 
-html.forest-light .hover\:bg-bg:hover      { background-color: #BACFB8 !important; }
-html.forest-light .hover\:bg-surface:hover { background-color: #C6DAC4 !important; }
-html.forest-light .hover\:bg-card:hover    { background-color: #DFF0DD !important; box-shadow: 0 2px 8px rgba(0,30,0,0.10), inset 0 1px 0 rgba(255,255,255,0.60) !important; }
+html.forest-light .hover\:bg-bg:hover      { background-color: #F5FAF5 !important; }
+html.forest-light .hover\:bg-surface:hover { background-color: #FAFDF9 !important; }
+html.forest-light .hover\:bg-card:hover    { background-color: #F2F9F2 !important; box-shadow: 0 2px 8px rgba(0,30,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
 
 html.forest-light .text-cream { color: #182418 !important; }
 html.forest-light .text-muted { color: #4A6E4A !important; }
@@ -239,14 +239,14 @@ html.forest-light .hover\:text-cream:hover { color: #182418 !important; }
 html.forest-light .hover\:text-muted:hover { color: #4A6E4A !important; }
 html.forest-light .group:hover .group-hover\:text-cream { color: #182418 !important; }
 
-html.forest-light .border-border        { border-color: #98BC96 !important; }
-html.forest-light .border-border\/50    { border-color: rgba(152,188,150,0.5) !important; }
-html.forest-light .border-l-border      { border-left-color:   #98BC96 !important; }
-html.forest-light .border-t-border      { border-top-color:    #98BC96 !important; }
-html.forest-light .border-b-border      { border-bottom-color: #98BC96 !important; }
-html.forest-light .border-r-border      { border-right-color:  #98BC96 !important; }
-html.forest-light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #98BC96 !important; }
-html.forest-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(152,188,150,0.5) !important; }
+html.forest-light .border-border        { border-color: #C0D8BF !important; }
+html.forest-light .border-border\/50    { border-color: rgba(192,216,191,0.5) !important; }
+html.forest-light .border-l-border      { border-left-color:   #C0D8BF !important; }
+html.forest-light .border-t-border      { border-top-color:    #C0D8BF !important; }
+html.forest-light .border-b-border      { border-bottom-color: #C0D8BF !important; }
+html.forest-light .border-r-border      { border-right-color:  #C0D8BF !important; }
+html.forest-light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #C0D8BF !important; }
+html.forest-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(192,216,191,0.5) !important; }
 html.forest-light .placeholder-muted::placeholder { color: #6A9A6A !important; }
 
 /* Forest accent (same green as dark) */
@@ -342,27 +342,27 @@ html.ocean-dark .focus\:border-brown:focus    { border-color: #4878B0 !important
    OCEAN LIGHT THEME
 ───────────────────────────────────────────── */
 html.ocean-light {
-  --color-bg:      #BACDE0;
-  --color-surface: #C4D6EA;
-  --color-card:    #E2EEF8;
-  --color-border:  #8AAACB;
+  --color-bg:      #F4F8FC;
+  --color-surface: #F9FBFE;
+  --color-card:    #FFFFFF;
+  --color-border:  #BDD0E4;
   --color-cream:   #141E30;
   --color-muted:   #3E607A;
-  --color-dim:     #A0BCD2;
+  --color-dim:     #D2E4F2;
   --color-accent:  #4878B0;
   color-scheme: light;
 }
 
-html.ocean-light .bg-bg      { background-color: #BACDE0 !important; }
-html.ocean-light .bg-surface { background-color: #C4D6EA !important; }
-html.ocean-light .bg-card    { background-color: #E2EEF8 !important; box-shadow: 0 1px 6px rgba(0,20,50,0.09), inset 0 1px 0 rgba(255,255,255,0.60) !important; }
-html.ocean-light .bg-dim     { background-color: #A0BCD2 !important; }
-html.ocean-light .bg-bg\/80  { background-color: rgba(186,205,224,0.88) !important; }
-html.ocean-light .bg-bg\/90  { background-color: rgba(186,205,224,0.94) !important; }
+html.ocean-light .bg-bg      { background-color: #F4F8FC !important; }
+html.ocean-light .bg-surface { background-color: #F9FBFE !important; }
+html.ocean-light .bg-card    { background-color: #FFFFFF !important; box-shadow: 0 1px 6px rgba(0,20,50,0.06), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
+html.ocean-light .bg-dim     { background-color: #D2E4F2 !important; }
+html.ocean-light .bg-bg\/80  { background-color: rgba(244,248,252,0.88) !important; }
+html.ocean-light .bg-bg\/90  { background-color: rgba(244,248,252,0.94) !important; }
 
-html.ocean-light .hover\:bg-bg:hover      { background-color: #BACDE0 !important; }
-html.ocean-light .hover\:bg-surface:hover { background-color: #C4D6EA !important; }
-html.ocean-light .hover\:bg-card:hover    { background-color: #D8E8F4 !important; box-shadow: 0 2px 8px rgba(0,20,50,0.10), inset 0 1px 0 rgba(255,255,255,0.60) !important; }
+html.ocean-light .hover\:bg-bg:hover      { background-color: #F4F8FC !important; }
+html.ocean-light .hover\:bg-surface:hover { background-color: #F9FBFE !important; }
+html.ocean-light .hover\:bg-card:hover    { background-color: #F0F6FB !important; box-shadow: 0 2px 8px rgba(0,20,50,0.07), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
 
 html.ocean-light .text-cream { color: #141E30 !important; }
 html.ocean-light .text-muted { color: #3E607A !important; }
@@ -371,14 +371,14 @@ html.ocean-light .hover\:text-cream:hover { color: #141E30 !important; }
 html.ocean-light .hover\:text-muted:hover { color: #3E607A !important; }
 html.ocean-light .group:hover .group-hover\:text-cream { color: #141E30 !important; }
 
-html.ocean-light .border-border        { border-color: #8AAACB !important; }
-html.ocean-light .border-border\/50    { border-color: rgba(138,170,203,0.5) !important; }
-html.ocean-light .border-l-border      { border-left-color:   #8AAACB !important; }
-html.ocean-light .border-t-border      { border-top-color:    #8AAACB !important; }
-html.ocean-light .border-b-border      { border-bottom-color: #8AAACB !important; }
-html.ocean-light .border-r-border      { border-right-color:  #8AAACB !important; }
-html.ocean-light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #8AAACB !important; }
-html.ocean-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(138,170,203,0.5) !important; }
+html.ocean-light .border-border        { border-color: #BDD0E4 !important; }
+html.ocean-light .border-border\/50    { border-color: rgba(189,208,228,0.5) !important; }
+html.ocean-light .border-l-border      { border-left-color:   #BDD0E4 !important; }
+html.ocean-light .border-t-border      { border-top-color:    #BDD0E4 !important; }
+html.ocean-light .border-b-border      { border-bottom-color: #BDD0E4 !important; }
+html.ocean-light .border-r-border      { border-right-color:  #BDD0E4 !important; }
+html.ocean-light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #BDD0E4 !important; }
+html.ocean-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(189,208,228,0.5) !important; }
 html.ocean-light .placeholder-muted::placeholder { color: #6090AE !important; }
 
 /* Ocean accent (same blue as dark) */
@@ -636,11 +636,11 @@ input[type="number"]::-webkit-outer-spin-button {
    so opacity variants are immune to the html.* overrides. We use a custom
    class here that we can override per theme instead.                        */
 .nav-bg { background-color: rgba(28,26,24,0.95); }          /* dark (default) */
-html.light        .nav-bg { background-color: rgba(242,238,231,0.95) !important; }
+html.light        .nav-bg { background-color: rgba(253,252,251,0.95) !important; }
 html.forest-dark  .nav-bg { background-color: rgba(22,32,22,0.95)   !important; }
-html.forest-light .nav-bg { background-color: rgba(232,244,230,0.95) !important; }
+html.forest-light .nav-bg { background-color: rgba(250,253,249,0.95) !important; }
 html.ocean-dark   .nav-bg { background-color: rgba(20,27,46,0.95)   !important; }
-html.ocean-light  .nav-bg { background-color: rgba(226,238,248,0.95) !important; }
+html.ocean-light  .nav-bg { background-color: rgba(249,251,254,0.95) !important; }
 
 /* ── Nav bar elevation — heavy shadow in dark themes, subtle in light ──────── */
 .nav-elevated { box-shadow: 0 -6px 24px rgba(0,0,0,0.45); }
