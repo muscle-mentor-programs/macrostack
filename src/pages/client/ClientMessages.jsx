@@ -272,7 +272,7 @@ export default function ClientMessages() {
                 )}
               </div>
               <p className="font-mono text-xs text-muted truncate">
-                {kayLastMsg ? previewText(kayLastMsg, true) : 'PhD Nutrition Science · Ask me anything'}
+                {kayLastMsg ? previewText(kayLastMsg, true) : 'Nutrition Expert · Ask me anything'}
               </p>
             </div>
           </button>
@@ -327,7 +327,7 @@ export default function ClientMessages() {
             )}
           </div>
           <p className="font-mono text-xs text-muted">
-            {isKay ? 'PhD Nutrition Science' : 'Your coach'}
+            {isKay ? 'Nutrition Expert' : 'Your coach'}
           </p>
         </div>
       </div>
@@ -339,7 +339,7 @@ export default function ClientMessages() {
           <div className="flex justify-start anim-fade-in">
             <div className="flex flex-col gap-1 items-start">
               <p className={`font-display font-bold text-[10px] tracking-widest px-1 mb-0.5 ${accentActive}`}>
-                KAY PhD
+                KAY
               </p>
               <div className="px-4 py-3 bg-card border border-olive/20 rounded-2xl rounded-bl-sm flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-olive-light animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -359,7 +359,7 @@ export default function ClientMessages() {
                 </div>
                 <p className="font-display font-bold text-xl text-muted tracking-widest">MEET KAY</p>
                 <p className="font-mono text-xs text-dim mt-2 max-w-[240px] leading-relaxed">
-                  Your AI nutrition PhD. Ask about macros, meal timing, supplements, or any food science question.
+                  Your AI Nutrition Expert. Ask about macros, meal timing, supplements, or any food science question.
                 </p>
               </>
             ) : (
@@ -373,7 +373,7 @@ export default function ClientMessages() {
         ) : (
           [...activeThread].reverse().map((msg) => {
             const isSelf = msg.from === 'client' || msg.from === 'user'
-            const senderLabel = isKay ? 'KAY PhD' : 'COACH'
+            const senderLabel = isKay ? 'KAY' : 'COACH'
             if (msg.isError) {
               return (
                 <div key={msg.id} className="flex justify-center anim-fade-in">
