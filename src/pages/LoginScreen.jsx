@@ -233,7 +233,7 @@ export default function LoginScreen({ onBack }) {
   }
 
   return (
-    <div className="relative flex h-full w-full bg-bg items-center justify-center overflow-hidden pt-safe-top anim-fade-in">
+    <div className="relative h-full w-full bg-bg overflow-y-auto anim-fade-in">
       {/* Back to landing */}
       {onBack && (
         <div className="fixed top-safe left-4 z-10">
@@ -261,7 +261,8 @@ export default function LoginScreen({ onBack }) {
         }}
       />
 
-      <div className="w-full max-w-sm px-6 overflow-y-auto max-h-full py-8 anim-fade-in-up">
+      <div className="min-h-full flex items-center justify-center px-6 py-14">
+      <div className="w-full max-w-sm anim-fade-in-up">
 
         {/* Brand */}
         <div className="text-center mb-8 scanline-parent py-3">
@@ -410,7 +411,8 @@ export default function LoginScreen({ onBack }) {
           )}
         </div>
 
-      </div>
+      </div>{/* max-w-sm content */}
+      </div>{/* min-h-full centering wrapper */}
     </div>
   )
 }

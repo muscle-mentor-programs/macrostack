@@ -876,6 +876,196 @@ export default function Landing({ onGetStarted }) {
           </div>
         </section>
 
+        {/* ══ BLOG ══════════════════════════════════ */}
+        <section className="py-28 relative overflow-hidden">
+          <div className="absolute inset-0 landing-grid opacity-40 pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse, rgba(154,123,85,0.06) 0%, transparent 65%)' }} />
+
+          <div className="relative max-w-6xl mx-auto px-5">
+            <Reveal className="text-center mb-14">
+              <p className="font-mono text-xs tracking-widest text-brown mb-3">— THE MACROSTACK BRIEF —</p>
+              <h2 className="font-display font-black tracking-wide" style={{ fontSize: 'clamp(2.5rem,6vw,4rem)' }}>
+                SCIENCE MEETS<br/>PRACTICE
+              </h2>
+              <p className="font-mono text-sm text-muted mt-4 max-w-lg mx-auto leading-relaxed">
+                Evidence-based insights on nutrition, performance, and the research actually worth knowing about.
+              </p>
+            </Reveal>
+
+            <div className="grid md:grid-cols-3 gap-6">
+
+              {/* ── BLOG 1 ── */}
+              <Reveal delay={0}>
+                <article className="glass-warm rounded-2xl overflow-hidden h-full flex flex-col group transition-all duration-300 hover:-translate-y-1">
+                  {/* Header band */}
+                  <div className="px-6 pt-6 pb-4 border-b border-brown/15">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="font-mono text-xs text-brown-light tracking-widest px-2 py-0.5 rounded glass-warm">PROTEIN</span>
+                      <span className="font-mono text-xs text-muted">8 MIN READ</span>
+                    </div>
+                    <h3 className="font-display font-black text-xl tracking-wide leading-tight text-cream">
+                      HOW MUCH PROTEIN DO YOU ACTUALLY NEED?
+                    </h3>
+                    <p className="font-mono text-xs text-muted mt-1">The science behind the 0.7g/lb myth — and the updated consensus</p>
+                  </div>
+                  {/* Body */}
+                  <div className="px-6 py-5 flex-1 space-y-4">
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      For decades, the fitness industry anchored on 1g of protein per pound of bodyweight — a round number with surprisingly little precision science behind it. Recent meta-analyses have clarified the picture considerably.
+                    </p>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      A landmark 2018 meta-analysis in the <span className="text-cream italic">British Journal of Sports Medicine</span> (Morton et al.) pooled 49 studies and found that protein intakes above <span className="text-brown-light font-bold">~0.73g/lb (1.62g/kg)</span> of bodyweight produced no further gains in muscle mass or strength. Protein synthesis simply plateaus — excess is oxidized for energy.
+                    </p>
+                    <div className="glass rounded-xl p-4 space-y-2">
+                      <p className="font-display font-bold text-xs tracking-widest text-brown-light">EVIDENCE-BASED TARGETS</p>
+                      <div className="space-y-1.5">
+                        {[
+                          ['Sedentary adults',          '0.36 g/lb',  'RDA minimum'],
+                          ['Recreational training',     '0.54–0.68 g/lb', 'Solid muscle support'],
+                          ['Serious resistance athletes','0.64–0.82 g/lb', 'Maximized hypertrophy'],
+                          ['Cutting (caloric deficit)',  '0.82–1.0 g/lb',  'Muscle preservation'],
+                        ].map(([group, dose, note]) => (
+                          <div key={group} className="flex items-start justify-between gap-2">
+                            <span className="font-mono text-xs text-muted flex-1">{group}</span>
+                            <div className="text-right flex-shrink-0">
+                              <span className="font-display font-bold text-xs text-cream block">{dose}</span>
+                              <span className="font-mono text-xs text-dim">{note}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      Critically, protein distribution matters almost as much as total intake. Research by Areta et al. (2013) showed that spreading protein across <span className="text-cream">4–5 meals of 20–40g</span> maximally stimulates muscle protein synthesis over 12 hours — a single large serving doesn't "catch up."
+                    </p>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      For older adults (50+), the muscle protein synthesis response to a given protein dose is blunted — a phenomenon called "anabolic resistance." Studies suggest targeting <span className="text-brown-light">~0.68–0.82g/lb</span> and prioritizing leucine-rich sources (whey, eggs, red meat) to overcome this threshold.
+                    </p>
+                  </div>
+                  {/* Footer cite */}
+                  <div className="px-6 pb-5 pt-2 border-t border-brown/10">
+                    <p className="font-mono text-xs text-dim leading-relaxed">
+                      Sources: Morton et al. (2018) BJSM · Stokes et al. (2018) Nutrients · Areta et al. (2013) J Physiol
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
+
+              {/* ── BLOG 2 ── */}
+              <Reveal delay={120}>
+                <article className="glass-olive rounded-2xl overflow-hidden h-full flex flex-col group transition-all duration-300 hover:-translate-y-1">
+                  <div className="px-6 pt-6 pb-4 border-b border-olive/15">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="font-mono text-xs text-olive-light tracking-widest px-2 py-0.5 rounded glass-olive">TRACKING</span>
+                      <span className="font-mono text-xs text-muted">6 MIN READ</span>
+                    </div>
+                    <h3 className="font-display font-black text-xl tracking-wide leading-tight text-cream">
+                      WHY CALORIE TRACKING WORKS — EVEN WHEN IT'S IMPRECISE
+                    </h3>
+                    <p className="font-mono text-xs text-muted mt-1">Self-monitoring as a behavioral intervention, backed by two decades of data</p>
+                  </div>
+                  <div className="px-6 py-5 flex-1 space-y-4">
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      A common objection to calorie counting is that food labels carry a federally-permitted error of up to <span className="text-cream">±20%</span>, restaurant meals vary wildly, and cooking methods alter caloric availability. So why does tracking consistently outperform non-tracking for fat loss?
+                    </p>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      The mechanism isn't absolute precision — it's <span className="text-olive-light font-bold">behavioral feedback loops</span>. A 2019 systematic review in <span className="text-cream italic">Obesity Reviews</span> covering 15 RCTs found that self-monitoring dietary intake was one of the strongest single predictors of weight-loss success, independent of the actual diet prescribed.
+                    </p>
+                    <div className="glass rounded-xl p-4 space-y-2">
+                      <p className="font-display font-bold text-xs tracking-widest text-olive-light">KEY FINDINGS FROM THE RESEARCH</p>
+                      <div className="space-y-2.5">
+                        {[
+                          { stat: '3–5×', detail: 'Greater fat loss in trackers vs. non-trackers (Burke et al., 2011)' },
+                          { stat: '64%',  detail: 'Of successful long-term maintainers track food regularly (NWCR data)' },
+                          { stat: '~10%', detail: 'Typical underestimation of intake by unassisted self-report' },
+                          { stat: '+40%', detail: 'Adherence improvement when using digital logging vs. paper' },
+                        ].map(({ stat, detail }) => (
+                          <div key={stat} className="flex gap-3">
+                            <span className="font-display font-black text-lg text-olive-light flex-shrink-0 leading-none mt-0.5">{stat}</span>
+                            <span className="font-mono text-xs text-muted leading-relaxed">{detail}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      Consistency beats precision. Tracking 80% of meals accurately outperforms tracking 50% perfectly. The act of logging creates a "pause-and-log" friction that interrupts mindless eating — behavioral economics calls this an <span className="text-cream">implementation intention</span>.
+                    </p>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      The most consistent finding across weight-management literature: <span className="text-olive-light">frequency of logging correlates more strongly with outcomes than the accuracy of any individual entry.</span> Log often. Perfection is counterproductive.
+                    </p>
+                  </div>
+                  <div className="px-6 pb-5 pt-2 border-t border-olive/10">
+                    <p className="font-mono text-xs text-dim leading-relaxed">
+                      Sources: Burke et al. (2011) JADA · Linardon & Mitchell (2017) Obesity Reviews · NWCR Long-Term Registry Data
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
+
+              {/* ── BLOG 3 ── */}
+              <Reveal delay={240}>
+                <article className="glass-slate rounded-2xl overflow-hidden h-full flex flex-col group transition-all duration-300 hover:-translate-y-1">
+                  <div className="px-6 pt-6 pb-4 border-b border-slategray/15">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="font-mono text-xs text-slategray-light tracking-widest px-2 py-0.5 rounded glass-slate">BODY COMPOSITION</span>
+                      <span className="font-mono text-xs text-muted">7 MIN READ</span>
+                    </div>
+                    <h3 className="font-display font-black text-xl tracking-wide leading-tight text-cream">
+                      THE BODY RECOMPOSITION DEBATE: CAN YOU GAIN MUSCLE AND LOSE FAT SIMULTANEOUSLY?
+                    </h3>
+                    <p className="font-mono text-xs text-muted mt-1">New research challenges the "bulk or cut" orthodoxy</p>
+                  </div>
+                  <div className="px-6 py-5 flex-1 space-y-4">
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      Traditional periodization dogma held that muscle gain requires a caloric surplus and fat loss requires a deficit — making simultaneous body recomposition (gaining muscle while losing fat) essentially impossible for trained athletes. The evidence has shifted substantially.
+                    </p>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      A 2020 review in <span className="text-cream italic">Frontiers in Physiology</span> confirmed that body recomposition is reliably achievable under specific conditions. The key variable isn't the overall calorie balance — it's <span className="text-slategray-light font-bold">protein intake and resistance training stimulus</span>.
+                    </p>
+                    <div className="glass rounded-xl p-4 space-y-3">
+                      <p className="font-display font-bold text-xs tracking-widest text-slategray-light">CONDITIONS THAT ENABLE RECOMP</p>
+                      {[
+                        { label: 'Protein ≥ 0.73g/lb/day',     desc: 'Provides substrate for MPS regardless of energy balance' },
+                        { label: 'Progressive resistance training', desc: '3–4x/week minimum; training stimulus drives muscle protein synthesis even in deficit' },
+                        { label: 'Moderate deficit only (−250–400 kcal)', desc: 'Severe restriction accelerates muscle catabolism — blunts recomp potential' },
+                        { label: 'Training status',              desc: 'Beginners and detrained individuals show highest recomp rates; advanced athletes are limited' },
+                      ].map(({ label, desc }) => (
+                        <div key={label} className="flex gap-2.5">
+                          <span className="text-slategray-light mt-0.5 flex-shrink-0 text-xs">▸</span>
+                          <div>
+                            <p className="font-display font-bold text-xs text-cream tracking-wide">{label}</p>
+                            <p className="font-mono text-xs text-muted">{desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      A practical 2022 study (Barakat et al.) tracked resistance-trained subjects over 8 weeks in a slight deficit with high protein (~0.9g/lb). Result: <span className="text-slategray-light">+1.1kg lean mass, −2.4kg fat mass</span> — simultaneous recomposition in trained individuals with precise macro control.
+                    </p>
+                    <p className="font-mono text-xs text-muted leading-relaxed">
+                      The takeaway: body recomposition is real, but it's <span className="text-cream">highly sensitive to protein distribution and training consistency</span>. Tracking macros precisely — not just calories — is what separates recomposition outcomes from stalled progress.
+                    </p>
+                  </div>
+                  <div className="px-6 pb-5 pt-2 border-t border-slategray/10">
+                    <p className="font-mono text-xs text-dim leading-relaxed">
+                      Sources: Barakat et al. (2020) Strength & Cond. J. · Longland et al. (2016) AJCN · Murphy et al. (2022) Front. Physiol.
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
+
+            </div>
+
+            {/* Bottom note */}
+            <Reveal delay={300} className="text-center mt-10">
+              <p className="font-mono text-xs text-dim">
+                Research summaries are for educational purposes. Individual results vary — work with a qualified coach for personalized guidance.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
         {/* ══ FOOTER · glass section ════════════════ */}
         <footer className="glass-section border-t border-white/5 py-10">
           <div className="max-w-6xl mx-auto px-5">
