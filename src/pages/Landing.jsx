@@ -742,8 +742,7 @@ export default function Landing({ onGetStarted }) {
                   style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 0.6s ease 900ms' }}
                 >
                   {[
-                    { to: 10000, suffix: '+', label: 'FOODS IN DB'  },
-                    { to: 3,     suffix: '',  label: 'USER ROLES'   },
+                    { to: 376,   suffix: '',  label: 'FOODS IN DB'  },
                     { to: 100,   suffix: '%', label: 'FREE TO START'},
                   ].map(({ to, suffix, label }) => (
                     <div key={label}>
@@ -768,12 +767,11 @@ export default function Landing({ onGetStarted }) {
         {/* ══ STATS TICKER · glass section ═════════ */}
         <section className="glass-section border-y border-white/5 py-12 overflow-hidden">
           <div className="max-w-6xl mx-auto px-5">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
               {[
-                { to: 10000, suffix: '+', label: 'FOODS IN DATABASE', delay: 0   },
-                { to: 3,     suffix: '',  label: 'COACHING TIERS',    delay: 150 },
-                { to: 100,   suffix: '%', label: 'MACRO PRECISION',   delay: 300 },
-                { to: 24,    suffix: '/7',label: 'ALWAYS AVAILABLE',  delay: 450 },
+                { to: 376,   suffix: '',   label: 'FOODS IN DATABASE', delay: 0   },
+                { to: 100,   suffix: '%', label: 'MACRO PRECISION',   delay: 150 },
+                { to: 24,    suffix: '/7',label: 'ALWAYS AVAILABLE',  delay: 300 },
               ].map(({ to, suffix, label, delay }) => (
                 <Reveal key={label} delay={delay} className="text-center">
                   {/* Each stat in its own glass pill */}
