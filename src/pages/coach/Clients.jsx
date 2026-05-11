@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import { Plus, X, User, Edit2, Trash2, ChevronRight, Check, Calculator, BookOpen, Sparkles, Star, StarOff, Pencil } from 'lucide-react'
 import useStore from '../../store'
@@ -884,6 +884,8 @@ export default function Clients() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedId,   setSelectedId]   = useState(viewingClientId || null)
   const [initialTab,   setInitialTab]   = useState(viewingClientTab || 'overview')
+  const [detailWidth,  setDetailWidth]  = useState(620)
+  const containerRef = useRef(null)
   const today = format(new Date(), 'yyyy-MM-dd')
 
   // Consume the navigation hint from the store once (clear after reading)
@@ -894,12 +896,40 @@ export default function Clients() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const startDrag = useCallback((e) => {
+    e.preventDefault()
+    const startX    = e.clientX
+    const startWidth = detailWidth
+
+    const onMove = (mv) => {
+      const containerWidth = containerRef.current?.offsetWidth || 1000
+      const delta    = startX - mv.clientX          // drag left → wider detail
+      const newWidth = Math.min(
+        containerWidth - 280,                        // keep at least 280px for list
+        Math.max(380, startWidth + delta)
+      )
+      setDetailWidth(newWidth)
+    }
+
+    const onUp = () => {
+      document.body.style.cursor    = ''
+      document.body.style.userSelect = ''
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup',   onUp)
+    }
+
+    document.body.style.cursor    = 'col-resize'
+    document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup',   onUp)
+  }, [detailWidth])
+
   const selectedClient = clients.find((c) => c.id === selectedId)
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div ref={containerRef} className="flex h-full overflow-hidden">
       {/* Client list */}
-      <div className={`flex flex-col ${selectedClient ? 'w-96' : 'flex-1'} border-r border-border transition-all duration-300`}>
+      <div className={`flex flex-col flex-1 min-w-[280px] ${selectedClient ? '' : ''} border-r border-border overflow-hidden`}>
         {/* Header */}
         <div className="relative flex items-center justify-between px-6 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
           <div>
@@ -1002,9 +1032,25 @@ export default function Clients() {
         </div>
       </div>
 
+      {/* Drag handle */}
+      {selectedClient && (
+        <div
+          onMouseDown={startDrag}
+          className="relative flex-shrink-0 w-[3px] bg-border hover:bg-brown/50 active:bg-brown cursor-col-resize transition-colors group"
+          title="Drag to resize"
+        >
+          {/* Wider invisible hit area */}
+          <div className="absolute inset-y-0 -left-2 -right-2" />
+          {/* Centre grip dots */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            {[0,1,2].map((i) => <div key={i} className="w-0.5 h-0.5 rounded-full bg-brown-light" />)}
+          </div>
+        </div>
+      )}
+
       {/* Client detail panel */}
       {selectedClient && (
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-shrink-0 overflow-hidden" style={{ width: detailWidth }}>
           <ClientDetail
             key={selectedClient.id}
             client={selectedClient}
