@@ -29,9 +29,9 @@ export default {
           dark: '#355F96',
         },
         green: {
-          DEFAULT: '#3D8B5E',
-          light: '#56AA7C',
-          dark: '#2E6A47',
+          DEFAULT: '#558A55',
+          light: '#6EAA6E',
+          dark: '#3A6B3A',
         },
         cream: '#E8E4DC',
         muted: '#7A756E',
