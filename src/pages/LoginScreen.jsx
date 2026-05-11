@@ -376,7 +376,7 @@ export default function LoginScreen({ onBack }) {
                 : 'bg-card border border-border text-muted hover:text-cream'
             }`}
           >
-            CLIENT EDITION
+            USER EDITION
           </button>
           <button
             onClick={() => switchEdition('coach')}
