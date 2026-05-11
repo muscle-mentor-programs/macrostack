@@ -362,7 +362,7 @@ export default function MobileCoachDashboard() {
   return (
     <div className="px-4 pt-14 pb-6 space-y-5 w-full overflow-x-hidden">
       {/* Header */}
-      <div className="anim-fade-in-down">
+      <div className="glass-panel accent-line relative anim-fade-in-down">
         <h2 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="DASHBOARD" duration={800} />
         </h2>
@@ -374,7 +374,7 @@ export default function MobileCoachDashboard() {
       {/* Summary stats row */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'CLIENTS',    val: clients.length,      color: 'text-cream',        Icon: Users      },
+          { label: 'USERS',      val: clients.length,      color: 'text-cream',        Icon: Users      },
           { label: '7-DAY LOG',  val: `${avgCompliance}%`, color: complianceColor,     Icon: TrendingUp },
           { label: 'PLANS',      val: activePlans,          color: 'text-brown-light',  Icon: Target     },
         ].map(({ label, val, color, Icon }, i) => (
@@ -454,21 +454,21 @@ export default function MobileCoachDashboard() {
         className="w-full flex items-center justify-center gap-2 bg-surface border border-border text-muted font-display font-bold text-xs tracking-widest py-3 rounded-xl transition-colors hover:border-brown/40 hover:text-cream"
       >
         <Mail size={14} />
-        COMPOSE EMAIL TO CLIENTS
+        COMPOSE EMAIL TO USERS
       </button>
 
       {/* Client cards */}
       {clients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center anim-fade-in">
           <Users size={36} className="text-dim mb-3" />
-          <p className="font-display font-bold text-xl text-muted tracking-widest">NO CLIENTS YET</p>
-          <p className="font-mono text-sm text-dim mt-1">Add clients from the Clients tab</p>
+          <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS YET</p>
+          <p className="font-mono text-sm text-dim mt-1">Add users from the Users tab</p>
           <button
             onClick={() => setActivePage('clients')}
             className="mt-5 flex items-center gap-2 bg-brown/20 border border-brown/30 text-brown-light font-display font-bold text-sm tracking-widest px-5 py-3 rounded-xl hover:bg-brown/30 transition-colors"
           >
             <ChevronRight size={14} />
-            GO TO CLIENTS
+            GO TO USERS
           </button>
         </div>
       ) : (

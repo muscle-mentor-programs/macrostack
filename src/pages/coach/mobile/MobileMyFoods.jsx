@@ -273,7 +273,7 @@ export default function MobileMyFoods() {
   return (
     <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
-      <div className="px-4 pt-14 pb-4 anim-fade-in-down">
+      <div className="glass-panel accent-line relative px-4 pt-14 pb-4 anim-fade-in-down">
         <div className="flex items-start justify-between">
           <div>
             <h2 className="font-display font-black text-3xl tracking-wider text-cream">
@@ -445,7 +445,7 @@ export default function MobileMyFoods() {
         {/* Add (primary) */}
         <button
           onClick={openAdd}
-          className="w-14 h-14 flex items-center justify-center rounded-full bg-brown hover:bg-brown-light text-bg shadow-lg transition-colors"
+          className="w-14 h-14 flex items-center justify-center rounded-full bg-brown hover:bg-brown-light text-bg shadow-lg transition-colors glow-hover"
         >
           <Plus size={24} />
         </button>

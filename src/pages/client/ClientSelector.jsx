@@ -27,7 +27,7 @@ export default function ClientSelector() {
           <ScrambleText text="SELECT" duration={700} delay={50} /><br />
           <ScrambleText text="PROFILE" duration={700} delay={200} />
         </h1>
-        <p className="font-mono text-sm text-muted mt-2">Choose your client profile to continue</p>
+        <p className="font-mono text-sm text-muted mt-2">Choose your user profile to continue</p>
       </div>
 
       {/* Client list */}

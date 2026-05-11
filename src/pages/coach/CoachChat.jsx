@@ -53,7 +53,7 @@ export default function CoachChat() {
     <div className="flex h-full overflow-hidden">
       {/* ── Left: client list ─────────────────────────────── */}
       <div className="w-72 flex-shrink-0 border-r border-border flex flex-col">
-        <div className="px-6 py-6 border-b border-border flex-shrink-0 anim-fade-in-down">
+        <div className="relative px-6 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
           <div className="flex items-center gap-2">
             <h2 className="font-display font-black text-2xl tracking-wider text-cream">
               <ScrambleText text="CHAT" duration={700} />
@@ -64,14 +64,14 @@ export default function CoachChat() {
               </span>
             )}
           </div>
-          <p className="font-mono text-xs text-muted mt-1">{clients.length} conversations</p>
+          <p className="font-mono text-xs text-muted mt-1">{clients.length} {clients.length === 1 ? 'conversation' : 'conversations'}</p>
         </div>
 
         <div className="flex-1 overflow-y-auto divide-y divide-border/50">
           {clients.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-center px-4 anim-fade-in">
               <MessageCircle size={24} className="text-dim mb-2" />
-              <p className="font-mono text-xs text-dim">No clients yet</p>
+              <p className="font-mono text-xs text-dim">No users yet</p>
             </div>
           ) : (
             clients.map((client, i) => {
@@ -83,7 +83,7 @@ export default function CoachChat() {
                   key={client.id}
                   onClick={() => setSelectedId(client.id)}
                   style={{ animationDelay: `${i * 40}ms` }}
-                  className={`anim-fade-in-up w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${
+                  className={`anim-fade-in-up w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors card-hover ${
                     isActive ? 'bg-brown/10 border-l-2 border-l-brown' : 'hover:bg-card'
                   }`}
                 >
@@ -125,7 +125,7 @@ export default function CoachChat() {
       {selectedClient ? (
         <div key={selectedId} className="flex-1 flex flex-col overflow-hidden anim-fade-in">
           {/* Thread header */}
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0 glass-panel">
             <div className="w-9 h-9 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
               <span className="font-display font-black text-sm text-brown-light">
                 {selectedClient.name.charAt(0).toUpperCase()}
@@ -171,7 +171,7 @@ export default function CoachChat() {
           </div>
 
           {/* Input */}
-          <div className="px-6 py-4 border-t border-border flex gap-3 flex-shrink-0 bg-surface">
+          <div className="px-6 py-4 border-t border-border flex gap-3 flex-shrink-0 glass-panel">
             <input
               type="text"
               placeholder={`Message ${selectedClient.name.split(' ')[0]}…`}
@@ -192,8 +192,8 @@ export default function CoachChat() {
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-center anim-fade-in">
           <MessageCircle size={44} className="text-dim mb-4" />
-          <p className="font-display font-bold text-2xl text-muted tracking-widest">SELECT A CLIENT</p>
-          <p className="font-mono text-sm text-dim mt-2">Choose a client from the left to start chatting</p>
+          <p className="font-display font-bold text-2xl text-muted tracking-widest">SELECT A USER</p>
+          <p className="font-mono text-sm text-dim mt-2">Choose a user from the left to start chatting</p>
         </div>
       )}
     </div>

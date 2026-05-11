@@ -336,10 +336,10 @@ export default function LoginScreen({ onBack }) {
               <div className="bg-card border border-border rounded-2xl p-6 shadow-2xl space-y-4">
                 <div>
                   <p className="font-display font-black text-xl tracking-widest text-blue-light">
-                    {mode === 'login' ? 'CLIENT SIGN IN' : 'CLIENT SIGN UP'}
+                    {mode === 'login' ? 'USER SIGN IN' : 'USER SIGN UP'}
                   </p>
                   <p className="font-mono text-xs text-muted mt-0.5">
-                    {mode === 'login' ? 'Access your nutrition log' : 'Create your client account'}
+                    {mode === 'login' ? 'Access your nutrition log' : 'Create your user account'}
                   </p>
                 </div>
 

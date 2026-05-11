@@ -141,7 +141,7 @@ export default function MobileChat() {
   return (
     <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
-      <div className="px-4 pt-14 pb-3 border-b border-border anim-fade-in-down">
+      <div className="glass-panel accent-line relative px-4 pt-14 pb-3 border-b border-border anim-fade-in-down">
         <div className="flex items-center gap-3">
           <h2 className="font-display font-black text-3xl tracking-wider text-cream">
             <ScrambleText text="CHAT" duration={700} />
@@ -153,7 +153,7 @@ export default function MobileChat() {
           )}
         </div>
         <p className="font-mono text-xs text-muted mt-0.5">
-          {clients.length} {clients.length === 1 ? 'client' : 'clients'}
+          {clients.length} {clients.length === 1 ? 'user' : 'users'}
         </p>
       </div>
 
@@ -161,8 +161,8 @@ export default function MobileChat() {
       {clients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center px-8 anim-fade-in">
           <MessageCircle size={30} className="text-dim mb-3" />
-          <p className="font-display font-bold text-xl text-muted tracking-widest">NO CLIENTS</p>
-          <p className="font-mono text-sm text-dim mt-1">Add clients to start chatting</p>
+          <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS</p>
+          <p className="font-mono text-sm text-dim mt-1">Add users to start chatting</p>
         </div>
       ) : (
         <div className="px-4 py-4 space-y-3 pb-20">
@@ -174,7 +174,7 @@ export default function MobileChat() {
                 key={client.id}
                 onClick={() => setSelectedId(client.id)}
                 style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}
-                className={`anim-fade-in-up w-full bg-card border rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface ${
+                className={`anim-fade-in-up w-full bg-card border rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface card-hover ${
                   unread > 0 ? 'border-brown/40 hover:border-brown/60' : 'border-border hover:border-border/80'
                 }`}
               >

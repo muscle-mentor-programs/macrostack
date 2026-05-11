@@ -406,7 +406,7 @@ export default function ClientLog() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Date nav */}
-      <div className="flex items-center justify-between px-5 pt-12 pb-4 anim-fade-in-down">
+      <div className="relative flex items-center justify-between px-5 pt-12 pb-4 anim-fade-in-down glass-panel accent-line">
         <button onClick={prev} className="w-10 h-10 flex items-center justify-center text-muted hover:text-cream">
           <ChevronLeft size={22} />
         </button>
@@ -447,7 +447,7 @@ export default function ClientLog() {
           return (
             <div
               key={meal}
-              className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up"
+              className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-hover"
               style={{ animationDelay: `${sectionIdx * 65 + 80}ms` }}
             >
               {/* Section header */}
@@ -602,7 +602,7 @@ export default function ClientLog() {
       {/* FAB — opens Breakfast by default */}
       <button
         onClick={() => setModalMeal('Breakfast')}
-        className="fixed bottom-20 right-5 w-14 h-14 bg-brown hover:bg-brown-light rounded-full flex items-center justify-center shadow-lg transition-colors z-40"
+        className="fixed bottom-20 right-5 w-14 h-14 bg-brown hover:bg-brown-light rounded-full flex items-center justify-center shadow-lg transition-colors z-40 glow-hover"
       >
         <Plus size={24} className="text-bg" strokeWidth={2.5} />
       </button>

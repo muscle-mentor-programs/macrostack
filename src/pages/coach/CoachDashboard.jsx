@@ -250,7 +250,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
 
   return (
     <div
-      className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4 anim-fade-in-up hover:border-brown/30 transition-colors"
+      className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4 anim-fade-in-up hover:border-brown/30 transition-colors card-hover"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Header row */}
@@ -437,7 +437,7 @@ export default function CoachDashboard() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down">
+      <div className="relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
           <h2 className="font-display font-black text-4xl tracking-wider text-cream">
             <ScrambleText text="DASHBOARD" duration={900} />
@@ -458,7 +458,7 @@ export default function CoachDashboard() {
       {/* Coach Code widget */}
       {currentUser?.coachCode && (
         <div className="px-8 pt-4 pb-0 flex-shrink-0">
-          <div className="bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between">
+          <div className="bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between card-hover">
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
               <span className="font-display font-black text-lg text-brown tracking-widest">
@@ -528,9 +528,9 @@ export default function CoachDashboard() {
       )}
 
       {/* Summary stats */}
-      <div className="grid grid-cols-3 gap-4 px-8 py-5 border-b border-border flex-shrink-0">
+      <div className="grid grid-cols-3 gap-4 px-8 py-5 border-b border-border flex-shrink-0 glass-panel">
         {[
-          { label: 'ACTIVE CLIENTS',    val: clients.length, color: 'text-cream',       Icon: Users      },
+          { label: 'ACTIVE USERS',      val: clients.length, color: 'text-cream',       Icon: Users      },
           { label: 'AVG 7-DAY LOG',     val: `${avgCompliance}%`,
             color: avgCompliance >= 70 ? 'text-olive-light' : avgCompliance >= 40 ? 'text-brown-light' : 'text-red-400',
             Icon: TrendingUp },
@@ -538,7 +538,7 @@ export default function CoachDashboard() {
         ].map(({ label, val, color, Icon }, i) => (
           <div
             key={label}
-            className="bg-card border border-border rounded-xl px-5 py-4 flex items-center gap-4 anim-fade-in-up"
+            className="bg-card border border-border rounded-xl px-5 py-4 flex items-center gap-4 anim-fade-in-up card-hover"
             style={{ animationDelay: `${i * 60}ms` }}
           >
             <Icon size={20} className={`${color} opacity-50 flex-shrink-0`} />
@@ -555,8 +555,8 @@ export default function CoachDashboard() {
         {clients.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <Users size={40} className="text-dim mb-4" />
-            <p className="font-display font-bold text-2xl text-muted tracking-widest">NO CLIENTS YET</p>
-            <p className="font-mono text-sm text-dim mt-2">Add clients from the Clients page</p>
+            <p className="font-display font-bold text-2xl text-muted tracking-widest">NO USERS YET</p>
+            <p className="font-mono text-sm text-dim mt-2">Add users from the Users page</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 xl:grid-cols-3 gap-5">

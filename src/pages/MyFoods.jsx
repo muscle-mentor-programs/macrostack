@@ -433,7 +433,7 @@ export default function MyFoods() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down">
+      <div className="relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
           <h2 className="font-display font-black text-4xl tracking-wider text-cream">
             <ScrambleText text="FOOD DATABASE" duration={950} />

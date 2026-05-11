@@ -116,7 +116,7 @@ function AddClientScreen({ onClose }) {
   return (
     <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in overflow-hidden">
       <div className="flex items-center justify-between px-5 pt-14 pb-4 border-b border-border bg-surface flex-shrink-0">
-        <h3 className="font-display font-black text-xl tracking-widest text-cream">NEW CLIENT</h3>
+        <h3 className="font-display font-black text-xl tracking-widest text-cream">NEW USER</h3>
         <button onClick={onClose} className="text-muted p-1"><X size={20} /></button>
       </div>
 
@@ -171,7 +171,7 @@ function AddClientScreen({ onClose }) {
                 {ACTIVITY.map((a, i) => <option key={i} value={i}>{a.label}</option>)}
               </select>
             </div>
-            <div><label className={lbl}>CLIENT GOAL</label>
+            <div><label className={lbl}>USER GOAL</label>
               <select value={goalIdx} onChange={(e) => setGoalIdx(e.target.value)} className={inp}>
                 {GOALS_LIST.map((g, i) => <option key={i} value={i}>{g.label}</option>)}
               </select>
@@ -237,7 +237,7 @@ function AddClientScreen({ onClose }) {
       <div className="px-5 pb-6 pt-3 border-t border-border bg-surface space-y-3">
         {inviteError && (
           <p className="font-mono text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-xl px-3 py-2 text-center">
-            Client added, but invite email failed. Tap RETRY to try again.
+            User added, but invite email failed. Tap RETRY to try again.
           </p>
         )}
         <button
@@ -257,7 +257,7 @@ function AddClientScreen({ onClose }) {
           ) : inviteError ? (
             'RETRY INVITE'
           ) : (
-            <><Plus size={16} /> ADD CLIENT</>
+            <><Plus size={16} /> ADD USER</>
           )}
         </button>
       </div>
@@ -639,7 +639,7 @@ function ClientDetailScreen({ client, onBack }) {
 
             {/* Client since */}
             <p className="font-mono text-xs text-dim text-center">
-              Client since {format(parseISO(client.createdAt), 'MMMM d, yyyy')}
+              User since {format(parseISO(client.createdAt), 'MMMM d, yyyy')}
             </p>
 
             {/* Danger zone */}
@@ -650,7 +650,7 @@ function ClientDetailScreen({ client, onBack }) {
                 className="flex items-center gap-2 text-red-400 font-display font-bold text-xs tracking-widest"
               >
                 <Trash2 size={13} />
-                REMOVE CLIENT
+                REMOVE USER
               </button>
             </div>
           </div>
@@ -692,13 +692,13 @@ export default function MobileClients() {
   return (
     <div className="px-4 pt-14 pb-6 w-full overflow-x-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 anim-fade-in-down">
+      <div className="glass-panel accent-line relative flex items-center justify-between mb-4 anim-fade-in-down">
         <div>
           <h2 className="font-display font-black text-3xl tracking-wider text-cream">
-            <ScrambleText text="CLIENTS" duration={700} />
+            <ScrambleText text="USERS" duration={700} />
           </h2>
           <p className="font-mono text-xs text-muted mt-0.5">
-            <AnimatedNumber value={clients.length} duration={600} /> {clients.length === 1 ? 'client' : 'clients'}
+            <AnimatedNumber value={clients.length} duration={600} /> {clients.length === 1 ? 'user' : 'users'}
           </p>
         </div>
         <button
@@ -716,7 +716,7 @@ export default function MobileClients() {
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
           <input
             type="text"
-            placeholder="Search clients…"
+            placeholder="Search users…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-card border border-border rounded-xl pl-9 pr-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
@@ -730,11 +730,11 @@ export default function MobileClients() {
           <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">
             <User size={24} className="text-muted" />
           </div>
-          <p className="font-display font-bold text-xl text-muted tracking-widest">NO CLIENTS</p>
-          <p className="font-mono text-sm text-dim mt-2">Add your first client to get started</p>
+          <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS</p>
+          <p className="font-mono text-sm text-dim mt-2">Add your first user to get started</p>
           <button onClick={() => setShowAddScreen(true)}
             className="mt-5 bg-brown/20 border border-brown/30 text-brown-light font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:bg-brown/30 transition-colors">
-            + ADD FIRST CLIENT
+            + ADD FIRST USER
           </button>
         </div>
       ) : (
@@ -754,7 +754,7 @@ export default function MobileClients() {
                 key={client.id}
                 onClick={() => { setInitialTab('overview'); setSelectedId(client.id) }}
                 style={{ animationDelay: `${i * 45}ms` }}
-                className="anim-fade-in-up w-full flex items-center gap-4 px-4 py-4 bg-card border border-border rounded-2xl text-left hover:border-brown/30 transition-colors active:bg-surface"
+                className="anim-fade-in-up w-full flex items-center gap-4 px-4 py-4 bg-card border border-border rounded-2xl text-left hover:border-brown/30 transition-colors active:bg-surface card-hover"
               >
                 <div className="w-11 h-11 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
                   <span className="font-display font-black text-lg text-brown-light">

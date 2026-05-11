@@ -128,7 +128,7 @@ export function mealPlanTemplate({ clientName, planName, days, coachName }) {
 // ── Template: New message notification ───────────────────────────────────────
 export function newMessageTemplate({ recipientName, senderName, senderRole, preview }) {
   const accentColor = senderRole === 'coach' ? BRAND.brown : BRAND.olive
-  const label       = senderRole === 'coach' ? 'MESSAGE FROM YOUR COACH' : 'MESSAGE FROM YOUR CLIENT'
+  const label       = senderRole === 'coach' ? 'MESSAGE FROM YOUR COACH' : 'MESSAGE FROM YOUR USER'
 
   return shell(`
     <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;color:${accentColor};">${label}</p>
@@ -148,22 +148,22 @@ export function newMessageTemplate({ recipientName, senderName, senderRole, prev
 export function welcomeTemplate({ name, role, loginUrl }) {
   const isCoach   = role !== 'client'
   const accentColor = isCoach ? BRAND.brown : BRAND.olive
-  const roleLabel   = isCoach ? 'COACH PORTAL' : 'CLIENT APP'
+  const roleLabel   = isCoach ? 'COACH PORTAL' : 'USER APP'
 
   return shell(`
     <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;color:${accentColor};">WELCOME TO MACROSTACK</p>
     <h1 style="margin:0 0 8px;font-family:Impact,'Arial Black',sans-serif;font-size:26px;letter-spacing:4px;color:${BRAND.cream};">YOUR ACCOUNT IS READY</h1>
-    <p style="margin:0 0 28px;font-size:13px;color:${BRAND.muted};">Hi ${name}, your ${isCoach ? 'coach' : 'client'} account has been created.</p>
+    <p style="margin:0 0 28px;font-size:13px;color:${BRAND.muted};">Hi ${name}, your ${isCoach ? 'coach' : 'user'} account has been created.</p>
 
     <table width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.bg};border-radius:10px;padding:20px;margin-bottom:24px;">
       <tr>
         <td style="font-size:11px;letter-spacing:3px;color:${BRAND.dim};padding-bottom:12px;">WHAT YOU CAN DO</td>
       </tr>
       ${isCoach ? `
-      <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Manage client profiles & goals</td></tr>
+      <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Manage user profiles & goals</td></tr>
       <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Build and assign meal plans with AI</td></tr>
-      <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Track client macro compliance</td></tr>
-      <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Message clients directly in the app</td></tr>
+      <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Track user macro compliance</td></tr>
+      <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Message users directly in the app</td></tr>
       ` : `
       <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Log meals and track daily macros</td></tr>
       <tr><td style="padding:6px 0;font-size:13px;color:${BRAND.cream};">✓ &nbsp;Monitor weight trends over time</td></tr>

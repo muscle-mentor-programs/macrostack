@@ -772,3 +772,91 @@ input[type="date"]::-webkit-date-and-time-value {
 .glow-hover-olive:hover {
   animation: pulseGlowOlive 2s ease infinite;
 }
+
+/* ─────────────────────────────────────────────
+   APP SHELL — PREMIUM AMBIENT STYLES
+───────────────────────────────────────────── */
+
+/* Slow organic drift for ambient background blobs */
+@keyframes driftBlob {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  20%  { transform: translate(16px, -14px) scale(1.04); }
+  40%  { transform: translate(-8px, 18px) scale(0.97); }
+  60%  { transform: translate(20px, 6px) scale(1.03); }
+  80%  { transform: translate(-12px, -8px) scale(0.98); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+/* Page entrance — blur + scale + translate spring */
+@keyframes appPageReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.988);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.anim-page-reveal {
+  animation: appPageReveal 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Glass sidebar — backdrop blur, theme-aware semi-transparent fill */
+.glass-sidebar {
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  background: rgba(20, 18, 16, 0.74);
+}
+html.light        .glass-sidebar { background: rgba(245, 241, 235, 0.84) !important; }
+html.forest-dark  .glass-sidebar { background: rgba(15, 24, 15, 0.74) !important; }
+html.forest-light .glass-sidebar { background: rgba(239, 248, 238, 0.84) !important; }
+html.ocean-dark   .glass-sidebar { background: rgba(14, 18, 32, 0.74) !important; }
+html.ocean-light  .glass-sidebar { background: rgba(237, 244, 251, 0.84) !important; }
+
+/* Glass bottom nav — stronger blur than plain nav-bg, replaces nav-elevated */
+.glass-bottom-nav {
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  background: rgba(28, 26, 24, 0.88);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35), 0 -1px 0 rgba(255, 255, 255, 0.03);
+}
+html.light        .glass-bottom-nav { background: rgba(254, 253, 251, 0.92) !important; box-shadow: 0 -4px 20px rgba(0,0,0,0.07) !important; }
+html.forest-dark  .glass-bottom-nav { background: rgba(22, 32, 22, 0.88) !important; }
+html.forest-light .glass-bottom-nav { background: rgba(251, 254, 251, 0.92) !important; box-shadow: 0 -4px 20px rgba(0,20,0,0.07) !important; }
+html.ocean-dark   .glass-bottom-nav { background: rgba(20, 27, 46, 0.88) !important; }
+html.ocean-light  .glass-bottom-nav { background: rgba(250, 252, 255, 0.92) !important; box-shadow: 0 -4px 20px rgba(0,10,30,0.07) !important; }
+
+/* Glass panel — for page headers and section containers (lower opacity than sidebar) */
+.glass-panel {
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  background: rgba(28, 26, 24, 0.68);
+}
+html.light        .glass-panel { background: rgba(245, 241, 235, 0.80) !important; }
+html.forest-dark  .glass-panel { background: rgba(22, 32, 22, 0.68) !important; }
+html.forest-light .glass-panel { background: rgba(239, 248, 238, 0.80) !important; }
+html.ocean-dark   .glass-panel { background: rgba(20, 27, 46, 0.68) !important; }
+html.ocean-light  .glass-panel { background: rgba(237, 244, 251, 0.80) !important; }
+
+/* Accent gradient line — decorative top-of-section separator */
+.accent-line::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+  opacity: 0.25;
+}
+
+/* Card hover lift — for interactive data cards */
+.card-hover {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  border-color: rgba(154, 123, 85, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(154, 123, 85, 0.07);
+}

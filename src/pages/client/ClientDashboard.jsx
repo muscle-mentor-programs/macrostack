@@ -265,7 +265,7 @@ export default function ClientDashboard() {
   return (
     <div className="flex flex-col min-h-full pb-4">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-12 pb-4 anim-fade-in-down">
+      <div className="relative flex items-center justify-between px-5 pt-12 pb-4 anim-fade-in-down glass-panel accent-line">
         <div>
           <p className="font-mono text-xs text-muted tracking-widest">{format(new Date(), 'EEEE, MMMM d').toUpperCase()}</p>
           <h1 className="font-display font-black text-3xl tracking-wide text-cream mt-0.5">
@@ -325,7 +325,7 @@ export default function ClientDashboard() {
               return (
                 <div
                   key={meal}
-                  className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up"
+                  className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-hover"
                   style={{ animationDelay: `${gi * 60 + 200}ms` }}
                 >
                   <div className="flex justify-between px-4 py-2.5 bg-surface">
@@ -366,7 +366,7 @@ export default function ClientDashboard() {
           <h2 className="font-display font-bold text-sm tracking-widest text-muted mb-3">YOUR COACH</h2>
           <button
             onClick={() => setActivePage('coach')}
-            className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all"
+            className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all card-hover"
           >
             <div className="w-11 h-11 rounded-xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
               <span className="font-display font-black text-lg text-brown-light">

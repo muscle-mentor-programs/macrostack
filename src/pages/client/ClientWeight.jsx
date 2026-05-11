@@ -72,7 +72,7 @@ export default function ClientWeight() {
   return (
     <div className="flex flex-col min-h-full pb-24">
       {/* Header */}
-      <div className="px-5 pt-12 pb-5 anim-fade-in-down">
+      <div className="relative px-5 pt-12 pb-5 anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="WEIGHT" duration={750} />
         </h1>
@@ -80,7 +80,7 @@ export default function ClientWeight() {
       </div>
 
       {/* Log input */}
-      <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '60ms' }}>
+      <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '60ms' }}>
         <div className="flex items-center justify-between mb-3">
           <p className="font-display font-bold text-xs text-muted tracking-widest">LOG WEIGHT</p>
           {/* Date toggle */}
@@ -171,7 +171,7 @@ export default function ClientWeight() {
 
       {/* Chart */}
       {chartData.length > 1 && (
-        <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '300ms' }}>
+        <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '300ms' }}>
           <p className="font-display font-bold text-xs text-muted tracking-widest mb-2">WEIGHT TREND</p>
           <div className="flex items-center gap-5 mb-3">
             <div className="flex items-center gap-1.5">
@@ -240,7 +240,7 @@ export default function ClientWeight() {
       ) : (
         <div className="mx-5 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
           <p className="font-display font-bold text-xs text-muted tracking-widest mb-3">HISTORY</p>
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl overflow-hidden card-hover">
             {[...sorted].reverse().map((entry, reversedIdx) => {
               const originalIdx = sorted.length - 1 - reversedIdx
               const prevEntry   = originalIdx > 0 ? sorted[originalIdx - 1] : null

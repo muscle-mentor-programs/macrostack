@@ -80,7 +80,7 @@ export function generateMealPlanPDF(plan, client) {
   if (client) {
     doc.setFontSize(9)
     setTxt(doc, COLORS.muted)
-    doc.text(`CLIENT: ${client.name.toUpperCase()}`, PAD, y)
+    doc.text(`USER: ${client.name.toUpperCase()}`, PAD, y)
     if (client.goals) {
       const g = client.goals
       doc.text(

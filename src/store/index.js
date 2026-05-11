@@ -190,7 +190,7 @@ const useStore = create(
 
         if (edition === 'coach' && profile.role === 'client') {
           await supabase.auth.signOut()
-          return { ok: false, error: 'This account requires the Client Edition.' }
+          return { ok: false, error: 'This account requires the User Edition.' }
         }
         if (edition === 'client' && profile.role !== 'client') {
           await supabase.auth.signOut()
@@ -332,7 +332,7 @@ const useStore = create(
         const { data: row, error } = await supabase
           .from('clients')
           .insert({
-            name:          data.name  || 'New Client',
+            name:          data.name  || 'New User',
             email:         data.email || '',
             goal_calories: data.goals?.calories ?? 2000,
             goal_protein:  data.goals?.protein  ?? 150,

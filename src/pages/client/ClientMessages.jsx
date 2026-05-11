@@ -211,7 +211,7 @@ export default function ClientMessages() {
       >
         {/* Header */}
         <div
-          className="px-5 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down"
+          className="px-5 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel"
           style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 68px)' }}
         >
           <h1 className="font-display font-black text-3xl tracking-wider text-cream">
@@ -296,7 +296,7 @@ export default function ClientMessages() {
     >
       {/* Thread header */}
       <div
-        className="flex items-center gap-3 px-4 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down"
+        className="flex items-center gap-3 px-4 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 68px)' }}
       >
         <button
@@ -415,7 +415,7 @@ export default function ClientMessages() {
 
       {/* Input bar */}
       <div
-        className="flex-shrink-0 flex items-center gap-2 px-4 bg-surface border-t border-border"
+        className="flex-shrink-0 flex items-center gap-2 px-4 glass-panel border-t border-border"
         style={{ paddingTop: '12px', paddingBottom: inputPaddingBottom }}
       >
         <input

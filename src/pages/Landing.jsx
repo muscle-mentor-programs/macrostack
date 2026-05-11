@@ -162,6 +162,116 @@ function MacroBar({ label, value, max, colorClass, delay = 0 }) {
   )
 }
 
+/* ══════════════════════════════════════════════════════
+   MOUSE-INTERACTIVE COMPONENTS
+══════════════════════════════════════════════════════ */
+
+/* ── Cursor spotlight — radial glow follows the mouse ── */
+function CursorSpotlight() {
+  const [pos, setPos] = useState({ x: -9999, y: -9999 })
+  useEffect(() => {
+    const h = (e) => setPos({ x: e.clientX, y: e.clientY })
+    window.addEventListener('mousemove', h, { passive: true })
+    return () => window.removeEventListener('mousemove', h)
+  }, [])
+  return (
+    <div
+      className="pointer-events-none fixed inset-0 z-[3] hidden md:block"
+      style={{
+        background: `radial-gradient(550px at ${pos.x}px ${pos.y}px, rgba(154,123,85,0.05) 0%, transparent 70%)`,
+      }}
+    />
+  )
+}
+
+/* ── 3D tilt card — perspective parallax + specular shine ── */
+function TiltCard({ children, className = '', strength = 7, glowColor = 'rgba(154,123,85,0.11)' }) {
+  const ref = useRef(null)
+  const [s, setS] = useState({ rx: 0, ry: 0, gx: 50, gy: 50, on: false })
+
+  useEffect(() => {
+    const el = ref.current; if (!el) return
+    const onMove = (e) => {
+      const r = el.getBoundingClientRect()
+      const nx = (e.clientX - r.left) / r.width - 0.5
+      const ny = (e.clientY - r.top) / r.height - 0.5
+      setS({
+        rx: ny * strength,
+        ry: -nx * strength,
+        gx: ((e.clientX - r.left) / r.width) * 100,
+        gy: ((e.clientY - r.top) / r.height) * 100,
+        on: true,
+      })
+    }
+    const onLeave = () => setS({ rx: 0, ry: 0, gx: 50, gy: 50, on: false })
+    el.addEventListener('mousemove', onMove, { passive: true })
+    el.addEventListener('mouseleave', onLeave)
+    return () => {
+      el.removeEventListener('mousemove', onMove)
+      el.removeEventListener('mouseleave', onLeave)
+    }
+  }, [strength])
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        transform: `perspective(900px) rotateX(${s.rx}deg) rotateY(${s.ry}deg) translateZ(${s.on ? 6 : 0}px)`,
+        transition: s.on ? 'transform 0.12s ease-out' : 'transform 0.65s cubic-bezier(0.16,1,0.3,1)',
+        willChange: 'transform',
+        position: 'relative',
+      }}
+    >
+      {children}
+      {/* Specular shine overlay */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          borderRadius: 'inherit',
+          background: `radial-gradient(circle at ${s.gx}% ${s.gy}%, ${glowColor}, transparent 62%)`,
+          opacity: s.on ? 1 : 0,
+          transition: 'opacity 0.25s ease',
+        }}
+      />
+    </div>
+  )
+}
+
+/* ── Magnetic button — gently attracts to cursor on hover ── */
+function MagneticButton({ children, className = '', onClick, strength = 0.32, style: extraStyle }) {
+  const ref = useRef(null)
+  const [off, setOff] = useState({ x: 0, y: 0 })
+  const onMove = (e) => {
+    const r = ref.current.getBoundingClientRect()
+    setOff({
+      x: (e.clientX - r.left - r.width / 2) * strength,
+      y: (e.clientY - r.top - r.height / 2) * strength,
+    })
+  }
+  const onLeave = () => setOff({ x: 0, y: 0 })
+  const isResting = off.x === 0 && off.y === 0
+  return (
+    <button
+      ref={ref}
+      className={className}
+      onClick={onClick}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{
+        ...extraStyle,
+        transform: `translate(${off.x}px, ${off.y}px)`,
+        transition: isResting
+          ? 'transform 0.55s cubic-bezier(0.16,1,0.3,1)'
+          : 'transform 0.12s ease-out',
+        display: 'inline-block',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 /* ── hero mock dashboard ──────────────────────────── */
 function HeroDashboard() {
   const [ref, visible] = useReveal(0.05)
@@ -258,7 +368,7 @@ function HeroDashboard() {
         </div>
         <div>
           <p className="font-mono text-xs text-cream">COACH BRANDEN</p>
-          <p className="font-mono text-xs text-muted">12 active clients</p>
+          <p className="font-mono text-xs text-muted">12 active users</p>
         </div>
       </div>
     </div>
@@ -299,7 +409,7 @@ function CoachMockup() {
       <div className="px-5 py-4 border-b border-border bg-surface flex items-center justify-between">
         <div>
           <p className="font-mono text-xs text-muted tracking-widest">COACH PORTAL</p>
-          <p className="font-display font-black text-lg tracking-wide">MY CLIENTS</p>
+          <p className="font-display font-black text-lg tracking-wide">MY USERS</p>
         </div>
         <div className="bg-brown/10 border border-brown/20 rounded-lg px-3 py-1">
           <span className="font-mono text-xs text-brown-light">12 ACTIVE</span>
@@ -442,13 +552,214 @@ function ClientMockup() {
   )
 }
 
+/* ── Kay AI avatar ────────────────────────────────────── */
+function KayAvatar() {
+  return (
+    <div className="relative mx-auto" style={{ width: 260, height: 260 }}>
+      {/* Ambient glow */}
+      <div
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(154,123,85,0.25) 0%, transparent 65%)',
+          filter: 'blur(28px)',
+          animation: 'glowPulse 3.5s ease-in-out infinite',
+        }}
+      />
+
+      {/* Concentric rings */}
+      {[220, 180, 150].map((size, i) => (
+        <div
+          key={size}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            width: size, height: size,
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            border: `1px solid rgba(154,123,85,${0.12 + i * 0.06})`,
+            animation: `float ${5 - i}s ease-in-out infinite ${i * 0.7}s`,
+          }}
+        />
+      ))}
+
+      {/* Core glass card */}
+      <div
+        className="absolute glass-warm rounded-3xl flex flex-col items-center justify-center gap-1"
+        style={{
+          width: 120, height: 120,
+          top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          border: '1px solid rgba(154,123,85,0.38)',
+          boxShadow: '0 0 48px rgba(154,123,85,0.22), 0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.13)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Internal scan line */}
+        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.35 }}>
+          <div
+            className="absolute inset-x-0 h-12"
+            style={{
+              background: 'linear-gradient(to bottom, transparent, rgba(154,123,85,0.08), transparent)',
+              animation: 'scanDown 3s linear infinite',
+            }}
+          />
+        </div>
+        <span
+          className="font-display font-black leading-none"
+          style={{
+            fontSize: '3.2rem',
+            color: '#C4A882',
+            textShadow: '0 0 22px rgba(154,123,85,0.8), 0 0 44px rgba(154,123,85,0.35)',
+          }}
+        >
+          K
+        </span>
+        <span className="font-mono tracking-widest" style={{ fontSize: '6px', color: 'rgba(154,123,85,0.55)' }}>
+          AI · NUTRITION
+        </span>
+      </div>
+
+      {/* Floating chip badges */}
+      <div
+        className="glass absolute rounded-xl px-2.5 py-1.5"
+        style={{ top: '7%', right: '3%', animation: 'float 3.4s ease-in-out infinite 0.4s' }}
+      >
+        <p className="font-mono whitespace-nowrap" style={{ fontSize: '9px', color: '#C4A882' }}>✦ 1,270+ foods</p>
+      </div>
+      <div
+        className="glass absolute rounded-xl px-2.5 py-1.5"
+        style={{ bottom: '10%', left: '2%', animation: 'float 3.9s ease-in-out infinite 1.2s' }}
+      >
+        <p className="font-mono whitespace-nowrap" style={{ fontSize: '9px', color: 'var(--color-olive-light)' }}>↗ Instant macros</p>
+      </div>
+      <div
+        className="glass absolute rounded-xl px-2.5 py-1.5"
+        style={{ top: '48%', left: '-2%', transform: 'translateY(-50%)', animation: 'float 4.3s ease-in-out infinite 0.9s' }}
+      >
+        <p className="font-mono whitespace-nowrap" style={{ fontSize: '9px', color: 'var(--color-slategray-light)' }}>◎ 24 / 7</p>
+      </div>
+    </div>
+  )
+}
+
+/* ── Kay chat demo ────────────────────────────────────── */
+function KayChatPreview() {
+  const [ref, visible] = useReveal(0.08)
+  const MSGS = [
+    { role: 'user', text: 'What are the macros in a Chipotle chicken burrito bowl?' },
+    {
+      role: 'kay',
+      text: 'Chicken Burrito Bowl (~530g): approx. 700 kcal, 43g protein, 72g carbs, 23g fat. The cilantro-lime rice accounts for ~40g of the carbs — swapping it for extra fajita veggies saves ~30g carbs with only 60 fewer calories.',
+      chips: [
+        { label: 'PROTEIN', val: '43g', color: 'text-olive-light' },
+        { label: 'CARBS',   val: '72g', color: 'text-brown-light' },
+        { label: 'FAT',     val: '23g', color: 'text-slategray-light' },
+        { label: 'KCAL',    val: '700', color: 'text-cream' },
+      ],
+    },
+    { role: 'user', text: 'I have 45g protein and 180 kcal remaining today. What should I eat?' },
+    { role: 'kay', text: '1 cup low-fat cottage cheese: 26g protein, 180 kcal — near perfect. Add one hard-boiled egg for +6g protein and +78 kcal if you can flex slightly over target.' },
+  ]
+
+  return (
+    <div ref={ref} className="max-w-2xl mx-auto">
+      <TiltCard className="glass-warm rounded-2xl overflow-hidden" strength={3} glowColor="rgba(154,123,85,0.10)">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-brown/15 flex items-center gap-3" style={{ background: 'rgba(154,123,85,0.05)' }}>
+          <div className="w-9 h-9 rounded-xl bg-brown/20 border border-brown/35 flex items-center justify-center flex-shrink-0">
+            <span className="font-display font-black text-base text-brown-light">K</span>
+          </div>
+          <div className="flex-1">
+            <p className="font-display font-bold text-sm tracking-widest text-cream">KAY</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-olive" style={{ animation: 'glowPulse 2s ease-in-out infinite' }} />
+              <p className="font-mono text-xs text-muted">AI Nutrition Expert · always on</p>
+            </div>
+          </div>
+          <span className="font-mono text-xs text-dim bg-card border border-border rounded px-2 py-0.5">BETA</span>
+        </div>
+
+        {/* Messages */}
+        <div className="px-5 py-5 space-y-4">
+          {MSGS.map((msg, i) => (
+            <div
+              key={i}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              style={{
+                opacity:    visible ? 1 : 0,
+                transform:  visible ? 'none' : 'translateY(10px)',
+                transition: `opacity 0.5s ease ${350 + i * 180}ms, transform 0.5s cubic-bezier(0.16,1,0.3,1) ${350 + i * 180}ms`,
+              }}
+            >
+              <div className={msg.role === 'user' ? 'ml-10' : 'mr-10'}>
+                {msg.role === 'kay' && (
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-5 h-5 rounded bg-brown/20 border border-brown/25 flex items-center justify-center">
+                      <span className="font-display font-black text-brown-light" style={{ fontSize: '8px' }}>K</span>
+                    </div>
+                    <span className="font-mono text-brown tracking-widest" style={{ fontSize: '9px' }}>KAY</span>
+                  </div>
+                )}
+                <div
+                  className={`rounded-2xl px-4 py-3 ${
+                    msg.role === 'user'
+                      ? 'bg-brown/12 border border-brown/22'
+                      : 'bg-card border border-border'
+                  }`}
+                  style={msg.role === 'user' ? { background: 'rgba(154,123,85,0.12)' } : {}}
+                >
+                  <p className="font-mono text-xs text-muted leading-relaxed">{msg.text}</p>
+                  {msg.chips && (
+                    <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-border/50">
+                      {msg.chips.map(({ label, val, color }) => (
+                        <div key={label} className="text-center">
+                          <p className={`font-display font-bold text-sm ${color}`}>{val}</p>
+                          <p className="font-mono text-dim" style={{ fontSize: '8px' }}>{label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Typing indicator */}
+          <div
+            className="flex justify-start"
+            style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.5s ease 1100ms' }}
+          >
+            <div className="mr-10">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <div className="w-5 h-5 rounded bg-brown/20 border border-brown/25 flex items-center justify-center">
+                  <span className="font-display font-black text-brown-light" style={{ fontSize: '8px' }}>K</span>
+                </div>
+                <span className="font-mono text-brown tracking-widest" style={{ fontSize: '9px' }}>KAY</span>
+              </div>
+              <div className="bg-card border border-border rounded-2xl px-4 py-3 flex gap-1.5 items-center">
+                {[0, 1, 2].map((j) => (
+                  <div
+                    key={j}
+                    className="w-1.5 h-1.5 rounded-full bg-brown/50"
+                    style={{ animation: `glowPulse 1.3s ease-in-out infinite ${j * 0.22}s` }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </TiltCard>
+    </div>
+  )
+}
+
 /* ═══════════════════════════════════════════════════════
    MAIN LANDING PAGE
 ═══════════════════════════════════════════════════════ */
 const NAV_LINKS = [
   { label: 'FEATURES',    id: 'features' },
+  { label: 'MEET KAY',   id: 'kay'      },
   { label: 'FOR COACHES', id: 'coaches'  },
-  { label: 'FOR CLIENTS', id: 'clients'  },
+  { label: 'FOR USERS',  id: 'clients'  },
   { label: 'INDIVIDUALS', id: 'solo'     },
 ]
 
@@ -461,6 +772,7 @@ export default function Landing({ onGetStarted }) {
   const sectionRefs = {
     hero:     useRef(null),
     features: useRef(null),
+    kay:      useRef(null),
     coaches:  useRef(null),
     clients:  useRef(null),
     solo:     useRef(null),
@@ -485,6 +797,7 @@ export default function Landing({ onGetStarted }) {
 
   /* ── parallax for hero blobs ── */
   const [parallaxY, setParallaxY] = useState(0)
+  const [heroMouse, setHeroMouse] = useState({ x: 0, y: 0 })
   useEffect(() => {
     const el = containerRef.current; if (!el) return
     const h = () => setParallaxY(el.scrollTop * 0.2)
@@ -591,6 +904,7 @@ export default function Landing({ onGetStarted }) {
         .glow-olive-btn:hover  { box-shadow: 0 0 28px 6px rgba(107,122,82,0.28); }
       `}</style>
 
+      <CursorSpotlight />
       <ScrollProgress containerRef={containerRef} />
 
       <div ref={containerRef} className="h-full w-full overflow-y-auto bg-bg text-cream" style={{ scrollBehavior: 'smooth' }}>
@@ -675,20 +989,45 @@ export default function Landing({ onGetStarted }) {
         </nav>
 
         {/* ══ HERO ══════════════════════════════════ */}
-        <section ref={sectionRefs.hero} className="relative min-h-screen flex items-center pt-14 overflow-hidden landing-grid landing-scan">
-          {/* Parallax blobs */}
-          <div className="absolute top-1/3 left-1/4 w-[700px] h-[700px] rounded-full pointer-events-none"
+        <section
+          ref={sectionRefs.hero}
+          className="relative min-h-screen flex items-center pt-14 overflow-hidden landing-grid landing-scan"
+          onMouseMove={(e) => {
+            const r = e.currentTarget.getBoundingClientRect()
+            setHeroMouse({
+              x: (e.clientX - r.left) / r.width - 0.5,
+              y: (e.clientY - r.top)  / r.height - 0.5,
+            })
+          }}
+          onMouseLeave={() => setHeroMouse({ x: 0, y: 0 })}
+        >
+          {/* Parallax blobs — two-layer: outer handles translate+parallax, inner handles drift animation */}
+          <div className="absolute top-1/3 left-1/4 w-[700px] h-[700px] pointer-events-none"
             style={{
-              background: 'radial-gradient(circle, rgba(154,123,85,0.07) 0%, transparent 65%)',
-              transform: `translate(-50%,-50%) translateY(${parallaxY * 0.6}px)`,
-              animation: 'driftBlob 18s ease-in-out infinite',
-            }} />
-          <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full pointer-events-none"
+              transform: `translate(-50%,-50%) translate(${heroMouse.x * 22}px, ${heroMouse.y * 22}px) translateY(${parallaxY * 0.6}px)`,
+              transition: 'transform 1.4s cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            <div className="w-full h-full rounded-full"
+              style={{
+                background: 'radial-gradient(circle, rgba(154,123,85,0.07) 0%, transparent 65%)',
+                animation: 'driftBlob 18s ease-in-out infinite',
+              }}
+            />
+          </div>
+          <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] pointer-events-none"
             style={{
-              background: 'radial-gradient(circle, rgba(107,122,82,0.05) 0%, transparent 65%)',
-              transform: `translateY(${parallaxY * 0.4}px)`,
-              animation: 'driftBlob 22s ease-in-out infinite 4s',
-            }} />
+              transform: `translate(${-heroMouse.x * 14}px, ${-heroMouse.y * 14}px) translateY(${parallaxY * 0.4}px)`,
+              transition: 'transform 1.8s cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            <div className="w-full h-full rounded-full"
+              style={{
+                background: 'radial-gradient(circle, rgba(107,122,82,0.05) 0%, transparent 65%)',
+                animation: 'driftBlob 22s ease-in-out infinite 4s',
+              }}
+            />
+          </div>
 
           <div className="relative max-w-6xl mx-auto px-5 w-full py-24 lg:py-32">
             <div className="grid md:grid-cols-2 gap-14 lg:gap-20 items-center">
@@ -726,14 +1065,14 @@ export default function Landing({ onGetStarted }) {
 
                 <div className="flex flex-wrap gap-3 mb-12"
                   style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(16px)', transition: 'opacity 0.6s ease 760ms, transform 0.6s ease 760ms' }}>
-                  <button onClick={onGetStarted}
+                  <MagneticButton onClick={onGetStarted}
                     className="font-display font-bold text-sm tracking-widest bg-brown hover:bg-brown-light text-bg px-7 py-3.5 rounded-lg transition-all glow-brown-btn">
                     START FOR FREE →
-                  </button>
-                  <button onClick={onGetStarted}
+                  </MagneticButton>
+                  <MagneticButton onClick={onGetStarted}
                     className="glass-btn font-display font-bold text-sm tracking-widest text-muted px-7 py-3.5 rounded-lg">
                     SIGN IN
-                  </button>
+                  </MagneticButton>
                 </div>
 
                 {/* Stats strip · liquid glass pill */}
@@ -753,7 +1092,11 @@ export default function Landing({ onGetStarted }) {
                 </div>
               </div>
 
-              <div className="hidden md:block"><HeroDashboard /></div>
+              <div className="hidden md:block">
+                <TiltCard strength={4} glowColor="rgba(154,123,85,0.06)">
+                  <HeroDashboard />
+                </TiltCard>
+              </div>
             </div>
           </div>
 
@@ -807,15 +1150,12 @@ export default function Landing({ onGetStarted }) {
 
             <div className="grid md:grid-cols-3 gap-5">
               {[
-                { symbol: '◎', glassClass: 'glass-warm',  iconBg: 'bg-brown/20',     iconBdr: 'border-brown/30',     iconTxt: 'text-brown-light',    tagCls: 'bg-brown/10 text-brown-light border-brown/20',     title: 'PRECISION TRACKING', desc: 'Log every meal with exact macros. Barcode scanner, custom foods, and AI-powered search mean no calorie goes unaccounted for.',                       tags: ['BARCODE SCAN','CUSTOM FOODS','SEARCH'],             delay: 0   },
-                { symbol: '↗', glassClass: 'glass-olive', iconBg: 'bg-olive/20',     iconBdr: 'border-olive/30',     iconTxt: 'text-olive-light',    tagCls: 'bg-olive/10 text-olive-light border-olive/20',     title: 'COACH CONNECT',      desc: 'Coaches manage unlimited clients, set individual macro targets, monitor daily logs, and communicate in real time — one dashboard.',                tags: ['CLIENT DASHBOARD','MACRO TARGETS','MESSAGING'],     delay: 180 },
-                { symbol: '✦', glassClass: 'glass-slate', iconBg: 'bg-slategray/20', iconBdr: 'border-slategray/30', iconTxt: 'text-slategray-light', tagCls: 'bg-slategray/10 text-slategray-light border-slategray/20', title: 'AI FOOD INTEL',      desc: 'Our AI identifies nutrition data for virtually any food — by name, brand, or description. No barcode required.',                                    tags: ['ANY FOOD','INSTANT DATA','VERIFIED'],               delay: 360 },
-              ].map(({ symbol, glassClass, iconBg, iconBdr, iconTxt, tagCls, title, desc, tags, delay }) => (
+                { symbol: '◎', glassClass: 'glass-warm',  glowColor: 'rgba(154,123,85,0.14)', iconBg: 'bg-brown/20',     iconBdr: 'border-brown/30',     iconTxt: 'text-brown-light',    tagCls: 'bg-brown/10 text-brown-light border-brown/20',          title: 'PRECISION TRACKING', desc: 'Log every meal with exact macros. Barcode scanner, custom foods, and AI-powered search mean no calorie goes unaccounted for.',                tags: ['BARCODE SCAN','CUSTOM FOODS','SEARCH'],         delay: 0   },
+                { symbol: '↗', glassClass: 'glass-olive', glowColor: 'rgba(107,122,82,0.14)', iconBg: 'bg-olive/20',     iconBdr: 'border-olive/30',     iconTxt: 'text-olive-light',    tagCls: 'bg-olive/10 text-olive-light border-olive/20',          title: 'COACH CONNECT',      desc: 'Coaches manage unlimited users, set individual macro targets, monitor daily logs, and communicate in real time — one dashboard.',         tags: ['USER DASHBOARD','MACRO TARGETS','MESSAGING'], delay: 180 },
+                { symbol: '✦', glassClass: 'glass-slate', glowColor: 'rgba(90,100,114,0.14)', iconBg: 'bg-slategray/20', iconBdr: 'border-slategray/30', iconTxt: 'text-slategray-light', tagCls: 'bg-slategray/10 text-slategray-light border-slategray/20', title: 'AI FOOD INTEL',      desc: 'Our AI identifies nutrition data for virtually any food — by name, brand, or description. No barcode required.',                             tags: ['ANY FOOD','INSTANT DATA','VERIFIED'],           delay: 360 },
+              ].map(({ symbol, glassClass, glowColor, iconBg, iconBdr, iconTxt, tagCls, title, desc, tags, delay }) => (
                 <Reveal key={title} delay={delay}>
-                  <div
-                    className={`${glassClass} rounded-xl p-6 h-full group hover:-translate-y-2 hover:shadow-2xl`}
-                    style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
-                  >
+                  <TiltCard className={`${glassClass} rounded-xl p-6 h-full`} strength={6} glowColor={glowColor}>
                     <div className={`w-11 h-11 rounded-xl ${iconBg} border ${iconBdr} flex items-center justify-center mb-5`}>
                       <span className={`${iconTxt} text-xl`}>{symbol}</span>
                     </div>
@@ -828,10 +1168,68 @@ export default function Landing({ onGetStarted }) {
                         </span>
                       ))}
                     </div>
-                  </div>
+                  </TiltCard>
                 </Reveal>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* ══ MEET KAY ══════════════════════════════ */}
+        <section ref={sectionRefs.kay} className="py-28 glass-section relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse, rgba(154,123,85,0.07) 0%, transparent 65%)' }} />
+
+          <div className="max-w-6xl mx-auto px-5">
+            <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
+
+              {/* Left: avatar */}
+              <Reveal x={-50} className="flex justify-center">
+                <KayAvatar />
+              </Reveal>
+
+              {/* Right: copy */}
+              <div>
+                <Reveal>
+                  <div className="w-8 h-px mb-3" style={{ background: 'var(--color-accent)' }} />
+                  <p className="font-mono text-xs tracking-widest text-brown mb-3">— POWERED BY AI —</p>
+                  <h2 className="font-display font-black leading-none tracking-wide mb-5" style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}>
+                    <SplitReveal delay={200}>MEET</SplitReveal>
+                    <br/>
+                    <SplitReveal delay={350} className="text-brown-light">KAY.</SplitReveal>
+                  </h2>
+                  <p className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md">
+                    Kay is MacroStack's built-in AI nutrition expert — trained on thousands of foods and nutrition science to give you instant, accurate answers about anything you eat.
+                  </p>
+                </Reveal>
+
+                <div className="space-y-4">
+                  {[
+                    { sym: '✦', title: 'INSTANT FOOD IDENTIFICATION', desc: 'Describe any food in plain language. Kay identifies it and returns complete macro data in seconds — no barcode, no manual entry.' },
+                    { sym: '◎', title: 'HIT YOUR REMAINING TARGETS', desc: 'Tell Kay how much protein or calories you have left. Get personalized meal suggestions that fit exactly where you stand.' },
+                    { sym: '↗', title: 'RESEARCH-BACKED Q&A', desc: 'Ask anything — protein timing, food swaps, calorie estimates. Kay gives evidence-based answers drawn from nutrition science, available 24/7.' },
+                    { sym: '■', title: 'COACH MEAL PLAN DRAFTING', desc: 'Coaches can deploy Kay to generate full meal plans automatically, tailored to each user\'s goals — saving hours every week.' },
+                  ].map(({ sym, title, desc }, i) => (
+                    <Reveal key={title} delay={i * 100}>
+                      <div className="flex gap-4 group">
+                        <div className="w-8 h-8 rounded-lg bg-brown/15 border border-brown/25 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-brown-light text-sm">{sym}</span>
+                        </div>
+                        <div>
+                          <p className="font-display font-bold text-sm tracking-widest text-cream mb-0.5">{title}</p>
+                          <p className="font-mono text-xs text-muted leading-relaxed">{desc}</p>
+                        </div>
+                      </div>
+                    </Reveal>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Chat preview */}
+            <Reveal delay={150}>
+              <KayChatPreview />
+            </Reveal>
           </div>
         </section>
 
@@ -853,17 +1251,17 @@ export default function Landing({ onGetStarted }) {
                   </h2>
                   <p className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md">
                     Everything you need to run a data-driven coaching practice.
-                    Monitor clients, set targets, and make adjustments in real time — from anywhere.
+                    Monitor users, set targets, and make adjustments in real time — from anywhere.
                   </p>
                 </Reveal>
 
                 <div className="space-y-4 mb-10">
                   {[
-                    { title: 'CLIENT DASHBOARD',  desc: 'See all clients at a glance — who hit their targets, who needs attention, who messaged you today.' },
-                    { title: 'CUSTOM TARGETS',    desc: 'Set individual calorie and macro goals for each client based on their body composition and objectives.' },
-                    { title: 'REAL-TIME LOG VIEW',desc: "Watch any client's food log update as they track throughout the day — no waiting for weekly reports." },
-                    { title: 'DIRECT MESSAGING',  desc: 'In-app coach-client messaging keeps all communication organized and searchable in one place.' },
-                    { title: 'COACH CODE',        desc: 'Share your unique 6-digit code so new clients link to you instantly when they sign up.' },
+                    { title: 'USER DASHBOARD',    desc: 'See all users at a glance — who hit their targets, who needs attention, who messaged you today.' },
+                    { title: 'CUSTOM TARGETS',    desc: 'Set individual calorie and macro goals for each user based on their body composition and objectives.' },
+                    { title: 'REAL-TIME LOG VIEW',desc: "Watch any user's food log update as they track throughout the day — no waiting for weekly reports." },
+                    { title: 'DIRECT MESSAGING',  desc: 'In-app coach-user messaging keeps all communication organized and searchable in one place.' },
+                    { title: 'COACH CODE',        desc: 'Share your unique 6-digit code so new users link to you instantly when they sign up.' },
                   ].map(({ title, desc }, i) => (
                     <Reveal key={title} delay={i * 120}>
                       <div className="flex gap-4 group">
@@ -878,13 +1276,15 @@ export default function Landing({ onGetStarted }) {
                 </div>
 
                 <Reveal delay={480}>
-                  <button onClick={onGetStarted}
+                  <MagneticButton onClick={onGetStarted}
                     className="font-display font-bold text-sm tracking-widest bg-brown hover:bg-brown-light text-bg px-7 py-3.5 rounded-lg transition-all glow-brown-btn">
                     START COACHING →
-                  </button>
+                  </MagneticButton>
                 </Reveal>
               </div>
-              <CoachMockup />
+              <TiltCard strength={5} glowColor="rgba(154,123,85,0.09)">
+                <CoachMockup />
+              </TiltCard>
             </div>
           </div>
         </section>
@@ -897,11 +1297,15 @@ export default function Landing({ onGetStarted }) {
 
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div className="relative"><ClientMockup /></div>
+              <div className="relative">
+                <TiltCard strength={5} glowColor="rgba(107,122,82,0.09)">
+                  <ClientMockup />
+                </TiltCard>
+              </div>
               <div>
                 <Reveal>
                   <div className="w-8 h-px bg-olive/70 mb-3" />
-                  <p className="font-mono text-xs tracking-widest text-olive mb-3">— FOR CLIENTS —</p>
+                  <p className="font-mono text-xs tracking-widest text-olive mb-3">— FOR USERS —</p>
                   <h2 className="font-display font-black leading-none tracking-wide mb-5" style={{ fontSize: 'clamp(2.8rem,6vw,4.5rem)' }}>
                     <SplitReveal delay={200}>FOLLOW YOUR</SplitReveal>
                     <br/>
@@ -933,10 +1337,10 @@ export default function Landing({ onGetStarted }) {
                 </div>
 
                 <Reveal delay={480}>
-                  <button onClick={onGetStarted}
+                  <MagneticButton onClick={onGetStarted}
                     className="font-display font-bold text-sm tracking-widest bg-olive hover:bg-olive-light text-bg px-7 py-3.5 rounded-lg transition-all glow-olive-btn">
-                    JOIN AS A CLIENT →
-                  </button>
+                    JOIN AS A USER →
+                  </MagneticButton>
                 </Reveal>
               </div>
             </div>
@@ -972,23 +1376,20 @@ export default function Landing({ onGetStarted }) {
                 { sym: '◆', title: 'UPGRADE ANYTIME',    desc: "Start solo and connect with a coach whenever you're ready. All your data transfers seamlessly.",                                    delay: 450 },
               ].map(({ sym, title, desc, delay }) => (
                 <Reveal key={title} delay={delay}>
-                  <div
-                    className="glass-slate rounded-xl p-5 h-full group hover:-translate-y-2 hover:shadow-2xl"
-                    style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
-                  >
+                  <TiltCard className="glass-slate rounded-xl p-5 h-full" strength={5} glowColor="rgba(90,100,114,0.14)">
                     <span className="text-slategray-light text-xl block mb-4">{sym}</span>
                     <h3 className="font-display font-bold text-sm tracking-widest mb-2 text-cream">{title}</h3>
                     <p className="font-mono text-xs text-muted leading-relaxed">{desc}</p>
-                  </div>
+                  </TiltCard>
                 </Reveal>
               ))}
             </div>
 
             <Reveal delay={360} className="text-center mt-12">
-              <button onClick={onGetStarted}
+              <MagneticButton onClick={onGetStarted}
                 className="glass-btn font-display font-bold text-sm tracking-widest text-slategray-light px-7 py-3.5 rounded-lg">
                 START TRACKING FREE →
-              </button>
+              </MagneticButton>
             </Reveal>
           </div>
         </section>
@@ -1014,14 +1415,14 @@ export default function Landing({ onGetStarted }) {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onClick={onGetStarted}
+                <MagneticButton onClick={onGetStarted}
                   className="font-display font-bold text-base tracking-widest bg-brown hover:bg-brown-light text-bg px-9 py-4 rounded-lg transition-all glow-brown-btn">
                   GET STARTED FREE
-                </button>
-                <button onClick={onGetStarted}
+                </MagneticButton>
+                <MagneticButton onClick={onGetStarted}
                   className="glass-btn font-display font-bold text-base tracking-widest text-muted px-9 py-4 rounded-lg">
                   SIGN IN
-                </button>
+                </MagneticButton>
               </div>
 
               {/* Trust signals · glass pill */}
@@ -1060,10 +1461,7 @@ export default function Landing({ onGetStarted }) {
 
               {/* ── BLOG 1 ── */}
               <Reveal delay={0}>
-                <article
-                  className="glass-warm rounded-2xl overflow-hidden h-full flex flex-col group hover:-translate-y-2 hover:shadow-2xl"
-                  style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
-                >
+                <TiltCard className="glass-warm rounded-2xl overflow-hidden h-full flex flex-col" strength={4} glowColor="rgba(154,123,85,0.13)">
                   {/* Header band */}
                   <div className="px-6 pt-6 pb-4 border-b border-brown/15">
                     <div className="flex items-center gap-2 mb-4">
@@ -1115,15 +1513,12 @@ export default function Landing({ onGetStarted }) {
                       Sources: Morton et al. (2018) BJSM · Stokes et al. (2018) Nutrients · Areta et al. (2013) J Physiol
                     </p>
                   </div>
-                </article>
+                </TiltCard>
               </Reveal>
 
               {/* ── BLOG 2 ── */}
               <Reveal delay={180}>
-                <article
-                  className="glass-olive rounded-2xl overflow-hidden h-full flex flex-col group hover:-translate-y-2 hover:shadow-2xl"
-                  style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
-                >
+                <TiltCard className="glass-olive rounded-2xl overflow-hidden h-full flex flex-col" strength={4} glowColor="rgba(107,122,82,0.13)">
                   <div className="px-6 pt-6 pb-4 border-b border-olive/15">
                     <div className="flex items-center gap-2 mb-4">
                       <span className="font-mono text-xs text-olive-light tracking-widest px-2 py-0.5 rounded glass-olive">TRACKING</span>
@@ -1169,15 +1564,12 @@ export default function Landing({ onGetStarted }) {
                       Sources: Burke et al. (2011) JADA · Linardon & Mitchell (2017) Obesity Reviews · NWCR Long-Term Registry Data
                     </p>
                   </div>
-                </article>
+                </TiltCard>
               </Reveal>
 
               {/* ── BLOG 3 ── */}
               <Reveal delay={360}>
-                <article
-                  className="glass-slate rounded-2xl overflow-hidden h-full flex flex-col group hover:-translate-y-2 hover:shadow-2xl"
-                  style={{ transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease' }}
-                >
+                <TiltCard className="glass-slate rounded-2xl overflow-hidden h-full flex flex-col" strength={4} glowColor="rgba(90,100,114,0.13)">
                   <div className="px-6 pt-6 pb-4 border-b border-slategray/15">
                     <div className="flex items-center gap-2 mb-4">
                       <span className="font-mono text-xs text-slategray-light tracking-widest px-2 py-0.5 rounded glass-slate">BODY COMPOSITION</span>
@@ -1224,7 +1616,7 @@ export default function Landing({ onGetStarted }) {
                       Sources: Barakat et al. (2020) Strength & Cond. J. · Longland et al. (2016) AJCN · Murphy et al. (2022) Front. Physiol.
                     </p>
                   </div>
-                </article>
+                </TiltCard>
               </Reveal>
 
             </div>

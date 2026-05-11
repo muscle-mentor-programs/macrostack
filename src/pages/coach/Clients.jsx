@@ -157,7 +157,7 @@ function AddClientModal({ onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border sticky top-0 bg-card z-10">
           <h3 className="font-display font-black text-xl tracking-widest text-cream">
-            <ScrambleText text="NEW CLIENT" duration={600} />
+            <ScrambleText text="NEW USER" duration={600} />
           </h3>
           <button onClick={onClose} className="text-muted hover:text-cream transition-colors">
             <X size={18} />
@@ -251,7 +251,7 @@ function AddClientModal({ onClose }) {
                 </select>
               </div>
               <div>
-                <label className="font-display text-xs text-muted tracking-widest block mb-1.5">CLIENT GOAL</label>
+                <label className="font-display text-xs text-muted tracking-widest block mb-1.5">USER GOAL</label>
                 <select value={goalIdx} onChange={(e) => setGoalIdx(e.target.value)}
                   className={inputCls}>
                   {GOALS.map((g, i) => <option key={i} value={i}>{g.label}</option>)}
@@ -333,7 +333,7 @@ function AddClientModal({ onClose }) {
         <div className="px-6 pb-6 space-y-3">
           {inviteError && (
             <p className="font-mono text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2 text-center">
-              Client added, but the invite email failed to send. You can resend it from their card.
+              User added, but the invite email failed to send. You can resend it from their card.
             </p>
           )}
           <div className="flex gap-3">
@@ -349,7 +349,7 @@ function AddClientModal({ onClose }) {
               }`}>
               {inviteSent ? (
                 <><Check size={14} /> INVITE SENT</>
-              ) : saving ? 'SENDING…' : inviteError ? 'RETRY INVITE' : 'ADD CLIENT'}
+              ) : saving ? 'SENDING…' : inviteError ? 'RETRY INVITE' : 'ADD USER'}
             </button>
             <button onClick={onClose} disabled={saving || inviteSent}
               className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors disabled:opacity-40">
@@ -664,7 +664,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   return (
     <div className="flex flex-col h-full bg-surface border-l border-border overflow-hidden anim-slide-right">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-border flex-shrink-0">
+      <div className="relative flex items-center justify-between px-6 py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center">
             <span className="font-display font-black text-base text-brown-light">
@@ -843,7 +843,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
 
                 {/* Client meta */}
                 <div className="bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '200ms' }}>
-                  <p className="font-display text-xs text-muted tracking-widest mb-2">CLIENT INFO</p>
+                  <p className="font-display text-xs text-muted tracking-widest mb-2">USER INFO</p>
                   <p className="font-mono text-xs text-dim">
                     Member since {format(parseISO(client.createdAt), 'MMM d, yyyy')}
                   </p>
@@ -860,7 +860,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                     className="flex items-center gap-2 text-red-400 hover:text-red-300 font-display font-bold text-xs tracking-widest transition-colors"
                   >
                     <Trash2 size={13} />
-                    REMOVE CLIENT
+                    REMOVE USER
                   </button>
                 </div>
               </div>
@@ -901,13 +901,13 @@ export default function Clients() {
       {/* Client list */}
       <div className={`flex flex-col ${selectedClient ? 'w-96' : 'flex-1'} border-r border-border transition-all duration-300`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-6 border-b border-border flex-shrink-0 anim-fade-in-down">
+        <div className="relative flex items-center justify-between px-6 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
           <div>
             <h2 className="font-display font-black text-3xl tracking-wider text-cream">
-              <ScrambleText text="CLIENTS" duration={700} />
+              <ScrambleText text="USERS" duration={700} />
             </h2>
             <p className="font-mono text-sm text-muted mt-0.5">
-              <AnimatedNumber value={clients.length} duration={600} /> active {clients.length === 1 ? 'client' : 'clients'}
+              <AnimatedNumber value={clients.length} duration={600} /> active {clients.length === 1 ? 'user' : 'users'}
             </p>
           </div>
           <button
@@ -915,7 +915,7 @@ export default function Clients() {
             className="flex items-center gap-2 bg-brown hover:bg-brown-light text-bg font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded transition-colors glow-hover"
           >
             <Plus size={14} />
-            ADD CLIENT
+            ADD USER
           </button>
         </div>
 
@@ -926,13 +926,13 @@ export default function Clients() {
               <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">
                 <User size={24} className="text-muted" />
               </div>
-              <p className="font-display font-bold text-xl text-muted tracking-widest">NO CLIENTS</p>
-              <p className="font-mono text-sm text-dim mt-2">Add your first client to get started</p>
+              <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS</p>
+              <p className="font-mono text-sm text-dim mt-2">Add your first user to get started</p>
               <button
                 onClick={() => setShowAddModal(true)}
                 className="mt-6 bg-brown/20 border border-brown/30 text-brown-light font-display font-bold text-sm tracking-widest px-6 py-2.5 rounded hover:bg-brown/30 transition-colors"
               >
-                + ADD FIRST CLIENT
+                + ADD FIRST USER
               </button>
             </div>
           ) : (
@@ -957,7 +957,7 @@ export default function Clients() {
                       setSelectedId(isSelected ? null : client.id)
                     }}
                     style={{ animationDelay: `${i * 50}ms` }}
-                    className={`anim-fade-in-up w-full flex items-center gap-4 px-5 py-4 hover:bg-card transition-colors text-left ${
+                    className={`anim-fade-in-up w-full flex items-center gap-4 px-5 py-4 hover:bg-card transition-colors text-left card-hover ${
                       isSelected ? 'bg-card border-l-2 border-l-brown' : ''
                     }`}
                   >

@@ -65,14 +65,14 @@ export default function CoachProfile() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="px-4 md:px-8 pt-14 md:pt-6 pb-6 border-b border-border flex-shrink-0 anim-fade-in-down">
+      <div className="relative px-4 md:px-8 pt-14 md:pt-6 pb-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-display font-black text-4xl tracking-wider text-cream">
               <ScrambleText text="PROFILE" duration={850} />
             </h2>
             <p className="font-mono text-sm text-muted mt-1">
-              Your public coaching profile — visible to clients
+              Your public coaching profile — visible to users
             </p>
           </div>
           {!editing ? (
@@ -137,7 +137,7 @@ export default function CoachProfile() {
         </div>
 
         {/* Coach code */}
-        <div className="bg-card border border-border rounded-xl p-5">
+        <div className="bg-card border border-border rounded-xl p-5 card-hover">
           <p className={lbl}>COACH CODE</p>
           <div className="flex items-center gap-3 mt-1">
             <span className="font-mono text-xl font-bold text-brown-light tracking-widest flex-1">
@@ -154,7 +154,7 @@ export default function CoachProfile() {
             )}
           </div>
           <p className="font-mono text-xs text-dim mt-2">
-            Share this code with clients so they can link to you after signing up.
+            Share this code with users so they can link to you after signing up.
           </p>
         </div>
 
@@ -169,7 +169,7 @@ export default function CoachProfile() {
               rows={4}
               value={form.bio}
               onChange={f('bio')}
-              placeholder="Tell clients about yourself — your approach, philosophy, and background…"
+              placeholder="Tell users about yourself — your approach, philosophy, and background…"
               className={`${inputCls} resize-y`}
             />
           ) : (
@@ -263,9 +263,9 @@ export default function CoachProfile() {
         <div className="border-t border-border pt-6">
           <p className={lbl}>PROFILE PREVIEW</p>
           <p className="font-mono text-xs text-dim">
-            This is what clients see when they view your coach profile from the app.
+            This is what users see when they view your coach profile from the app.
           </p>
-          <div className="mt-3 bg-card border border-border rounded-xl p-5 space-y-3">
+          <div className="mt-3 bg-card border border-border rounded-xl p-5 space-y-3 card-hover">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
                 <span className="font-display font-black text-xl text-brown-light">{initial}</span>

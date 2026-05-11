@@ -86,7 +86,7 @@ export default function ClientProfile() {
   return (
     <div className="flex flex-col min-h-full pb-8">
       {/* Header */}
-      <div className="px-5 pt-12 pb-5 anim-fade-in-down">
+      <div className="relative px-5 pt-12 pb-5 anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="PROFILE" duration={750} />
         </h1>
@@ -103,7 +103,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Personal info form */}
-      <div className="mx-5 mb-4 bg-card border border-border rounded-xl p-4 space-y-4 anim-fade-in-up" style={{ animationDelay: '130ms' }}>
+      <div className="mx-5 mb-4 bg-card border border-border rounded-xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest">PERSONAL INFO</p>
 
         <div>
@@ -158,7 +158,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Link to Coach */}
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '230ms' }}>
+      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '230ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 size={14} className="text-olive-light" />
           <p className="font-display font-bold text-xs text-muted tracking-widest">LINK TO COACH</p>
@@ -205,7 +205,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Coach-assigned targets (read-only) */}
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '260ms' }}>
+      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '260ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">
           COACH-ASSIGNED TARGETS
         </p>

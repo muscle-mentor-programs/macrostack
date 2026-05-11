@@ -25,7 +25,7 @@ export default function RoleSelector() {
           <div className="sm:aspect-square overflow-hidden anim-fade-in-up">
             <button
               onClick={() => setActiveRole('coach')}
-              className="group w-full sm:h-full bg-card border border-border hover:border-green/60 rounded-2xl p-6 transition-all duration-200 hover:bg-green/5 glow-hover flex flex-col items-center justify-center text-center"
+              className="group w-full sm:h-full bg-card border border-border hover:border-green/60 rounded-2xl p-6 transition-all duration-200 hover:bg-green/5 glow-hover card-hover flex flex-col items-center justify-center text-center"
             >
               <div className="w-16 h-16 rounded-2xl bg-green/20 border border-green/30 flex items-center justify-center mb-4 group-hover:bg-green/30 transition-colors flex-shrink-0">
                 <Monitor size={28} className="text-green-light" />
@@ -34,7 +34,7 @@ export default function RoleSelector() {
                 COACH PORTAL
               </h2>
               <p className="font-mono text-xs text-muted leading-relaxed">
-                Manage clients & monitor progress
+                Manage users & monitor progress
               </p>
               <div className="mt-4">
                 <span className="font-display font-bold text-xs tracking-widest text-green group-hover:text-green-light transition-colors">
@@ -48,13 +48,13 @@ export default function RoleSelector() {
           <div className="sm:aspect-square overflow-hidden anim-fade-in-up" style={{ animationDelay: '80ms' }}>
             <button
               onClick={() => setActiveRole('client')}
-              className="group w-full sm:h-full bg-card border border-border hover:border-blue/60 rounded-2xl p-6 transition-all duration-200 hover:bg-blue/5 glow-hover flex flex-col items-center justify-center text-center"
+              className="group w-full sm:h-full bg-card border border-border hover:border-blue/60 rounded-2xl p-6 transition-all duration-200 hover:bg-blue/5 glow-hover card-hover flex flex-col items-center justify-center text-center"
             >
               <div className="w-16 h-16 rounded-2xl bg-blue/20 border border-blue/30 flex items-center justify-center mb-4 group-hover:bg-blue/30 transition-colors flex-shrink-0">
                 <Smartphone size={28} className="text-blue-light" />
               </div>
               <h2 className="font-display font-black text-xl tracking-wider text-cream mb-2">
-                CLIENT APP
+                USER APP
               </h2>
               <p className="font-mono text-xs text-muted leading-relaxed">
                 Log meals & track daily macros

@@ -224,7 +224,7 @@ export default function FoodLog() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down">
+      <div className="relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center gap-4">
           <button onClick={prev} className="text-muted hover:text-cream transition-colors">
             <ChevronLeft size={20} />
@@ -253,7 +253,7 @@ export default function FoodLog() {
       </div>
 
       {/* Daily totals bar */}
-      <div className="grid grid-cols-4 border-b border-border flex-shrink-0 anim-fade-in" style={{ animationDelay: '80ms' }}>
+      <div className="grid grid-cols-4 border-b border-border flex-shrink-0 anim-fade-in glass-panel" style={{ animationDelay: '80ms' }}>
         {[
           { label: 'CALORIES', val: totals.calories, unit: 'kcal', color: 'text-cream' },
           { label: 'PROTEIN', val: totals.protein, unit: 'g', color: 'text-olive-light' },
@@ -290,7 +290,7 @@ export default function FoodLog() {
                 { cal: 0, pro: 0, carb: 0, fat: 0 }
               )
               return (
-                <div key={meal} className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up" style={{ animationDelay: `${gi * 70 + 120}ms` }}>
+                <div key={meal} className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-hover" style={{ animationDelay: `${gi * 70 + 120}ms` }}>
                   <div className="flex items-center justify-between px-5 py-3 bg-surface">
                     <span className="font-display font-bold text-sm tracking-widest text-cream">{meal.toUpperCase()}</span>
                     <div className="flex gap-4 font-mono text-xs text-muted">
