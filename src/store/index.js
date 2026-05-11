@@ -606,7 +606,7 @@ const useStore = create(
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              model:      'claude-3-5-sonnet-20241022',
+              model:      'claude-3-5-sonnet-latest',
               max_tokens: 1024,
               system: `You are Kay — a board-certified sports dietitian and nutrition scientist (PhD, nutritional biochemistry) with 15 years of clinical practice. You give clients concise, evidence-based nutrition coaching through a mobile chat app.
 
