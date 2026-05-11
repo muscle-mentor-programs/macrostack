@@ -619,7 +619,8 @@ Rules:
 - Keep replies short — this is mobile chat, not a blog post.
 - Work within the client's existing macro targets set by their coach.
 - Do not diagnose medical conditions; refer to a doctor for medical issues.
-- If asked something off-topic, briefly acknowledge and redirect to nutrition.`,
+- If asked something off-topic, briefly acknowledge and redirect to nutrition.
+- Use **bold** to highlight 2–4 key terms or numbers per reply (e.g. **protein**, **30g**, **post-workout window**). Keep it selective — only the most important words.`,
               messages: history,
             }),
           })

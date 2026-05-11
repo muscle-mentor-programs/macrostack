@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { MessageCircle, Send, Loader2, Sparkles, ChevronLeft, UserCircle2 } from 'lucide-react'
 import useStore from '../../store'
@@ -23,6 +23,83 @@ function previewText(msg, isKay = false) {
   return msg.from === 'coach' ? `Coach: ${msg.text}` : `You: ${msg.text}`
 }
 
+// ── Kay markdown helpers ─────────────────────────────────────────────────────
+
+/** Parse **bold** markers into segments without ever showing the asterisks. */
+function parseKayMarkdown(text) {
+  const segments = []
+  const regex    = /\*\*(.+?)\*\*/g
+  let lastIndex  = 0
+  let match
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ bold: false, content: text.slice(lastIndex, match.index) })
+    }
+    segments.push({ bold: true, content: match[1] })
+    lastIndex = match.index + match[0].length
+  }
+  if (lastIndex < text.length) {
+    segments.push({ bold: false, content: text.slice(lastIndex) })
+  }
+  return segments
+}
+
+/** Instant render of a Kay message with bold markdown applied. */
+function KayTextStatic({ text }) {
+  const segments = useMemo(() => parseKayMarkdown(text), [text])
+  return (
+    <>
+      {segments.map((s, i) =>
+        s.bold
+          ? <strong key={i} className="font-semibold">{s.content}</strong>
+          : <span key={i}>{s.content}</span>
+      )}
+    </>
+  )
+}
+
+/** Types a Kay message out character-by-character, rendering bold as it goes. */
+function TypedKayText({ text, speed = 14 }) {
+  const segments  = useMemo(() => parseKayMarkdown(text), [text])
+  const totalChars = useMemo(
+    () => segments.reduce((n, s) => n + s.content.length, 0),
+    [segments],
+  )
+  const [revealed, setRevealed] = useState(0)
+
+  useEffect(() => {
+    setRevealed(0)
+    if (totalChars === 0) return
+    const iv = setInterval(() => {
+      setRevealed((prev) => {
+        const next = prev + 1
+        if (next >= totalChars) clearInterval(iv)
+        return next
+      })
+    }, speed)
+    return () => clearInterval(iv)
+  }, [text, totalChars, speed])
+
+  // Slice revealed chars across segments, keeping bold structure intact
+  const parts = []
+  let acc = 0
+  for (let i = 0; i < segments.length; i++) {
+    const seg    = segments[i]
+    const segEnd = acc + seg.content.length
+    const show   = seg.content.slice(0, Math.max(0, revealed - acc))
+    if (show) {
+      parts.push(
+        seg.bold
+          ? <strong key={i} className="font-semibold">{show}</strong>
+          : <span key={i}>{show}</span>,
+      )
+    }
+    acc = segEnd
+    if (acc >= revealed) break
+  }
+  return <>{parts}</>
+}
+
 export default function ClientMessages() {
   const {
     activeClientId, messages, sendMessage, markMessagesRead,
@@ -39,6 +116,13 @@ export default function ClientMessages() {
 
   const coachThread = messages[activeClientId] || []
   const kayThread   = kayThreads[activeClientId] || []
+
+  // ── Kay typing-animation state ─────────────────────────────────────────────
+  // Track when the user opened the Kay thread so we only animate messages
+  // that arrived *after* they opened it (not old history).
+  const kayThreadOpenedAt  = useRef(null)
+  const lastAnimatedKayRef = useRef(null)
+  const [animKayMsgId, setAnimKayMsgId] = useState(null)
 
   // Keyboard is "active" when it's physically up (iOS) or input is focused (Android).
   // Must be declared before any useEffect that references it.
@@ -81,6 +165,26 @@ export default function ClientMessages() {
     setNavHidden(shouldHide)
     return () => setNavHidden(false) // restore when unmounting (page change)
   }, [kbActive, openThread])
+
+  // Record the moment the Kay thread is opened (used to gate animation).
+  useEffect(() => {
+    if (openThread === 'kay') kayThreadOpenedAt.current = Date.now()
+  }, [openThread])
+
+  // When a new Kay message arrives, mark it for the typing animation —
+  // but only if it was received after this thread session opened.
+  useEffect(() => {
+    if (openThread !== 'kay') return
+    const lastKay = kayThread.filter((m) => m.from === 'kay' && !m.isError).slice(-1)[0]
+    if (!lastKay || lastKay.id === lastAnimatedKayRef.current) return
+    const msgTime  = lastKay.timestamp ? new Date(lastKay.timestamp).getTime() : 0
+    const openTime = kayThreadOpenedAt.current ?? 0
+    // 2 s grace covers fast API responses that resolve before openTime is set
+    if (msgTime >= openTime - 2000) {
+      lastAnimatedKayRef.current = lastKay.id
+      setAnimKayMsgId(lastKay.id)
+    }
+  }, [kayThread.length, openThread])
 
   const handleSend = () => {
     if (!input.trim()) return
@@ -294,7 +398,12 @@ export default function ClientMessages() {
                         ? 'bg-card border border-olive/20 text-cream rounded-2xl rounded-bl-sm'
                         : 'bg-card border border-border text-cream rounded-2xl rounded-bl-sm'
                   }`}>
-                    {msg.text}
+                    {isKay && !isSelf
+                      ? msg.id === animKayMsgId
+                        ? <TypedKayText text={msg.text} />
+                        : <KayTextStatic text={msg.text} />
+                      : msg.text
+                    }
                   </div>
                   <p className="font-mono text-[10px] text-dim px-1">{msgTime(msg.timestamp)}</p>
                 </div>
