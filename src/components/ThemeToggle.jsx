@@ -2,12 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import useStore from '../store'
 
 const THEMES = [
-  { id: 'dark',         label: 'SAND',   mode: 'DARK',  card: '#1C1A18', accent: '#9A7B55' },
-  { id: 'light',        label: 'SAND',   mode: 'LIGHT', card: '#CFC9BE', accent: '#9A7B55' },
-  { id: 'forest-dark',  label: 'FOREST', mode: 'DARK',  card: '#162016', accent: '#558A55' },
-  { id: 'forest-light', label: 'FOREST', mode: 'LIGHT', card: '#B4D0B2', accent: '#558A55' },
-  { id: 'ocean-dark',   label: 'OCEAN',  mode: 'DARK',  card: '#141B2E', accent: '#4878B0' },
-  { id: 'ocean-light',  label: 'OCEAN',  mode: 'LIGHT', card: '#B0C2DC', accent: '#4878B0' },
+  { id: 'ocean-dark',  label: 'DARK',  card: '#141B2E', accent: '#4878B0' },
+  { id: 'ocean-light', label: 'LIGHT', card: '#B0C2DC', accent: '#4878B0' },
 ]
 
 function ThemeGrid({ theme, setTheme, onPick }) {
@@ -36,7 +32,6 @@ function ThemeGrid({ theme, setTheme, onPick }) {
               <div className="h-1 rounded-full flex-1" style={{ backgroundColor: t.accent + '90' }} />
               <div className="h-1 rounded-full w-2/3" style={{ backgroundColor: t.accent + '40' }} />
             </div>
-            <p className="font-mono text-[7px] opacity-50" style={{ color: t.accent }}>{t.mode}</p>
             {isActive && (
               <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: t.accent }} />
             )}
@@ -60,6 +55,7 @@ export default function ThemeToggle({ compact = false }) {
   }, [open])
 
   const active = THEMES.find((t) => t.id === theme) || THEMES[0]
+  const isDark  = theme === 'ocean-dark'
 
   if (compact) {
     return (
@@ -70,21 +66,14 @@ export default function ThemeToggle({ compact = false }) {
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-card border border-border hover:border-brown/50 transition-all shadow-sm"
           style={{ borderColor: open ? active.accent + '80' : undefined }}
         >
-          <div className="flex gap-0.5 items-center">
-            {[THEMES[0], THEMES[2], THEMES[4]].map((t) => {
-              const isCurrent = theme === t.id || theme === t.id.replace('dark', 'light')
-              return (
-                <div
-                  key={t.id}
-                  className="w-1.5 h-1.5 rounded-full transition-all"
-                  style={{ backgroundColor: t.accent, opacity: isCurrent ? 1 : 0.25 }}
-                />
-              )
-            })}
-          </div>
+          {/* Half-circle icon: dark half + light half */}
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6" fill={active.accent} opacity="0.25" />
+            <path d={isDark ? 'M8 2 A6 6 0 0 1 8 14 Z' : 'M8 14 A6 6 0 0 1 8 2 Z'} fill={active.accent} />
+          </svg>
         </button>
         {open && (
-          <div className="absolute top-full right-0 mt-2 z-50 bg-card border border-border rounded-2xl p-3 shadow-2xl w-52 anim-fade-in-down">
+          <div className="absolute top-full right-0 mt-2 z-50 bg-card border border-border rounded-2xl p-3 shadow-2xl w-44 anim-fade-in-down">
             <p className="font-display font-bold text-[9px] tracking-widest text-muted mb-2.5 px-0.5">APPEARANCE</p>
             <ThemeGrid theme={theme} setTheme={setTheme} onPick={() => setOpen(false)} />
           </div>

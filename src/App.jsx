@@ -84,11 +84,11 @@ export default function App() {
     () => sessionStorage.getItem('macrostack-post-invite') === '1'
   )
 
-  // Apply theme class
+  // Apply theme class (ocean-dark / ocean-light)
   useEffect(() => {
     const html = document.documentElement
-    html.classList.remove('light', 'forest-dark', 'forest-light', 'ocean-dark', 'ocean-light')
-    if (theme !== 'dark') html.classList.add(theme)
+    html.classList.remove('ocean-dark', 'ocean-light')
+    html.classList.add(theme)
   }, [theme])
 
   // Check Supabase session on mount
