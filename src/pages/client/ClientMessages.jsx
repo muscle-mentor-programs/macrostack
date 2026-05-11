@@ -391,7 +391,7 @@ export default function ClientMessages() {
                       {senderLabel}
                     </p>
                   )}
-                  <div className={`px-4 py-2.5 font-mono text-sm leading-relaxed tracking-tight ${
+                  <div className={`px-4 py-1.5 font-mono text-sm leading-relaxed tracking-tight ${
                     isSelf
                       ? 'bg-brown text-bg rounded-2xl rounded-br-sm'
                       : isKay

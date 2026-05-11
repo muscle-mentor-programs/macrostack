@@ -78,7 +78,7 @@ function ThreadScreen({ client, onBack }) {
               <div key={msg.id} className={`flex anim-fade-in ${isCoach ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[78%] flex flex-col gap-1 ${isCoach ? 'items-end' : 'items-start'}`}>
                   <div
-                    className={`px-4 py-3 font-mono text-sm leading-relaxed tracking-tight ${
+                    className={`px-4 py-1.5 font-mono text-sm leading-relaxed tracking-tight ${
                       isCoach
                         ? 'bg-brown text-bg rounded-2xl rounded-br-sm'
                         : 'bg-card border border-border text-cream rounded-2xl rounded-bl-sm'
