@@ -71,11 +71,7 @@ export default function Sidebar() {
               <span className="font-display font-semibold text-sm tracking-widest flex-1 text-left">
                 {label}
               </span>
-              {id === 'clients' && clients.length > 0 && (
-                <span className="ml-auto font-mono text-xs text-muted bg-card border border-border rounded px-1.5">
-                  {clients.length}
-                </span>
-              )}
+
               {badge > 0 && (
                 <span className="ml-auto font-mono text-xs text-bg bg-brown rounded-full px-1.5 py-0.5 font-bold">
                   {badge}
