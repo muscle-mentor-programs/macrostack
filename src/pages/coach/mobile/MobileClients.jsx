@@ -404,10 +404,10 @@ function MealPlansTab({ clientId }) {
       <div className="bg-card border border-brown/20 rounded-2xl p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-brown-light" />
-          <p className="font-display font-bold text-xs text-brown-light tracking-widest">AUTO-AI PLAN</p>
+          <p className="font-display font-bold text-xs text-brown-light tracking-widest">ASK KAY</p>
         </div>
         <p className="font-mono text-xs text-muted leading-relaxed">
-          Claude will build a meal plan using your food database, matched to {client.name?.split(' ')[0]}'s targets.
+          Kay will build a meal plan using your food database, matched to {client.name?.split(' ')[0]}'s targets.
         </p>
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -438,11 +438,11 @@ function MealPlansTab({ clientId }) {
         <button onClick={handleGenerate} disabled={aiLoading}
           className="w-full flex items-center justify-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-50 text-bg font-display font-bold text-sm tracking-widest py-4 rounded-xl transition-colors">
           {aiLoading
-            ? <><div className="w-4 h-4 border-2 border-bg/30 border-t-bg rounded-full animate-spin" />GENERATING…</>
-            : <><Sparkles size={15} />GENERATE WITH AI</>
+            ? <><div className="w-4 h-4 border-2 border-bg/30 border-t-bg rounded-full animate-spin" />KAY IS BUILDING…</>
+            : <><Sparkles size={15} />ASK KAY TO BUILD THIS</>
           }
         </button>
-        <p className="font-mono text-[10px] text-dim text-center">AI result opens in the plan builder for review</p>
+        <p className="font-mono text-[10px] text-dim text-center">Kay's result opens in the plan builder for review</p>
       </div>
     </div>
   )

@@ -556,10 +556,10 @@ function MealPlansTab({ clientId }) {
       <div className="bg-card border border-brown/20 rounded-xl p-4 space-y-3 anim-fade-in-up" style={{ animationDelay: '150ms' }}>
         <div className="flex items-center gap-2 mb-1">
           <Sparkles size={14} className="text-brown-light" />
-          <p className="font-display font-bold text-xs text-brown-light tracking-widest">AUTO-AI PLAN</p>
+          <p className="font-display font-bold text-xs text-brown-light tracking-widest">ASK KAY</p>
         </div>
         <p className="font-mono text-xs text-muted leading-relaxed">
-          Claude will build a meal plan using only foods in your database, matching {client.name.split(' ')[0]}'s calorie and macro targets.
+          Kay will build a meal plan using only foods in your database, matching {client.name.split(' ')[0]}'s calorie and macro targets.
         </p>
 
         <div className="grid grid-cols-2 gap-3">
@@ -608,17 +608,17 @@ function MealPlansTab({ clientId }) {
           {aiLoading ? (
             <>
               <div className="w-4 h-4 border-2 border-bg/30 border-t-bg rounded-full animate-spin" />
-              GENERATING…
+              KAY IS BUILDING…
             </>
           ) : (
             <>
               <Sparkles size={15} />
-              GENERATE WITH AI
+              ASK KAY TO BUILD THIS
             </>
           )}
         </button>
         <p className="font-mono text-[10px] text-dim text-center">
-          AI result opens in the plan builder for review before saving
+          Kay's result opens in the plan builder for review before saving
         </p>
       </div>
     </div>
