@@ -450,7 +450,13 @@ function MealPlansTab({ clientId }) {
 
 // ─── Client detail full-screen ────────────────────────────────────────────────
 function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
-  const { updateClientGoals, updateClientInfo, removeClient, getClientTotalsForDate } = useStore()
+  const { updateClientGoals, updateClientInfo, removeClient, getClientTotalsForDate, setNavHidden } = useStore()
+
+  // Hide the bottom nav while this full-screen overlay is open
+  useEffect(() => {
+    setNavHidden(true)
+    return () => setNavHidden(false)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const [tab,       setTab]       = useState(initialTab)
   const [editGoals, setEditGoals] = useState(false)
   const [goals,     setGoals]     = useState({ ...client.goals })

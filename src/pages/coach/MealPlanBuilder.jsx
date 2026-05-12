@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight, Mail, Download, ArrowLeft } from 'lucide-react'
 import useStore from '../../store'
 import useIsMobile from '../../hooks/useIsMobile'
@@ -40,8 +40,14 @@ function makeEmptyDay(label) {
 }
 
 export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose }) {
-  const { customFoods, clients } = useStore()
+  const { customFoods, clients, setNavHidden } = useStore()
   const isMobile = useIsMobile()
+
+  // Hide the bottom nav while this full-screen overlay is open
+  useEffect(() => {
+    setNavHidden(true)
+    return () => setNavHidden(false)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const allFoods = useMemo(() => [...FOODS, ...customFoods], [customFoods])
 
   // Foods used by any client in the last 30 days float to the top
