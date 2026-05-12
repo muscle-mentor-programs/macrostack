@@ -137,7 +137,7 @@ export default function CoachProfile() {
         </div>
 
         {/* Coach code */}
-        <div className="bg-card border border-border rounded-xl p-5 card-hover">
+        <div className="glass-card border border-border/60 rounded-xl p-5 card-hover">
           <p className={lbl}>COACH CODE</p>
           <div className="flex items-center gap-3 mt-1">
             <span className="font-mono text-xl font-bold text-brown-light tracking-widest flex-1">
@@ -265,7 +265,7 @@ export default function CoachProfile() {
           <p className="font-mono text-xs text-dim">
             This is what users see when they view your coach profile from the app.
           </p>
-          <div className="mt-3 bg-card border border-border rounded-xl p-5 space-y-3 card-hover">
+          <div className="mt-3 glass-card border border-border/60 rounded-xl p-5 space-y-3 card-hover">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
                 <span className="font-display font-black text-xl text-brown-light">{initial}</span>

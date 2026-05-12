@@ -851,6 +851,20 @@ html.forest-light .glass-panel { background: rgba(239, 248, 238, 0.80) !importan
 html.ocean-dark   .glass-panel { background: rgba(20, 27, 46, 0.68) !important; }
 html.ocean-light  .glass-panel { background: rgba(237, 244, 251, 0.80) !important; }
 
+/* Glass card — for major content section panels (stat tiles, info blocks, data cards).
+   More blur than glass-panel; slightly more opaque for readability. */
+.glass-card {
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(28, 26, 24, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 12px rgba(0,0,0,0.18);
+}
+html.light        .glass-card { background: rgba(237, 232, 223, 0.82) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 6px rgba(0,0,0,0.07) !important; }
+html.forest-dark  .glass-card { background: rgba(22, 32, 22, 0.72) !important; }
+html.forest-light .glass-card { background: rgba(227, 242, 226, 0.82) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 6px rgba(0,10,0,0.07) !important; }
+html.ocean-dark   .glass-card { background: rgba(20, 27, 46, 0.72) !important; }
+html.ocean-light  .glass-card { background: rgba(226, 238, 248, 0.82) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 6px rgba(0,10,30,0.07) !important; }
+
 /* Accent gradient line — decorative top-of-section separator */
 .accent-line::before {
   content: '';

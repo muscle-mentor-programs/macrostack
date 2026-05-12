@@ -2,6 +2,36 @@ import { FOODS } from '../data/foods'
 
 const MAX_PER_CAT = 10
 
+// Units that allow arbitrary decimal quantities (weight / liquid volume).
+const CONTINUOUS_UNITS = ['oz', ' g', 'ml', 'fl oz', ' lb', ' kg']
+
+// Units that are strictly countable — must stay whole numbers (1, 2, 3…).
+const WHOLE_UNITS = [
+  'bar', 'bottle', 'can', 'cookie', 'donut', 'bag', 'sandwich', 'waffle',
+  'egg', 'slice', 'piece', 'packet', 'patty', 'burger', 'nugget', 'strip',
+  'wrap', 'roll', 'bun', 'muffin', 'cupcake', 'bite',
+]
+
+/**
+ * Snap a quantity to a realistic value based on the food's serving unit.
+ *  - Weight/volume (oz, g, ml…)  → 1-decimal precision (e.g. 1.5 oz is fine)
+ *  - Countable items (bar, egg…) → whole numbers only (1, 2, 3)
+ *  - Everything else (scoop, cup, tbsp…) → nearest 0.5 (0.5, 1.0, 1.5…)
+ */
+function snapQuantity(qty, servingUnit) {
+  const su = (servingUnit || '').toLowerCase()
+  if (CONTINUOUS_UNITS.some((u) => su.includes(u))) {
+    // weight/volume: round to 1 decimal, minimum 0.5
+    return Math.max(0.5, Math.round(qty * 10) / 10)
+  }
+  if (WHOLE_UNITS.some((u) => su.includes(u))) {
+    // discrete items: whole numbers only, minimum 1
+    return Math.max(1, Math.round(qty))
+  }
+  // semi-discrete (scoop, cup, tbsp, tsp, etc.): nearest 0.5, minimum 0.5
+  return Math.max(0.5, Math.round(qty * 2) / 2)
+}
+
 function buildFoodList(customFoods = []) {
   const byCategory = {}
   for (const f of FOODS) {
@@ -49,14 +79,19 @@ function scaleDayToTarget(mealsObj, calTarget) {
   return Object.fromEntries(
     Object.entries(mealsObj).map(([meal, items]) => [
       meal,
-      items.map((item) => ({
-        ...item,
-        quantity: parseFloat((item.quantity * scale).toFixed(3)),
-        calories: parseFloat((item.calories * scale).toFixed(1)),
-        protein:  parseFloat((item.protein  * scale).toFixed(1)),
-        carbs:    parseFloat((item.carbs    * scale).toFixed(1)),
-        fat:      parseFloat((item.fat      * scale).toFixed(1)),
-      })),
+      items.map((item) => {
+        const scaledRaw = item.quantity * scale
+        const snapped   = snapQuantity(scaledRaw, item.servingUnit)
+        const snapScale = snapped / (item.quantity || 1)
+        return {
+          ...item,
+          quantity: snapped,
+          calories: parseFloat((item.calories * snapScale).toFixed(1)),
+          protein:  parseFloat((item.protein  * snapScale).toFixed(1)),
+          carbs:    parseFloat((item.carbs    * snapScale).toFixed(1)),
+          fat:      parseFloat((item.fat      * snapScale).toFixed(1)),
+        }
+      }),
     ])
   )
 }
@@ -114,7 +149,15 @@ Sanity check: (protein×4) + (carbs×4) + (fat×9) ≈ ${cal} kcal
   protein  = food.pro   × quantity
   carbs    = food.carbs × quantity
   fat      = food.fat   × quantity
-Use decimals (e.g. 0.5, 1.5, 2.0) to fine-tune each macro.
+
+SERVING QUANTITY RULES — follow strictly:
+• Countable packaged items (sv contains: bar, bottle, can, egg, slice, sandwich,
+  waffle, cookie, bag, piece, packet, patty, wrap, roll, bun, etc.)
+  → WHOLE NUMBERS ONLY: 1, 2, 3. Never 1.18 bars or 0.8 eggs.
+• Weight-based items (sv contains: oz, g, lb, ml)
+  → Decimals fine: 0.5, 1.0, 1.5, 2.25, etc.
+• Volume/measure items (scoop, cup, tbsp, tsp)
+  → Use 0.5 increments: 0.5, 1.0, 1.5, 2.0. Not 1.18 scoops.
 
 ━━━ FOOD SELECTION STRATEGY ━━━
 The macro split is ~${proPct}% protein / ~${carbsPct}% carbs / ~${fatPct}% fat.
@@ -189,7 +232,8 @@ Respond with ONLY this JSON (no markdown):
           .map((item) => {
             const food = resolveFood(item.foodId, customFoods)
             if (!food) return null
-            const qty = item.quantity || 1
+            const rawQty = item.quantity || 1
+            const qty = snapQuantity(rawQty, food.servingUnit)
             return {
               id:          Math.random().toString(36).slice(2),
               foodId:      food.id,

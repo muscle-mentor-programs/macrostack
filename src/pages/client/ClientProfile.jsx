@@ -103,7 +103,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Personal info form */}
-      <div className="mx-5 mb-4 bg-card border border-border rounded-xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
+      <div className="mx-5 mb-4 glass-card border border-border/60 rounded-xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest">PERSONAL INFO</p>
 
         <div>
@@ -158,7 +158,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Link to Coach */}
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '230ms' }}>
+      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '230ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 size={14} className="text-olive-light" />
           <p className="font-display font-bold text-xs text-muted tracking-widest">LINK TO COACH</p>
@@ -205,7 +205,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Coach-assigned targets (read-only) */}
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '260ms' }}>
+      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '260ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">
           COACH-ASSIGNED TARGETS
         </p>
@@ -249,7 +249,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Calorie trend */}
-      <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
+      <div className="mx-5 mb-5 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">CALORIE TREND</p>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
@@ -273,7 +273,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Protein trend */}
-      <div className="mx-5 mb-4 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '480ms' }}>
+      <div className="mx-5 mb-4 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '480ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">PROTEIN TREND</p>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>

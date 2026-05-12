@@ -381,7 +381,7 @@ export default function MobileCoachDashboard() {
         ].map(({ label, val, color, Icon }, i) => (
           <div
             key={label}
-            className="bg-card border border-border rounded-2xl px-3 py-4 flex flex-col items-center gap-1.5 anim-fade-in-up"
+            className="glass-card border border-border/60 rounded-2xl px-3 py-4 flex flex-col items-center gap-1.5 anim-fade-in-up"
             style={{ animationDelay: `${i * 50}ms` }}
           >
             <Icon size={16} className={`${color} opacity-60`} />
@@ -393,7 +393,7 @@ export default function MobileCoachDashboard() {
 
       {/* Coach Code */}
       {currentUser?.coachCode && (
-        <div className="bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between">
+        <div className="glass-card border border-border/60 rounded-xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
             <span className="font-display font-black text-lg text-brown tracking-widest">
@@ -415,7 +415,7 @@ export default function MobileCoachDashboard() {
 
       {/* Pending requests */}
       {coachRequests.length > 0 && (
-        <div className="bg-card border border-brown/30 rounded-xl p-4 space-y-3">
+        <div className="glass-card border border-brown/30 rounded-xl p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Bell size={14} className="text-brown" />
             <span className="font-display font-bold text-xs tracking-widest text-brown">

@@ -51,7 +51,7 @@ export default function ClientCoachProfile() {
         <div className="px-4 py-6 space-y-6 pb-24 anim-fade-in">
 
           {/* Avatar + name card */}
-          <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4">
+          <div className="glass-card border border-border/60 rounded-2xl p-5 flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
               <span className="font-display font-black text-2xl text-brown-light">{initial}</span>
             </div>
@@ -85,7 +85,7 @@ export default function ClientCoachProfile() {
 
           {/* Bio */}
           {profile.bio && (
-            <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="glass-card border border-border/60 rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen size={13} className="text-muted" />
                 <p className="font-display text-xs text-muted tracking-widest">ABOUT</p>
@@ -96,7 +96,7 @@ export default function ClientCoachProfile() {
 
           {/* Specialties */}
           {specialtyList.length > 0 && (
-            <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="glass-card border border-border/60 rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Award size={13} className="text-muted" />
                 <p className="font-display text-xs text-muted tracking-widest">SPECIALTIES</p>
@@ -113,7 +113,7 @@ export default function ClientCoachProfile() {
 
           {/* Credentials */}
           {profile.credentials && (
-            <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="glass-card border border-border/60 rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-2">
                 <User size={13} className="text-muted" />
                 <p className="font-display text-xs text-muted tracking-widest">CREDENTIALS</p>

@@ -98,7 +98,7 @@ function MealPlanSection({ client, onLogMeal }) {
 
   if (!activePlan) {
     return (
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-5 text-center anim-fade-in-up" style={{ animationDelay: '360ms' }}>
+      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-5 text-center anim-fade-in-up" style={{ animationDelay: '360ms' }}>
         <BookOpen size={24} className="text-dim mx-auto mb-2" />
         <p className="font-display font-bold text-sm text-muted tracking-widest">NO ACTIVE MEAL PLAN</p>
         <p className="font-mono text-xs text-dim mt-1">Your coach hasn't assigned a meal plan yet</p>
@@ -128,7 +128,7 @@ function MealPlanSection({ client, onLogMeal }) {
         <span className="font-mono text-xs text-brown-light truncate max-w-[160px]">{activePlan.planName}</span>
       </div>
 
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="glass-card border border-border/60 rounded-xl overflow-hidden">
         {/* Day navigator */}
         <div className="flex items-center justify-between px-4 py-3 bg-surface border-b border-border">
           <button
@@ -314,7 +314,7 @@ export default function ClientDashboard() {
         </div>
 
         {entries.length === 0 ? (
-          <div className="bg-card border border-border rounded-xl p-8 text-center anim-fade-in" style={{ animationDelay: '300ms' }}>
+          <div className="glass-card border border-border/60 rounded-xl p-8 text-center anim-fade-in" style={{ animationDelay: '300ms' }}>
             <p className="font-display font-bold text-lg text-muted tracking-widest">NOTHING LOGGED</p>
             <p className="font-mono text-xs text-dim mt-1">Tap the log tab to add your meals</p>
           </div>
@@ -325,7 +325,7 @@ export default function ClientDashboard() {
               return (
                 <div
                   key={meal}
-                  className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-hover"
+                  className="glass-card border border-border/60 rounded-xl overflow-hidden anim-fade-in-up card-hover"
                   style={{ animationDelay: `${gi * 60 + 200}ms` }}
                 >
                   <div className="flex justify-between px-4 py-2.5 bg-surface">

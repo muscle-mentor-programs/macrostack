@@ -402,7 +402,7 @@ function MealPlansTab({ clientId }) {
       </button>
 
       {/* AI generator */}
-      <div className="bg-card border border-brown/20 rounded-2xl p-4 space-y-3">
+      <div className="glass-card border border-brown/20 rounded-2xl p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-brown-light" />
           <p className="font-display font-bold text-xs text-brown-light tracking-widest">ASK KAY</p>
