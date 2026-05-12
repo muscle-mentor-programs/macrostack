@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import {
   Plus, X, User, Check, ChevronLeft, Trash2, Calculator,
@@ -810,17 +811,22 @@ export default function MobileClients() {
 
       </div>{/* end content wrapper */}
 
-      {/* Add client screen */}
-      {showAddScreen && <AddClientScreen onClose={() => setShowAddScreen(false)} />}
+      {/* Full-screen overlays portaled to document.body so position:fixed
+          is relative to the viewport, not the scrollable <main> element
+          (iOS Safari treats overflow:auto ancestors as fixed containing blocks) */}
+      {showAddScreen && createPortal(
+        <AddClientScreen onClose={() => setShowAddScreen(false)} />,
+        document.body
+      )}
 
-      {/* Client detail screen */}
-      {selectedClient && (
+      {selectedClient && createPortal(
         <ClientDetailScreen
           key={selectedClient.id}
           client={selectedClient}
           initialTab={initialTab}
           onBack={() => { setSelectedId(null); setInitialTab('overview') }}
-        />
+        />,
+        document.body
       )}
     </div>
   )
