@@ -210,10 +210,7 @@ export default function ClientMessages() {
         style={{ bottom: '0px' }}
       >
         {/* Header */}
-        <div
-          className="px-5 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel"
-          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 56px)' }}
-        >
+        <div className="px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel">
           <h1 className="font-display font-black text-3xl tracking-wider text-cream">
             <ScrambleText text="MESSAGES" duration={750} />
           </h1>

@@ -65,7 +65,7 @@ export default function CoachProfile() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="relative px-4 md:px-8 pt-14 md:pt-6 pb-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="relative px-4 md:px-8 pt-mobile-header md:pt-6 pb-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-display font-black text-4xl tracking-wider text-cream">
