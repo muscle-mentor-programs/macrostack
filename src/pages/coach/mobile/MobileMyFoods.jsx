@@ -296,7 +296,7 @@ export default function MobileMyFoods() {
       </div>
 
       {/* Sticky search + filter bar */}
-      <div className="sticky top-0 z-10 bg-bg/95 backdrop-blur-sm px-4 pt-2 pb-3 border-b border-border space-y-3">
+      <div className="sticky top-0 z-10 bg-bg px-4 pt-2 pb-3 border-b border-border space-y-3">
         {/* Search */}
         <div className="flex items-center gap-3 bg-bg border border-border rounded-xl px-4 py-2.5 focus-within:border-brown transition-colors">
           <Search size={14} className="text-muted flex-shrink-0" />
@@ -337,9 +337,14 @@ export default function MobileMyFoods() {
         </div>
       </div>
 
-      {/* Food list */}
+      {/* Food list — cap at 150 when browsing all with no search query to keep mobile fast */}
+      {(() => {
+        const isUnfiltered = filter === 'all' && !query.trim()
+        const visible = isUnfiltered ? filtered.slice(0, 150) : filtered
+        const hidden  = isUnfiltered ? filtered.length - visible.length : 0
+        return (
       <div className="flex-1 divide-y divide-border/50 pb-28">
-        {filtered.map((food, idx) => {
+        {visible.map((food, idx) => {
           const isCustom   = food.id.startsWith('custom_')
           const isScanned  = food.id.startsWith('scanned_')
           const isOverride = overrideIds.has(food.id)
@@ -430,7 +435,17 @@ export default function MobileMyFoods() {
             </p>
           </div>
         )}
+
+        {hidden > 0 && (
+          <div className="px-4 py-5 text-center">
+            <p className="font-mono text-xs text-dim">
+              Showing 150 of {filtered.length} — search to narrow results
+            </p>
+          </div>
+        )}
       </div>
+        )
+      })()}
 
       {/* FABs — positioned above nav + iOS safe area */}
       <div className="fixed right-4 flex flex-col gap-3 z-30" style={{ bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>

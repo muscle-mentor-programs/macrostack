@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import { Smartphone, LogOut } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import CoachBottomNav from '../components/CoachBottomNav'
@@ -49,6 +50,12 @@ function AmbientBackground() {
 export default function CoachLayout({ children }) {
   const { logout, setActiveRole, activePage } = useStore()
   const isMobile = useIsMobile()
+  const mainRef  = useRef(null)
+
+  // Reset scroll position to top whenever the active page changes
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [activePage])
 
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
@@ -76,7 +83,7 @@ export default function CoachLayout({ children }) {
         </div>
 
         {/* Scrollable page content with entrance animation */}
-        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
+        <main ref={mainRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
           <div key={activePage} className="anim-page-reveal min-h-full">
             {children}
           </div>
