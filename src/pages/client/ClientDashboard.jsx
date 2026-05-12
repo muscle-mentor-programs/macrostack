@@ -194,8 +194,7 @@ function MealPlanSection({ client, onLogMeal }) {
                     <div className="min-w-0">
                       <p className="font-mono text-sm text-cream truncate">{item.name}</p>
                       <p className="font-mono text-xs text-muted">
-                        {item.quantity !== 1 ? `${item.quantity}× ` : ''}
-                        {item.brand || item.servingUnit || 'serving'}
+                        {entryServingLabel(item)}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-3">

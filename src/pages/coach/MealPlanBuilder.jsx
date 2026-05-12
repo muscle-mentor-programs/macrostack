@@ -9,10 +9,19 @@ import { rankFoods, getRecentFoodIdsFromClients } from '../../utils/foodSearch'
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 const WEIGHT_UNITS = ['g', 'ml', 'oz', 'fl oz', 'L']
 
+// "1 bar" / "2 × bar" / "150 g" / "6 oz" — for food picker info rows
 function servingLabel(food) {
   if (!food.servingUnit) return `${food.servingSize}g`
   if (WEIGHT_UNITS.includes(food.servingUnit)) return `${food.servingSize} ${food.servingUnit} per serving`
   return `1 ${food.servingUnit} · ${food.servingSize}g`
+}
+
+// For items already in the plan: show realistic quantity (total grams for ingredients, count for packaged)
+function entryServingLabel(entry) {
+  if (!entry.servingUnit || entry.quantity == null) return '1 serving'
+  if (WEIGHT_UNITS.includes(entry.servingUnit))
+    return `${Math.round(entry.quantity * entry.servingSize)} ${entry.servingUnit}`
+  return entry.quantity === 1 ? `1 ${entry.servingUnit}` : `${entry.quantity} × ${entry.servingUnit}`
 }
 
 function dayTotals(day) {
@@ -376,7 +385,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                           <div className="flex-1 min-w-0">
                             <p className="font-mono text-xs text-cream truncate">{entry.name}</p>
                             <p className="font-mono text-[10px] text-muted">
-                              {entry.quantity !== 1 ? `${entry.quantity}×` : ''} {servingLabel(entry)}
+                              {entryServingLabel(entry)}
                             </p>
                           </div>
                           <div className="text-right flex-shrink-0">
