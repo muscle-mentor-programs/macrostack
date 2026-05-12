@@ -520,7 +520,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pb-nav">
         {tab === 'overview' && (
           <div className="p-5 space-y-6">
             {/* Today's intake */}
