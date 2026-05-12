@@ -422,7 +422,7 @@ export default function ClientLog() {
       </div>
 
       {/* Daily totals bar */}
-      <div className="grid grid-cols-4 mx-5 mb-5 bg-card border border-border rounded-xl overflow-hidden anim-fade-in" style={{ animationDelay: '60ms' }}>
+      <div className="grid grid-cols-4 mx-5 mt-5 mb-5 bg-card border border-border rounded-xl overflow-hidden anim-fade-in" style={{ animationDelay: '60ms' }}>
         {[
           { label: 'KCAL', val: totals.calories, color: 'text-cream' },
           { label: 'PRO',  val: totals.protein,  color: 'text-olive-light' },

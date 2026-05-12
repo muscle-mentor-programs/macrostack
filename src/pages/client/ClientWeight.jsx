@@ -72,7 +72,7 @@ export default function ClientWeight() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="relative px-5 pt-mobile-header pb-5 anim-fade-in-down glass-panel accent-line">
+      <div className="relative px-5 pt-mobile-header pb-4 anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="WEIGHT" duration={750} />
         </h1>
@@ -80,7 +80,7 @@ export default function ClientWeight() {
       </div>
 
       {/* Log input */}
-      <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '60ms' }}>
+      <div className="mx-5 mt-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '60ms' }}>
         <div className="flex items-center justify-between mb-3">
           <p className="font-display font-bold text-xs text-muted tracking-widest">LOG WEIGHT</p>
           {/* Date toggle */}

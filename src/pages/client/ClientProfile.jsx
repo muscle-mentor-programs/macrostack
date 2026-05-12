@@ -86,7 +86,7 @@ export default function ClientProfile() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="relative px-5 pt-mobile-header pb-5 anim-fade-in-down glass-panel accent-line">
+      <div className="relative px-5 pt-mobile-header pb-4 anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="PROFILE" duration={750} />
         </h1>
@@ -94,7 +94,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Avatar */}
-      <div className="flex justify-center mb-6 anim-pop" style={{ animationDelay: '80ms' }}>
+      <div className="flex justify-center mt-5 mb-6 anim-pop" style={{ animationDelay: '80ms' }}>
         <div className="w-20 h-20 rounded-full bg-olive/20 border-2 border-olive/30 flex items-center justify-center">
           <span className="font-display font-black text-3xl text-olive-light">
             {(form.name || '?').charAt(0).toUpperCase()}

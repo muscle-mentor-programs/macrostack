@@ -30,7 +30,7 @@ export default function ClientProgress() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="px-5 pt-mobile-header pb-6 anim-fade-in-down">
+      <div className="px-5 pt-mobile-header pb-4 anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="PROGRESS" duration={750} />
         </h1>
@@ -38,7 +38,7 @@ export default function ClientProgress() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-3 px-5 mb-6">
+      <div className="grid grid-cols-2 gap-3 px-5 mt-5 mb-6">
         {[
           { val: avgCal.toFixed(0),     label: 'avg kcal / day',   color: 'text-cream',         delay: 60 },
           { val: daysLogged,            label: 'days logged',       color: 'text-cream',         delay: 120 },
