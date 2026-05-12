@@ -207,7 +207,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in">
       {/* ── Top bar ─────────────────────────────────────────── */}
       <div
-        className="flex items-center gap-4 px-6 border-b border-border bg-card flex-shrink-0"
+        className="flex items-center gap-4 px-6 border-b border-border/50 glass-panel flex-shrink-0"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 56px)', paddingBottom: '16px' }}
       >
         <button onClick={onClose} className="text-muted hover:text-cream transition-colors">
@@ -337,9 +337,9 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                 { cal: 0, pro: 0 }
               )
               return (
-                <div key={meal} className="bg-card border border-border rounded-xl overflow-hidden">
+                <div key={meal} className="glass-card border border-border/60 rounded-xl overflow-hidden">
                   {/* Meal header */}
-                  <div className="flex items-center justify-between px-4 py-2.5 bg-surface">
+                  <div className="flex items-center justify-between px-4 py-2.5 bg-white/[0.04]">
                     <div className="flex items-center gap-2">
                       <span className="font-display font-bold text-xs tracking-widest text-cream">
                         {meal.toUpperCase()}
@@ -495,7 +495,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
 
           {/* Selected food config */}
           {selectedFood && (
-            <div className="border-t border-border bg-card px-5 py-4 space-y-3 anim-sheet flex-shrink-0">
+            <div className="border-t border-border/50 bg-white/[0.04] px-5 py-4 space-y-3 anim-sheet flex-shrink-0">
               <div className="flex items-center justify-between">
                 <p className="font-mono text-sm text-cream truncate flex-1">{selectedFood.name}</p>
                 <span className="font-mono text-xs text-muted ml-2">{servingLabel(selectedFood)}</span>

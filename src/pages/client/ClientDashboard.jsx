@@ -130,7 +130,7 @@ function MealPlanSection({ client, onLogMeal }) {
 
       <div className="glass-card border border-border/60 rounded-xl overflow-hidden">
         {/* Day navigator */}
-        <div className="flex items-center justify-between px-4 py-3 bg-surface border-b border-border">
+        <div className="flex items-center justify-between px-4 py-3 bg-white/[0.04] border-b border-border/50">
           <button
             onClick={() => setDayIdx((i) => Math.max(0, i - 1))}
             disabled={dayIdx === 0}
@@ -180,7 +180,7 @@ function MealPlanSection({ client, onLogMeal }) {
           )
           return (
             <div key={meal} className="border-b border-border last:border-0">
-              <div className="flex items-center justify-between px-4 py-2 bg-surface/50">
+              <div className="flex items-center justify-between px-4 py-2 bg-white/[0.04]">
                 <span className={`font-display font-bold text-xs tracking-widest ${MEAL_COLORS[meal]}`}>
                   {meal.toUpperCase()}
                 </span>
@@ -328,7 +328,7 @@ export default function ClientDashboard() {
                   className="glass-card border border-border/60 rounded-xl overflow-hidden anim-fade-in-up card-hover"
                   style={{ animationDelay: `${gi * 60 + 200}ms` }}
                 >
-                  <div className="flex justify-between px-4 py-2.5 bg-surface">
+                  <div className="flex justify-between px-4 py-2.5 bg-white/[0.04]">
                     <span className="font-display font-bold text-xs tracking-widest text-cream">{meal.toUpperCase()}</span>
                     <span className="font-mono text-xs text-muted">{mTotal.cal.toFixed(0)} kcal</span>
                   </div>

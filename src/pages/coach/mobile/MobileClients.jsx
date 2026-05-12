@@ -364,7 +364,7 @@ function MealPlansTab({ clientId }) {
                         return { cal: acc.cal + items.reduce((s, e) => s + e.calories, 0), pro: acc.pro + items.reduce((s, e) => s + e.protein, 0) }
                       }, { cal: 0, pro: 0 })
                       return (
-                        <div key={day.id} className="bg-surface border border-border rounded-xl px-3 py-2">
+                        <div key={day.id} className="glass-card border border-border/60 rounded-xl px-3 py-2">
                           <div className="flex items-center justify-between mb-1.5">
                             <p className="font-display font-bold text-xs text-cream tracking-widest">{day.label}</p>
                             <p className="font-mono text-xs text-muted">{dayTotal.cal.toFixed(0)} kcal</p>

@@ -447,11 +447,11 @@ export default function ClientLog() {
           return (
             <div
               key={meal}
-              className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-hover"
+              className="glass-card border border-border/60 rounded-xl overflow-hidden anim-fade-in-up card-hover"
               style={{ animationDelay: `${sectionIdx * 65 + 80}ms` }}
             >
               {/* Section header */}
-              <div className="flex items-center justify-between px-4 py-3 bg-surface">
+              <div className="flex items-center justify-between px-4 py-3 bg-white/[0.04]">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-display font-bold text-sm tracking-widest text-cream">
                     {meal.toUpperCase()}
@@ -517,7 +517,7 @@ export default function ClientLog() {
 
                         {/* Inline edit panel */}
                         {isEditing && editState && (
-                          <div className="px-4 pb-4 pt-3 bg-surface/60 border-t border-border/60 space-y-3 anim-fade-in-up">
+                          <div className="px-4 pb-4 pt-3 bg-white/[0.04] border-t border-border/40 space-y-3 anim-fade-in-up">
                             <div className="grid grid-cols-2 gap-3">
                               <div>
                                 <label className="font-display text-xs text-muted tracking-widest block mb-1.5">
