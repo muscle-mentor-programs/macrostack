@@ -449,9 +449,9 @@ function MealPlansTab({ clientId }) {
 }
 
 // ─── Client detail full-screen ────────────────────────────────────────────────
-function ClientDetailScreen({ client, onBack }) {
+function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
   const { updateClientGoals, updateClientInfo, removeClient, getClientTotalsForDate } = useStore()
-  const [tab,       setTab]       = useState('overview')
+  const [tab,       setTab]       = useState(initialTab)
   const [editGoals, setEditGoals] = useState(false)
   const [goals,     setGoals]     = useState({ ...client.goals })
   const [editName,  setEditName]  = useState(false)

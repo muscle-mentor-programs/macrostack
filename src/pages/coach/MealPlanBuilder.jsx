@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
-import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight, Mail, Download } from 'lucide-react'
+import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight, Mail, Download, ArrowLeft } from 'lucide-react'
 import useStore from '../../store'
+import useIsMobile from '../../hooks/useIsMobile'
 import { FOODS, CATEGORIES } from '../../data/foods'
 import { mealPlanPDFBase64, downloadMealPlanPDF } from '../../lib/generateMealPlanPDF'
 import { rankFoods, getRecentFoodIdsFromClients } from '../../utils/foodSearch'
@@ -40,6 +41,7 @@ function makeEmptyDay(label) {
 
 export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose }) {
   const { customFoods, clients } = useStore()
+  const isMobile = useIsMobile()
   const allFoods = useMemo(() => [...FOODS, ...customFoods], [customFoods])
 
   // Foods used by any client in the last 30 days float to the top
@@ -64,6 +66,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const [saved, setSaved]         = useState(false)
   const [emailStatus, setEmailStatus] = useState('idle') // 'idle' | 'sending' | 'sent' | 'error'
   const [downloading, setDownloading] = useState(false)
+  const [showFoodPanel, setShowFoodPanel] = useState(false) // mobile: toggle food search panel
 
   const filtered = useMemo(() => {
     const base = category === 'All' ? allFoods : allFoods.filter((f) => f.category === category)
@@ -110,6 +113,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     )
     setSelectedFood(null)
     setQuantity('1')
+    if (isMobile) setShowFoodPanel(false)
   }
 
   const removeItem = (mealName, itemId) => {
@@ -198,7 +202,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
       {/* ── Top bar ─────────────────────────────────────────── */}
       <div
         className="flex items-center gap-4 px-6 border-b border-border bg-card flex-shrink-0"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: '16px' }}
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 56px)', paddingBottom: '16px' }}
       >
         <button onClick={onClose} className="text-muted hover:text-cream transition-colors">
           <X size={18} />
@@ -260,7 +264,11 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
 
       <div className="flex flex-1 overflow-hidden">
         {/* ── Left: day tabs + meal sections ──────────────── */}
-        <div className="flex flex-col w-[480px] border-r border-border overflow-hidden">
+        <div className={`flex flex-col border-r border-border overflow-hidden ${
+          isMobile
+            ? showFoodPanel ? 'hidden' : 'flex w-full'
+            : 'w-[480px]'
+        }`}>
           {/* Day tabs */}
           <div className="flex items-center px-4 py-3 gap-2 border-b border-border overflow-x-auto scrollbar-hide flex-shrink-0">
             {days.map((d, i) => (
@@ -337,7 +345,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                       )}
                     </div>
                     <button
-                      onClick={() => setTargetMeal(meal)}
+                      onClick={() => { setTargetMeal(meal); if (isMobile) setShowFoodPanel(true) }}
                       className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
                         targetMeal === meal
                           ? 'bg-brown text-bg'
@@ -351,7 +359,9 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                   {/* Items */}
                   {items.length === 0 ? (
                     <div className="px-4 py-3 text-center">
-                      <p className="font-mono text-xs text-dim">Empty — select a food on the right →</p>
+                      <p className="font-mono text-xs text-dim">
+                        {isMobile ? 'Tap + to add foods' : 'Empty — select a food on the right →'}
+                      </p>
                     </div>
                   ) : (
                     <div className="divide-y divide-border">
@@ -388,10 +398,20 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
         </div>
 
         {/* ── Right: food search ───────────────────────────── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className={`flex-1 flex-col overflow-hidden ${
+          isMobile ? (showFoodPanel ? 'flex' : 'hidden') : 'flex'
+        }`}>
           {/* Search + filter */}
           <div className="px-4 py-3 border-b border-border space-y-3 flex-shrink-0 bg-card">
             <div className="flex items-center gap-2">
+              {isMobile && (
+                <button
+                  onClick={() => setShowFoodPanel(false)}
+                  className="text-muted hover:text-cream transition-colors mr-1"
+                >
+                  <ArrowLeft size={16} />
+                </button>
+              )}
               <p className="font-display font-bold text-xs text-muted tracking-widest">ADDING TO:</p>
               {MEALS.map((m) => (
                 <button
