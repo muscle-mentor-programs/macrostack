@@ -73,7 +73,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in overflow-hidden">
       {/* Sticky header */}
-      <div className="flex items-center justify-between px-5 pt-14 pb-4 border-b border-border bg-surface flex-shrink-0">
+      <div className="flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border bg-surface flex-shrink-0">
         <h3 className="font-display font-black text-xl tracking-widest text-cream">
           {initial ? 'EDIT FOOD' : 'ADD CUSTOM FOOD'}
         </h3>
