@@ -135,9 +135,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 anim-fade-in"
       style={{
-        backdropFilter:         'blur(24px) saturate(160%)',
-        WebkitBackdropFilter:   'blur(24px) saturate(160%)',
-        background:             'rgba(0,0,0,0.52)',
+        background: 'rgba(0,0,0,0.10)',
       }}
       onClick={onClose}
     >
@@ -414,8 +412,29 @@ export default function ClientLog() {
 
   const inpCls = 'w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown'
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    if (modalMeal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [modalMeal])
+
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="relative" style={{ minHeight: '100%' }}>
+
+      {/* ── Page content — blurs out when modal opens ── */}
+      <div
+        className="flex flex-col min-h-full"
+        style={{
+          filter:        modalMeal ? 'blur(10px)' : 'none',
+          opacity:       modalMeal ? 0.5 : 1,
+          transition:    'filter 0.25s ease, opacity 0.25s ease',
+          pointerEvents: modalMeal ? 'none' : 'auto',
+        }}
+      >
       {/* Date nav */}
       <div className="relative flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <button onClick={prev} className="w-10 h-10 flex items-center justify-center text-muted hover:text-cream">
@@ -618,6 +637,9 @@ export default function ClientLog() {
         <Plus size={24} className="text-bg" strokeWidth={2.5} />
       </button>
 
+      </div>{/* end page content blur wrapper */}
+
+      {/* ── Modal — sibling of blurred content, always crisp ── */}
       {modalMeal && (
         <AddFoodModal
           onClose={() => setModalMeal(null)}
