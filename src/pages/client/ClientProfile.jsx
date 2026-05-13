@@ -102,61 +102,8 @@ export default function ClientProfile() {
         </div>
       </div>
 
-      {/* Personal info form */}
-      <div className="mx-5 mb-4 glass-card border border-border/60 rounded-xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
-        <p className="font-display font-bold text-xs text-muted tracking-widest">PERSONAL INFO</p>
-
-        <div>
-          <label className={lbl}>NAME</label>
-          <input type="text" value={form.name} onChange={field('name')}
-            placeholder="Your name" className={inputCls} />
-        </div>
-
-        <div>
-          <label className={lbl}>HEIGHT</label>
-          <input type="text" value={form.height} onChange={field('height')}
-            placeholder="e.g. 5'10&quot; or 178 cm" className={inputCls} />
-        </div>
-
-        <div>
-          <label className={lbl}>DATE OF BIRTH</label>
-          <input type="date" value={form.dob} onChange={field('dob')}
-            className={`${inputCls} h-11`}
-            style={{ colorScheme: 'dark' }} />
-        </div>
-
-        <div>
-          <label className={lbl}>PHONE</label>
-          <input type="tel" value={form.phone} onChange={field('phone')}
-            placeholder="(555) 000-0000" className={inputCls} />
-        </div>
-
-        <div>
-          <label className={lbl}>NOTES FOR COACH</label>
-          <textarea value={form.bio} onChange={field('bio')}
-            placeholder="Anything your coach should know..."
-            rows={3} className={`${inputCls} resize-none`} />
-        </div>
-      </div>
-
-      {/* Save button */}
-      <div className="mx-5 mb-6 anim-fade-in-up" style={{ animationDelay: '200ms' }}>
-        <button
-          onClick={handleSave}
-          className={`w-full py-3.5 rounded-xl font-display font-bold text-sm tracking-widest transition-all glow-hover-olive ${
-            saved ? 'bg-olive text-bg' : 'bg-brown hover:bg-brown-light text-bg'
-          }`}
-        >
-          {saved ? (
-            <span className="flex items-center justify-center gap-2">
-              <Check size={15} /> SAVED
-            </span>
-          ) : 'SAVE CHANGES'}
-        </button>
-      </div>
-
       {/* Link to Coach */}
-      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '230ms' }}>
+      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 size={14} className="text-olive-light" />
           <p className="font-display font-bold text-xs text-muted tracking-widest">LINK TO COACH</p>
@@ -203,7 +150,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Coach-assigned targets (read-only) */}
-      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '260ms' }}>
+      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">
           COACH-ASSIGNED TARGETS
         </p>
@@ -226,13 +173,13 @@ export default function ClientProfile() {
       </div>
 
       {/* ── 30-Day Progress ─────────────────────────────────────────────────── */}
-      <div className="px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '320ms' }}>
+      <div className="px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '250ms' }}>
         <p className="font-display font-black text-lg tracking-widest text-cream">30-DAY PROGRESS</p>
         <p className="font-mono text-xs text-muted mt-0.5">Last 30 days</p>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-3 mx-5 mb-5 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
+      <div className="grid grid-cols-2 gap-3 mx-5 mb-5 anim-fade-in-up" style={{ animationDelay: '300ms' }}>
         {[
           { val: avgCal.toFixed(0),          label: 'avg kcal / day',   color: 'text-cream'            },
           { val: daysLogged,                  label: 'days logged',       color: 'text-cream'            },
@@ -247,7 +194,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Calorie trend */}
-      <div className="mx-5 mb-5 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
+      <div className="mx-5 mb-5 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">CALORIE TREND</p>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
@@ -271,7 +218,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Protein trend */}
-      <div className="mx-5 mb-4 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '480ms' }}>
+      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">PROTEIN TREND</p>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>
@@ -293,6 +240,59 @@ export default function ClientProfile() {
               stroke="#6B7A52" strokeWidth={2} fill="url(#proGradP)" dot={false} />
           </AreaChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Personal info form */}
+      <div className="mx-5 mb-4 glass-card border border-border/60 rounded-xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '480ms' }}>
+        <p className="font-display font-bold text-xs text-muted tracking-widest">PERSONAL INFO</p>
+
+        <div>
+          <label className={lbl}>NAME</label>
+          <input type="text" value={form.name} onChange={field('name')}
+            placeholder="Your name" className={inputCls} />
+        </div>
+
+        <div>
+          <label className={lbl}>HEIGHT</label>
+          <input type="text" value={form.height} onChange={field('height')}
+            placeholder="e.g. 5'10&quot; or 178 cm" className={inputCls} />
+        </div>
+
+        <div>
+          <label className={lbl}>DATE OF BIRTH</label>
+          <input type="date" value={form.dob} onChange={field('dob')}
+            className={`${inputCls} h-11`}
+            style={{ colorScheme: 'dark' }} />
+        </div>
+
+        <div>
+          <label className={lbl}>PHONE</label>
+          <input type="tel" value={form.phone} onChange={field('phone')}
+            placeholder="(555) 000-0000" className={inputCls} />
+        </div>
+
+        <div>
+          <label className={lbl}>NOTES FOR COACH</label>
+          <textarea value={form.bio} onChange={field('bio')}
+            placeholder="Anything your coach should know..."
+            rows={3} className={`${inputCls} resize-none`} />
+        </div>
+      </div>
+
+      {/* Save button */}
+      <div className="mx-5 mb-8 anim-fade-in-up" style={{ animationDelay: '520ms' }}>
+        <button
+          onClick={handleSave}
+          className={`w-full py-3.5 rounded-xl font-display font-bold text-sm tracking-widest transition-all glow-hover-olive ${
+            saved ? 'bg-olive text-bg' : 'bg-brown hover:bg-brown-light text-bg'
+          }`}
+        >
+          {saved ? (
+            <span className="flex items-center justify-center gap-2">
+              <Check size={15} /> SAVED
+            </span>
+          ) : 'SAVE CHANGES'}
+        </button>
       </div>
     </div>
   )
