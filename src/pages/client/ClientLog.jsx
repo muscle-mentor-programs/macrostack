@@ -128,149 +128,169 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     handleSelectFood(food)
   }
 
-  const inputCls = 'w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-3 font-mono text-base text-cream focus:outline-none focus:border-brown/70 transition-colors'
+  // ── Light-mode glass palette ─────────────────────────────────────────────
+  const INK   = '#1C1814'       // primary text
+  const SUB   = '#6B5A48'       // secondary / label text
+  const HINT  = '#A89888'       // placeholder / very faint
+  const BD    = 'rgba(0,0,0,0.08)'
+  const ROW   = 'rgba(0,0,0,0.05)'
+  const INBG  = 'rgba(0,0,0,0.05)'
+
+  const fieldStyle = { background: INBG, border: `1px solid ${BD}`, color: INK }
+  const fieldCls   = 'w-full rounded-xl px-4 py-3 font-mono text-base focus:outline-none transition-colors'
+  const labelCls   = 'font-display text-xs tracking-widest block mb-1.5'
 
   return (
-    /* ── Backdrop — dims the blurred page behind the modal ── */
+    /* ── Backdrop ── */
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 anim-fade-in"
-      style={{
-        background: 'rgba(0,0,0,0.30)',
-      }}
+      style={{ background: 'rgba(0,0,0,0.22)' }}
       onClick={onClose}
     >
-      {/* ── Liquid-glass card ── */}
+      {/* ── Frosted-glass card (light) ── */}
       <div
         className="relative w-full max-w-lg flex flex-col rounded-3xl overflow-hidden anim-pop"
         style={{
-          maxHeight:              'min(85vh, 680px)',
-          /* KEY: transparent enough that the backdrop-filter blur shows through */
-          background:             'rgba(28,24,20,0.28)',
-          backdropFilter:         'blur(80px) saturate(220%) brightness(1.10)',
-          WebkitBackdropFilter:   'blur(80px) saturate(220%) brightness(1.10)',
-          border:                 '1px solid rgba(255,255,255,0.18)',
-          boxShadow:              '0 40px 100px rgba(0,0,0,0.60), 0 0 0 0.5px rgba(255,255,255,0.10), inset 0 1px 0 rgba(255,255,255,0.22)',
+          maxHeight:            'min(85vh, 680px)',
+          background:           'rgba(255,251,246,0.78)',
+          backdropFilter:       'blur(48px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(48px) saturate(160%)',
+          border:               '1px solid rgba(255,255,255,0.90)',
+          boxShadow:            '0 32px 80px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Liquid-glass diagonal highlight — gives the "glass panel" sheen */}
+        {/* Diagonal glass sheen */}
         <div
           className="absolute inset-0 pointer-events-none rounded-3xl"
           style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.02) 45%, transparent 70%)',
-            zIndex: -1,
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.60) 0%, rgba(255,255,255,0.15) 40%, transparent 70%)',
+            zIndex: 0,
           }}
         />
-        {/* Top shimmer line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" style={{ zIndex: 1 }} />
+        {/* Top edge highlight */}
+        <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'rgba(255,255,255,0.98)', zIndex: 1 }} />
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.10] flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
+        {/* ── Header ── */}
+        <div
+          className="flex items-center justify-between px-5 py-4 flex-shrink-0"
+          style={{ borderBottom: `1px solid ${BD}`, position: 'relative', zIndex: 1 }}
+        >
           <div>
-            <h3 className="font-display font-black text-xl tracking-widest text-cream">ADD FOOD</h3>
-            <p className="font-mono text-xs text-muted mt-0.5">{meal}</p>
+            <h3 className="font-display font-black text-xl tracking-widest" style={{ color: INK }}>ADD FOOD</h3>
+            <p className="font-mono text-xs mt-0.5" style={{ color: SUB }}>{meal}</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-white/[0.06] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-xl transition-colors hover:bg-black/[0.05]"
+            style={{ color: SUB }}
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Search + scan */}
-        <div className="px-4 py-3 border-b border-white/[0.10] flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
+        {/* ── Search + scan ── */}
+        <div
+          className="px-4 py-3 flex-shrink-0"
+          style={{ borderBottom: `1px solid ${BD}`, position: 'relative', zIndex: 1 }}
+        >
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: HINT }} />
               <input
                 autoFocus
                 type="text"
                 placeholder="Search foods or brands…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full bg-white/[0.05] border border-white/[0.09] rounded-xl pl-9 pr-4 py-2.5 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown/60 transition-colors"
+                className="w-full rounded-xl pl-9 pr-4 py-2.5 font-mono text-sm focus:outline-none transition-colors"
+                style={{ ...fieldStyle, caretColor: '#9A7B55' }}
               />
             </div>
             <button
               onClick={() => setShowScanner(true)}
               title="Scan a barcode"
-              className="flex-shrink-0 w-10 h-10 bg-white/[0.05] border border-white/[0.09] rounded-xl flex items-center justify-center text-muted hover:text-brown-light hover:border-brown/40 transition-colors"
+              className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-colors hover:bg-black/[0.05]"
+              style={{ background: INBG, border: `1px solid ${BD}`, color: SUB }}
             >
               <Scan size={18} />
             </button>
           </div>
         </div>
 
-        {/* Food list — scrollable middle section */}
+        {/* ── Food list ── */}
         <div className="flex-1 overflow-y-auto min-h-0" style={{ position: 'relative', zIndex: 1 }}>
           {filtered.map((food) => (
             <button
               key={food.id}
               onClick={() => handleSelectFood(food)}
-              className={`w-full flex items-center justify-between px-5 py-3.5 border-b border-white/[0.05] text-left transition-colors ${
-                selected?.id === food.id
-                  ? 'bg-brown/10 border-l-2 border-l-brown'
-                  : 'hover:bg-white/[0.04]'
-              }`}
+              className="w-full flex items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-black/[0.04]"
+              style={{
+                borderBottom: `1px solid ${ROW}`,
+                borderLeft: selected?.id === food.id ? '2px solid #9A7B55' : '2px solid transparent',
+                background: selected?.id === food.id ? 'rgba(154,123,85,0.08)' : undefined,
+              }}
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 min-w-0">
-                  <p className="font-mono text-sm text-cream truncate">{food.name}</p>
+                  <p className="font-mono text-sm truncate" style={{ color: INK }}>{food.name}</p>
                   {food.id.startsWith('scanned_') && (
-                    <span className="font-display text-[9px] text-olive-light bg-olive/10 border border-olive/20 px-1.5 py-0.5 rounded flex-shrink-0">
+                    <span
+                      className="font-display text-[9px] px-1.5 py-0.5 rounded flex-shrink-0"
+                      style={{ color: '#4A6B30', background: 'rgba(74,107,48,0.10)', border: '1px solid rgba(74,107,48,0.22)' }}
+                    >
                       SCANNED
                     </span>
                   )}
                 </div>
-                <p className="font-mono text-xs text-muted">
+                <p className="font-mono text-xs" style={{ color: SUB }}>
                   {food.brand ? `${food.brand} · ` : ''}{servingLabel(food)}
                 </p>
               </div>
               <div className="text-right font-mono text-xs ml-3 flex-shrink-0">
-                <p className="text-cream">{food.calories} kcal</p>
-                <p className="text-olive-light">
-                  {food.protein}p <span className="text-brown-light">{food.carbs}c</span>{' '}
-                  <span className="text-slategray-light">{food.fat}f</span>
+                <p style={{ color: INK }}>{food.calories} kcal</p>
+                <p>
+                  <span style={{ color: '#4A6B30' }}>{food.protein}p </span>
+                  <span style={{ color: '#8A5C30' }}>{food.carbs}c </span>
+                  <span style={{ color: '#4A5A6A' }}>{food.fat}f</span>
                 </p>
               </div>
             </button>
           ))}
           {filtered.length === 0 && (
             <div className="text-center py-14">
-              <p className="font-display text-lg text-muted tracking-widest">NO RESULTS</p>
-              <p className="font-mono text-xs text-dim mt-2">Try scanning a barcode to add new foods</p>
+              <p className="font-display text-lg tracking-widest" style={{ color: SUB }}>NO RESULTS</p>
+              <p className="font-mono text-xs mt-2" style={{ color: HINT }}>Try scanning a barcode to add new foods</p>
             </div>
           )}
         </div>
 
-        {/* Config + Add panel — pinned to bottom of card */}
+        {/* ── Config + Add panel ── */}
         {selected && (
           <div
-            className="border-t border-white/[0.10] px-5 py-4 space-y-3 flex-shrink-0"
-            style={{ background: 'rgba(154,123,85,0.08)', position: 'relative', zIndex: 1 }}
+            className="px-5 py-4 space-y-3 flex-shrink-0"
+            style={{ borderTop: `1px solid ${BD}`, background: 'rgba(154,123,85,0.06)', position: 'relative', zIndex: 1 }}
           >
-            {/* Food name + serving ref */}
             <div className="flex items-center gap-3">
-              <p className="font-mono text-sm text-cream flex-1 truncate">{selected.name}</p>
-              <span className="font-mono text-xs text-muted">{servingLabel(selected)}</span>
+              <p className="font-mono text-sm flex-1 truncate" style={{ color: INK }}>{selected.name}</p>
+              <span className="font-mono text-xs" style={{ color: SUB }}>{servingLabel(selected)}</span>
             </div>
 
             {hasGrams ? (
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="font-display text-xs text-muted tracking-widest block mb-1.5">SERVINGS</label>
-                    <input type="text" inputMode="decimal" value={quantity} onChange={(e) => handleQtyChange(e.target.value)} className={inputCls} />
+                    <label className={labelCls} style={{ color: SUB }}>SERVINGS</label>
+                    <input type="text" inputMode="decimal" value={quantity} onChange={(e) => handleQtyChange(e.target.value)} className={fieldCls} style={fieldStyle} />
                   </div>
                   <div>
-                    <label className="font-display text-xs text-muted tracking-widest block mb-1.5">GRAMS</label>
-                    <input type="text" inputMode="decimal" value={grams} onChange={(e) => handleGramsChange(e.target.value)} className={inputCls} />
+                    <label className={labelCls} style={{ color: SUB }}>GRAMS</label>
+                    <input type="text" inputMode="decimal" value={grams} onChange={(e) => handleGramsChange(e.target.value)} className={fieldCls} style={fieldStyle} />
                   </div>
                 </div>
                 <div>
-                  <label className="font-display text-xs text-muted tracking-widest block mb-1.5">MEAL</label>
-                  <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inputCls}>
+                  <label className={labelCls} style={{ color: SUB }}>MEAL</label>
+                  <select value={meal} onChange={(e) => setMeal(e.target.value)} className={fieldCls} style={fieldStyle}>
                     {MEALS.map((m) => <option key={m}>{m}</option>)}
                   </select>
                 </div>
@@ -278,30 +298,29 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-display text-xs text-muted tracking-widest block mb-1.5">QUANTITY</label>
-                  <input type="text" inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} className={inputCls} />
+                  <label className={labelCls} style={{ color: SUB }}>QUANTITY</label>
+                  <input type="text" inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} className={fieldCls} style={fieldStyle} />
                 </div>
                 <div>
-                  <label className="font-display text-xs text-muted tracking-widest block mb-1.5">MEAL</label>
-                  <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inputCls}>
+                  <label className={labelCls} style={{ color: SUB }}>MEAL</label>
+                  <select value={meal} onChange={(e) => setMeal(e.target.value)} className={fieldCls} style={fieldStyle}>
                     {MEALS.map((m) => <option key={m}>{m}</option>)}
                   </select>
                 </div>
               </div>
             )}
 
-            {/* Live macro preview */}
             {scaled && (
               <div className="grid grid-cols-4 gap-2">
                 {[
-                  { label: 'KCAL', val: scaled.calories, color: 'text-cream' },
-                  { label: 'PRO',  val: scaled.protein,  color: 'text-olive-light' },
-                  { label: 'CARB', val: scaled.carbs,    color: 'text-brown-light' },
-                  { label: 'FAT',  val: scaled.fat,      color: 'text-slategray-light' },
-                ].map(({ label, val, color }) => (
-                  <div key={label} className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-2.5 text-center">
-                    <p className={`font-display font-black text-lg ${color}`}>{Number(val).toFixed(0)}</p>
-                    <p className="font-mono text-[10px] text-muted">{label}</p>
+                  { label: 'KCAL', val: scaled.calories, hex: INK },
+                  { label: 'PRO',  val: scaled.protein,  hex: '#4A6B30' },
+                  { label: 'CARB', val: scaled.carbs,    hex: '#8A5C30' },
+                  { label: 'FAT',  val: scaled.fat,      hex: '#4A5A6A' },
+                ].map(({ label, val, hex }) => (
+                  <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'rgba(0,0,0,0.04)', border: `1px solid ${BD}` }}>
+                    <p className="font-display font-black text-lg" style={{ color: hex }}>{Number(val).toFixed(0)}</p>
+                    <p className="font-mono text-[10px]" style={{ color: SUB }}>{label}</p>
                   </div>
                 ))}
               </div>
@@ -309,7 +328,8 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
 
             <button
               onClick={handleAdd}
-              className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover"
+              className="w-full font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
+              style={{ background: '#9A7B55', color: '#FFFFFF' }}
             >
               ADD TO LOG
             </button>
