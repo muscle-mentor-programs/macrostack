@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { FOOD_COUNT } from '../data/foods'
 
 /* ── inline logo mark (transparent-bg MS diamond) ── */
 function LogoMark({ size = 32 }) {
@@ -623,7 +624,7 @@ function KayAvatar() {
         className="glass absolute rounded-xl px-2.5 py-1.5"
         style={{ top: '7%', right: '3%', animation: 'float 3.4s ease-in-out infinite 0.4s' }}
       >
-        <p className="font-mono whitespace-nowrap" style={{ fontSize: '9px', color: '#C4A882' }}>✦ 1,270+ foods</p>
+        <p className="font-mono whitespace-nowrap" style={{ fontSize: '9px', color: '#C4A882' }}>✦ {FOOD_COUNT.toLocaleString()}+ foods</p>
       </div>
       <div
         className="glass absolute rounded-xl px-2.5 py-1.5"
@@ -1081,7 +1082,7 @@ export default function Landing({ onGetStarted }) {
                   style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 0.6s ease 900ms' }}
                 >
                   {[
-                    { to: 1270,  suffix: '+', label: 'FOODS IN DB'  },
+                    { to: FOOD_COUNT, suffix: '+', label: 'FOODS IN DB'  },
                     { to: 100,   suffix: '%', label: 'FREE TO START'},
                   ].map(({ to, suffix, label }) => (
                     <div key={label}>
@@ -1112,7 +1113,7 @@ export default function Landing({ onGetStarted }) {
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
               {[
-                { to: 1270,  suffix: '+',  label: 'FOODS IN DATABASE', delay: 0   },
+                { to: FOOD_COUNT, suffix: '+',  label: 'FOODS IN DATABASE', delay: 0   },
                 { to: 100,   suffix: '%', label: 'MACRO PRECISION',   delay: 150 },
                 { to: 24,    suffix: '/7',label: 'ALWAYS AVAILABLE',  delay: 300 },
               ].map(({ to, suffix, label, delay }) => (
@@ -1199,7 +1200,7 @@ export default function Landing({ onGetStarted }) {
                     <SplitReveal delay={350} className="text-brown-light">KAY.</SplitReveal>
                   </h2>
                   <p className="font-mono text-sm text-muted leading-relaxed mb-8 max-w-md">
-                    Kay is MacroStack's built-in AI nutrition expert — trained on thousands of foods and nutrition science to give you instant, accurate answers about anything you eat.
+                    Kay is MacroStack's built-in AI nutrition expert — backed by {FOOD_COUNT.toLocaleString()}+ verified foods and nutrition science to give you instant, accurate answers about anything you eat.
                   </p>
                 </Reveal>
 
@@ -1319,7 +1320,7 @@ export default function Landing({ onGetStarted }) {
                 <div className="space-y-4 mb-10">
                   {[
                     { title: 'PERSONALIZED TARGETS', desc: 'Calories and macros set specifically for your body composition, goals, and timeline by your coach.' },
-                    { title: 'FAST FOOD LOGGING',    desc: 'Search thousands of foods, scan barcodes, or use AI to log any meal in under 10 seconds.' },
+                    { title: 'FAST FOOD LOGGING',    desc: `Search ${FOOD_COUNT.toLocaleString()}+ foods from 60+ restaurants and top brands, scan barcodes, or use AI to log any meal in under 10 seconds.` },
                     { title: 'WEIGHT TREND',         desc: 'Log your weight daily and watch a smooth trend line show your real progress over time.' },
                     { title: 'COACH MESSAGING',      desc: 'Direct line to your coach for questions, check-ins, or when you need a plan adjustment.' },
                     { title: 'DAILY PROGRESS',       desc: "See your calorie and macro breakdown in real time — no guessing if you're on track today." },
@@ -1368,7 +1369,7 @@ export default function Landing({ onGetStarted }) {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { sym: '◎', title: 'FULL FOOD DATABASE', desc: 'Access thousands of foods with verified nutrition data. Search by name, brand, or scan a barcode.',                                   delay: 0   },
+                { sym: '◎', title: 'FULL FOOD DATABASE', desc: `${FOOD_COUNT.toLocaleString()}+ foods verified from 60+ restaurant chains, top supplement brands, and grocery staples. Search by name, brand, or barcode.`, delay: 0   },
                 { sym: '✦', title: 'AI FOOD SEARCH',     desc: 'Describe any food and our AI returns accurate nutrition data instantly — no barcode, no problem.',                                   delay: 90  },
                 { sym: '↑', title: 'WEIGHT TRACKING',    desc: 'Log your weight daily. Watch a trend line smooth out the noise and show your real trajectory.',                                     delay: 180 },
                 { sym: '→', title: 'SET YOUR TARGETS',   desc: "Use the built-in macro calculator or enter custom goals. You're in complete control.",                                              delay: 270 },

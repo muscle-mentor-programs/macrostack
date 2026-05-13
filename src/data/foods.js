@@ -1,7 +1,15 @@
 import { FOODS_GROCERY } from './foods_grocery'
 import { FOODS_GROCERY2 } from './foods_grocery2'
 import { FOODS_GROCERY3 } from './foods_grocery3'
+import { FOODS_GROCERY4 } from './foods_grocery4'
 import { FOODS_RESTAURANT } from './foods_restaurant'
+import { FOODS_RESTAURANT2 } from './foods_restaurant2'
+import { FOODS_RESTAURANT3 } from './foods_restaurant3'
+import { FOODS_RESTAURANT4 } from './foods_restaurant4'
+import { FOODS_RESTAURANT5 } from './foods_restaurant5'
+import { FOODS_RESTAURANT6 } from './foods_restaurant6'
+import { FOODS_SUPPLEMENTS2 } from './foods_supplements2'
+import { FOODS_BARS2 } from './foods_bars2'
 
 // All macros are PER ONE SERVING (servingSize / servingUnit)
 export const FOODS = [
@@ -531,10 +539,68 @@ export const FOODS = [
   ...FOODS_GROCERY3,
 
   // ============================================================
-  // RESTAURANT ITEMS (25 chains)
+  // RESTAURANT ITEMS — Original (McDonald's · Chick-fil-A · Chipotle · Costa Vida
+  //   Taco Bell · Wendy's · Panda Express · Subway · Starbucks · Popeyes
+  //   Shake Shack · Panera · Olive Garden · Jack in the Box · Five Guys
+  //   Burger King · Wingstop · Sonic · Pizza Hut · IHOP)
   // ============================================================
   ...FOODS_RESTAURANT,
+
+  // ============================================================
+  // RESTAURANT ITEMS — Batch 2 (KFC · Arby's · Dairy Queen · Whataburger
+  //   In-N-Out · Raising Cane's · Carl's Jr. · Del Taco · El Pollo Loco)
+  // ============================================================
+  ...FOODS_RESTAURANT2,
+
+  // ============================================================
+  // RESTAURANT ITEMS — Batch 3 (Domino's · Papa John's · Little Caesars
+  //   Bojangles · Church's Chicken · Checkers/Rally's · Slim Chickens · Wawa)
+  // ============================================================
+  ...FOODS_RESTAURANT3,
+
+  // ============================================================
+  // RESTAURANT ITEMS — Batch 4 (Jersey Mike's · Jimmy John's · Firehouse Subs
+  //   Potbelly · Moe's · Qdoba · Jason's Deli · McAlister's Deli)
+  // ============================================================
+  ...FOODS_RESTAURANT4,
+
+  // ============================================================
+  // RESTAURANT ITEMS — Batch 5 (Chili's · Applebee's · Buffalo Wild Wings
+  //   Denny's · Texas Roadhouse · Outback · TGI Friday's · Red Robin)
+  // ============================================================
+  ...FOODS_RESTAURANT5,
+
+  // ============================================================
+  // RESTAURANT ITEMS — Batch 6 (Dunkin' · Dutch Bros · Einstein Bros
+  //   Smoothie King · Jamba · Tropical Smoothie · Sweetgreen · Cava
+  //   Noodles & Company)
+  // ============================================================
+  ...FOODS_RESTAURANT6,
+
+  // ============================================================
+  // GROCERY BRANDS — Batch 4 (Trader Joe's · Good & Gather · Boar's Head
+  //   Applegate · Tillamook · Wild Planet · Kodiak · Magic Spoon · Siggi's
+  //   Noosa · Chomps · EPIC · Wilde · Hippeas · Banza)
+  // ============================================================
+  ...FOODS_GROCERY4,
+
+  // ============================================================
+  // SUPPLEMENT BRANDS — Batch 2 (Ghost · Transparent Labs · Legion · 1st Phorm
+  //   Rule 1 · BSN · MusclePharm · MuscleTech · Kaged · Redcon1 · Ascent
+  //   Muscle Milk RTD · Orgain RTD · OWYN · Slate Milk)
+  // ============================================================
+  ...FOODS_SUPPLEMENTS2,
+
+  // ============================================================
+  // PROTEIN BARS — Batch 2 (Clif Builder's · KIND Protein · Perfect Bar
+  //   GoMacro · No Cow · Grenade · thinkThin · ALOHA · Vega · Munk Pack
+  //   Detour · Power Crunch · Atlas · Rise · IQ Bar · Combat Crunch)
+  // ============================================================
+  ...FOODS_BARS2,
 ]
+
+/** Total number of foods in the database — used by Landing page stats. */
+export const FOOD_COUNT = FOODS.length
 
 export const CATEGORIES = [
   'All',
