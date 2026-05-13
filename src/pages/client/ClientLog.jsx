@@ -406,7 +406,7 @@ export default function ClientLog() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Date nav */}
-      <div className="relative flex items-center justify-between px-5 pt-mobile-header pb-4 anim-fade-in-down glass-panel accent-line">
+      <div className="relative flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <button onClick={prev} className="w-10 h-10 flex items-center justify-center text-muted hover:text-cream">
           <ChevronLeft size={22} />
         </button>

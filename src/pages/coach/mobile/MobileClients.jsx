@@ -699,7 +699,7 @@ export default function MobileClients() {
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
       {/* Header — starts at y=0, background covers status bar */}
-      <div className="glass-panel accent-line relative flex items-center justify-between px-4 pt-mobile-header pb-4 anim-fade-in-down flex-shrink-0">
+      <div className="glass-panel accent-line relative flex items-center justify-between px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down flex-shrink-0">
         <div>
           <h2 className="font-display font-black text-3xl tracking-wider text-cream">
             <ScrambleText text="USERS" duration={700} />

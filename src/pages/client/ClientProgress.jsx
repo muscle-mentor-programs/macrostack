@@ -30,7 +30,7 @@ export default function ClientProgress() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="px-5 pt-mobile-header pb-4 anim-fade-in-down glass-panel accent-line">
+      <div className="px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="PROGRESS" duration={750} />
         </h1>
