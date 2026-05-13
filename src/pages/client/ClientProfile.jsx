@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { format, subDays } from 'date-fns'
 import { Check, Link2, Camera } from 'lucide-react'
 import {
@@ -8,6 +9,7 @@ import {
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
+import AvatarCropModal from '../../components/AvatarCropModal'
 
 export default function ClientProfile() {
   const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode } = useStore()
@@ -45,15 +47,31 @@ export default function ClientProfile() {
   })
   const [saved,      setSaved]      = useState(false)
   const [uploading,  setUploading]  = useState(false)
+  const [cropSrc,    setCropSrc]    = useState(null)   // object-URL while cropping
   const fileInputRef = useRef(null)
 
-  const handleAvatarChange = async (e) => {
+  // Step 1 — file selected → open crop modal
+  const handleAvatarChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const url = URL.createObjectURL(file)
+    setCropSrc(url)
+    e.target.value = ''
+  }
+
+  // Step 2 — crop confirmed → upload blob
+  const handleCropConfirm = async (blob) => {
+    URL.revokeObjectURL(cropSrc)
+    setCropSrc(null)
     setUploading(true)
+    const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
     await uploadClientAvatar(activeClientId, file)
     setUploading(false)
-    e.target.value = ''
+  }
+
+  const handleCropCancel = () => {
+    URL.revokeObjectURL(cropSrc)
+    setCropSrc(null)
   }
 
   const field = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
@@ -96,6 +114,7 @@ export default function ClientProfile() {
   const lbl = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
+    <>
     <div className="flex flex-col min-h-full">
       {/* Header */}
       <div className="relative px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
@@ -332,5 +351,16 @@ export default function ClientProfile() {
         </button>
       </div>
     </div>
+
+    {/* Crop modal — portaled so it sits above everything */}
+    {cropSrc && createPortal(
+      <AvatarCropModal
+        imageSrc={cropSrc}
+        onConfirm={handleCropConfirm}
+        onCancel={handleCropCancel}
+      />,
+      document.body
+    )}
+    </>
   )
 }
