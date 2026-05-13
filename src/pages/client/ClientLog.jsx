@@ -131,32 +131,41 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   const inputCls = 'w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-3 font-mono text-base text-cream focus:outline-none focus:border-brown/70 transition-colors'
 
   return (
-    /* ── Backdrop — blurs the page behind the modal ── */
+    /* ── Backdrop — dims the blurred page behind the modal ── */
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 anim-fade-in"
       style={{
-        background: 'rgba(0,0,0,0.10)',
+        background: 'rgba(0,0,0,0.30)',
       }}
       onClick={onClose}
     >
-      {/* ── Glass card — centered, stops propagation so clicks inside don't close ── */}
+      {/* ── Liquid-glass card ── */}
       <div
-        className="relative w-full max-w-lg flex flex-col rounded-2xl overflow-hidden anim-pop"
+        className="relative w-full max-w-lg flex flex-col rounded-3xl overflow-hidden anim-pop"
         style={{
           maxHeight:              'min(85vh, 680px)',
-          background:             'rgba(22,20,18,0.80)',
-          backdropFilter:         'blur(48px) saturate(200%)',
-          WebkitBackdropFilter:   'blur(48px) saturate(200%)',
-          border:                 '1px solid rgba(255,255,255,0.09)',
-          boxShadow:              '0 32px 80px rgba(0,0,0,0.70), 0 0 0 0.5px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.08)',
+          /* KEY: transparent enough that the backdrop-filter blur shows through */
+          background:             'rgba(28,24,20,0.28)',
+          backdropFilter:         'blur(80px) saturate(220%) brightness(1.10)',
+          WebkitBackdropFilter:   'blur(80px) saturate(220%) brightness(1.10)',
+          border:                 '1px solid rgba(255,255,255,0.18)',
+          boxShadow:              '0 40px 100px rgba(0,0,0,0.60), 0 0 0 0.5px rgba(255,255,255,0.10), inset 0 1px 0 rgba(255,255,255,0.22)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Subtle top accent line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brown/40 to-transparent" />
+        {/* Liquid-glass diagonal highlight — gives the "glass panel" sheen */}
+        <div
+          className="absolute inset-0 pointer-events-none rounded-3xl"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.02) 45%, transparent 70%)',
+            zIndex: -1,
+          }}
+        />
+        {/* Top shimmer line */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" style={{ zIndex: 1 }} />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.07] flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.10] flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
           <div>
             <h3 className="font-display font-black text-xl tracking-widest text-cream">ADD FOOD</h3>
             <p className="font-mono text-xs text-muted mt-0.5">{meal}</p>
@@ -170,7 +179,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         </div>
 
         {/* Search + scan */}
-        <div className="px-4 py-3 border-b border-white/[0.07] bg-white/[0.02] flex-shrink-0">
+        <div className="px-4 py-3 border-b border-white/[0.10] flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
@@ -194,7 +203,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         </div>
 
         {/* Food list — scrollable middle section */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0" style={{ position: 'relative', zIndex: 1 }}>
           {filtered.map((food) => (
             <button
               key={food.id}
@@ -238,8 +247,8 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         {/* Config + Add panel — pinned to bottom of card */}
         {selected && (
           <div
-            className="border-t border-white/[0.08] px-5 py-4 space-y-3 flex-shrink-0"
-            style={{ background: 'rgba(154,123,85,0.06)' }}
+            className="border-t border-white/[0.10] px-5 py-4 space-y-3 flex-shrink-0"
+            style={{ background: 'rgba(154,123,85,0.08)', position: 'relative', zIndex: 1 }}
           >
             {/* Food name + serving ref */}
             <div className="flex items-center gap-3">
