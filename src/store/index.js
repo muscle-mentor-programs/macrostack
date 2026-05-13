@@ -25,6 +25,7 @@ function dbToClient(row) {
       fat:      row.goal_fat      ?? 65,
     },
     activeMealPlanId: row.active_meal_plan_id || null,
+    avatarUrl:        row.avatar_url || null,
     status:           row.status || 'active',
     createdAt:        row.created_at,
     log:       {},
@@ -393,16 +394,42 @@ const useStore = create(
 
       updateClientProfile: async (clientId, fields) => {
         const dbFields = {}
-        if (fields.name   !== undefined) dbFields.name   = fields.name
-        if (fields.height !== undefined) dbFields.height = fields.height
-        if (fields.dob    !== undefined) dbFields.dob    = fields.dob
-        if (fields.phone  !== undefined) dbFields.phone  = fields.phone
-        if (fields.bio    !== undefined) dbFields.bio    = fields.bio
+        if (fields.name      !== undefined) dbFields.name      = fields.name
+        if (fields.height    !== undefined) dbFields.height    = fields.height
+        if (fields.dob       !== undefined) dbFields.dob       = fields.dob
+        if (fields.phone     !== undefined) dbFields.phone     = fields.phone
+        if (fields.bio       !== undefined) dbFields.bio       = fields.bio
+        if (fields.avatarUrl !== undefined) dbFields.avatar_url = fields.avatarUrl
 
         await supabase.from('clients').update(dbFields).eq('id', clientId)
         set((s) => ({
           clients: s.clients.map((c) => c.id === clientId ? { ...c, ...fields } : c),
         }))
+      },
+
+      uploadClientAvatar: async (clientId, file) => {
+        if (!supabase) return { error: 'Supabase not configured' }
+        const ext  = file.name.split('.').pop().toLowerCase()
+        const path = `clients/${clientId}.${ext}`
+
+        const { error } = await supabase.storage
+          .from('avatars')
+          .upload(path, file, { upsert: true, contentType: file.type })
+
+        if (error) { console.error('Avatar upload error:', error); return { error } }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(path)
+
+        // Cache-bust so the browser re-fetches the new image immediately
+        const avatarUrl = `${publicUrl}?t=${Date.now()}`
+
+        await supabase.from('clients').update({ avatar_url: publicUrl }).eq('id', clientId)
+        set((s) => ({
+          clients: s.clients.map((c) => c.id === clientId ? { ...c, avatarUrl } : c),
+        }))
+        return { avatarUrl }
       },
 
       updateClientGoals: async (clientId, goals) => {

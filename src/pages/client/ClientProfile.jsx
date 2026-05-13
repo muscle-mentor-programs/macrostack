@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { format, subDays } from 'date-fns'
-import { Check, Link2 } from 'lucide-react'
+import { Check, Link2, Camera } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis,
   ResponsiveContainer, Tooltip, ReferenceLine,
 } from 'recharts'
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
+import ClientAvatar from '../../components/ClientAvatar'
 
 export default function ClientProfile() {
-  const { activeClientId, clients, updateClientProfile, submitCoachCode } = useStore()
+  const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
 
   // Coach code linking
@@ -42,7 +43,18 @@ export default function ClientProfile() {
     phone:  client?.phone  || '',
     bio:    client?.bio    || '',
   })
-  const [saved, setSaved] = useState(false)
+  const [saved,      setSaved]      = useState(false)
+  const [uploading,  setUploading]  = useState(false)
+  const fileInputRef = useRef(null)
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    await uploadClientAvatar(activeClientId, file)
+    setUploading(false)
+    e.target.value = ''
+  }
 
   const field = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
@@ -93,13 +105,38 @@ export default function ClientProfile() {
         <p className="font-mono text-xs text-muted mt-1">Your info & 30-day progress</p>
       </div>
 
-      {/* Avatar */}
-      <div className="flex justify-center mt-5 mb-6 anim-pop" style={{ animationDelay: '80ms' }}>
-        <div className="w-20 h-20 rounded-full bg-olive/20 border-2 border-olive/30 flex items-center justify-center">
-          <span className="font-display font-black text-3xl text-olive-light">
-            {(form.name || '?').charAt(0).toUpperCase()}
-          </span>
-        </div>
+      {/* Avatar — tap to upload */}
+      <div className="flex flex-col items-center mt-5 mb-6 anim-pop" style={{ animationDelay: '80ms' }}>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="relative group focus:outline-none"
+        >
+          <ClientAvatar
+            name={form.name || client?.name}
+            avatarUrl={client?.avatarUrl}
+            className="w-20 h-20"
+            textClassName="text-3xl"
+            color="olive"
+          />
+          {/* Camera overlay */}
+          <div className={`absolute inset-0 rounded-full bg-black/50 flex items-center justify-center transition-opacity ${uploading ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+            {uploading
+              ? <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              : <Camera size={20} className="text-white" />
+            }
+          </div>
+        </button>
+        <p className="font-mono text-xs text-dim mt-2">
+          {uploading ? 'Uploading…' : 'Tap to change photo'}
+        </p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={handleAvatarChange}
+        />
       </div>
 
       {/* Link to Coach */}

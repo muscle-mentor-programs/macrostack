@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { MessageCircle, Send } from 'lucide-react'
 import useStore from '../../store'
+import ClientAvatar from '../../components/ClientAvatar'
 import ScrambleText from '../../components/ScrambleText'
 
 function msgTime(ts) {
@@ -88,11 +89,7 @@ export default function CoachChat() {
                   }`}
                 >
                   <div className="relative flex-shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center">
-                      <span className="font-display font-black text-sm text-brown-light">
-                        {client.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
+                    <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-9 h-9" textClassName="text-sm" />
                     {unread > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-brown flex items-center justify-center font-mono text-[9px] text-bg font-bold">
                         {unread}
@@ -126,11 +123,7 @@ export default function CoachChat() {
         <div key={selectedId} className="flex-1 flex flex-col overflow-hidden anim-fade-in">
           {/* Thread header */}
           <div className="flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0 glass-panel">
-            <div className="w-9 h-9 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
-              <span className="font-display font-black text-sm text-brown-light">
-                {selectedClient.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
+            <ClientAvatar name={selectedClient.name} avatarUrl={selectedClient.avatarUrl} className="w-9 h-9" textClassName="text-sm" />
             <div>
               <p className="font-display font-bold text-base text-cream">{selectedClient.name}</p>
               <p className="font-mono text-xs text-muted">{selectedClient.email || 'No email on file'}</p>

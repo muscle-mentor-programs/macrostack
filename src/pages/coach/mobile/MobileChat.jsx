@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { ChevronLeft, ChevronRight, MessageCircle, Send } from 'lucide-react'
 import useStore from '../../../store'
+import ClientAvatar from '../../../components/ClientAvatar'
 import ScrambleText from '../../../components/ScrambleText'
 
 
@@ -74,11 +75,7 @@ function ThreadScreen({ client, onBack }) {
         >
           <ChevronLeft size={22} />
         </button>
-        <div className="w-9 h-9 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
-          <span className="font-display font-black text-sm text-brown-light">
-            {client.name.charAt(0).toUpperCase()}
-          </span>
-        </div>
+        <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-9 h-9" textClassName="text-sm" />
         <div className="min-w-0">
           <p className="font-display font-bold text-base text-cream truncate">{client.name}</p>
           <p className="font-mono text-xs text-muted">{client.email || 'No email on file'}</p>
@@ -207,11 +204,7 @@ export default function MobileChat() {
                 }`}
               >
                 {/* Avatar */}
-                <div className="w-11 h-11 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
-                  <span className="font-display font-black text-base text-brown-light">
-                    {client.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-11 h-11" textClassName="text-base" />
 
                 <div className="flex-1 min-w-0">
                   {/* Name + timestamp */}

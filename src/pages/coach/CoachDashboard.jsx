@@ -6,6 +6,7 @@ import {
   Copy, Check as CheckIcon, Bell,
 } from 'lucide-react'
 import useStore from '../../store'
+import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
 
@@ -256,11 +257,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
       {/* Header row */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
-            <span className="font-display font-black text-base text-brown-light">
-              {client.name.charAt(0).toUpperCase()}
-            </span>
-          </div>
+          <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
           <div className="min-w-0">
             <p className="font-display font-bold text-base text-cream truncate">{client.name}</p>
             <p className="font-mono text-xs text-muted truncate">{client.email || 'No email'}</p>

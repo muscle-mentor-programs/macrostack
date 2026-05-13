@@ -1,5 +1,6 @@
 import { User, ArrowLeft } from 'lucide-react'
 import useStore from '../../store'
+import ClientAvatar from '../../components/ClientAvatar'
 import ScrambleText from '../../components/ScrambleText'
 
 export default function ClientSelector() {
@@ -51,11 +52,7 @@ export default function ClientSelector() {
               style={{ animationDelay: `${ci * 70 + 120}ms` }}
             >
               {/* Avatar */}
-              <div className="w-12 h-12 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center flex-shrink-0">
-                <span className="font-display font-black text-lg text-olive-light">
-                  {client.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
+              <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-12 h-12" textClassName="text-lg" color="olive" />
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="font-display font-bold text-base tracking-wide text-cream">{client.name}</p>

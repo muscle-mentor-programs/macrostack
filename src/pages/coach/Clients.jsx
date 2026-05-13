@@ -2,6 +2,7 @@ import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import { Plus, X, User, Edit2, Trash2, ChevronRight, Check, Calculator, BookOpen, Sparkles, Star, StarOff, Pencil } from 'lucide-react'
 import useStore from '../../store'
+import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
 import MealPlanBuilder from './MealPlanBuilder'
@@ -666,11 +667,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
       {/* Header */}
       <div className="relative flex items-center justify-between px-6 py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center">
-            <span className="font-display font-black text-base text-brown-light">
-              {client.name.charAt(0).toUpperCase()}
-            </span>
-          </div>
+          <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
           <div>
             {editName ? (
               <div className="flex items-center gap-2">
@@ -997,11 +994,7 @@ export default function Clients() {
                       isSelected ? 'bg-card border-l-2 border-l-brown' : ''
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
-                      <span className="font-display font-black text-base text-brown-light">
-                        {client.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
+                    <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-1.5 min-w-0">
