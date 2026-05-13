@@ -314,11 +314,11 @@ export default function ClientProfile() {
             placeholder="e.g. 5'10&quot; or 178 cm" className={inputCls} />
         </div>
 
-        <div>
+        <div className="overflow-hidden">
           <label className={lbl}>DATE OF BIRTH</label>
           <input type="date" value={form.dob} onChange={field('dob')}
-            className={`${inputCls} h-11 max-w-full min-w-0`}
-            style={{ colorScheme: 'dark', width: '100%' }} />
+            className={`${inputCls} h-11`}
+            style={{ colorScheme: 'dark', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }} />
         </div>
 
         <div>
