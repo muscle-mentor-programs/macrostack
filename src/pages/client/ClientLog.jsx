@@ -146,7 +146,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
       className="fixed inset-0 z-50 flex flex-col items-center anim-fade-in"
       style={{
         background: 'rgba(0,0,0,0.35)',
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 146px)',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 118px)',
         paddingLeft: '1rem',
         paddingRight: '1rem',
       }}
