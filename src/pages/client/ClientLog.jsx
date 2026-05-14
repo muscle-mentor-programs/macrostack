@@ -141,13 +141,14 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   const labelCls   = 'font-display text-xs tracking-widest block mb-1.5'
 
   return (
-    /* ── Backdrop — uses 100dvh so it shrinks with the keyboard ── */
+    /* ── Backdrop — modal anchored from top, always above keyboard ── */
     <div
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center p-4 anim-fade-in"
+      className="fixed inset-0 z-50 flex flex-col items-center anim-fade-in"
       style={{
-        height: '100dvh',
         background: 'rgba(0,0,0,0.40)',
-        paddingBottom: 'max(env(keyboard-inset-height, 0px), 16px)',
+        paddingTop: 'max(env(safe-area-inset-top, 0px), 72px)',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
       }}
       onClick={onClose}
     >
