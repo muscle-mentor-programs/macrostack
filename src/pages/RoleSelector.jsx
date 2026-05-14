@@ -1,12 +1,22 @@
-import { Monitor, Smartphone } from 'lucide-react'
+import { Monitor, Smartphone, ArrowLeft } from 'lucide-react'
 import useStore from '../store'
 import ScrambleText from '../components/ScrambleText'
 
 export default function RoleSelector() {
   const setActiveRole = useStore((s) => s.setActiveRole)
+  const logout        = useStore((s) => s.logout)
 
   return (
     <div className="flex h-screen w-screen bg-bg items-center justify-center anim-fade-in">
+      {/* Back to homepage */}
+      <button
+        onClick={logout}
+        className="absolute top-6 left-6 flex items-center gap-2 font-mono text-xs text-muted hover:text-cream transition-colors"
+      >
+        <ArrowLeft size={14} />
+        HOMEPAGE
+      </button>
+
       <div className="w-full max-w-2xl px-8">
         {/* Brand */}
         <div className="text-center mb-16 anim-fade-in-down">
