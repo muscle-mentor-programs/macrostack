@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight, Mail, Download, ArrowLeft } from 'lucide-react'
 import useStore from '../../store'
 import useIsMobile from '../../hooks/useIsMobile'
-import { FOODS, CATEGORIES } from '../../data/foods'
+import { FOODS } from '../../data/foods'
 import { mealPlanPDFBase64, downloadMealPlanPDF } from '../../lib/generateMealPlanPDF'
 import { rankFoods, getRecentFoodIdsFromClients } from '../../utils/foodSearch'
 
@@ -74,7 +74,6 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
 
   // ── Food search panel ─────────────────────────────────────────
   const [query, setQuery]         = useState('')
-  const [category, setCategory]   = useState('All')
   const [targetMeal, setTargetMeal] = useState('Breakfast')
   const [selectedFood, setSelectedFood] = useState(null)
   const [quantity, setQuantity]   = useState('1')
@@ -83,10 +82,8 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const [downloading, setDownloading] = useState(false)
   const [showFoodPanel, setShowFoodPanel] = useState(false) // mobile: toggle food search panel
 
-  const filtered = useMemo(() => {
-    const base = category === 'All' ? allFoods : allFoods.filter((f) => f.category === category)
-    return rankFoods(base, query, recentFoodIds)
-  }, [allFoods, query, category, recentFoodIds])
+  const filtered = useMemo(() => rankFoods(allFoods, query, recentFoodIds),
+    [allFoods, query, recentFoodIds])
 
   const scaledPreview = selectedFood
     ? {
@@ -445,21 +442,6 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                 onChange={(e) => setQuery(e.target.value)}
                 className="w-full bg-surface border border-border rounded-lg pl-8 pr-3 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown"
               />
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setCategory(cat)}
-                  className={`font-display font-semibold text-xs tracking-widest px-3 py-1.5 rounded-full whitespace-nowrap transition-colors flex-shrink-0 ${
-                    category === cat
-                      ? 'bg-brown text-bg'
-                      : 'bg-surface border border-border text-muted'
-                  }`}
-                >
-                  {cat.toUpperCase()}
-                </button>
-              ))}
             </div>
           </div>
 
