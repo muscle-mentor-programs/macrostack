@@ -328,8 +328,8 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
 
             <button
               onClick={handleAdd}
-              className="w-full font-display font-bold text-sm tracking-widest py-2 rounded-xl transition-colors"
-              style={{ background: '#9A7B55', color: '#FFFFFF' }}
+              className="w-full font-display font-bold text-sm tracking-widest py-2 rounded-xl transition-colors bg-blue hover:bg-blue-light"
+              style={{ color: '#FFFFFF' }}
             >
               ADD TO LOG
             </button>
