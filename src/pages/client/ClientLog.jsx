@@ -128,53 +128,53 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     handleSelectFood(food)
   }
 
-  // ── Light-mode glass palette ─────────────────────────────────────────────
-  const INK   = '#1C1814'                    // near-black warm — primary text
-  const SUB   = '#6B5A48'                    // medium warm — secondary text
-  const HINT  = '#A89888'                    // faint warm — placeholder
-  const BD    = 'rgba(0,0,0,0.08)'
+  // ── Clear light-glass palette ────────────────────────────────────────────
+  const INK   = '#111111'                    // near-black neutral
+  const SUB   = '#555555'                    // medium gray
+  const HINT  = '#999999'                    // placeholder gray
+  const BD    = 'rgba(0,0,0,0.09)'
   const ROW   = 'rgba(0,0,0,0.05)'
-  const INBG  = 'rgba(0,0,0,0.05)'
+  const INBG  = 'rgba(255,255,255,0.55)'
 
   const fieldStyle = { background: INBG, border: `1px solid ${BD}`, color: INK }
   const fieldCls   = 'w-full rounded-xl px-3 py-1.5 font-mono text-sm focus:outline-none transition-colors'
   const labelCls   = 'font-display text-xs tracking-widest block mb-1.5'
 
   return (
-    /* ── Backdrop — modal anchored from top, always above keyboard ── */
+    /* ── Backdrop — modal sits just below the log page header ── */
     <div
       className="fixed inset-0 z-50 flex flex-col items-center anim-fade-in"
       style={{
-        background: 'rgba(0,0,0,0.40)',
-        paddingTop: 'max(env(safe-area-inset-top, 0px), 72px)',
+        background: 'rgba(0,0,0,0.35)',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 146px)',
         paddingLeft: '1rem',
         paddingRight: '1rem',
       }}
       onClick={onClose}
     >
-      {/* ── Light frosted-glass card ── */}
+      {/* ── Clear frosted-glass card ── */}
       <div
         className="relative w-full max-w-lg flex flex-col rounded-3xl overflow-hidden anim-pop"
         style={{
           maxHeight:            'min(46vh, 360px)',
-          background:           'rgba(255,251,246,0.80)',
-          backdropFilter:       'blur(48px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(48px) saturate(160%)',
-          border:               '1px solid rgba(255,255,255,0.90)',
-          boxShadow:            '0 32px 80px rgba(0,0,0,0.20), 0 0 0 0.5px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1)',
+          background:           'rgba(255,255,255,0.62)',
+          backdropFilter:       'blur(64px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(64px) saturate(180%)',
+          border:               '1px solid rgba(255,255,255,0.95)',
+          boxShadow:            '0 24px 60px rgba(0,0,0,0.16), 0 0 0 0.5px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,1)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Diagonal glass sheen */}
+        {/* Glass sheen — top-left catch light */}
         <div
           className="absolute inset-0 pointer-events-none rounded-3xl"
           style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.12) 40%, transparent 70%)',
+            background: 'linear-gradient(140deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.20) 35%, transparent 65%)',
             zIndex: 0,
           }}
         />
-        {/* Top edge highlight */}
-        <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'rgba(255,255,255,0.98)', zIndex: 1 }} />
+        {/* Top edge specular */}
+        <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'rgba(255,255,255,1)', zIndex: 1 }} />
 
         {/* ── Header ── */}
         <div
