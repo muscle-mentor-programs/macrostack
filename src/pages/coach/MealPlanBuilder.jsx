@@ -284,13 +284,13 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
             ? showFoodPanel ? 'hidden' : 'flex w-full'
             : 'w-[480px]'
         }`}>
-          {/* Day tabs */}
-          <div className="flex items-center px-4 py-3 gap-2 border-b border-border overflow-x-auto scrollbar-hide flex-shrink-0">
+          {/* Day tabs — fixed 7 days, distributed evenly */}
+          <div className="flex items-center px-3 py-3 gap-1.5 border-b border-border flex-shrink-0">
             {days.map((d, i) => (
               <button
                 key={d.id}
                 onClick={() => setActiveDayIdx(i)}
-                className={`font-display font-bold text-xs tracking-widest px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors flex-shrink-0 ${
+                className={`flex-1 font-display font-bold text-xs tracking-widest py-1.5 rounded-lg whitespace-nowrap transition-colors ${
                   i === activeDayIdx
                     ? 'bg-brown text-bg'
                     : 'bg-surface border border-border text-muted hover:text-cream'
@@ -299,12 +299,6 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                 {d.label}
               </button>
             ))}
-            <button
-              onClick={addDay}
-              className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-surface border border-border text-muted hover:text-cream transition-colors"
-            >
-              <Plus size={13} strokeWidth={2.5} />
-            </button>
             {days.length > 1 && (
               <button
                 onClick={() => removeDay(activeDayIdx)}
