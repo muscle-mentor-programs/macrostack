@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { format } from 'date-fns'
-import { Plus, LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList } from 'lucide-react'
+import { LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList } from 'lucide-react'
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts'
 import useStore from '../../store'
 import AnimatedNumber from '../../components/AnimatedNumber'
@@ -389,14 +389,6 @@ export default function ClientDashboard() {
         </div>
       )}
 
-      {/* FAB */}
-      <button
-        onClick={() => setActivePage('log')}
-        className="fixed right-5 w-14 h-14 bg-brown hover:bg-brown-light rounded-full flex items-center justify-center shadow-lg transition-colors z-40 fab-pulse"
-        style={{ bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}
-      >
-        <Plus size={24} className="text-bg" strokeWidth={2.5} />
-      </button>
     </div>
   )
 }
