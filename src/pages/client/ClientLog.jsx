@@ -149,6 +149,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         paddingTop: 'calc(env(safe-area-inset-top, 0px) + 118px)',
         paddingLeft: '1rem',
         paddingRight: '1rem',
+        touchAction: 'none',
       }}
       onClick={onClose}
     >
@@ -441,14 +442,19 @@ export default function ClientLog() {
 
   const inpCls = 'w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown'
 
-  // Lock body scroll while modal is open
+  // Lock scroll while modal is open (html + body covers iOS Safari too)
   useEffect(() => {
     if (modalMeal) {
+      document.documentElement.style.overflow = 'hidden'
       document.body.style.overflow = 'hidden'
     } else {
+      document.documentElement.style.overflow = ''
       document.body.style.overflow = ''
     }
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
+    }
   }, [modalMeal])
 
   return (
