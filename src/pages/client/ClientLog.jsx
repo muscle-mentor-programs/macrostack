@@ -653,14 +653,6 @@ export default function ClientLog() {
         })}
       </div>
 
-      {/* FAB — opens Breakfast by default */}
-      <button
-        onClick={() => setModalMeal('Breakfast')}
-        className="fixed bottom-20 right-5 w-14 h-14 bg-brown hover:bg-brown-light rounded-full flex items-center justify-center shadow-lg transition-colors z-40 glow-hover"
-      >
-        <Plus size={24} className="text-bg" strokeWidth={2.5} />
-      </button>
-
       </div>{/* end page content blur wrapper */}
 
       {/* ── Modal — sibling of blurred content, always crisp ── */}
