@@ -128,48 +128,52 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     handleSelectFood(food)
   }
 
-  // ── Light-mode glass palette ─────────────────────────────────────────────
-  const INK   = '#1C1814'       // primary text
-  const SUB   = '#6B5A48'       // secondary / label text
-  const HINT  = '#A89888'       // placeholder / very faint
-  const BD    = 'rgba(0,0,0,0.08)'
-  const ROW   = 'rgba(0,0,0,0.05)'
-  const INBG  = 'rgba(0,0,0,0.05)'
+  // ── Dark-mode glass palette (matches app theme) ──────────────────────────
+  const INK   = '#E8E4DC'                    // cream — primary text
+  const SUB   = '#7A756E'                    // muted — secondary text
+  const HINT  = '#4A4744'                    // dim   — placeholder
+  const BD    = 'rgba(255,255,255,0.09)'
+  const ROW   = 'rgba(255,255,255,0.06)'
+  const INBG  = 'rgba(255,255,255,0.06)'
 
   const fieldStyle = { background: INBG, border: `1px solid ${BD}`, color: INK }
   const fieldCls   = 'w-full rounded-xl px-3 py-1.5 font-mono text-sm focus:outline-none transition-colors'
   const labelCls   = 'font-display text-xs tracking-widest block mb-1.5'
 
   return (
-    /* ── Backdrop ── */
+    /* ── Backdrop — uses 100dvh so it shrinks with the keyboard ── */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 anim-fade-in"
-      style={{ background: 'rgba(0,0,0,0.22)' }}
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center p-4 anim-fade-in"
+      style={{
+        height: '100dvh',
+        background: 'rgba(0,0,0,0.40)',
+        paddingBottom: 'max(env(keyboard-inset-height, 0px), 16px)',
+      }}
       onClick={onClose}
     >
-      {/* ── Frosted-glass card (light) ── */}
+      {/* ── Dark glass card ── */}
       <div
         className="relative w-full max-w-lg flex flex-col rounded-3xl overflow-hidden anim-pop"
         style={{
           maxHeight:            'min(46vh, 360px)',
-          background:           'rgba(255,251,246,0.78)',
-          backdropFilter:       'blur(48px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(48px) saturate(160%)',
-          border:               '1px solid rgba(255,255,255,0.90)',
-          boxShadow:            '0 32px 80px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1)',
+          background:           'rgba(18,16,14,0.55)',
+          backdropFilter:       'blur(60px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+          border:               '1px solid rgba(255,255,255,0.12)',
+          boxShadow:            '0 32px 80px rgba(0,0,0,0.65), 0 0 0 0.5px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.14)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Diagonal glass sheen */}
+        {/* Glass sheen */}
         <div
           className="absolute inset-0 pointer-events-none rounded-3xl"
           style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.60) 0%, rgba(255,255,255,0.15) 40%, transparent 70%)',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 45%, transparent 70%)',
             zIndex: 0,
           }}
         />
-        {/* Top edge highlight */}
-        <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'rgba(255,255,255,0.98)', zIndex: 1 }} />
+        {/* Top shimmer */}
+        <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'rgba(255,255,255,0.18)', zIndex: 1 }} />
 
         {/* ── Header ── */}
         <div
@@ -182,7 +186,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-xl transition-colors hover:bg-black/[0.05]"
+            className="w-8 h-8 flex items-center justify-center rounded-xl transition-colors hover:bg-white/[0.06]"
             style={{ color: SUB }}
           >
             <X size={18} />
@@ -210,7 +214,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
             <button
               onClick={() => setShowScanner(true)}
               title="Scan a barcode"
-              className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors hover:bg-black/[0.05]"
+              className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors hover:bg-white/[0.06]"
               style={{ background: INBG, border: `1px solid ${BD}`, color: SUB }}
             >
               <Scan size={18} />
@@ -224,11 +228,11 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
             <button
               key={food.id}
               onClick={() => handleSelectFood(food)}
-              className="w-full flex items-center justify-between px-4 py-2 text-left transition-colors hover:bg-black/[0.04]"
+              className="w-full flex items-center justify-between px-4 py-2 text-left transition-colors hover:bg-white/[0.04]"
               style={{
                 borderBottom: `1px solid ${ROW}`,
                 borderLeft: selected?.id === food.id ? '2px solid #9A7B55' : '2px solid transparent',
-                background: selected?.id === food.id ? 'rgba(154,123,85,0.08)' : undefined,
+                background: selected?.id === food.id ? 'rgba(154,123,85,0.10)' : undefined,
               }}
             >
               <div className="min-w-0 flex-1">
@@ -237,7 +241,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
                   {food.id.startsWith('scanned_') && (
                     <span
                       className="font-display text-[9px] px-1.5 py-0.5 rounded flex-shrink-0"
-                      style={{ color: '#4A6B30', background: 'rgba(74,107,48,0.10)', border: '1px solid rgba(74,107,48,0.22)' }}
+                      style={{ color: '#849663', background: 'rgba(107,122,82,0.15)', border: '1px solid rgba(107,122,82,0.30)' }}
                     >
                       SCANNED
                     </span>
@@ -250,15 +254,15 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
               <div className="text-right font-mono text-xs ml-3 flex-shrink-0">
                 <p style={{ color: INK }}>{food.calories} kcal</p>
                 <p>
-                  <span style={{ color: '#4A6B30' }}>{food.protein}p </span>
-                  <span style={{ color: '#8A5C30' }}>{food.carbs}c </span>
-                  <span style={{ color: '#4A5A6A' }}>{food.fat}f</span>
+                  <span style={{ color: '#849663' }}>{food.protein}p </span>
+                  <span style={{ color: '#B8996F' }}>{food.carbs}c </span>
+                  <span style={{ color: '#8A9AB0' }}>{food.fat}f</span>
                 </p>
               </div>
             </button>
           ))}
           {filtered.length === 0 && (
-            <div className="text-center py-14">
+            <div className="text-center py-10">
               <p className="font-display text-lg tracking-widest" style={{ color: SUB }}>NO RESULTS</p>
               <p className="font-mono text-xs mt-2" style={{ color: HINT }}>Try scanning a barcode to add new foods</p>
             </div>
@@ -269,7 +273,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         {selected && (
           <div
             className="px-4 py-2.5 space-y-2 flex-shrink-0"
-            style={{ borderTop: `1px solid ${BD}`, background: 'rgba(154,123,85,0.06)', position: 'relative', zIndex: 1 }}
+            style={{ borderTop: `1px solid ${BD}`, background: 'rgba(154,123,85,0.07)', position: 'relative', zIndex: 1 }}
           >
             {hasGrams ? (
               <>
@@ -309,11 +313,11 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
               <div className="grid grid-cols-4 gap-1.5">
                 {[
                   { label: 'KCAL', val: scaled.calories, hex: INK },
-                  { label: 'PRO',  val: scaled.protein,  hex: '#4A6B30' },
-                  { label: 'CARB', val: scaled.carbs,    hex: '#8A5C30' },
-                  { label: 'FAT',  val: scaled.fat,      hex: '#4A5A6A' },
+                  { label: 'PRO',  val: scaled.protein,  hex: '#849663' },
+                  { label: 'CARB', val: scaled.carbs,    hex: '#B8996F' },
+                  { label: 'FAT',  val: scaled.fat,      hex: '#8A9AB0' },
                 ].map(({ label, val, hex }) => (
-                  <div key={label} className="rounded-lg p-1.5 text-center" style={{ background: 'rgba(0,0,0,0.04)', border: `1px solid ${BD}` }}>
+                  <div key={label} className="rounded-lg p-1.5 text-center" style={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${BD}` }}>
                     <p className="font-display font-black text-sm" style={{ color: hex }}>{Number(val).toFixed(0)}</p>
                     <p className="font-mono text-[9px]" style={{ color: SUB }}>{label}</p>
                   </div>
@@ -324,7 +328,7 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
             <button
               onClick={handleAdd}
               className="w-full font-display font-bold text-sm tracking-widest py-2 rounded-xl transition-colors"
-              style={{ background: '#9A7B55', color: '#FFFFFF' }}
+              style={{ background: '#9A7B55', color: '#0B0B0A' }}
             >
               ADD TO LOG
             </button>
