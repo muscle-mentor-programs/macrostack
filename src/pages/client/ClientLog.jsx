@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, Plus, Search, X, Trash2,
@@ -128,6 +128,17 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     handleSelectFood(food)
   }
 
+  // Block backdrop scroll-through with a non-passive native listener
+  // (React synthetic events can't set passive:false, so we use a ref)
+  const backdropRef = useRef(null)
+  useEffect(() => {
+    const el = backdropRef.current
+    if (!el) return
+    const prevent = (e) => e.preventDefault()
+    el.addEventListener('touchmove', prevent, { passive: false })
+    return () => el.removeEventListener('touchmove', prevent)
+  }, [])
+
   // ── Clear light-glass palette ────────────────────────────────────────────
   const INK   = '#111111'                    // near-black neutral
   const SUB   = '#555555'                    // medium gray
@@ -143,13 +154,13 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   return (
     /* ── Backdrop — modal sits just below the log page header ── */
     <div
+      ref={backdropRef}
       className="fixed inset-0 z-50 flex flex-col items-center anim-fade-in"
       style={{
         background: 'rgba(0,0,0,0.35)',
         paddingTop: 'calc(env(safe-area-inset-top, 0px) + 118px)',
         paddingLeft: '1rem',
         paddingRight: '1rem',
-        touchAction: 'none',
       }}
       onClick={onClose}
     >
