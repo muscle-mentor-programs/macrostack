@@ -225,7 +225,12 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
         </div>
 
         {/* ── Food list ── */}
-        <div className="flex-1 overflow-y-auto min-h-0" style={{ position: 'relative', zIndex: 1 }}>
+        <div
+          className="flex-1 overflow-y-auto min-h-0"
+          style={{ position: 'relative', zIndex: 1, touchAction: 'pan-y' }}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+        >
           {filtered.map((food) => (
             <button
               key={food.id}
