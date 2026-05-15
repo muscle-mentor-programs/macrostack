@@ -969,7 +969,7 @@ export default function Clients() {
               </button>
             </div>
           ) : (
-            <div className="divide-y divide-border/50">
+            <div className="space-y-2 p-3">
               {clients.map((client, i) => {
                 const todayTotals = getClientTotalsForDate(client.id, today)
                 const calPct = Math.min(Math.round((todayTotals.calories / (client.goals.calories || 1)) * 100), 100)
@@ -989,9 +989,16 @@ export default function Clients() {
                       setInitialTab('overview')
                       setSelectedId(isSelected ? null : client.id)
                     }}
-                    style={{ animationDelay: `${i * 50}ms` }}
-                    className={`anim-fade-in-up w-full flex items-center gap-4 px-5 py-4 hover:bg-card transition-colors text-left card-hover ${
-                      isSelected ? 'bg-card border-l-2 border-l-brown' : ''
+                    style={{
+                      animationDelay: `${i * 50}ms`,
+                      boxShadow: isSelected
+                        ? '0 4px 16px rgba(0,0,0,0.45), 0 0 0 1px rgba(154,123,85,0.35), inset 0 1px 0 rgba(255,255,255,0.06)'
+                        : '0 2px 8px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.05)',
+                    }}
+                    className={`anim-fade-in-up w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all text-left card-hover ${
+                      isSelected
+                        ? 'bg-card border-l-4 border-l-brown'
+                        : 'bg-surface hover:bg-card border border-border'
                     }`}
                   >
                     <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
