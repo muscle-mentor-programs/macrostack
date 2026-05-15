@@ -128,15 +128,22 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     handleSelectFood(food)
   }
 
-  // Block backdrop scroll-through with a non-passive native listener
-  // (React synthetic events can't set passive:false, so we use a ref)
+  // Block backdrop scroll-through but allow the food list to scroll.
+  // We use native listeners (passive:false) so preventDefault() works.
+  // The prevent fn checks whether the touch is inside the list — if so,
+  // it skips preventDefault() so the list can scroll freely.
   const backdropRef = useRef(null)
+  const listRef     = useRef(null)
   useEffect(() => {
-    const el = backdropRef.current
-    if (!el) return
-    const prevent = (e) => e.preventDefault()
-    el.addEventListener('touchmove', prevent, { passive: false })
-    return () => el.removeEventListener('touchmove', prevent)
+    const backdrop = backdropRef.current
+    if (!backdrop) return
+    const prevent = (e) => {
+      const list = listRef.current
+      if (list && list.contains(e.target)) return   // let list scroll
+      e.preventDefault()                            // block everything else
+    }
+    backdrop.addEventListener('touchmove', prevent, { passive: false })
+    return () => backdrop.removeEventListener('touchmove', prevent)
   }, [])
 
   // ── Clear light-glass palette ────────────────────────────────────────────
@@ -237,10 +244,9 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
 
         {/* ── Food list ── */}
         <div
+          ref={listRef}
           className="flex-1 overflow-y-auto min-h-0"
           style={{ position: 'relative', zIndex: 1, touchAction: 'pan-y' }}
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
         >
           {filtered.map((food) => (
             <button
