@@ -80,7 +80,7 @@ export default function ClientWeight() {
       </div>
 
       {/* Log input */}
-      <div className="mx-5 mt-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '60ms' }}>
+      <div className="mx-5 mt-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '60ms' }}>
         <div className="flex items-center justify-between mb-3">
           <p className="font-display font-bold text-xs text-muted tracking-widest">LOG WEIGHT</p>
           {/* Date toggle */}
@@ -146,21 +146,21 @@ export default function ClientWeight() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-3 gap-3 px-5 mb-5">
-        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up" style={{ animationDelay: '120ms' }}>
+        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '120ms' }}>
           <Scale size={14} className="text-muted mb-2" />
           <p className="font-display font-black text-xl text-cream leading-none data-flicker">
             {currentWeight ?? '—'}
           </p>
           <p className="font-mono text-[10px] text-muted mt-1">{currentUnit} now</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up" style={{ animationDelay: '180ms' }}>
+        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '180ms' }}>
           <div className="w-4 h-0.5 bg-brown rounded-full mb-[9px] mt-[3px]" />
           <p className="font-display font-black text-xl text-brown-light leading-none data-flicker">
             {currentMA ?? '—'}
           </p>
           <p className="font-mono text-[10px] text-muted mt-1">7-day avg</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up" style={{ animationDelay: '240ms' }}>
+        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '240ms' }}>
           <ChangeIcon size={14} className={`${changeColor} mb-2`} />
           <p className={`font-display font-black text-xl leading-none ${changeColor} data-flicker`}>
             {change30 !== null ? `${change30 > 0 ? '+' : ''}${change30}` : '—'}
@@ -171,7 +171,7 @@ export default function ClientWeight() {
 
       {/* Chart */}
       {chartData.length > 1 && (
-        <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '300ms' }}>
+        <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '300ms' }}>
           <p className="font-display font-bold text-xs text-muted tracking-widest mb-2">WEIGHT TREND</p>
           <div className="flex items-center gap-5 mb-3">
             <div className="flex items-center gap-1.5">
@@ -240,7 +240,7 @@ export default function ClientWeight() {
       ) : (
         <div className="mx-5 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
           <p className="font-display font-bold text-xs text-muted tracking-widest mb-3">HISTORY</p>
-          <div className="bg-card border border-border rounded-xl overflow-hidden card-hover">
+          <div className="bg-card border border-border rounded-xl overflow-hidden card-hover card-dim">
             {[...sorted].reverse().map((entry, reversedIdx) => {
               const originalIdx = sorted.length - 1 - reversedIdx
               const prevEntry   = originalIdx > 0 ? sorted[originalIdx - 1] : null

@@ -487,7 +487,7 @@ export default function ClientLog() {
       </div>
 
       {/* Daily totals bar */}
-      <div className="grid grid-cols-4 mx-5 mt-5 mb-5 bg-card border border-border rounded-xl overflow-hidden anim-fade-in" style={{ animationDelay: '60ms' }}>
+      <div className="grid grid-cols-4 mx-5 mt-5 mb-5 bg-card border border-border rounded-xl overflow-hidden anim-fade-in card-dim" style={{ animationDelay: '60ms' }}>
         {[
           { label: 'KCAL', val: totals.calories, color: 'text-cream' },
           { label: 'PRO',  val: totals.protein,  color: 'text-olive-light' },
@@ -625,7 +625,7 @@ export default function ClientLog() {
                                   { l: 'CARB', v: editPreview.carb, c: 'text-brown-light' },
                                   { l: 'FAT',  v: editPreview.fat,  c: 'text-slategray-light' },
                                 ].map(({ l, v, c }) => (
-                                  <div key={l} className="bg-card border border-border rounded-lg p-2 text-center">
+                                  <div key={l} className="bg-card border border-border rounded-lg p-2 text-center card-dim">
                                     <p className={`font-display font-bold text-sm ${c}`}>{v}</p>
                                     <p className="font-mono text-[10px] text-dim">{l}</p>
                                   </div>

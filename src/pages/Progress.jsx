@@ -110,7 +110,7 @@ export default function Progress() {
               sub: `goal: ${goals.protein}g`,
             },
           ].map(({ label, val, color, sub }, i) => (
-            <div key={label} className="bg-card border border-border rounded-xl px-5 py-4 anim-fade-in-up" style={{ animationDelay: `${i * 60 + 50}ms` }}>
+            <div key={label} className="bg-card border border-border rounded-xl px-5 py-4 anim-fade-in-up card-dim" style={{ animationDelay: `${i * 60 + 50}ms` }}>
               <p className="font-mono text-xs text-muted tracking-widest">{label}</p>
               <p className={`font-display font-black text-3xl ${color} mt-1 data-flicker`}>{val}</p>
               {sub && <p className="font-mono text-xs text-dim mt-1">{sub}</p>}
@@ -120,7 +120,7 @@ export default function Progress() {
 
         {/* Weight chart + log */}
         <div className="grid grid-cols-3 gap-4 anim-fade-in-up" style={{ animationDelay: '290ms' }}>
-          <div className="col-span-2 bg-card border border-border rounded-xl p-6">
+          <div className="col-span-2 bg-card border border-border rounded-xl p-6 card-dim">
             <h3 className="font-display font-bold text-sm tracking-widest text-muted mb-5">WEIGHT OVER TIME</h3>
             {weightData.length < 2 ? (
               <div className="flex items-center justify-center h-40">
@@ -146,7 +146,7 @@ export default function Progress() {
           </div>
 
           {/* Weight log */}
-          <div className="bg-card border border-border rounded-xl p-5 flex flex-col">
+          <div className="bg-card border border-border rounded-xl p-5 flex flex-col card-dim">
             <h3 className="font-display font-bold text-sm tracking-widest text-muted mb-4">LOG WEIGHT</h3>
             <div className="space-y-2 mb-4">
               <input
@@ -181,7 +181,7 @@ export default function Progress() {
             </div>
             <div className="flex-1 overflow-y-auto space-y-1.5">
               {[...weightLog].reverse().slice(0, 10).map((w) => (
-                <div key={w.id} className="flex justify-between items-center bg-surface border border-border rounded-lg px-3 py-2 group">
+                <div key={w.id} className="flex justify-between items-center bg-surface border border-border rounded-lg px-3 py-2 group card-dim">
                   <span className="font-mono text-xs text-muted">{format(parseISO(w.date), 'MMM d')}</span>
                   <span className="font-display font-bold text-sm text-cream">{w.weight} {w.unit}</span>
                   <button
@@ -200,7 +200,7 @@ export default function Progress() {
         </div>
 
         {/* Macro consistency chart */}
-        <div className="bg-card border border-border rounded-xl p-6 anim-fade-in-up" style={{ animationDelay: '380ms' }}>
+        <div className="bg-card border border-border rounded-xl p-6 anim-fade-in-up card-dim" style={{ animationDelay: '380ms' }}>
           <div className="flex justify-between items-center mb-5">
             <h3 className="font-display font-bold text-sm tracking-widest text-muted">30-DAY CALORIE TREND</h3>
             <div className="flex gap-4 font-mono text-xs text-muted">
@@ -222,7 +222,7 @@ export default function Progress() {
         </div>
 
         {/* Consistency heatmap-style */}
-        <div className="bg-card border border-border rounded-xl p-6 anim-fade-in-up" style={{ animationDelay: '460ms' }}>
+        <div className="bg-card border border-border rounded-xl p-6 anim-fade-in-up card-dim" style={{ animationDelay: '460ms' }}>
           <h3 className="font-display font-bold text-sm tracking-widest text-muted mb-4">30-DAY LOG CONSISTENCY</h3>
           <div className="flex gap-1.5 flex-wrap">
             {last30.map((d, i) => {

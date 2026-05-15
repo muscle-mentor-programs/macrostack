@@ -218,7 +218,7 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
           <>
             {status === 'notfound' && (
               <div className="px-6 pt-5 pb-0">
-                <div className="flex items-center gap-3 bg-surface border border-border rounded-lg px-4 py-3">
+                <div className="flex items-center gap-3 bg-surface border border-border rounded-lg px-4 py-3 card-dim">
                   <AlertCircle size={15} className="text-muted flex-shrink-0" />
                   <p className="font-mono text-xs text-muted">
                     Product not found in Open Food Facts — fill in the details manually.

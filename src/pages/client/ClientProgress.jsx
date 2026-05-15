@@ -45,7 +45,7 @@ export default function ClientProgress() {
           { val: `${avgProtein.toFixed(0)}g`, label: 'avg protein / day', color: 'text-olive-light', delay: 180 },
           { val: `${avgFat.toFixed(0)}g`,     label: 'avg fat / day',     color: 'text-slategray-light', delay: 240 },
         ].map(({ val, label, color, delay }) => (
-          <div key={label} className="bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: `${delay}ms` }}>
+          <div key={label} className="bg-card border border-border rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: `${delay}ms` }}>
             <p className={`font-display font-black text-2xl ${color} data-flicker`}>{val}</p>
             <p className="font-mono text-xs text-muted">{label}</p>
           </div>
@@ -53,7 +53,7 @@ export default function ClientProgress() {
       </div>
 
       {/* Calorie trend chart */}
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '300ms' }}>
+      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '300ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">CALORIE TREND</p>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
@@ -101,7 +101,7 @@ export default function ClientProgress() {
       </div>
 
       {/* Protein trend chart */}
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '400ms' }}>
+      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '400ms' }}>
         <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">PROTEIN TREND</p>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>

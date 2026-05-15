@@ -194,7 +194,7 @@ function AddClientModal({ onClose }) {
           </div>
 
           {showCalc && (
-            <div className="bg-surface border border-border rounded-xl p-4 space-y-4 anim-fade-in">
+            <div className="bg-surface border border-border rounded-xl p-4 space-y-4 anim-fade-in card-dim">
               {/* Sex */}
               <div>
                 <p className="font-display text-xs text-muted tracking-widest mb-2">BIOLOGICAL SEX</p>
@@ -281,7 +281,7 @@ function AddClientModal({ onClose }) {
                     { label: 'CARB', val: calcResult.carbs, color: 'text-brown-light' },
                     { label: 'FAT', val: calcResult.fat, color: 'text-slategray-light' },
                   ].map(({ label, val, color }, i) => (
-                    <div key={label} className="bg-card border border-brown/20 rounded-lg p-2.5 text-center">
+                    <div key={label} className="bg-card border border-brown/20 rounded-lg p-2.5 text-center card-dim">
                       <p className={`font-display font-black text-lg ${color} data-flicker`}>
                         <AnimatedNumber value={val} duration={700} delay={i * 60} />
                       </p>
@@ -448,7 +448,7 @@ function MealPlansTab({ clientId }) {
             return (
               <div
                 key={plan.id}
-                className={`bg-card border rounded-xl overflow-hidden anim-fade-in-up ${
+                className={`bg-card border rounded-xl overflow-hidden anim-fade-in-up card-dim ${
                   isActive ? 'border-brown/50' : 'border-border'
                 }`}
                 style={{ animationDelay: `${pi * 50}ms` }}
@@ -511,7 +511,7 @@ function MealPlansTab({ clientId }) {
                         }
                       }, { cal: 0, pro: 0 })
                       return (
-                        <div key={day.id} className="bg-surface border border-border rounded-lg px-3 py-2">
+                        <div key={day.id} className="bg-surface border border-border rounded-lg px-3 py-2 card-dim">
                           <div className="flex items-center justify-between mb-1.5">
                             <p className="font-display font-bold text-xs text-cream tracking-widest">{day.label}</p>
                             <p className="font-mono text-xs text-muted">
@@ -554,7 +554,7 @@ function MealPlansTab({ clientId }) {
       </button>
 
       {/* Auto-AI section */}
-      <div className="bg-card border border-brown/20 rounded-xl p-4 space-y-3 anim-fade-in-up" style={{ animationDelay: '150ms' }}>
+      <div className="bg-card border border-brown/20 rounded-xl p-4 space-y-3 anim-fade-in-up card-dim" style={{ animationDelay: '150ms' }}>
         <div className="flex items-center gap-2 mb-1">
           <Sparkles size={14} className="text-brown-light" />
           <p className="font-display font-bold text-xs text-brown-light tracking-widest">ASK KAY</p>
@@ -730,7 +730,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                     ].map(({ label, val, goal, text, bar }, i) => {
                       const pct = Math.min(Math.round((val / (goal || 1)) * 100), 100)
                       return (
-                        <div key={label} className="bg-card border border-border rounded-xl p-3 anim-fade-in-up"
+                        <div key={label} className="bg-card border border-border rounded-xl p-3 anim-fade-in-up card-dim"
                           style={{ animationDelay: `${i * 50}ms` }}>
                           <div className="flex justify-between items-baseline mb-1.5">
                             <p className="font-display text-xs text-muted tracking-widest">{label}</p>
@@ -827,7 +827,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                         { label: 'CARBS',    val: client.goals.carbs,    color: 'text-brown-light' },
                         { label: 'FAT',      val: client.goals.fat,      color: 'text-slategray-light' },
                       ].map(({ label, val, color }, i) => (
-                        <div key={label} className="bg-card border border-border rounded-lg p-3">
+                        <div key={label} className="bg-card border border-border rounded-lg p-3 card-dim">
                           <p className={`font-display font-bold text-lg ${color}`}>
                             <AnimatedNumber value={val} duration={700} delay={i * 50} />
                           </p>
@@ -839,7 +839,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                 </div>
 
                 {/* Client meta */}
-                <div className="bg-card border border-border rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '200ms' }}>
+                <div className="bg-card border border-border rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '200ms' }}>
                   <p className="font-display text-xs text-muted tracking-widest mb-2">USER INFO</p>
                   <p className="font-mono text-xs text-dim">
                     Member since {format(parseISO(client.createdAt), 'MMM d, yyyy')}

@@ -298,7 +298,7 @@ export default function MobileMyFoods() {
       {/* Sticky search + filter bar */}
       <div className="sticky top-0 z-10 bg-bg px-4 pt-2 pb-3 border-b border-border space-y-3">
         {/* Search */}
-        <div className="flex items-center gap-3 bg-bg border border-border rounded-xl px-4 py-2.5 focus-within:border-brown transition-colors">
+        <div className="flex items-center gap-3 bg-bg border border-border rounded-xl px-4 py-2.5 focus-within:border-brown transition-colors card-dim">
           <Search size={14} className="text-muted flex-shrink-0" />
           <input
             type="text"

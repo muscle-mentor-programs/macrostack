@@ -875,6 +875,14 @@ html.ocean-light  .glass-card { background: rgba(226, 238, 248, 0.82) !important
   opacity: 0.25;
 }
 
+/* Base card dimension — subtle raised look for all cards */
+.card-dim {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+html.light        .card-dim { box-shadow: 0 1px 4px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.80); }
+html.forest-light .card-dim { box-shadow: 0 1px 4px rgba(0,20,0,0.10), 0 0 0 1px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.80); }
+html.ocean-light  .card-dim { box-shadow: 0 1px 4px rgba(0,10,30,0.10), 0 0 0 1px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.80); }
+
 /* Card hover lift — for interactive data cards */
 .card-hover {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;

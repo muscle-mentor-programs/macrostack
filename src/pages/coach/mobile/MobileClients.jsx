@@ -144,7 +144,7 @@ function AddClientScreen({ onClose }) {
         </button>
 
         {showCalc && (
-          <div className="bg-surface border border-border rounded-2xl p-4 space-y-4 anim-fade-in">
+          <div className="bg-surface border border-border rounded-2xl p-4 space-y-4 anim-fade-in card-dim">
             {/* Sex */}
             <div>
               <p className={lbl}>BIOLOGICAL SEX</p>
@@ -192,7 +192,7 @@ function AddClientScreen({ onClose }) {
                   { label: 'CARB', val: calcResult.carbs,    color: 'text-brown-light' },
                   { label: 'FAT',  val: calcResult.fat,      color: 'text-slategray-light' },
                 ].map(({ label, val, color }, i) => (
-                  <div key={label} className="bg-card border border-brown/20 rounded-xl p-2.5 text-center">
+                  <div key={label} className="bg-card border border-brown/20 rounded-xl p-2.5 text-center card-dim">
                     <p className={`font-display font-black text-lg ${color}`}><AnimatedNumber value={val} duration={700} delay={i * 60} /></p>
                     <p className="font-mono text-[10px] text-muted">{label}</p>
                   </div>
@@ -326,7 +326,7 @@ function MealPlansTab({ clientId }) {
             const isExpanded = expandedPlanId === plan.id
             return (
               <div key={plan.id}
-                className={`bg-card border rounded-2xl overflow-hidden ${isActive ? 'border-brown/50' : 'border-border'}`}
+                className={`bg-card border rounded-2xl overflow-hidden card-dim ${isActive ? 'border-brown/50' : 'border-border'}`}
                 style={{ animationDelay: `${pi * 40}ms` }}>
                 <div className="flex items-center gap-3 px-4 py-3">
                   <button onClick={() => setExpandedPlanId(isExpanded ? null : plan.id)} className="flex-1 text-left min-w-0">
@@ -541,7 +541,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
                 ].map(({ label, val, goal, text, bar }, i) => {
                   const pct = Math.min(Math.round((val / (goal || 1)) * 100), 100)
                   return (
-                    <div key={label} className="bg-card border border-border rounded-2xl p-3">
+                    <div key={label} className="bg-card border border-border rounded-2xl p-3 card-dim">
                       <div className="flex justify-between items-baseline mb-1.5">
                         <p className="font-display text-xs text-muted tracking-widest">{label}</p>
                         <p className="font-mono text-xs text-dim">{pct}%</p>
@@ -634,7 +634,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
                     { label: 'CARB', val: client.goals.carbs,    color: 'text-brown-light'    },
                     { label: 'FAT',  val: client.goals.fat,      color: 'text-slategray-light' },
                   ].map(({ label, val, color }, i) => (
-                    <div key={label} className="bg-card border border-border rounded-xl p-2.5 text-center">
+                    <div key={label} className="bg-card border border-border rounded-xl p-2.5 text-center card-dim">
                       <p className={`font-display font-bold text-lg ${color}`}><AnimatedNumber value={val} duration={700} delay={i * 50} /></p>
                       <p className="font-mono text-xs text-muted">{label}</p>
                     </div>
@@ -761,7 +761,7 @@ export default function MobileClients() {
                 key={client.id}
                 onClick={() => { setInitialTab('overview'); setSelectedId(client.id) }}
                 style={{ animationDelay: `${i * 45}ms` }}
-                className="anim-fade-in-up w-full flex items-center gap-4 px-4 py-4 bg-card border border-border rounded-2xl text-left hover:border-brown/30 transition-colors active:bg-surface card-hover"
+                className="anim-fade-in-up w-full flex items-center gap-4 px-4 py-4 bg-card border border-border rounded-2xl text-left hover:border-brown/30 transition-colors active:bg-surface card-hover card-dim"
               >
                 <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-11 h-11" textClassName="text-lg" />
                 <div className="flex-1 min-w-0">

@@ -217,7 +217,7 @@ export default function ClientProfile() {
             { label: 'CARBS',    value: client?.goals?.carbs,    unit: 'g'    },
             { label: 'FAT',      value: client?.goals?.fat,      unit: 'g'    },
           ].map(({ label, value, unit }) => (
-            <div key={label} className="bg-surface border border-border rounded-xl p-3">
+            <div key={label} className="bg-surface border border-border rounded-xl p-3 card-dim">
               <p className="font-display font-black text-xl text-cream">{value ?? '—'}</p>
               <p className="font-mono text-xs text-muted">{label} / {unit}</p>
             </div>
@@ -242,7 +242,7 @@ export default function ClientProfile() {
           { val: `${avgProtein.toFixed(0)}g`, label: 'avg protein / day', color: 'text-olive-light'     },
           { val: `${avgFat.toFixed(0)}g`,     label: 'avg fat / day',     color: 'text-slategray-light' },
         ].map(({ val, label, color }) => (
-          <div key={label} className="bg-card border border-border rounded-xl p-4">
+          <div key={label} className="bg-card border border-border rounded-xl p-4 card-dim">
             <p className={`font-display font-black text-2xl ${color} data-flicker`}>{val}</p>
             <p className="font-mono text-xs text-muted">{label}</p>
           </div>

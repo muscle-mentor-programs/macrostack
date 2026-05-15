@@ -251,7 +251,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
 
   return (
     <div
-      className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4 anim-fade-in-up hover:border-brown/30 transition-colors card-hover"
+      className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4 anim-fade-in-up hover:border-brown/30 transition-colors card-hover card-dim"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Header row */}
@@ -329,7 +329,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
         ].map(({ label, val, goal, color, bar }) => {
           const pct = Math.min(Math.round((val / (goal || 1)) * 100), 100)
           return (
-            <div key={label} className="bg-surface border border-border rounded-xl p-2.5">
+            <div key={label} className="bg-surface border border-border rounded-xl p-2.5 card-dim">
               <p className={`font-display font-black text-base ${color}`}>{Math.round(val)}g</p>
               <p className="font-mono text-[10px] text-muted">{label} / {goal}g</p>
               <div className="mt-1.5 w-full bg-dim rounded-full h-0.5">
@@ -455,7 +455,7 @@ export default function CoachDashboard() {
       {/* Coach Code widget */}
       {currentUser?.coachCode && (
         <div className="px-8 pt-4 pb-0 flex-shrink-0">
-          <div className="bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between card-hover">
+          <div className="bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between card-hover card-dim">
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
               <span className="font-display font-black text-lg text-brown tracking-widest">
@@ -486,7 +486,7 @@ export default function CoachDashboard() {
       {/* Pending client requests */}
       {coachRequests.length > 0 && (
         <div className="px-8 pt-4 pb-0 flex-shrink-0">
-          <div className="bg-card border border-brown/30 rounded-xl p-4 space-y-3">
+          <div className="bg-card border border-brown/30 rounded-xl p-4 space-y-3 card-dim">
             <div className="flex items-center gap-2">
               <Bell size={14} className="text-brown" />
               <span className="font-display font-bold text-xs tracking-widest text-brown">
@@ -497,7 +497,7 @@ export default function CoachDashboard() {
               {coachRequests.map((req) => (
                 <div
                   key={req.id}
-                  className="flex items-center justify-between gap-3 bg-surface border border-border rounded-lg px-3 py-2.5"
+                  className="flex items-center justify-between gap-3 bg-surface border border-border rounded-lg px-3 py-2.5 card-dim"
                 >
                   <div className="min-w-0">
                     <p className="font-mono text-sm text-cream truncate">{req.client_name}</p>
@@ -535,7 +535,7 @@ export default function CoachDashboard() {
         ].map(({ label, val, color, Icon }, i) => (
           <div
             key={label}
-            className="bg-card border border-border rounded-xl px-5 py-4 flex items-center gap-4 anim-fade-in-up card-hover"
+            className="bg-card border border-border rounded-xl px-5 py-4 flex items-center gap-4 anim-fade-in-up card-hover card-dim"
             style={{ animationDelay: `${i * 60}ms` }}
           >
             <Icon size={20} className={`${color} opacity-50 flex-shrink-0`} />

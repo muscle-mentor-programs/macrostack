@@ -60,7 +60,7 @@ function MacroChip({ label, current, goal, color, delay = 0 }) {
   }
   const c = barColors[color] || barColors.olive
   return (
-    <div className="bg-card border border-border rounded-xl p-4 flex-1 anim-fade-in-up" style={{ animationDelay: `${delay}ms` }}>
+    <div className="bg-card border border-border rounded-xl p-4 flex-1 anim-fade-in-up card-dim" style={{ animationDelay: `${delay}ms` }}>
       <p className={`font-display font-black text-2xl ${c.text} data-flicker`}>
         <AnimatedNumber value={current} duration={900} delay={delay} />
       </p>
@@ -365,7 +365,7 @@ export default function ClientDashboard() {
           <h2 className="font-display font-bold text-sm tracking-widest text-muted mb-3">YOUR COACH</h2>
           <button
             onClick={() => setActivePage('coach')}
-            className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all card-hover"
+            className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all card-hover card-dim"
           >
             <div className="w-11 h-11 rounded-xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
               <span className="font-display font-black text-lg text-brown-light">

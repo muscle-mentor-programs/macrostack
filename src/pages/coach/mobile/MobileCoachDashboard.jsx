@@ -188,7 +188,7 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans 
 
   return (
     <div
-      className="bg-card border border-border rounded-2xl p-4 anim-fade-in-up"
+      className="bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Header */}
@@ -251,7 +251,7 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans 
         ].map(({ label, val, goal, color, bar }) => {
           const pct = Math.min(Math.round((val / (goal || 1)) * 100), 100)
           return (
-            <div key={label} className="bg-surface border border-border rounded-xl p-2.5">
+            <div key={label} className="bg-surface border border-border rounded-xl p-2.5 card-dim">
               <p className={`font-display font-black text-sm ${color}`}>{Math.round(val)}g</p>
               <p className="font-mono text-[9px] text-muted">{label} / {goal}g</p>
               <div className="mt-1 w-full bg-dim rounded-full h-0.5">
@@ -421,7 +421,7 @@ export default function MobileCoachDashboard() {
           </div>
           <div className="space-y-2">
             {coachRequests.map((req) => (
-              <div key={req.id} className="flex items-center justify-between gap-2 bg-surface border border-border rounded-xl px-3 py-3">
+              <div key={req.id} className="flex items-center justify-between gap-2 bg-surface border border-border rounded-xl px-3 py-3 card-dim">
                 <div className="min-w-0">
                   <p className="font-mono text-sm text-cream truncate">{req.client_name}</p>
                   <p className="font-mono text-xs text-muted truncate">{req.client_email}</p>

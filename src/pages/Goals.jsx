@@ -73,7 +73,7 @@ export default function Goals() {
       <div className="flex-1 p-8 grid grid-cols-2 gap-8">
         {/* Left: Manual targets */}
         <div className="space-y-6 anim-fade-in-up" style={{ animationDelay: '60ms' }}>
-          <div className="bg-card border border-border rounded-xl p-6">
+          <div className="bg-card border border-border rounded-xl p-6 card-dim">
             <h3 className="font-display font-bold text-lg tracking-widest text-cream mb-5">CURRENT TARGETS</h3>
             <div className="space-y-5">
               {[
@@ -107,7 +107,7 @@ export default function Goals() {
 
         {/* Right: TDEE Calculator */}
         <div className="space-y-4 anim-slide-right" style={{ animationDelay: '100ms' }}>
-          <div className="bg-card border border-border rounded-xl p-6">
+          <div className="bg-card border border-border rounded-xl p-6 card-dim">
             <h3 className="font-display font-bold text-lg tracking-widest text-cream mb-5">TDEE CALCULATOR</h3>
 
             {/* Unit toggle */}
@@ -242,7 +242,7 @@ export default function Goals() {
 
           {/* Result */}
           {calculated && (
-            <div className="bg-card border border-brown/30 rounded-xl p-6 anim-scale-in">
+            <div className="bg-card border border-brown/30 rounded-xl p-6 anim-scale-in card-dim">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="font-display font-bold text-sm tracking-widest text-brown-light">CALCULATED TARGETS</h4>
                 <span className="font-mono text-xs text-muted">TDEE: {calculated.tdee} kcal</span>
@@ -254,7 +254,7 @@ export default function Goals() {
                   { label: 'CARBS', val: calculated.carbs, color: 'text-brown-light' },
                   { label: 'FAT', val: calculated.fat, color: 'text-slategray-light' },
                 ].map(({ label, val, color }) => (
-                  <div key={label} className="bg-surface border border-border rounded-lg p-3 text-center">
+                  <div key={label} className="bg-surface border border-border rounded-lg p-3 text-center card-dim">
                     <p className={`font-display font-black text-2xl ${color}`}>{val}</p>
                     <p className="font-mono text-xs text-muted">{label}</p>
                   </div>

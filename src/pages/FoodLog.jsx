@@ -182,7 +182,7 @@ function AddFoodModal({ onClose }) {
                   { label: 'CARBS', val: scaled.carbs, color: 'text-brown-light' },
                   { label: 'FAT', val: scaled.fat, color: 'text-slategray-light' },
                 ].map(({ label, val, color }) => (
-                  <div key={label} className="bg-card border border-border rounded-lg p-3 text-center">
+                  <div key={label} className="bg-card border border-border rounded-lg p-3 text-center card-dim">
                     <p className={`font-display font-black text-xl ${color}`}>{val.toFixed(1)}</p>
                     <p className="font-mono text-xs text-muted">{label}</p>
                   </div>
@@ -290,7 +290,7 @@ export default function FoodLog() {
                 { cal: 0, pro: 0, carb: 0, fat: 0 }
               )
               return (
-                <div key={meal} className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-hover" style={{ animationDelay: `${gi * 70 + 120}ms` }}>
+                <div key={meal} className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-hover card-dim" style={{ animationDelay: `${gi * 70 + 120}ms` }}>
                   <div className="flex items-center justify-between px-5 py-3 bg-surface">
                     <span className="font-display font-bold text-sm tracking-widest text-cream">{meal.toUpperCase()}</span>
                     <div className="flex gap-4 font-mono text-xs text-muted">

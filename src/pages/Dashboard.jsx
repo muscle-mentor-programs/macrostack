@@ -106,7 +106,7 @@ export default function Dashboard() {
         {/* Top row: calorie ring + macro bars */}
         <div className="grid grid-cols-12 gap-4 anim-stagger">
           {/* Calorie ring */}
-          <div className="col-span-4 bg-card border border-border rounded-xl flex flex-col items-center justify-center p-6 gap-3">
+          <div className="col-span-4 bg-card border border-border rounded-xl flex flex-col items-center justify-center p-6 gap-3 card-dim">
             <CalorieRing current={totals.calories} goal={goals.calories} />
             <div className="grid grid-cols-2 gap-x-6 gap-y-1 w-full">
               <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export default function Dashboard() {
           </div>
 
           {entries.length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-12 text-center anim-fade-in">
+            <div className="bg-card border border-border rounded-xl p-12 text-center anim-fade-in card-dim">
               <p className="font-display font-bold text-xl text-muted tracking-widest">NO ENTRIES YET</p>
               <p className="font-mono text-sm text-dim mt-2">Start logging to track your macros</p>
               <button
@@ -170,7 +170,7 @@ export default function Dashboard() {
                 return (
                   <div
                     key={meal}
-                    className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up"
+                    className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-dim"
                     style={{ animationDelay: `${gi * 60}ms` }}
                   >
                     <div className="flex items-center justify-between px-5 py-3 bg-surface">

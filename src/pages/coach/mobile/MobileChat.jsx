@@ -199,7 +199,7 @@ export default function MobileChat() {
                 key={client.id}
                 onClick={() => setSelectedId(client.id)}
                 style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}
-                className={`anim-fade-in-up w-full bg-card border rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface card-hover ${
+                className={`anim-fade-in-up w-full bg-card border rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface card-hover card-dim ${
                   unread > 0 ? 'border-brown/40 hover:border-brown/60' : 'border-border hover:border-border/80'
                 }`}
               >
