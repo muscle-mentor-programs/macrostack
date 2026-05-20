@@ -5,7 +5,7 @@ import { FOOD_COUNT } from '../data/foods'
 function LogoMark({ size = 32 }) {
   return (
     <img
-      src="/logo.svg"
+      src="/MSLOGO2.png"
       width={size}
       height={size}
       alt=""
