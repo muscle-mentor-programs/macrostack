@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
-  ChevronLeft, ChevronRight, Plus, Search, X, Trash2,
+  ChevronLeft, ChevronRight, Plus, Search, ArrowLeft, Trash2,
   Scan, Check, ChevronDown,
 } from 'lucide-react'
 import useStore from '../../store'
@@ -27,8 +27,8 @@ function entryServingLabel(entry) {
   return entry.quantity === 1 ? `1 ${entry.servingUnit}` : `${entry.quantity} × ${entry.servingUnit}`
 }
 
-// ─── Add Food Modal ──────────────────────────────────────────────────────────
-function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
+// ─── Full-screen food selector (replaces modal) ──────────────────────────────
+function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const { addClientEntry, customFoods, scannedFoods, overrideFoods, clients } = useStore()
 
   const [query,       setQuery]       = useState('')
@@ -48,13 +48,11 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     ...scannedFoods,
   ], [overrideIds, overrideFoods, customFoods, scannedFoods])
 
-  // Recently-used food IDs for this client (last 30 days)
   const recentFoodIds = useMemo(() => {
     const client = clients.find((c) => c.id === clientId)
     return getRecentFoodIds(client?.log || {})
   }, [clients, clientId])
 
-  // Ranked list: relevance + recency sort across all foods
   const filtered = useMemo(() => rankFoods(allFoods, query, recentFoodIds),
     [allFoods, query, recentFoodIds])
 
@@ -84,20 +82,16 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
     setGrams(food.servingSize ? String(food.servingSize) : '')
   }
 
-  // Keep values as strings so the field can be fully cleared while typing.
-  // Numeric conversion only happens when syncing the linked field or on save.
   const handleQtyChange = (val) => {
     setQuantity(val)
-    if (selected?.servingSize && val !== '') {
+    if (selected?.servingSize && val !== '')
       setGrams(String(Math.round(Math.max(0, Number(val)) * selected.servingSize)))
-    }
   }
 
   const handleGramsChange = (val) => {
     setGrams(val)
-    if (selected?.servingSize && val !== '') {
+    if (selected?.servingSize && val !== '')
       setQuantity(String(+(Math.max(0, Number(val)) / selected.servingSize).toFixed(3)))
-    }
   }
 
   const handleAdd = () => {
@@ -123,253 +117,168 @@ function AddFoodModal({ onClose, clientId, logDate, defaultMeal }) {
   }
 
   const handleScan      = (upc) => { setShowScanner(false); setScannedUPC(upc) }
-  const handleAfterSave = (food) => {
-    setScannedUPC(null)
-    handleSelectFood(food)
-  }
+  const handleAfterSave = (food) => { setScannedUPC(null); handleSelectFood(food) }
 
-  // Block backdrop scroll-through but allow the food list to scroll.
-  // We use native listeners (passive:false) so preventDefault() works.
-  // The prevent fn checks whether the touch is inside the list — if so,
-  // it skips preventDefault() so the list can scroll freely.
-  const backdropRef = useRef(null)
-  const listRef     = useRef(null)
-  useEffect(() => {
-    const backdrop = backdropRef.current
-    if (!backdrop) return
-    const prevent = (e) => {
-      const list = listRef.current
-      if (list && list.contains(e.target)) return   // let list scroll
-      e.preventDefault()                            // block everything else
-    }
-    backdrop.addEventListener('touchmove', prevent, { passive: false })
-    return () => backdrop.removeEventListener('touchmove', prevent)
-  }, [])
-
-  // ── Clear light-glass palette ────────────────────────────────────────────
-  const INK   = '#111111'                    // near-black neutral
-  const SUB   = '#555555'                    // medium gray
-  const HINT  = '#999999'                    // placeholder gray
-  const BD    = 'rgba(0,0,0,0.09)'
-  const ROW   = 'rgba(0,0,0,0.05)'
-  const INBG  = 'rgba(255,255,255,0.55)'
-
-  const fieldStyle = { background: INBG, border: `1px solid ${BD}`, color: INK }
-  const fieldCls   = 'w-full rounded-xl px-3 py-1.5 font-mono text-sm focus:outline-none transition-colors'
-  const labelCls   = 'font-display text-xs tracking-widest block mb-1.5'
+  const inpCls   = 'w-full bg-surface border border-border rounded-xl px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors'
+  const labelCls = 'font-display text-xs tracking-widest text-muted block mb-1.5'
 
   return (
-    /* ── Backdrop — modal sits just below the log page header ── */
-    <div
-      ref={backdropRef}
-      className="fixed inset-0 z-50 flex flex-col items-center anim-fade-in"
-      style={{
-        background: 'rgba(0,0,0,0.35)',
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 118px)',
-        paddingLeft: '1rem',
-        paddingRight: '1rem',
-      }}
-      onClick={onClose}
-    >
-      {/* ── Clear frosted-glass card ── */}
-      <div
-        className="relative w-full max-w-lg flex flex-col rounded-3xl overflow-hidden anim-pop"
-        style={{
-          maxHeight:            'min(46vh, 360px)',
-          background:           'rgba(255,255,255,0.62)',
-          backdropFilter:       'blur(64px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(64px) saturate(180%)',
-          border:               '1px solid rgba(255,255,255,0.95)',
-          boxShadow:            '0 24px 60px rgba(0,0,0,0.16), 0 0 0 0.5px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,1)',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Glass sheen — top-left catch light */}
-        <div
-          className="absolute inset-0 pointer-events-none rounded-3xl"
-          style={{
-            background: 'linear-gradient(140deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.20) 35%, transparent 65%)',
-            zIndex: 0,
-          }}
-        />
-        {/* Top edge specular */}
-        <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'rgba(255,255,255,1)', zIndex: 1 }} />
+    <div className="fixed inset-0 z-50 flex flex-col bg-bg anim-fade-in">
 
-        {/* ── Header ── */}
-        <div
-          className="flex items-center justify-between px-5 py-2.5 flex-shrink-0"
-          style={{ borderBottom: `1px solid ${BD}`, position: 'relative', zIndex: 1 }}
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border glass-panel accent-line flex-shrink-0">
+        <button
+          onClick={onClose}
+          className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-surface transition-colors flex-shrink-0"
         >
-          <div>
-            <h3 className="font-display font-black text-base tracking-widest" style={{ color: INK }}>ADD FOOD</h3>
-            <p className="font-mono text-[10px] mt-0" style={{ color: SUB }}>{meal}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-xl transition-colors hover:bg-black/[0.05]"
-            style={{ color: SUB }}
-          >
-            <X size={18} />
-          </button>
+          <ArrowLeft size={20} />
+        </button>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-display font-black text-xl tracking-widest text-cream">ADD FOOD</h2>
+          <p className="font-mono text-xs text-muted">{meal.toUpperCase()}</p>
         </div>
-
-        {/* ── Search + scan ── */}
-        <div
-          className="px-4 py-2 flex-shrink-0"
-          style={{ borderBottom: `1px solid ${BD}`, position: 'relative', zIndex: 1 }}
+        <button
+          onClick={() => setShowScanner(true)}
+          className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-surface transition-colors flex-shrink-0"
         >
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: HINT }} />
-              <input
-                autoFocus
-                type="text"
-                placeholder="Search foods or brands…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="w-full rounded-xl pl-9 pr-4 py-2 font-mono text-sm focus:outline-none transition-colors"
-                style={{ ...fieldStyle, caretColor: '#9A7B55' }}
-              />
-            </div>
-            <button
-              onClick={() => setShowScanner(true)}
-              title="Scan a barcode"
-              className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors hover:bg-black/[0.05]"
-              style={{ background: INBG, border: `1px solid ${BD}`, color: SUB }}
-            >
-              <Scan size={18} />
-            </button>
-          </div>
-        </div>
+          <Scan size={20} />
+        </button>
+      </div>
 
-        {/* ── Food list ── */}
-        <div
-          ref={listRef}
-          className="flex-1 overflow-y-auto min-h-0"
-          style={{ position: 'relative', zIndex: 1, touchAction: 'pan-y' }}
-        >
-          {filtered.map((food) => (
-            <button
-              key={food.id}
-              onClick={() => handleSelectFood(food)}
-              className="w-full flex items-center justify-between px-4 py-2 text-left transition-colors hover:bg-black/[0.04]"
-              style={{
-                borderBottom: `1px solid ${ROW}`,
-                borderLeft: selected?.id === food.id ? '2px solid #9A7B55' : '2px solid transparent',
-                background: selected?.id === food.id ? 'rgba(154,123,85,0.10)' : undefined,
-              }}
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 min-w-0">
-                  <p className="font-mono text-sm truncate" style={{ color: INK }}>{food.name}</p>
-                  {food.id.startsWith('scanned_') && (
-                    <span
-                      className="font-display text-[9px] px-1.5 py-0.5 rounded flex-shrink-0"
-                      style={{ color: '#4A6B30', background: 'rgba(74,107,48,0.10)', border: '1px solid rgba(74,107,48,0.22)' }}
-                    >
-                      SCANNED
-                    </span>
-                  )}
-                </div>
-                <p className="font-mono text-xs" style={{ color: SUB }}>
-                  {food.brand ? `${food.brand} · ` : ''}{servingLabel(food)}
-                </p>
-              </div>
-              <div className="text-right font-mono text-xs ml-3 flex-shrink-0">
-                <p style={{ color: INK }}>{food.calories} kcal</p>
-                <p>
-                  <span style={{ color: '#4A6B30' }}>{food.protein}p </span>
-                  <span style={{ color: '#8A5C30' }}>{food.carbs}c </span>
-                  <span style={{ color: '#4A5A6A' }}>{food.fat}f</span>
-                </p>
-              </div>
-            </button>
-          ))}
-          {filtered.length === 0 && (
-            <div className="text-center py-10">
-              <p className="font-display text-lg tracking-widest" style={{ color: SUB }}>NO RESULTS</p>
-              <p className="font-mono text-xs mt-2" style={{ color: HINT }}>Try scanning a barcode to add new foods</p>
-            </div>
-          )}
-        </div>
-
-        {/* ── Config + Add panel ── */}
-        {selected && (
-          <div
-            className="px-4 py-2.5 space-y-2 flex-shrink-0"
-            style={{ borderTop: `1px solid ${BD}`, background: 'rgba(154,123,85,0.07)', position: 'relative', zIndex: 1 }}
-          >
-            {hasGrams ? (
-              <>
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className={labelCls} style={{ color: SUB }}>SERVINGS</label>
-                    <input type="text" inputMode="decimal" value={quantity} onChange={(e) => handleQtyChange(e.target.value)} className={fieldCls} style={fieldStyle} />
-                  </div>
-                  <div>
-                    <label className={labelCls} style={{ color: SUB }}>GRAMS</label>
-                    <input type="text" inputMode="decimal" value={grams} onChange={(e) => handleGramsChange(e.target.value)} className={fieldCls} style={fieldStyle} />
-                  </div>
-                  <div>
-                    <label className={labelCls} style={{ color: SUB }}>MEAL</label>
-                    <select value={meal} onChange={(e) => setMeal(e.target.value)} className={fieldCls} style={fieldStyle}>
-                      {MEALS.map((m) => <option key={m}>{m}</option>)}
-                    </select>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className={labelCls} style={{ color: SUB }}>QUANTITY</label>
-                  <input type="text" inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} className={fieldCls} style={fieldStyle} />
-                </div>
-                <div>
-                  <label className={labelCls} style={{ color: SUB }}>MEAL</label>
-                  <select value={meal} onChange={(e) => setMeal(e.target.value)} className={fieldCls} style={fieldStyle}>
-                    {MEALS.map((m) => <option key={m}>{m}</option>)}
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {scaled && (
-              <div className="grid grid-cols-4 gap-1.5">
-                {[
-                  { label: 'KCAL', val: scaled.calories, hex: INK },
-                  { label: 'PRO',  val: scaled.protein,  hex: '#4A6B30' },
-                  { label: 'CARB', val: scaled.carbs,    hex: '#8A5C30' },
-                  { label: 'FAT',  val: scaled.fat,      hex: '#4A5A6A' },
-                ].map(({ label, val, hex }) => (
-                  <div key={label} className="rounded-lg p-1.5 text-center" style={{ background: 'rgba(0,0,0,0.04)', border: `1px solid ${BD}` }}>
-                    <p className="font-display font-black text-sm" style={{ color: hex }}>{Number(val).toFixed(0)}</p>
-                    <p className="font-mono text-[9px]" style={{ color: SUB }}>{label}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <button
-              onClick={handleAdd}
-              className="w-full font-display font-bold text-sm tracking-widest py-2 rounded-xl transition-colors bg-blue hover:bg-blue-light"
-              style={{ color: '#FFFFFF' }}
-            >
-              ADD TO LOG
-            </button>
-          </div>
-        )}
-
-        {showScanner && (
-          <BarcodeScanner onScan={handleScan} onClose={() => setShowScanner(false)} />
-        )}
-        {scannedUPC && (
-          <ScannedFoodModal
-            upc={scannedUPC}
-            onClose={() => setScannedUPC(null)}
-            onAfterSave={handleAfterSave}
+      {/* ── Search bar ── */}
+      <div className="px-4 py-3 border-b border-border flex-shrink-0">
+        <div className="relative">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+          <input
+            autoFocus
+            type="text"
+            placeholder="Search foods or brands…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full bg-surface border border-border rounded-xl pl-9 pr-4 py-2.5 font-mono text-sm text-cream placeholder:text-dim focus:outline-none focus:border-brown transition-colors"
           />
+        </div>
+      </div>
+
+      {/* ── Food list — natural full-height scroll ── */}
+      <div className="flex-1 overflow-y-auto">
+        {filtered.map((food) => (
+          <button
+            key={food.id}
+            onClick={() => handleSelectFood(food)}
+            className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-surface/60"
+            style={{
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
+              borderLeft: selected?.id === food.id ? '2px solid #9A7B55' : '2px solid transparent',
+              background: selected?.id === food.id ? 'rgba(154,123,85,0.08)' : undefined,
+            }}
+          >
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 min-w-0">
+                <p className="font-mono text-sm text-cream truncate">{food.name}</p>
+                {food.id.startsWith('scanned_') && (
+                  <span className="font-display text-[9px] px-1.5 py-0.5 rounded flex-shrink-0 text-olive-light bg-olive/10 border border-olive/20">
+                    SCANNED
+                  </span>
+                )}
+              </div>
+              <p className="font-mono text-xs text-muted">
+                {food.brand ? `${food.brand} · ` : ''}{servingLabel(food)}
+              </p>
+            </div>
+            <div className="text-right font-mono text-xs ml-3 flex-shrink-0">
+              <p className="text-cream">{food.calories} kcal</p>
+              <p>
+                <span className="text-olive-light">{food.protein}p </span>
+                <span className="text-brown-light">{food.carbs}c </span>
+                <span className="text-slategray-light">{food.fat}f</span>
+              </p>
+            </div>
+          </button>
+        ))}
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <p className="font-display text-lg tracking-widest text-muted">NO RESULTS</p>
+            <p className="font-mono text-xs text-dim mt-2">Try scanning a barcode to add new foods</p>
+          </div>
         )}
       </div>
+
+      {/* ── Bottom config panel — slides up when food selected ── */}
+      {selected && (
+        <div className="flex-shrink-0 border-t border-border bg-surface px-4 pt-3 pb-6 space-y-3 anim-fade-in-up">
+          {/* Selected food name */}
+          <p className="font-mono text-sm text-cream truncate">{selected.name}</p>
+
+          {/* Serving inputs */}
+          {hasGrams ? (
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className={labelCls}>SERVINGS</label>
+                <input type="text" inputMode="decimal" value={quantity} onChange={(e) => handleQtyChange(e.target.value)} className={inpCls} />
+              </div>
+              <div>
+                <label className={labelCls}>GRAMS</label>
+                <input type="text" inputMode="decimal" value={grams} onChange={(e) => handleGramsChange(e.target.value)} className={inpCls} />
+              </div>
+              <div>
+                <label className={labelCls}>MEAL</label>
+                <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inpCls}>
+                  {MEALS.map((m) => <option key={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className={labelCls}>QUANTITY</label>
+                <input type="text" inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} className={inpCls} />
+              </div>
+              <div>
+                <label className={labelCls}>MEAL</label>
+                <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inpCls}>
+                  {MEALS.map((m) => <option key={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* Macro preview */}
+          {scaled && (
+            <div className="grid grid-cols-4 gap-1.5">
+              {[
+                { label: 'KCAL', val: scaled.calories, cls: 'text-cream' },
+                { label: 'PRO',  val: scaled.protein,  cls: 'text-olive-light' },
+                { label: 'CARB', val: scaled.carbs,    cls: 'text-brown-light' },
+                { label: 'FAT',  val: scaled.fat,      cls: 'text-slategray-light' },
+              ].map(({ label, val, cls }) => (
+                <div key={label} className="bg-card border border-border rounded-lg p-1.5 text-center card-dim">
+                  <p className={`font-display font-black text-sm ${cls}`}>{Number(val).toFixed(0)}</p>
+                  <p className="font-mono text-[9px] text-muted">{label}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={handleAdd}
+            className="w-full font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors bg-blue hover:bg-blue-light text-white"
+          >
+            ADD TO LOG
+          </button>
+        </div>
+      )}
+
+      {showScanner && (
+        <BarcodeScanner onScan={handleScan} onClose={() => setShowScanner(false)} />
+      )}
+      {scannedUPC && (
+        <ScannedFoodModal
+          upc={scannedUPC}
+          onClose={() => setScannedUPC(null)}
+          onAfterSave={handleAfterSave}
+        />
+      )}
     </div>
   )
 }
@@ -464,34 +373,9 @@ export default function ClientLog() {
 
   const inpCls = 'w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown'
 
-  // Lock scroll while modal is open (html + body covers iOS Safari too)
-  useEffect(() => {
-    if (modalMeal) {
-      document.documentElement.style.overflow = 'hidden'
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = ''
-    }
-  }, [modalMeal])
-
   return (
     <div className="relative" style={{ minHeight: '100%' }}>
-
-      {/* ── Page content — blurs out when modal opens ── */}
-      <div
-        className="flex flex-col min-h-full"
-        style={{
-          filter:        modalMeal ? 'blur(10px)' : 'none',
-          opacity:       modalMeal ? 0.5 : 1,
-          transition:    'filter 0.25s ease, opacity 0.25s ease',
-          pointerEvents: modalMeal ? 'none' : 'auto',
-        }}
-      >
+      <div className="flex flex-col min-h-full">
       {/* Date nav */}
       <div className="relative flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <button onClick={prev} className="w-10 h-10 flex items-center justify-center text-muted hover:text-cream">
@@ -686,11 +570,11 @@ export default function ClientLog() {
         })}
       </div>
 
-      </div>{/* end page content blur wrapper */}
+      </div>{/* end page content wrapper */}
 
-      {/* ── Modal — sibling of blurred content, always crisp ── */}
+      {/* ── Full-screen food selector — fades in over the log page ── */}
       {modalMeal && (
-        <AddFoodModal
+        <FoodSelectorPage
           onClose={() => setModalMeal(null)}
           clientId={activeClientId}
           logDate={logDate}
