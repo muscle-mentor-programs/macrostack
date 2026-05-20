@@ -2,6 +2,7 @@
  * Food search utilities — multi-word relevance ranking + recency boost.
  *
  * Scoring overview (higher = better match):
+ *   Text match scores:
  *   1000  exact name match
  *    500  name starts with the full query string
  *    100  a word in the name exactly equals a query word
@@ -9,13 +10,21 @@
  *     30  name contains the full query string (not at start)
  *     20  name contains a query word (mid-word / substring)
  *      5  only the brand field matches a query word
- *    800  recency boost — food was logged in the last `daysBack` days
+ *
+ *   Recency boost (replaces flat +800 — decays with days since last log):
+ *   1200  logged today
+ *   1160  logged yesterday
+ *    ~920  logged 7 days ago
+ *    ~640  logged 14 days ago
+ *    ~120  logged 28 days ago
+ *      0  not logged in the last daysBack days
+ *   + up to +150 frequency bonus (logged multiple times)
  *
  * ALL query words must match somewhere (name OR brand) — AND logic.
- * With an empty query every food passes; recency boost still sorts recent first.
+ * With an empty query every food passes; recency score still sorts recent first.
  */
 
-function scoreFoodItem(food, queryWords, fullQuery, recentSet) {
+function scoreFoodItem(food, queryWords, fullQuery, recentScores) {
   const nameL    = (food.name  || '').toLowerCase()
   const brandL   = (food.brand || '').toLowerCase()
   const combined = brandL ? nameL + ' ' + brandL : nameL
@@ -61,8 +70,15 @@ function scoreFoodItem(food, queryWords, fullQuery, recentSet) {
     }
   }
 
-  // ── Recency boost (applied even when query is empty) ──────────────────
-  if (recentSet.has(food.id)) score += 800
+  // ── Recency boost — Map<foodId, score> from getRecentFoodIds ─────────
+  // Supports legacy Set for backward compat (flat +800 fallback).
+  if (recentScores) {
+    if (typeof recentScores.get === 'function') {
+      score += recentScores.get(food.id) || 0
+    } else if (typeof recentScores.has === 'function') {
+      if (recentScores.has(food.id)) score += 800
+    }
+  }
 
   return score
 }
@@ -70,12 +86,13 @@ function scoreFoodItem(food, queryWords, fullQuery, recentSet) {
 /**
  * Filter and rank foods by relevance to `query` and recency.
  *
- * @param {object[]} foods         - full list of food objects
- * @param {string}   query         - raw search string from the input
- * @param {Set}      recentFoodIds - Set of foodId strings logged recently
+ * @param {object[]}      foods        - full list of food objects
+ * @param {string}        query        - raw search string from the input
+ * @param {Map|Set}       recentFoodIds - Map<foodId,score> from getRecentFoodIds,
+ *                                       or legacy Set for backward compat
  * @returns {object[]} filtered and sorted food list (best match first)
  */
-export function rankFoods(foods, query, recentFoodIds = new Set()) {
+export function rankFoods(foods, query, recentFoodIds = new Map()) {
   const q          = query.trim().toLowerCase()
   const queryWords = q.split(/\s+/).filter(Boolean)
 
@@ -95,50 +112,94 @@ export function rankFoods(foods, query, recentFoodIds = new Set()) {
 }
 
 /**
- * Build a Set of recently-used food IDs from a log object `{ 'yyyy-MM-dd': [entries] }`.
+ * Build a Map<foodId, recencyScore> from a log object `{ 'yyyy-MM-dd': [entries] }`.
  *
- * @param {object} log     - date-keyed log dict from the store
+ * Score reflects HOW RECENTLY the food was logged, not just whether it was:
+ *   - logged today   → ~1200 pts
+ *   - logged 7 days ago → ~920 pts
+ *   - logged 30 days ago → ~0 pts
+ * Plus a small frequency bonus (+30 per additional log, capped at +150).
+ *
+ * @param {object} log      - date-keyed log dict from the store
  * @param {number} daysBack - how many days to look back (default 30)
- * @returns {Set<string>}
+ * @returns {Map<string, number>}
  */
 export function getRecentFoodIds(log = {}, daysBack = 30) {
-  const ids       = new Set()
-  const cutoff    = new Date()
-  cutoff.setDate(cutoff.getDate() - daysBack)
-  const cutoffStr = cutoff.toISOString().slice(0, 10) // 'yyyy-MM-dd'
+  const foodData = new Map()  // foodId -> { mostRecentDaysAgo, count }
+  const now = new Date()
 
   for (const [date, entries] of Object.entries(log)) {
-    if (date >= cutoffStr) {
-      for (const e of entries) {
-        if (e.foodId) ids.add(e.foodId)
+    // Parse date as noon local time to avoid timezone off-by-one
+    const daysSince = Math.floor(
+      (now - new Date(date + 'T12:00:00')) / (1000 * 60 * 60 * 24)
+    )
+    if (daysSince > daysBack) continue
+
+    for (const e of entries) {
+      if (!e.foodId) continue
+      const existing = foodData.get(e.foodId)
+      if (!existing) {
+        foodData.set(e.foodId, { mostRecentDaysAgo: daysSince, count: 1 })
+      } else {
+        foodData.set(e.foodId, {
+          mostRecentDaysAgo: Math.min(existing.mostRecentDaysAgo, daysSince),
+          count: existing.count + 1,
+        })
       }
     }
   }
-  return ids
+
+  // Convert to recency score Map
+  const scores = new Map()
+  for (const [id, { mostRecentDaysAgo, count }] of foodData) {
+    // Linear decay: 1200 today → ~0 at daysBack
+    const recency  = Math.max(0, Math.round(1200 - mostRecentDaysAgo * (1200 / daysBack)))
+    // Frequency bonus: each extra log adds 30 pts (max +150)
+    const freqBonus = Math.min(count - 1, 5) * 30
+    scores.set(id, recency + freqBonus)
+  }
+  return scores
 }
 
 /**
- * Merge logs from multiple clients into a single recency Set.
+ * Merge logs from multiple clients into a single recency Map.
  * Useful for the coach side where "recently used" means "logged by any client".
  *
  * @param {object[]} clients  - array of client objects with a `.log` property
  * @param {number}   daysBack
- * @returns {Set<string>}
+ * @returns {Map<string, number>}
  */
 export function getRecentFoodIdsFromClients(clients = [], daysBack = 30) {
-  const ids       = new Set()
-  const cutoff    = new Date()
-  cutoff.setDate(cutoff.getDate() - daysBack)
-  const cutoffStr = cutoff.toISOString().slice(0, 10)
+  const foodData = new Map()
+  const now = new Date()
 
   for (const client of clients) {
     for (const [date, entries] of Object.entries(client.log || {})) {
-      if (date >= cutoffStr) {
-        for (const e of entries) {
-          if (e.foodId) ids.add(e.foodId)
+      const daysSince = Math.floor(
+        (now - new Date(date + 'T12:00:00')) / (1000 * 60 * 60 * 24)
+      )
+      if (daysSince > daysBack) continue
+
+      for (const e of entries) {
+        if (!e.foodId) continue
+        const existing = foodData.get(e.foodId)
+        if (!existing) {
+          foodData.set(e.foodId, { mostRecentDaysAgo: daysSince, count: 1 })
+        } else {
+          foodData.set(e.foodId, {
+            mostRecentDaysAgo: Math.min(existing.mostRecentDaysAgo, daysSince),
+            count: existing.count + 1,
+          })
         }
       }
     }
   }
-  return ids
+
+  const scores = new Map()
+  for (const [id, { mostRecentDaysAgo, count }] of foodData) {
+    const recency   = Math.max(0, Math.round(1200 - mostRecentDaysAgo * (1200 / daysBack)))
+    const freqBonus = Math.min(count - 1, 5) * 30
+    scores.set(id, recency + freqBonus)
+  }
+  return scores
 }
