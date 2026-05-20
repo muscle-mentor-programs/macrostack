@@ -119,7 +119,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const handleScan      = (upc) => { setShowScanner(false); setScannedUPC(upc) }
   const handleAfterSave = (food) => { setScannedUPC(null); handleSelectFood(food) }
 
-  const inpCls   = 'w-full bg-surface border border-border rounded-xl px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors'
+  const inpCls   = 'w-full bg-surface border border-border rounded-xl px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors'
   const labelCls = 'font-display text-xs tracking-widest text-muted block mb-1.5'
 
   return (
@@ -134,7 +134,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
-          <h2 className="font-display font-black text-xl tracking-widest text-cream">ADD FOOD</h2>
+          <h2 className="font-display font-black text-xl tracking-[0.15em] text-cream">ADD FOOD</h2>
           <p className="font-mono text-xs text-muted">{meal.toUpperCase()}</p>
         </div>
         <button
@@ -371,7 +371,7 @@ export default function ClientLog() {
     fat:  Math.round(editState.perQty.fat  * editState.qty),
   } : null
 
-  const inpCls = 'w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown'
+  const inpCls = 'w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30'
 
   return (
     <div className="relative" style={{ minHeight: '100%' }}>
@@ -382,7 +382,7 @@ export default function ClientLog() {
           <ChevronLeft size={22} />
         </button>
         <div className="text-center">
-          <h2 className="font-display font-black text-2xl tracking-wider text-cream">
+          <h2 className="font-display font-black text-2xl tracking-[0.15em] text-cream">
             <ScrambleText key={logDate} text={format(parsedDate, 'EEEE').toUpperCase()} duration={600} />
           </h2>
           <p className="font-mono text-xs text-muted">{format(parsedDate, 'MMMM d, yyyy')}</p>
@@ -393,7 +393,7 @@ export default function ClientLog() {
       </div>
 
       {/* Daily totals bar */}
-      <div className="grid grid-cols-4 mx-5 mt-5 mb-5 bg-card border border-border rounded-xl overflow-hidden anim-fade-in card-dim" style={{ animationDelay: '60ms' }}>
+      <div className="grid grid-cols-4 mx-5 mt-5 mb-5 glass-card border border-border/60 rounded-xl overflow-hidden anim-fade-in card-dim" style={{ animationDelay: '60ms' }}>
         {[
           { label: 'KCAL', val: totals.calories, color: 'text-cream' },
           { label: 'PRO',  val: totals.protein,  color: 'text-olive-light' },
@@ -543,7 +543,7 @@ export default function ClientLog() {
                             <div className="flex gap-2">
                               <button
                                 onClick={saveEdit}
-                                className="flex-1 flex items-center justify-center gap-1.5 bg-brown hover:bg-brown-light text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors"
+                                className="flex-1 flex items-center justify-center gap-1.5 btn-accent text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors"
                               >
                                 <Check size={13} />
                                 SAVE

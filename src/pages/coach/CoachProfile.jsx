@@ -3,7 +3,7 @@ import { User, Globe, Award, BookOpen, Check, Copy, Pencil, X } from 'lucide-rea
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 
-const inputCls = 'w-full bg-surface border border-border rounded-lg px-4 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors resize-none'
+const inputCls = 'w-full bg-surface border border-border rounded-lg px-4 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors resize-none'
 const lbl      = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
 export default function CoachProfile() {
@@ -68,7 +68,7 @@ export default function CoachProfile() {
       <div className="relative px-4 md:px-8 pt-mobile-header md:pt-6 pb-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-display font-black text-4xl tracking-wider text-cream">
+            <h2 className="font-display font-black text-4xl tracking-[0.15em] text-cream">
               <ScrambleText text="PROFILE" duration={850} />
             </h2>
             <p className="font-mono text-sm text-muted mt-1">
@@ -88,7 +88,7 @@ export default function CoachProfile() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-50 text-bg font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors glow-hover"
+                className="flex items-center gap-2 btn-accent disabled:opacity-50 text-bg font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors glow-hover"
               >
                 <Check size={14} />
                 {saving ? 'SAVING…' : 'SAVE'}
@@ -126,7 +126,7 @@ export default function CoachProfile() {
               </div>
             ) : (
               <>
-                <p className="font-display font-black text-2xl text-cream">{currentUser?.name || '—'}</p>
+                <p className="font-display font-black text-3xl text-cream">{currentUser?.name || '—'}</p>
                 <p className="font-mono text-sm text-muted mt-0.5">{currentUser?.email || ''}</p>
                 <p className="font-mono text-xs text-dim mt-0.5">
                   {currentUser?.role === 'superadmin' ? 'SUPER ADMIN' : 'NUTRITION COACH'}

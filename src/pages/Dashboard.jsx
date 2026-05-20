@@ -86,7 +86,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down">
+      <div className="flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
           <h2 className="font-display font-black text-4xl tracking-wider text-cream uppercase">
             <ScrambleText text={format(new Date(), 'EEEE').toUpperCase()} duration={800} delay={0} />
@@ -95,7 +95,7 @@ export default function Dashboard() {
         </div>
         <button
           onClick={() => setActivePage('log')}
-          className="flex items-center gap-2 bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded transition-colors glow-hover"
+          className="flex items-center gap-2 btn-accent text-bg font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded transition-colors glow-hover"
         >
           <PlusCircle size={16} />
           LOG FOOD
@@ -106,7 +106,7 @@ export default function Dashboard() {
         {/* Top row: calorie ring + macro bars */}
         <div className="grid grid-cols-12 gap-4 anim-stagger">
           {/* Calorie ring */}
-          <div className="col-span-4 bg-card border border-border rounded-xl flex flex-col items-center justify-center p-6 gap-3 card-dim">
+          <div className="col-span-4 glass-card border border-border/60 rounded-xl flex flex-col items-center justify-center p-6 gap-3 card-dim">
             <CalorieRing current={totals.calories} goal={goals.calories} />
             <div className="grid grid-cols-2 gap-x-6 gap-y-1 w-full">
               <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export default function Dashboard() {
         {/* Meal breakdown */}
         <div className="anim-fade-in-up" style={{ animationDelay: '200ms' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-bold text-lg tracking-widest text-muted uppercase">Today's Meals</h3>
+            <h3 className="font-display font-black text-lg tracking-[0.15em] text-muted uppercase">Today's Meals</h3>
             <button
               onClick={() => setActivePage('log')}
               className="font-display text-sm text-brown hover:text-brown-light tracking-widest transition-colors"
@@ -170,7 +170,7 @@ export default function Dashboard() {
                 return (
                   <div
                     key={meal}
-                    className="bg-card border border-border rounded-xl overflow-hidden anim-fade-in-up card-dim"
+                    className="glass-card border border-border/60 rounded-xl overflow-hidden anim-fade-in-up card-dim"
                     style={{ animationDelay: `${gi * 60}ms` }}
                   >
                     <div className="flex items-center justify-between px-5 py-3 bg-surface">
@@ -179,7 +179,7 @@ export default function Dashboard() {
                     </div>
                     <div className="divide-y divide-border">
                       {items.map((entry) => (
-                        <div key={entry.id} className="flex items-center justify-between px-5 py-2.5 hover:bg-surface/50 transition-colors">
+                        <div key={entry.id} className="flex items-center justify-between px-5 py-2.5 hover:bg-white/[0.04] transition-colors">
                           <div>
                             <p className="font-mono text-sm text-cream">{entry.name}</p>
                             <p className="font-mono text-xs text-muted">{entryServingLabel(entry)}</p>

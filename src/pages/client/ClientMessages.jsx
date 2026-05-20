@@ -211,7 +211,7 @@ export default function ClientMessages() {
       >
         {/* Header */}
         <div className="px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel">
-          <h1 className="font-display font-black text-3xl tracking-wider text-cream">
+          <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream">
             <ScrambleText text="MESSAGES" duration={750} />
           </h1>
           <p className="font-mono text-xs text-muted mt-1">Your conversations</p>
@@ -225,7 +225,7 @@ export default function ClientMessages() {
           {/* Coach card */}
           <button
             onClick={() => setOpenThread('coach')}
-            className="w-full bg-card border border-border hover:border-brown/40 rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface anim-fade-in-up card-dim"
+            className="w-full glass-card border border-border/60 hover:border-brown/40 rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface anim-fade-in-up card-dim"
             style={{ animationDelay: '60ms' }}
           >
             <div className="w-12 h-12 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
@@ -252,7 +252,7 @@ export default function ClientMessages() {
           {/* Kay card */}
           <button
             onClick={() => setOpenThread('kay')}
-            className="w-full bg-card border border-border hover:border-olive/40 rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface anim-fade-in-up card-dim"
+            className="w-full glass-card border border-border/60 hover:border-olive/40 rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface anim-fade-in-up card-dim"
             style={{ animationDelay: '120ms' }}
           >
             <div className="w-12 h-12 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center flex-shrink-0">
@@ -293,7 +293,7 @@ export default function ClientMessages() {
     >
       {/* Thread header */}
       <div
-        className="flex items-center gap-3 px-4 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel"
+        className="flex items-center gap-3 px-4 pb-4 border-b border-white/[0.06] flex-shrink-0 anim-fade-in-down glass-panel"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 68px)' }}
       >
         <button
@@ -424,7 +424,7 @@ export default function ClientMessages() {
           onFocus={() => setInputFocused(true)}
           onBlur={() => setInputFocused(false)}
           disabled={isKay && kayTyping}
-          className="flex-1 bg-bg border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors disabled:opacity-50"
+          className="flex-1 bg-bg border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors disabled:opacity-50"
         />
         <button
           onClick={handleSend}

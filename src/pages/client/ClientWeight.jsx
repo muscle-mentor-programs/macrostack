@@ -73,7 +73,7 @@ export default function ClientWeight() {
     <div className="flex flex-col min-h-full">
       {/* Header */}
       <div className="relative px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
-        <h1 className="font-display font-black text-3xl tracking-wider text-cream">
+        <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream">
           <ScrambleText text="WEIGHT" duration={750} />
         </h1>
         <p className="font-mono text-xs text-muted mt-1">7-day moving average</p>
@@ -126,7 +126,7 @@ export default function ClientWeight() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleLog()}
-            className="flex-1 bg-surface border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown"
+            className="flex-1 bg-surface border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30"
           />
           <button
             onClick={() => setUnit(unit === 'lbs' ? 'kg' : 'lbs')}
@@ -137,7 +137,7 @@ export default function ClientWeight() {
           <button
             onClick={handleLog}
             disabled={!input}
-            className="bg-brown hover:bg-brown-light disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest px-5 rounded-xl transition-colors glow-hover"
+            className="btn-accent disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest px-5 rounded-xl transition-colors glow-hover"
           >
             LOG
           </button>
@@ -146,23 +146,23 @@ export default function ClientWeight() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-3 gap-3 px-5 mb-5">
-        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '120ms' }}>
+        <div className="glass-card border border-border/60 rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '120ms' }}>
           <Scale size={14} className="text-muted mb-2" />
-          <p className="font-display font-black text-xl text-cream leading-none data-flicker">
+          <p className="font-display font-black text-2xl text-cream leading-none data-flicker">
             {currentWeight ?? '—'}
           </p>
           <p className="font-mono text-[10px] text-muted mt-1">{currentUnit} now</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '180ms' }}>
+        <div className="glass-card border border-border/60 rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '180ms' }}>
           <div className="w-4 h-0.5 bg-brown rounded-full mb-[9px] mt-[3px]" />
-          <p className="font-display font-black text-xl text-brown-light leading-none data-flicker">
+          <p className="font-display font-black text-2xl text-brown-light leading-none data-flicker">
             {currentMA ?? '—'}
           </p>
           <p className="font-mono text-[10px] text-muted mt-1">7-day avg</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '240ms' }}>
+        <div className="glass-card border border-border/60 rounded-xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '240ms' }}>
           <ChangeIcon size={14} className={`${changeColor} mb-2`} />
-          <p className={`font-display font-black text-xl leading-none ${changeColor} data-flicker`}>
+          <p className={`font-display font-black text-2xl leading-none ${changeColor} data-flicker`}>
             {change30 !== null ? `${change30 > 0 ? '+' : ''}${change30}` : '—'}
           </p>
           <p className="font-mono text-[10px] text-muted mt-1">30d change</p>
@@ -171,8 +171,8 @@ export default function ClientWeight() {
 
       {/* Chart */}
       {chartData.length > 1 && (
-        <div className="mx-5 mb-5 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '300ms' }}>
-          <p className="font-display font-bold text-xs text-muted tracking-widest mb-2">WEIGHT TREND</p>
+        <div className="mx-5 mb-5 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '300ms' }}>
+          <p className="font-display font-bold text-xs text-muted tracking-[0.15em] mb-2">WEIGHT TREND</p>
           <div className="flex items-center gap-5 mb-3">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-olive" />
@@ -239,8 +239,8 @@ export default function ClientWeight() {
         </div>
       ) : (
         <div className="mx-5 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
-          <p className="font-display font-bold text-xs text-muted tracking-widest mb-3">HISTORY</p>
-          <div className="bg-card border border-border rounded-xl overflow-hidden card-hover card-dim">
+          <p className="font-display font-bold text-xs text-muted tracking-[0.15em] mb-3">HISTORY</p>
+          <div className="glass-card border border-border/60 rounded-xl overflow-hidden card-hover card-dim">
             {[...sorted].reverse().map((entry, reversedIdx) => {
               const originalIdx = sorted.length - 1 - reversedIdx
               const prevEntry   = originalIdx > 0 ? sorted[originalIdx - 1] : null
@@ -248,7 +248,7 @@ export default function ClientWeight() {
               return (
                 <div
                   key={entry.id}
-                  className="flex items-center justify-between px-4 py-3 border-b border-border last:border-0 anim-row"
+                  className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] last:border-0 anim-row hover:bg-white/[0.04] transition-colors"
                   style={{ animationDelay: `${360 + Math.min(reversedIdx, 10) * 35}ms` }}
                 >
                   <div>

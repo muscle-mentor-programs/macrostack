@@ -31,7 +31,7 @@ export default function ClientProgress() {
     <div className="flex flex-col min-h-full">
       {/* Header */}
       <div className="px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
-        <h1 className="font-display font-black text-3xl tracking-wider text-cream">
+        <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream">
           <ScrambleText text="PROGRESS" duration={750} />
         </h1>
         <p className="font-mono text-xs text-muted mt-1">Last 30 days</p>
@@ -45,16 +45,16 @@ export default function ClientProgress() {
           { val: `${avgProtein.toFixed(0)}g`, label: 'avg protein / day', color: 'text-olive-light', delay: 180 },
           { val: `${avgFat.toFixed(0)}g`,     label: 'avg fat / day',     color: 'text-slategray-light', delay: 240 },
         ].map(({ val, label, color, delay }) => (
-          <div key={label} className="bg-card border border-border rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: `${delay}ms` }}>
-            <p className={`font-display font-black text-2xl ${color} data-flicker`}>{val}</p>
+          <div key={label} className="glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: `${delay}ms` }}>
+            <p className={`font-display font-black text-3xl ${color} data-flicker`}>{val}</p>
             <p className="font-mono text-xs text-muted">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Calorie trend chart */}
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '300ms' }}>
-        <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">CALORIE TREND</p>
+      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '300ms' }}>
+        <p className="font-display font-bold text-xs text-muted tracking-[0.15em] mb-4">CALORIE TREND</p>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
             <defs>
@@ -101,8 +101,8 @@ export default function ClientProgress() {
       </div>
 
       {/* Protein trend chart */}
-      <div className="mx-5 mb-6 bg-card border border-border rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '400ms' }}>
-        <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">PROTEIN TREND</p>
+      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '400ms' }}>
+        <p className="font-display font-bold text-xs text-muted tracking-[0.15em] mb-4">PROTEIN TREND</p>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>
             <defs>

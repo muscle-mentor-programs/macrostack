@@ -63,8 +63,8 @@ export default function Goals() {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
-      <div className="px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down">
-        <h2 className="font-display font-black text-4xl tracking-wider text-cream">
+      <div className="px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+        <h2 className="font-display font-black text-4xl tracking-[0.15em] text-cream">
           <ScrambleText text="MACRO GOALS" duration={900} />
         </h2>
         <p className="font-mono text-sm text-muted mt-1">Set your daily targets or use the calculator</p>
@@ -73,7 +73,7 @@ export default function Goals() {
       <div className="flex-1 p-8 grid grid-cols-2 gap-8">
         {/* Left: Manual targets */}
         <div className="space-y-6 anim-fade-in-up" style={{ animationDelay: '60ms' }}>
-          <div className="bg-card border border-border rounded-xl p-6 card-dim">
+          <div className="glass-card border border-border/60 rounded-xl p-6 card-dim">
             <h3 className="font-display font-bold text-lg tracking-widest text-cream mb-5">CURRENT TARGETS</h3>
             <div className="space-y-5">
               {[
@@ -91,14 +91,14 @@ export default function Goals() {
                     type="number"
                     value={local[key]}
                     onChange={(e) => setLocal((p) => ({ ...p, [key]: Number(e.target.value) }))}
-                    className={`w-full bg-surface border border-border rounded-lg px-4 py-3 font-display font-black text-2xl ${color} focus:outline-none focus:border-brown transition-colors`}
+                    className={`w-full bg-surface border border-border rounded-lg px-4 py-3 font-display font-black text-3xl ${color} focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors`}
                   />
                 </div>
               ))}
             </div>
             <button
               onClick={saveManual}
-              className="w-full mt-6 bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover"
+              className="w-full mt-6 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover"
             >
               SAVE TARGETS
             </button>
@@ -107,7 +107,7 @@ export default function Goals() {
 
         {/* Right: TDEE Calculator */}
         <div className="space-y-4 anim-slide-right" style={{ animationDelay: '100ms' }}>
-          <div className="bg-card border border-border rounded-xl p-6 card-dim">
+          <div className="glass-card border border-border/60 rounded-xl p-6 card-dim">
             <h3 className="font-display font-bold text-lg tracking-widest text-cream mb-5">TDEE CALCULATOR</h3>
 
             {/* Unit toggle */}
@@ -157,7 +157,7 @@ export default function Goals() {
                       type="number"
                       value={val}
                       onChange={(e) => set(Number(e.target.value))}
-                      className="w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
+                      className="w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
                     />
                   </div>
                 ))}
@@ -223,7 +223,7 @@ export default function Goals() {
                         type="number"
                         value={val}
                         onChange={(e) => set(Number(e.target.value))}
-                        className="w-full bg-surface border border-border rounded px-2 py-1.5 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
+                        className="w-full bg-surface border border-border rounded px-2 py-1.5 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
                       />
                     </div>
                   ))}
@@ -254,15 +254,15 @@ export default function Goals() {
                   { label: 'CARBS', val: calculated.carbs, color: 'text-brown-light' },
                   { label: 'FAT', val: calculated.fat, color: 'text-slategray-light' },
                 ].map(({ label, val, color }) => (
-                  <div key={label} className="bg-surface border border-border rounded-lg p-3 text-center card-dim">
-                    <p className={`font-display font-black text-2xl ${color}`}>{val}</p>
+                  <div key={label} className="glass-card border border-border/60 rounded-lg p-3 text-center card-dim">
+                    <p className={`font-display font-black text-3xl ${color}`}>{val}</p>
                     <p className="font-mono text-xs text-muted">{label}</p>
                   </div>
                 ))}
               </div>
               <button
                 onClick={applyCalculated}
-                className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-colors glow-hover"
+                className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-colors glow-hover"
               >
                 APPLY THESE TARGETS
               </button>

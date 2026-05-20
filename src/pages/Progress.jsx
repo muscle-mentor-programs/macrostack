@@ -76,8 +76,8 @@ export default function Progress() {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
-      <div className="px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down">
-        <h2 className="font-display font-black text-4xl tracking-wider text-cream">
+      <div className="px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+        <h2 className="font-display font-black text-4xl tracking-[0.15em] text-cream">
           <ScrambleText text="PROGRESS" duration={800} />
         </h2>
         <p className="font-mono text-sm text-muted mt-1">Weight trends and macro consistency</p>
@@ -110,7 +110,7 @@ export default function Progress() {
               sub: `goal: ${goals.protein}g`,
             },
           ].map(({ label, val, color, sub }, i) => (
-            <div key={label} className="bg-card border border-border rounded-xl px-5 py-4 anim-fade-in-up card-dim" style={{ animationDelay: `${i * 60 + 50}ms` }}>
+            <div key={label} className="glass-card border border-border/60 rounded-xl px-5 py-4 anim-fade-in-up card-dim" style={{ animationDelay: `${i * 60 + 50}ms` }}>
               <p className="font-mono text-xs text-muted tracking-widest">{label}</p>
               <p className={`font-display font-black text-3xl ${color} mt-1 data-flicker`}>{val}</p>
               {sub && <p className="font-mono text-xs text-dim mt-1">{sub}</p>}
@@ -120,7 +120,7 @@ export default function Progress() {
 
         {/* Weight chart + log */}
         <div className="grid grid-cols-3 gap-4 anim-fade-in-up" style={{ animationDelay: '290ms' }}>
-          <div className="col-span-2 bg-card border border-border rounded-xl p-6 card-dim">
+          <div className="col-span-2 glass-card border border-border/60 rounded-xl p-6 card-dim">
             <h3 className="font-display font-bold text-sm tracking-widest text-muted mb-5">WEIGHT OVER TIME</h3>
             {weightData.length < 2 ? (
               <div className="flex items-center justify-center h-40">
@@ -146,14 +146,14 @@ export default function Progress() {
           </div>
 
           {/* Weight log */}
-          <div className="bg-card border border-border rounded-xl p-5 flex flex-col card-dim">
+          <div className="glass-card border border-border/60 rounded-xl p-5 flex flex-col card-dim">
             <h3 className="font-display font-bold text-sm tracking-widest text-muted mb-4">LOG WEIGHT</h3>
             <div className="space-y-2 mb-4">
               <input
                 type="date"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
-                className="w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
+                className="w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
               />
               <div className="flex gap-2">
                 <input
@@ -161,12 +161,12 @@ export default function Progress() {
                   placeholder="Weight"
                   value={newWeight}
                   onChange={(e) => setNewWeight(e.target.value)}
-                  className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
+                  className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
                 />
                 <select
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
-                  className="bg-surface border border-border rounded-lg px-2 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
+                  className="bg-surface border border-border rounded-lg px-2 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
                 >
                   <option>lbs</option>
                   <option>kg</option>
@@ -174,7 +174,7 @@ export default function Progress() {
               </div>
               <button
                 onClick={handleAdd}
-                className="w-full flex items-center justify-center gap-2 bg-brown hover:bg-brown-light text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors"
+                className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors"
               >
                 <Plus size={14} /> LOG WEIGHT
               </button>
@@ -200,7 +200,7 @@ export default function Progress() {
         </div>
 
         {/* Macro consistency chart */}
-        <div className="bg-card border border-border rounded-xl p-6 anim-fade-in-up card-dim" style={{ animationDelay: '380ms' }}>
+        <div className="glass-card border border-border/60 rounded-xl p-6 anim-fade-in-up card-dim" style={{ animationDelay: '380ms' }}>
           <div className="flex justify-between items-center mb-5">
             <h3 className="font-display font-bold text-sm tracking-widest text-muted">30-DAY CALORIE TREND</h3>
             <div className="flex gap-4 font-mono text-xs text-muted">
@@ -222,7 +222,7 @@ export default function Progress() {
         </div>
 
         {/* Consistency heatmap-style */}
-        <div className="bg-card border border-border rounded-xl p-6 anim-fade-in-up card-dim" style={{ animationDelay: '460ms' }}>
+        <div className="glass-card border border-border/60 rounded-xl p-6 anim-fade-in-up card-dim" style={{ animationDelay: '460ms' }}>
           <h3 className="font-display font-bold text-sm tracking-widest text-muted mb-4">30-DAY LOG CONSISTENCY</h3>
           <div className="flex gap-1.5 flex-wrap">
             {last30.map((d, i) => {

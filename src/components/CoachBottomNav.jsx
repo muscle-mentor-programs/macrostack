@@ -20,7 +20,7 @@ export default function CoachBottomNav() {
 
   return (
     <nav
-      className={`flex-shrink-0 w-full glass-bottom-nav border-t border-border/40 nav-safe-bottom transition-transform duration-200 ${
+      className={`flex-shrink-0 w-full glass-bottom-nav border-t border-white/[0.06] nav-safe-bottom transition-transform duration-200 ${
         navHidden ? 'translate-y-full' : ''
       }`}
     >
@@ -32,17 +32,23 @@ export default function CoachBottomNav() {
             <button
               key={id}
               onClick={() => setActivePage(id)}
-              className={`relative flex flex-col items-center justify-center py-3.5 gap-1 transition-all duration-200 ${
-                active ? 'text-brown-light' : 'text-muted'
+              className={`relative flex flex-col items-center justify-center py-3 gap-1 transition-all duration-200 ${
+                active ? 'text-brown-light' : 'text-muted hover:text-cream'
               }`}
             >
-              <div
-                className="relative transition-all duration-200"
-                style={{ transform: active ? 'scale(1.12)' : 'scale(1)' }}
-              >
+              {/* Active pill background */}
+              {active && (
+                <span
+                  className="absolute inset-x-3 top-1.5 bottom-4 rounded-xl pointer-events-none"
+                  style={{ background: 'rgba(154,123,85,0.10)' }}
+                />
+              )}
+
+              <div className="relative z-10 transition-all duration-200"
+                style={{ transform: active ? 'scale(1.14)' : 'scale(1)' }}>
                 <Icon
-                  size={active ? 20 : 18}
-                  strokeWidth={active ? 2.5 : 1.5}
+                  size={active ? 21 : 19}
+                  strokeWidth={active ? 2.2 : 1.6}
                   className="transition-all duration-200"
                 />
                 {badge > 0 && (
@@ -51,21 +57,25 @@ export default function CoachBottomNav() {
                   </span>
                 )}
               </div>
+
               <span
-                className={`font-display font-bold tracking-wider transition-all duration-200 ${
-                  active ? 'text-[9px]' : 'text-[8px]'
+                className={`relative z-10 font-display font-bold tracking-wider transition-all duration-200 ${
+                  active ? 'text-[9px] text-brown-light' : 'text-[8px]'
                 }`}
               >
                 {label}
               </span>
-              {/* Glowing bottom indicator line */}
+
+              {/* Glow line indicator */}
               <span
-                className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] rounded-full transition-all duration-300 ${
-                  active ? 'opacity-100 w-8' : 'opacity-0 w-0'
+                className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] rounded-full transition-all duration-300 ${
+                  active ? 'opacity-100 w-10' : 'opacity-0 w-0'
                 }`}
                 style={{
-                  background: 'var(--color-accent)',
-                  boxShadow: active ? '0 0 10px var(--color-accent)' : 'none',
+                  background: active
+                    ? 'linear-gradient(90deg, transparent, var(--color-accent), transparent)'
+                    : 'none',
+                  boxShadow: active ? '0 0 14px var(--color-accent), 0 0 6px var(--color-accent)' : 'none',
                 }}
               />
             </button>

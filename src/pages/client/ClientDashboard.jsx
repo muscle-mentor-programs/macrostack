@@ -65,8 +65,8 @@ function MacroChip({ label, current, goal, color, delay = 0 }) {
         <AnimatedNumber value={current} duration={900} delay={delay} />
       </p>
       <p className="font-mono text-xs text-muted">{label}</p>
-      <div className="mt-2 w-full bg-dim rounded-full h-1">
-        <div className={`h-1 rounded-full ${c.bar} bar-fill`} style={{ width: `${pct}%`, animationDelay: `${delay + 100}ms` }} />
+      <div className="mt-2 w-full overflow-hidden rounded-full h-[5px]" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div className={`h-[5px] rounded-full ${c.bar} bar-fill`} style={{ width: `${pct}%`, animationDelay: `${delay + 100}ms` }} />
       </div>
       <p className="font-mono text-xs text-dim mt-1">{pct}%</p>
     </div>
@@ -99,7 +99,7 @@ function MealPlanSection({ client, onLogMeal }) {
   if (!activePlan) {
     return (
       <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-5 text-center anim-fade-in-up" style={{ animationDelay: '360ms' }}>
-        <BookOpen size={24} className="text-dim mx-auto mb-2" />
+        <BookOpen size={28} className="text-dim mx-auto mb-2" />
         <p className="font-display font-bold text-sm text-muted tracking-widest">NO ACTIVE MEAL PLAN</p>
         <p className="font-mono text-xs text-dim mt-1">Your coach hasn't assigned a meal plan yet</p>
       </div>
@@ -124,7 +124,7 @@ function MealPlanSection({ client, onLogMeal }) {
     <div className="mx-5 mb-6 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
       {/* Section heading */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-display font-bold text-sm tracking-widest text-muted">MEAL PLAN</h2>
+        <h2 className="font-display font-bold text-sm tracking-[0.15em] text-muted">MEAL PLAN</h2>
         <span className="font-mono text-xs text-brown-light truncate max-w-[160px]">{activePlan.planName}</span>
       </div>
 
@@ -267,7 +267,7 @@ export default function ClientDashboard() {
       <div className="relative flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <div>
           <p className="font-mono text-xs text-muted tracking-widest">{format(new Date(), 'EEEE, MMMM d').toUpperCase()}</p>
-          <h1 className="font-display font-black text-3xl tracking-wide text-cream mt-0.5">
+          <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream mt-0.5">
             <ScrambleText text={client?.name?.split(' ')[0]?.toUpperCase() || 'ATHLETE'} duration={700} delay={50} />
           </h1>
         </div>
@@ -306,7 +306,7 @@ export default function ClientDashboard() {
       {/* Today's meals */}
       <div className="px-5 mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-display font-bold text-sm tracking-widest text-muted">TODAY'S MEALS</h2>
+          <h2 className="font-display font-bold text-sm tracking-[0.15em] text-muted">TODAY'S MEALS</h2>
           <button onClick={() => setActivePage('log')} className="font-display text-xs text-brown tracking-widest">
             VIEW LOG →
           </button>
@@ -362,7 +362,7 @@ export default function ClientDashboard() {
       {/* Your Coach card */}
       {coachProfile && (
         <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '400ms' }}>
-          <h2 className="font-display font-bold text-sm tracking-widest text-muted mb-3">YOUR COACH</h2>
+          <h2 className="font-display font-bold text-sm tracking-[0.15em] text-muted mb-3">YOUR COACH</h2>
           <button
             onClick={() => setActivePage('coach')}
             className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all card-hover card-dim"

@@ -50,14 +50,14 @@ function QuickEditModal({ client, onClose }) {
                 type="number"
                 value={goals[key]}
                 onChange={(e) => setGoals((p) => ({ ...p, [key]: e.target.value }))}
-                className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
+                className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
               />
             </div>
           ))}
         </div>
         <button
           onClick={save}
-          className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover"
+          className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover"
         >
           SAVE TARGETS
         </button>
@@ -183,7 +183,7 @@ function EmailModal({ clients, preselectedId, onClose }) {
               placeholder="Weekly check-in…"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
+              className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
             />
           </div>
 
@@ -208,7 +208,7 @@ function EmailModal({ clients, preselectedId, onClose }) {
             onClick={handleSend}
             disabled={selected.length === 0 || !hasEmails || !subject.trim() || !body.trim() || status === 'sending'}
             className={`flex-1 flex items-center justify-center gap-2 disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover ${
-              status === 'sent' ? 'bg-olive' : 'bg-brown hover:bg-brown-light'
+              status === 'sent' ? 'bg-olive' : 'btn-accent'
             }`}
           >
             <Send size={14} />
@@ -312,9 +312,9 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
           </span>
           <span className="font-mono text-xs text-muted">/ {client.goals.calories} kcal</span>
         </div>
-        <div className="w-full bg-dim rounded-full h-1.5">
+        <div className="w-full overflow-hidden rounded-full h-[6px]" style={{ background: 'rgba(255,255,255,0.06)' }}>
           <div
-            className={`h-1.5 rounded-full bar-fill ${calPct >= 100 ? 'bg-red-400' : 'bg-brown'}`}
+            className={`h-[6px] rounded-full bar-fill ${calPct >= 100 ? 'bg-red-400' : 'bg-brown'}`}
             style={{ width: `${calPct}%` }}
           />
         </div>
@@ -332,8 +332,8 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
             <div key={label} className="bg-surface border border-border rounded-xl p-2.5 card-dim">
               <p className={`font-display font-black text-base ${color}`}>{Math.round(val)}g</p>
               <p className="font-mono text-[10px] text-muted">{label} / {goal}g</p>
-              <div className="mt-1.5 w-full bg-dim rounded-full h-0.5">
-                <div className={`h-0.5 rounded-full bar-fill ${pct >= 100 ? 'bg-red-400' : bar}`} style={{ width: `${pct}%` }} />
+              <div className="mt-1.5 w-full overflow-hidden rounded-full h-[5px]" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <div className={`h-[5px] rounded-full bar-fill ${pct >= 100 ? 'bg-red-400' : bar}`} style={{ width: `${pct}%` }} />
               </div>
             </div>
           )
@@ -436,7 +436,7 @@ export default function CoachDashboard() {
       {/* Header */}
       <div className="relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
-          <h2 className="font-display font-black text-4xl tracking-wider text-cream">
+          <h2 className="font-display font-black text-4xl tracking-[0.15em] text-cream">
             <ScrambleText text="DASHBOARD" duration={900} />
           </h2>
           <p className="font-mono text-sm text-muted mt-1">
@@ -455,7 +455,7 @@ export default function CoachDashboard() {
       {/* Coach Code widget */}
       {currentUser?.coachCode && (
         <div className="px-8 pt-4 pb-0 flex-shrink-0">
-          <div className="bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between card-hover card-dim">
+          <div className="glass-card border border-border/60 rounded-xl px-4 py-3 flex items-center justify-between card-hover card-dim">
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
               <span className="font-display font-black text-lg text-brown tracking-widest">

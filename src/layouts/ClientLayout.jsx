@@ -3,43 +3,73 @@ import BottomNav from '../components/BottomNav'
 import ThemeToggle from '../components/ThemeToggle'
 import useStore from '../store'
 
-/* ── Shared ambient background — grid texture + drifting orbs ── */
+/* ── Shared ambient background — grain + grid + drifting orbs + vignette ── */
 function AmbientBackground() {
   return (
     <>
-      {/* Subtle 40px grid texture */}
+      {/* Film grain noise — adds premium texture depth */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.028]"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          opacity: 0.038,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: '220px 220px',
+        }}
+      />
+      {/* Subtle grid */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.030]"
         style={{
           backgroundImage:
             'linear-gradient(var(--color-accent) 1px, transparent 1px), linear-gradient(90deg, var(--color-accent) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }}
       />
-      {/* Drifting gradient orbs */}
+      {/* Drifting ambient orbs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Top-right primary glow */}
         <div
           className="absolute rounded-full"
           style={{
-            top: '-18%', right: '-10%',
-            width: '48vw', height: '48vw',
-            background: 'radial-gradient(circle, var(--color-accent) 0%, transparent 68%)',
-            opacity: 0.05,
+            top: '-20%', right: '-15%',
+            width: '65vw', height: '65vw',
+            background: 'radial-gradient(circle, var(--color-accent) 0%, transparent 65%)',
+            opacity: 0.13,
             animation: 'driftBlob 22s ease-in-out infinite',
           }}
         />
+        {/* Bottom-left secondary glow */}
         <div
           className="absolute rounded-full"
           style={{
-            bottom: '8%', left: '-10%',
-            width: '32vw', height: '32vw',
-            background: 'radial-gradient(circle, var(--color-accent) 0%, transparent 68%)',
-            opacity: 0.032,
+            bottom: '3%', left: '-15%',
+            width: '48vw', height: '48vw',
+            background: 'radial-gradient(circle, var(--color-accent) 0%, transparent 65%)',
+            opacity: 0.08,
             animation: 'driftBlob 18s ease-in-out infinite reverse',
             animationDelay: '-8s',
           }}
         />
+        {/* Center-left accent whisper */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            top: '38%', left: '-8%',
+            width: '36vw', height: '36vw',
+            background: 'radial-gradient(circle, var(--color-accent) 0%, transparent 65%)',
+            opacity: 0.045,
+            animation: 'driftBlob 28s ease-in-out infinite',
+            animationDelay: '-14s',
+          }}
+        />
       </div>
+      {/* Vignette — darkens edges for focused depth */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 35%, transparent 42%, rgba(0,0,0,0.52) 100%)',
+        }}
+      />
     </>
   )
 }

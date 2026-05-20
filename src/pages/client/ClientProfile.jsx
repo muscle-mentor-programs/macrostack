@@ -110,7 +110,7 @@ export default function ClientProfile() {
   }
 
   const inputCls =
-    'w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors'
+    'w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors'
   const lbl = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
@@ -118,7 +118,7 @@ export default function ClientProfile() {
     <div className="flex flex-col min-h-full">
       {/* Header */}
       <div className="relative px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
-        <h1 className="font-display font-black text-3xl tracking-wider text-cream">
+        <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream">
           <ScrambleText text="PROFILE" duration={750} />
         </h1>
         <p className="font-mono text-xs text-muted mt-1">Your info & 30-day progress</p>
@@ -217,8 +217,8 @@ export default function ClientProfile() {
             { label: 'CARBS',    value: client?.goals?.carbs,    unit: 'g'    },
             { label: 'FAT',      value: client?.goals?.fat,      unit: 'g'    },
           ].map(({ label, value, unit }) => (
-            <div key={label} className="bg-surface border border-border rounded-xl p-3 card-dim">
-              <p className="font-display font-black text-xl text-cream">{value ?? '—'}</p>
+            <div key={label} className="glass-card border border-border/60 rounded-xl p-3 card-dim">
+              <p className="font-display font-black text-2xl text-cream">{value ?? '—'}</p>
               <p className="font-mono text-xs text-muted">{label} / {unit}</p>
             </div>
           ))}
@@ -230,7 +230,7 @@ export default function ClientProfile() {
 
       {/* ── 30-Day Progress ─────────────────────────────────────────────────── */}
       <div className="px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '250ms' }}>
-        <p className="font-display font-black text-lg tracking-widest text-cream">30-DAY PROGRESS</p>
+        <p className="font-display font-black text-lg tracking-[0.15em] text-cream">30-DAY PROGRESS</p>
         <p className="font-mono text-xs text-muted mt-0.5">Last 30 days</p>
       </div>
 
@@ -242,8 +242,8 @@ export default function ClientProfile() {
           { val: `${avgProtein.toFixed(0)}g`, label: 'avg protein / day', color: 'text-olive-light'     },
           { val: `${avgFat.toFixed(0)}g`,     label: 'avg fat / day',     color: 'text-slategray-light' },
         ].map(({ val, label, color }) => (
-          <div key={label} className="bg-card border border-border rounded-xl p-4 card-dim">
-            <p className={`font-display font-black text-2xl ${color} data-flicker`}>{val}</p>
+          <div key={label} className="glass-card border border-border/60 rounded-xl p-4 card-dim">
+            <p className={`font-display font-black text-3xl ${color} data-flicker`}>{val}</p>
             <p className="font-mono text-xs text-muted">{label}</p>
           </div>
         ))}
@@ -340,7 +340,7 @@ export default function ClientProfile() {
         <button
           onClick={handleSave}
           className={`w-full py-3.5 rounded-xl font-display font-bold text-sm tracking-widest transition-all glow-hover-olive ${
-            saved ? 'bg-olive text-bg' : 'bg-brown hover:bg-brown-light text-bg'
+            saved ? 'bg-olive text-bg' : 'btn-accent text-bg'
           }`}
         >
           {saved ? (
