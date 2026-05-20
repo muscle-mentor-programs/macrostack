@@ -814,6 +814,23 @@ input[type="date"]::-webkit-date-and-time-value {
   animation: appPageReveal 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Full-screen page push — slides up from below with a fade */
+@keyframes pageSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    /* No transform in "to" — fill-mode:both must not leave a transform on
+       the element or it becomes the containing block for fixed descendants. */
+  }
+}
+
+.anim-page-slide-up {
+  animation: pageSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 /* Glass sidebar — backdrop blur, theme-aware semi-transparent fill */
 .glass-sidebar {
   backdrop-filter: blur(22px) saturate(160%);

@@ -123,7 +123,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const labelCls = 'font-display text-xs tracking-widest text-muted block mb-1.5'
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-bg anim-fade-in">
+    <div className="fixed inset-0 z-50 flex flex-col bg-bg anim-page-slide-up">
 
       {/* ── Header ── */}
       <div className="flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border glass-panel accent-line flex-shrink-0">
