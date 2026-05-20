@@ -1002,34 +1002,6 @@ export default function Landing({ onGetStarted }) {
           }}
           onMouseLeave={() => setHeroMouse({ x: 0, y: 0 })}
         >
-          {/* Parallax blobs — two-layer: outer handles translate+parallax, inner handles drift animation */}
-          <div className="absolute top-1/3 left-1/4 w-[700px] h-[700px] pointer-events-none"
-            style={{
-              transform: `translate(-50%,-50%) translate(${heroMouse.x * 22}px, ${heroMouse.y * 22}px) translateY(${parallaxY * 0.6}px)`,
-              transition: 'transform 1.4s cubic-bezier(0.16,1,0.3,1)',
-            }}
-          >
-            <div className="w-full h-full rounded-full"
-              style={{
-                background: 'radial-gradient(circle, rgba(154,123,85,0.07) 0%, transparent 65%)',
-                animation: 'driftBlob 18s ease-in-out infinite',
-              }}
-            />
-          </div>
-          <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] pointer-events-none"
-            style={{
-              transform: `translate(${-heroMouse.x * 14}px, ${-heroMouse.y * 14}px) translateY(${parallaxY * 0.4}px)`,
-              transition: 'transform 1.8s cubic-bezier(0.16,1,0.3,1)',
-            }}
-          >
-            <div className="w-full h-full rounded-full"
-              style={{
-                background: 'radial-gradient(circle, rgba(107,122,82,0.05) 0%, transparent 65%)',
-                animation: 'driftBlob 22s ease-in-out infinite 4s',
-              }}
-            />
-          </div>
-
           <div className="relative max-w-6xl mx-auto px-5 w-full py-24 lg:py-32">
             <div className="grid md:grid-cols-2 gap-14 lg:gap-20 items-center">
               <div>
@@ -1178,8 +1150,6 @@ export default function Landing({ onGetStarted }) {
 
         {/* ══ MEET KAY ══════════════════════════════ */}
         <section ref={sectionRefs.kay} className="py-28 glass-section relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse, rgba(154,123,85,0.07) 0%, transparent 65%)' }} />
 
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
@@ -1236,8 +1206,6 @@ export default function Landing({ onGetStarted }) {
 
         {/* ══ FOR COACHES · glass section bg ═══════ */}
         <section ref={sectionRefs.coaches} className="py-28 glass-section relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none opacity-30"
-            style={{ background: 'radial-gradient(circle at 100% 0%, rgba(154,123,85,0.15) 0%, transparent 60%)' }} />
 
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -1293,8 +1261,6 @@ export default function Landing({ onGetStarted }) {
         {/* ══ FOR CLIENTS ══════════════════════════ */}
         <section ref={sectionRefs.clients} className="py-28 relative overflow-hidden">
           <div className="absolute inset-0 landing-grid opacity-40 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-72 h-72 pointer-events-none opacity-30"
-            style={{ background: 'radial-gradient(circle at 0% 100%, rgba(107,122,82,0.12) 0%, transparent 60%)' }} />
 
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -1350,8 +1316,6 @@ export default function Landing({ onGetStarted }) {
 
         {/* ══ INDIVIDUALS · glass section + glass cards */}
         <section ref={sectionRefs.solo} className="py-28 glass-section relative overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse, rgba(90,100,114,0.08) 0%, transparent 70%)' }} />
 
           <div className="max-w-6xl mx-auto px-5">
             <Reveal className="text-center mb-16">
@@ -1397,8 +1361,6 @@ export default function Landing({ onGetStarted }) {
 
         {/* ══ FINAL CTA ═════════════════════════════ */}
         <section className="py-36 relative overflow-hidden landing-grid landing-scan">
-          <div className="absolute top-1/2 left-1/2 w-[900px] h-[500px] pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse, rgba(154,123,85,0.1) 0%, transparent 65%)', transform: 'translate(-50%,-50%)' }} />
 
           <div className="relative max-w-2xl mx-auto px-5 text-center">
             <Reveal>
@@ -1441,8 +1403,6 @@ export default function Landing({ onGetStarted }) {
         {/* ══ BLOG ══════════════════════════════════ */}
         <section className="py-28 relative overflow-hidden">
           <div className="absolute inset-0 landing-grid opacity-40 pointer-events-none" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse, rgba(154,123,85,0.06) 0%, transparent 65%)' }} />
 
           <div className="relative max-w-6xl mx-auto px-5">
             <Reveal className="text-center mb-14">
