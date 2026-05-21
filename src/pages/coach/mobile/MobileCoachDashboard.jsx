@@ -378,7 +378,7 @@ export default function MobileCoachDashboard() {
         ].map(({ label, val, color, Icon }, i) => (
           <div
             key={label}
-            className="glass-card border border-border/60 rounded-2xl px-3 py-4 flex flex-col items-center gap-1.5 anim-fade-in-up"
+            className="glass-card border border-border rounded-2xl px-3 py-4 flex flex-col items-center gap-1.5 anim-fade-in-up"
             style={{ animationDelay: `${i * 50}ms` }}
           >
             <Icon size={16} className={`${color} opacity-60`} />
@@ -390,7 +390,7 @@ export default function MobileCoachDashboard() {
 
       {/* Coach Code */}
       {currentUser?.coachCode && (
-        <div className="glass-card border border-border/60 rounded-xl px-4 py-3 flex items-center justify-between">
+        <div className="glass-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
             <span className="font-display font-black text-lg text-brown tracking-widest">

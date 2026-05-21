@@ -412,7 +412,7 @@ export default function ClientLog() {
       </div>
 
       {/* Daily totals bar */}
-      <div className="grid grid-cols-4 mx-5 mt-5 mb-5 glass-card border border-border/60 rounded-xl overflow-hidden anim-fade-in card-dim" style={{ animationDelay: '60ms' }}>
+      <div className="grid grid-cols-4 mx-5 mt-5 mb-5 glass-card border border-border rounded-2xl overflow-hidden anim-fade-in card-dim" style={{ animationDelay: '60ms' }}>
         {[
           { label: 'KCAL', val: totals.calories, color: 'text-cream' },
           { label: 'PRO',  val: totals.protein,  color: 'text-olive-light' },
@@ -437,7 +437,7 @@ export default function ClientLog() {
           return (
             <div
               key={meal}
-              className="glass-card border border-border/60 rounded-xl overflow-hidden anim-fade-in-up card-hover"
+              className="glass-card border border-border rounded-2xl overflow-hidden anim-fade-in-up card-hover"
               style={{ animationDelay: `${sectionIdx * 65 + 80}ms` }}
             >
               {/* Section header */}

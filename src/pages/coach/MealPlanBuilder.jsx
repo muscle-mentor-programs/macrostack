@@ -337,7 +337,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                 { cal: 0, pro: 0 }
               )
               return (
-                <div key={meal} className="glass-card border border-border/60 rounded-xl overflow-hidden">
+                <div key={meal} className="glass-card border border-border rounded-2xl overflow-hidden">
                   {/* Meal header */}
                   <div className="flex items-center justify-between px-4 py-2.5 bg-white/[0.04]">
                     <div className="flex items-center gap-2">

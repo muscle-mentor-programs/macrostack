@@ -225,7 +225,7 @@ export default function ClientMessages() {
           {/* Coach card */}
           <button
             onClick={() => setOpenThread('coach')}
-            className="w-full glass-card border border-border/60 hover:border-brown/40 rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface anim-fade-in-up card-dim"
+            className="w-full glass-card border border-border hover:border-brown/40 rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface anim-fade-in-up card-dim"
             style={{ animationDelay: '60ms' }}
           >
             <div className="w-12 h-12 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
@@ -252,7 +252,7 @@ export default function ClientMessages() {
           {/* Kay card */}
           <button
             onClick={() => setOpenThread('kay')}
-            className="w-full glass-card border border-border/60 hover:border-olive/40 rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface anim-fade-in-up card-dim"
+            className="w-full glass-card border border-border hover:border-olive/40 rounded-2xl p-4 flex items-center gap-4 text-left transition-all active:bg-surface anim-fade-in-up card-dim"
             style={{ animationDelay: '120ms' }}
           >
             <div className="w-12 h-12 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center flex-shrink-0">

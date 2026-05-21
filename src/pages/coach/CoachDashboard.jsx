@@ -445,7 +445,7 @@ export default function CoachDashboard() {
         </div>
         <button
           onClick={() => { setEmailPreselect(null); setEmailModal(true) }}
-          className="flex items-center gap-2 bg-surface border border-border hover:border-brown/50 text-muted hover:text-cream font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded-lg transition-all"
+          className="flex items-center gap-2 bg-surface border border-border hover:border-brown/50 text-muted hover:text-cream font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded-xl transition-all"
         >
           <Mail size={14} />
           COMPOSE EMAIL
@@ -455,7 +455,7 @@ export default function CoachDashboard() {
       {/* Coach Code widget */}
       {currentUser?.coachCode && (
         <div className="px-8 pt-4 pb-0 flex-shrink-0">
-          <div className="glass-card border border-border/60 rounded-xl px-4 py-3 flex items-center justify-between card-hover card-dim">
+          <div className="glass-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between card-hover card-dim">
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
               <span className="font-display font-black text-lg text-brown tracking-widest">
@@ -535,7 +535,7 @@ export default function CoachDashboard() {
         ].map(({ label, val, color, Icon }, i) => (
           <div
             key={label}
-            className="bg-card border border-border rounded-xl px-5 py-4 flex items-center gap-4 anim-fade-in-up card-hover card-dim"
+            className="bg-card border border-border rounded-2xl px-5 py-4 flex items-center gap-4 anim-fade-in-up card-hover card-dim"
             style={{ animationDelay: `${i * 60}ms` }}
           >
             <Icon size={20} className={`${color} opacity-50 flex-shrink-0`} />

@@ -159,10 +159,10 @@ export default function ClientProfile() {
       </div>
 
       {/* Link to Coach */}
-      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
+      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 size={14} className="text-olive-light" />
-          <p className="font-display font-bold text-xs text-muted tracking-widest">LINK TO COACH</p>
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">LINK TO COACH</p>
         </div>
 
         {hasCoach ? (
@@ -206,10 +206,11 @@ export default function ClientProfile() {
       </div>
 
       {/* Coach-assigned targets (read-only) */}
-      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
-        <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">
-          COACH-ASSIGNED TARGETS
-        </p>
+      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">COACH-ASSIGNED TARGETS</p>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           {[
             { label: 'CALORIES', value: client?.goals?.calories, unit: 'kcal' },
@@ -217,7 +218,7 @@ export default function ClientProfile() {
             { label: 'CARBS',    value: client?.goals?.carbs,    unit: 'g'    },
             { label: 'FAT',      value: client?.goals?.fat,      unit: 'g'    },
           ].map(({ label, value, unit }) => (
-            <div key={label} className="glass-card border border-border/60 rounded-xl p-3 card-dim">
+            <div key={label} className="glass-card border border-border rounded-2xl p-3 card-dim">
               <p className="font-display font-black text-2xl text-cream">{value ?? '—'}</p>
               <p className="font-mono text-xs text-muted">{label} / {unit}</p>
             </div>
@@ -230,8 +231,11 @@ export default function ClientProfile() {
 
       {/* ── 30-Day Progress ─────────────────────────────────────────────────── */}
       <div className="px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '250ms' }}>
-        <p className="font-display font-black text-lg tracking-[0.15em] text-cream">30-DAY PROGRESS</p>
-        <p className="font-mono text-xs text-muted mt-0.5">Last 30 days</p>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">30-DAY PROGRESS</p>
+        </div>
+        <p className="font-display font-black text-2xl tracking-[0.15em] text-cream">LAST 30 DAYS</p>
       </div>
 
       {/* Stat cards */}
@@ -242,7 +246,7 @@ export default function ClientProfile() {
           { val: `${avgProtein.toFixed(0)}g`, label: 'avg protein / day', color: 'text-olive-light'     },
           { val: `${avgFat.toFixed(0)}g`,     label: 'avg fat / day',     color: 'text-slategray-light' },
         ].map(({ val, label, color }) => (
-          <div key={label} className="glass-card border border-border/60 rounded-xl p-4 card-dim">
+          <div key={label} className="glass-card border border-border rounded-2xl p-4 card-dim">
             <p className={`font-display font-black text-3xl ${color} data-flicker`}>{val}</p>
             <p className="font-mono text-xs text-muted">{label}</p>
           </div>
@@ -250,8 +254,11 @@ export default function ClientProfile() {
       </div>
 
       {/* Calorie trend */}
-      <div className="mx-5 mb-5 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
-        <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">CALORIE TREND</p>
+      <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">CALORIE TREND</p>
+        </div>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
             <defs>
@@ -274,8 +281,11 @@ export default function ClientProfile() {
       </div>
 
       {/* Protein trend */}
-      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
-        <p className="font-display font-bold text-xs text-muted tracking-widest mb-4">PROTEIN TREND</p>
+      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROTEIN TREND</p>
+        </div>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>
             <defs>
@@ -299,8 +309,11 @@ export default function ClientProfile() {
       </div>
 
       {/* Personal info form */}
-      <div className="mx-5 mb-4 glass-card border border-border/60 rounded-xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '480ms' }}>
-        <p className="font-display font-bold text-xs text-muted tracking-widest">PERSONAL INFO</p>
+      <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '480ms' }}>
+        <div className="flex items-center gap-2">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PERSONAL INFO</p>
+        </div>
 
         <div>
           <label className={lbl}>NAME</label>

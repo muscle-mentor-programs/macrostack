@@ -64,7 +64,7 @@ function FoodModal({ initial = null, onSave, onClose }) {
     })
   }
 
-  const inputCls = 'w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors'
+  const inputCls = 'w-full bg-surface border border-border rounded-xl px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors'
   const lbl      = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
@@ -189,14 +189,14 @@ function FoodModal({ initial = null, onSave, onClose }) {
           <button
             onClick={handleSave}
             disabled={!canSave}
-            className="flex-1 flex items-center justify-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover"
+            className="flex-1 flex items-center justify-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover"
           >
             <Check size={15} />
             {isEdit ? 'SAVE CHANGES' : 'ADD TO DATABASE'}
           </button>
           <button
             onClick={onClose}
-            className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-3 rounded-lg transition-colors"
+            className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-3 rounded-xl transition-colors"
           >
             CANCEL
           </button>
@@ -285,7 +285,7 @@ function AISearchPanel({ onAdded }) {
         <button
           onClick={handleSearch}
           disabled={loading || !aiQuery.trim()}
-          className="flex items-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest px-5 py-2 rounded-lg transition-colors glow-hover"
+          className="flex items-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest px-5 py-2 rounded-xl transition-colors glow-hover"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
           {loading ? 'SEARCHING…' : 'SEARCH'}
@@ -461,7 +461,7 @@ export default function MyFoods() {
           )}
           <button
             onClick={() => setShowScanner(true)}
-            className="flex items-center gap-2 bg-surface border border-border text-muted hover:text-cream hover:border-brown font-display font-bold text-sm tracking-widest px-4 py-2.5 rounded-lg transition-colors"
+            className="flex items-center gap-2 bg-surface border border-border text-muted hover:text-cream hover:border-brown font-display font-bold text-sm tracking-widest px-4 py-2.5 rounded-xl transition-colors"
             title="Scan a barcode"
           >
             <Scan size={15} />
@@ -469,7 +469,7 @@ export default function MyFoods() {
           </button>
           <button
             onClick={openAdd}
-            className="flex items-center gap-2 bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors glow-hover"
+            className="flex items-center gap-2 bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-xl transition-colors glow-hover"
           >
             <Plus size={16} />
             ADD FOOD
@@ -491,7 +491,7 @@ export default function MyFoods() {
             placeholder="Search name or brand…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-card border border-border rounded-lg pl-9 pr-4 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
+            className="w-full bg-card border border-border rounded-xl pl-9 pr-4 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
           />
         </div>
 

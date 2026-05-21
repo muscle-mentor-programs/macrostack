@@ -60,7 +60,7 @@ function MacroChip({ label, current, goal, color, delay = 0 }) {
   }
   const c = barColors[color] || barColors.olive
   return (
-    <div className="bg-card border border-border rounded-xl p-4 flex-1 anim-fade-in-up card-dim" style={{ animationDelay: `${delay}ms` }}>
+    <div className="bg-card border border-border rounded-2xl p-4 flex-1 anim-fade-in-up card-dim" style={{ animationDelay: `${delay}ms` }}>
       <p className={`font-display font-black text-2xl ${c.text} data-flicker`}>
         <AnimatedNumber value={current} duration={900} delay={delay} />
       </p>
@@ -98,7 +98,7 @@ function MealPlanSection({ client, onLogMeal }) {
 
   if (!activePlan) {
     return (
-      <div className="mx-5 mb-6 glass-card border border-border/60 rounded-xl p-5 text-center anim-fade-in-up" style={{ animationDelay: '360ms' }}>
+      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-5 text-center anim-fade-in-up" style={{ animationDelay: '360ms' }}>
         <BookOpen size={28} className="text-dim mx-auto mb-2" />
         <p className="font-display font-bold text-sm text-muted tracking-widest">NO ACTIVE MEAL PLAN</p>
         <p className="font-mono text-xs text-dim mt-1">Your coach hasn't assigned a meal plan yet</p>
@@ -124,11 +124,14 @@ function MealPlanSection({ client, onLogMeal }) {
     <div className="mx-5 mb-6 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
       {/* Section heading */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-display font-bold text-sm tracking-[0.15em] text-muted">MEAL PLAN</h2>
-        <span className="font-mono text-xs text-brown-light truncate max-w-[160px]">{activePlan.planName}</span>
+        <div className="flex items-center gap-2">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">MEAL PLAN</p>
+        </div>
+        <span className="font-mono text-[10px] text-brown-light truncate max-w-[160px]">{activePlan.planName}</span>
       </div>
 
-      <div className="glass-card border border-border/60 rounded-xl overflow-hidden">
+      <div className="glass-card border border-border rounded-2xl overflow-hidden">
         {/* Day navigator */}
         <div className="flex items-center justify-between px-4 py-3 bg-white/[0.04] border-b border-border/50">
           <button
@@ -306,14 +309,17 @@ export default function ClientDashboard() {
       {/* Today's meals */}
       <div className="px-5 mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-display font-bold text-sm tracking-[0.15em] text-muted">TODAY'S MEALS</h2>
-          <button onClick={() => setActivePage('log')} className="font-display text-xs text-brown tracking-widest">
+          <div className="flex items-center gap-2">
+            <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">TODAY'S MEALS</p>
+          </div>
+          <button onClick={() => setActivePage('log')} className="font-mono text-[10px] tracking-[0.15em] text-brown">
             VIEW LOG →
           </button>
         </div>
 
         {entries.length === 0 ? (
-          <div className="glass-card border border-border/60 rounded-xl p-8 text-center anim-fade-in" style={{ animationDelay: '300ms' }}>
+          <div className="glass-card border border-border rounded-2xl p-8 text-center anim-fade-in" style={{ animationDelay: '300ms' }}>
             <p className="font-display font-bold text-lg text-muted tracking-widest">NOTHING LOGGED</p>
             <p className="font-mono text-xs text-dim mt-1">Tap the log tab to add your meals</p>
           </div>
@@ -324,7 +330,7 @@ export default function ClientDashboard() {
               return (
                 <div
                   key={meal}
-                  className="glass-card border border-border/60 rounded-xl overflow-hidden anim-fade-in-up card-hover"
+                  className="glass-card border border-border rounded-2xl overflow-hidden anim-fade-in-up card-hover"
                   style={{ animationDelay: `${gi * 60 + 200}ms` }}
                 >
                   <div className="flex justify-between px-4 py-2.5 bg-white/[0.04]">
@@ -362,7 +368,10 @@ export default function ClientDashboard() {
       {/* Your Coach card */}
       {coachProfile && (
         <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '400ms' }}>
-          <h2 className="font-display font-bold text-sm tracking-[0.15em] text-muted mb-3">YOUR COACH</h2>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">YOUR COACH</p>
+          </div>
           <button
             onClick={() => setActivePage('coach')}
             className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all card-hover card-dim"

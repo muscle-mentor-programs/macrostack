@@ -150,7 +150,7 @@ function AddClientModal({ onClose }) {
     setTimeout(onClose, 1600)
   }
 
-  const inputCls = 'w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors'
+  const inputCls = 'w-full bg-surface border border-border rounded-xl px-3 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors'
 
   return (
     <div className="fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-50 anim-fade-in">
@@ -194,7 +194,7 @@ function AddClientModal({ onClose }) {
           </div>
 
           {showCalc && (
-            <div className="bg-surface border border-border rounded-xl p-4 space-y-4 anim-fade-in card-dim">
+            <div className="bg-surface border border-border rounded-2xl p-4 space-y-4 anim-fade-in card-dim">
               {/* Sex */}
               <div>
                 <p className="font-display text-xs text-muted tracking-widest mb-2">BIOLOGICAL SEX</p>
@@ -263,7 +263,7 @@ function AddClientModal({ onClose }) {
               <button
                 type="button"
                 onClick={runCalc}
-                className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-colors"
+                className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-xl transition-colors"
               >
                 CALCULATE TARGETS
               </button>
@@ -720,7 +720,10 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
               <div className="space-y-5">
                 {/* Today's macros */}
                 <div className="anim-fade-in-up">
-                  <p className="font-display text-xs text-muted tracking-widest mb-3">TODAY'S INTAKE</p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+                    <p className="font-mono text-[10px] tracking-[0.22em] text-muted">TODAY'S INTAKE</p>
+                  </div>
                   <div className="grid grid-cols-2 gap-2.5">
                     {[
                       { label: 'CALORIES', val: todayTotals.calories, goal: client.goals.calories, text: 'text-cream',           bar: 'bg-brown'     },
@@ -730,7 +733,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                     ].map(({ label, val, goal, text, bar }, i) => {
                       const pct = Math.min(Math.round((val / (goal || 1)) * 100), 100)
                       return (
-                        <div key={label} className="bg-card border border-border rounded-xl p-3 anim-fade-in-up card-dim"
+                        <div key={label} className="bg-card border border-border rounded-2xl p-3 anim-fade-in-up card-dim"
                           style={{ animationDelay: `${i * 50}ms` }}>
                           <div className="flex justify-between items-baseline mb-1.5">
                             <p className="font-display text-xs text-muted tracking-widest">{label}</p>
@@ -753,7 +756,10 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                 {/* 7-day compliance */}
                 <div className="anim-fade-in-up" style={{ animationDelay: '150ms' }}>
                   <div className="flex items-center justify-between mb-3">
-                    <p className="font-display text-xs text-muted tracking-widest">7-DAY COMPLIANCE</p>
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+                      <p className="font-mono text-[10px] tracking-[0.22em] text-muted">7-DAY COMPLIANCE</p>
+                    </div>
                     <span className="font-display font-bold text-sm text-olive-light">
                       <AnimatedNumber value={compliance} duration={800} />%
                     </span>
@@ -778,7 +784,10 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                 {/* Goals editor */}
                 <div className="anim-fade-in-up" style={{ animationDelay: '100ms' }}>
                   <div className="flex items-center justify-between mb-3">
-                    <p className="font-display text-xs text-muted tracking-widest">NUTRITION TARGETS</p>
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+                      <p className="font-mono text-[10px] tracking-[0.22em] text-muted">NUTRITION TARGETS</p>
+                    </div>
                     <button onClick={() => setEditGoals(!editGoals)}
                       className="font-display text-xs text-brown hover:text-brown-light tracking-widest transition-colors">
                       {editGoals ? 'CANCEL' : 'EDIT'}
@@ -815,7 +824,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                         ))}
                       </div>
                       <button onClick={saveGoals}
-                        className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-lg transition-colors">
+                        className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-2.5 rounded-xl transition-colors">
                         SAVE TARGETS
                       </button>
                     </div>
@@ -839,8 +848,11 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                 </div>
 
                 {/* Client meta */}
-                <div className="bg-card border border-border rounded-xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '200ms' }}>
-                  <p className="font-display text-xs text-muted tracking-widest mb-2">USER INFO</p>
+                <div className="bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '200ms' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+                    <p className="font-mono text-[10px] tracking-[0.22em] text-muted">USER INFO</p>
+                  </div>
                   <p className="font-mono text-xs text-dim">
                     Member since {format(parseISO(client.createdAt), 'MMM d, yyyy')}
                   </p>
@@ -850,7 +862,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                 </div>
 
                 {/* Danger zone */}
-                <div className="border border-red-900/30 rounded-xl p-4 anim-fade-in-up" style={{ animationDelay: '250ms' }}>
+                <div className="border border-red-900/30 rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '250ms' }}>
                   <p className="font-display text-xs text-red-400/70 tracking-widest mb-3">DANGER ZONE</p>
                   <button
                     onClick={() => { removeClient(client.id); onClose() }}
@@ -995,7 +1007,7 @@ export default function Clients() {
                         ? '0 4px 16px rgba(0,0,0,0.45), 0 0 0 1px rgba(154,123,85,0.35), inset 0 1px 0 rgba(255,255,255,0.06)'
                         : '0 2px 8px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.05)',
                     }}
-                    className={`anim-fade-in-up w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all text-left card-hover ${
+                    className={`anim-fade-in-up w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all text-left card-hover ${
                       isSelected
                         ? 'bg-card border-l-4 border-l-brown'
                         : 'bg-surface hover:bg-card border border-border'

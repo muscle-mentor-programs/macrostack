@@ -78,7 +78,7 @@ export default function CoachProfile() {
           {!editing ? (
             <button
               onClick={() => setEditing(true)}
-              className="flex items-center gap-2 bg-surface border border-border text-muted hover:text-cream hover:border-brown font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-lg transition-colors"
+              className="flex items-center gap-2 bg-surface border border-border text-muted hover:text-cream hover:border-brown font-display font-bold text-sm tracking-widest px-5 py-2.5 rounded-xl transition-colors"
             >
               <Pencil size={14} />
               EDIT
@@ -95,7 +95,7 @@ export default function CoachProfile() {
               </button>
               <button
                 onClick={handleCancel}
-                className="flex items-center gap-2 bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-4 py-2.5 rounded-lg transition-colors"
+                className="flex items-center gap-2 bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-4 py-2.5 rounded-xl transition-colors"
               >
                 <X size={14} />
                 CANCEL
@@ -137,7 +137,7 @@ export default function CoachProfile() {
         </div>
 
         {/* Coach code */}
-        <div className="glass-card border border-border/60 rounded-xl p-5 card-hover">
+        <div className="glass-card border border-border rounded-2xl p-5 card-hover">
           <p className={lbl}>COACH CODE</p>
           <div className="flex items-center gap-3 mt-1">
             <span className="font-mono text-xl font-bold text-brown-light tracking-widest flex-1">
@@ -146,7 +146,7 @@ export default function CoachProfile() {
             {currentUser?.coachCode && (
               <button
                 onClick={copyCode}
-                className="flex items-center gap-1.5 bg-surface border border-border text-muted hover:text-cream hover:border-brown font-display font-bold text-xs tracking-widest px-3 py-2 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 bg-surface border border-border text-muted hover:text-cream hover:border-brown font-display font-bold text-xs tracking-widest px-3 py-2 rounded-xl transition-colors"
               >
                 {copied ? <Check size={12} className="text-olive-light" /> : <Copy size={12} />}
                 {copied ? 'COPIED' : 'COPY'}
@@ -265,7 +265,7 @@ export default function CoachProfile() {
           <p className="font-mono text-xs text-dim">
             This is what users see when they view your coach profile from the app.
           </p>
-          <div className="mt-3 glass-card border border-border/60 rounded-xl p-5 space-y-3 card-hover">
+          <div className="mt-3 glass-card border border-border rounded-2xl p-5 space-y-3 card-hover">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
                 <span className="font-display font-black text-xl text-brown-light">{initial}</span>
