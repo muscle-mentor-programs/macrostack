@@ -161,9 +161,14 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         </div>
       </div>
 
-      {/* ── Food list — natural full-height scroll ── */}
+      {/* ── Food list — capped to avoid freezing on 1900+ items ── */}
+      {(() => {
+        const limit    = query.trim() ? 100 : 40
+        const visible  = filtered.slice(0, limit)
+        const overflow = filtered.length - limit
+        return (
       <div className="flex-1 overflow-y-auto">
-        {filtered.map((food) => (
+        {visible.map((food) => (
           <button
             key={food.id}
             onClick={() => handleSelectFood(food)}
@@ -203,7 +208,14 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
             <p className="font-mono text-xs text-dim mt-2">Try scanning a barcode to add new foods</p>
           </div>
         )}
+        {overflow > 0 && (
+          <p className="text-center py-5 font-mono text-xs text-dim">
+            +{overflow} more — type to refine
+          </p>
+        )}
       </div>
+        )
+      })()}
 
       {/* ── Serving popup — centered modal overlay ── */}
       {selected && (
