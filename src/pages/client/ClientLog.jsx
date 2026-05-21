@@ -204,68 +204,87 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         )}
       </div>
 
-      {/* ── Bottom config panel — slides up when food selected ── */}
+      {/* ── Serving popup — centered modal overlay ── */}
       {selected && (
-        <div className="flex-shrink-0 border-t border-border bg-surface px-4 pt-3 pb-6 space-y-3 anim-fade-in-up">
-          {/* Selected food name */}
-          <p className="font-mono text-sm text-cream truncate">{selected.name}</p>
-
-          {/* Serving inputs */}
-          {hasGrams ? (
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <label className={labelCls}>SERVINGS</label>
-                <input type="text" inputMode="decimal" value={quantity} onChange={(e) => handleQtyChange(e.target.value)} className={inpCls} />
-              </div>
-              <div>
-                <label className={labelCls}>GRAMS</label>
-                <input type="text" inputMode="decimal" value={grams} onChange={(e) => handleGramsChange(e.target.value)} className={inpCls} />
-              </div>
-              <div>
-                <label className={labelCls}>MEAL</label>
-                <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inpCls}>
-                  {MEALS.map((m) => <option key={m}>{m}</option>)}
-                </select>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className={labelCls}>QUANTITY</label>
-                <input type="text" inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} className={inpCls} />
-              </div>
-              <div>
-                <label className={labelCls}>MEAL</label>
-                <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inpCls}>
-                  {MEALS.map((m) => <option key={m}>{m}</option>)}
-                </select>
-              </div>
-            </div>
-          )}
-
-          {/* Macro preview */}
-          {scaled && (
-            <div className="grid grid-cols-4 gap-1.5">
-              {[
-                { label: 'KCAL', val: scaled.calories, cls: 'text-cream' },
-                { label: 'PRO',  val: scaled.protein,  cls: 'text-olive-light' },
-                { label: 'CARB', val: scaled.carbs,    cls: 'text-brown-light' },
-                { label: 'FAT',  val: scaled.fat,      cls: 'text-slategray-light' },
-              ].map(({ label, val, cls }) => (
-                <div key={label} className="bg-card border border-border rounded-lg p-1.5 text-center card-dim">
-                  <p className={`font-display font-black text-sm ${cls}`}>{Number(val).toFixed(0)}</p>
-                  <p className="font-mono text-[9px] text-muted">{label}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <button
-            onClick={handleAdd}
-            className="w-full font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors bg-blue hover:bg-blue-light text-white"
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center px-5"
+          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setSelected(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-surface border border-border rounded-2xl p-4 space-y-3 anim-fade-in-up shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
-            ADD TO LOG
-          </button>
+            {/* Food name + dismiss */}
+            <div className="flex items-start justify-between gap-2">
+              <p className="font-mono text-sm text-cream leading-snug">{selected.name}</p>
+              <button
+                onClick={() => setSelected(null)}
+                className="flex-shrink-0 text-muted hover:text-cream transition-colors mt-0.5"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Serving inputs */}
+            {hasGrams ? (
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className={labelCls}>SERVINGS</label>
+                  <input type="text" inputMode="decimal" value={quantity} onChange={(e) => handleQtyChange(e.target.value)} className={inpCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>GRAMS</label>
+                  <input type="text" inputMode="decimal" value={grams} onChange={(e) => handleGramsChange(e.target.value)} className={inpCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>MEAL</label>
+                  <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inpCls}>
+                    {MEALS.map((m) => <option key={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className={labelCls}>QUANTITY</label>
+                  <input type="text" inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} className={inpCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>MEAL</label>
+                  <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inpCls}>
+                    {MEALS.map((m) => <option key={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Macro preview */}
+            {scaled && (
+              <div className="grid grid-cols-4 gap-1.5">
+                {[
+                  { label: 'KCAL', val: scaled.calories, cls: 'text-cream' },
+                  { label: 'PRO',  val: scaled.protein,  cls: 'text-olive-light' },
+                  { label: 'CARB', val: scaled.carbs,    cls: 'text-brown-light' },
+                  { label: 'FAT',  val: scaled.fat,      cls: 'text-slategray-light' },
+                ].map(({ label, val, cls }) => (
+                  <div key={label} className="bg-card border border-border rounded-lg p-1.5 text-center card-dim">
+                    <p className={`font-display font-black text-sm ${cls}`}>{Number(val).toFixed(0)}</p>
+                    <p className="font-mono text-[9px] text-muted">{label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={handleAdd}
+              className="w-full font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors bg-blue hover:bg-blue-light text-white"
+            >
+              ADD TO LOG
+            </button>
+          </div>
         </div>
       )}
 
