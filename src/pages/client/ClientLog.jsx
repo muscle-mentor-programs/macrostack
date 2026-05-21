@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, Plus, Search, ArrowLeft, Trash2,
@@ -598,14 +599,17 @@ export default function ClientLog() {
 
       </div>{/* end page content wrapper */}
 
-      {/* ── Full-screen food selector — fades in over the log page ── */}
-      {modalMeal && (
+      {/* ── Full-screen food selector — rendered via portal to document.body
+           so that fixed inset-0 is relative to the viewport (not the
+           overflow-y-auto <main> container), covering BottomNav on iOS ── */}
+      {modalMeal && createPortal(
         <FoodSelectorPage
           onClose={() => setModalMeal(null)}
           clientId={activeClientId}
           logDate={logDate}
           defaultMeal={modalMeal}
-        />
+        />,
+        document.body
       )}
     </div>
   )
