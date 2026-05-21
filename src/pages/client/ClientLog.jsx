@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, Plus, Search, ArrowLeft, Trash2,
@@ -280,7 +280,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
 
             <button
               onClick={handleAdd}
-              className="w-full font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors bg-blue hover:bg-blue-light text-white"
+              className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover"
             >
               ADD TO LOG
             </button>
@@ -307,12 +307,19 @@ export default function ClientLog() {
   const {
     activeClientId, clients,
     removeClientEntry, updateClientEntry,
-    getClientTotalsForDate, logDate, setLogDate,
+    getClientTotalsForDate, logDate, setLogDate, setNavHidden,
   } = useStore()
 
   const [modalMeal, setModalMeal] = useState(null)
   // editState: { id, qty, grams, servingSize, perQty: { cal, pro, carb, fat } }
   const [editState, setEditState] = useState(null)
+
+  // Hide BottomNav while food selector is open — prevents accidental HOME taps
+  // on iOS Safari where fixed children are trapped inside overflow-y-auto containers
+  useEffect(() => {
+    setNavHidden(!!modalMeal)
+    return () => setNavHidden(false)
+  }, [modalMeal])
 
   const client  = clients.find((c) => c.id === activeClientId)
   const entries = client?.log?.[logDate] || []
