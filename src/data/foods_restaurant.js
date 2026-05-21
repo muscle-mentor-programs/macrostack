@@ -259,17 +259,6 @@ export const FOODS_RESTAURANT = [
   { id: 'r_ddk_plain_bagel_cc',     name: 'Plain Bagel with Cream Cheese',  brand: "Dunkin'", category: 'Restaurant', servingSize: 152, servingUnit: '1 bagel+CC', calories: 490, protein: 16, carbs: 76, fiber: 3, sugar: 8,  fat: 14, saturatedFat: 7,  sodium: 890  },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // RAISING CANE'S
-  // ══════════════════════════════════════════════════════════════════════════
-  { id: 'r_canes_1_finger',         name: '1 Chicken Finger',                brand: "Raising Cane's", category: 'Restaurant', servingSize: 42,  servingUnit: '1 finger',  calories: 130, protein: 12, carbs: 6,  fiber: 0, sugar: 0,  fat: 6,  saturatedFat: 1.5,sodium: 330  },
-  { id: 'r_canes_3_combo',          name: '3 Finger Combo',                  brand: "Raising Cane's", category: 'Restaurant', servingSize: 407, servingUnit: '1 combo',   calories: 795, protein: 47, carbs: 79, fiber: 4, sugar: 6,  fat: 30, saturatedFat: 6,  sodium: 1790 },
-  { id: 'r_canes_box_combo',        name: 'Box Combo (4 Fingers)',           brand: "Raising Cane's", category: 'Restaurant', servingSize: 499, servingUnit: '1 combo',   calories: 980, protein: 59, carbs: 89, fiber: 5, sugar: 7,  fat: 37, saturatedFat: 8,  sodium: 2260 },
-  { id: 'r_canes_fries_reg',        name: 'Crinkle-Cut Fries (Regular)',     brand: "Raising Cane's", category: 'Restaurant', servingSize: 127, servingUnit: '1 regular', calories: 325, protein: 5,  carbs: 47, fiber: 4, sugar: 0,  fat: 14, saturatedFat: 2.5,sodium: 470  },
-  { id: 'r_canes_texas_toast',      name: 'Texas Toast (1 slice)',           brand: "Raising Cane's", category: 'Restaurant', servingSize: 49,  servingUnit: '1 slice',   calories: 150, protein: 4,  carbs: 20, fiber: 1, sugar: 2,  fat: 7,  saturatedFat: 2,  sodium: 305  },
-  { id: 'r_canes_canes_sauce',      name: "Cane's Sauce (1 container)",     brand: "Raising Cane's", category: 'Restaurant', servingSize: 42,  servingUnit: '1 container',calories: 130, protein: 0,  carbs: 5,  fiber: 0, sugar: 1,  fat: 13, saturatedFat: 2,  sodium: 280  },
-  { id: 'r_canes_coleslaw',         name: 'Cole Slaw',                       brand: "Raising Cane's", category: 'Restaurant', servingSize: 91,  servingUnit: '1 serving', calories: 130, protein: 1,  carbs: 18, fiber: 1, sugar: 16, fat: 7,  saturatedFat: 1,  sodium: 105  },
-
-  // ══════════════════════════════════════════════════════════════════════════
   // POPEYES
   // ══════════════════════════════════════════════════════════════════════════
   { id: 'r_pop_chicken_sndwch',     name: 'Chicken Sandwich (Classic)',      brand: 'Popeyes', category: 'Restaurant', servingSize: 236, servingUnit: '1 sandwich', calories: 700, protein: 28, carbs: 50, fiber: 3, sugar: 7,  fat: 42, saturatedFat: 8,  sodium: 1440 },

@@ -129,20 +129,6 @@ export const FOODS_RESTAURANT2 = [
 
   { id: 'r_ino_strawberry_shake_med', name: 'Strawberry Shake (Medium)', brand: 'In-N-Out Burger', category: 'Restaurant', servingSize: 425, servingUnit: '1 medium (15 fl oz)', calories: 610, protein: 15, carbs: 74, fiber: 0, sugar: 63, fat: 30, saturatedFat: 19, sodium: 350 },
 
-  // ══ RAISING CANE'S ════════════════════════════════════════════════════════════
-
-  { id: 'r_canes_chicken_finger', name: 'Chicken Finger (1 finger)', brand: "Raising Cane's", category: 'Restaurant', servingSize: 55, servingUnit: '1 finger', calories: 130, protein: 13, carbs: 5, fiber: 0, sugar: 0, fat: 6, saturatedFat: 1, sodium: 190 },
-
-  { id: 'r_canes_box_combo', name: 'The Box Combo (4 fingers + fries + coleslaw + toast + sauce)', brand: "Raising Cane's", category: 'Restaurant', servingSize: 567, servingUnit: '1 combo', calories: 1250, protein: 61, carbs: 97, fiber: 5, sugar: 8, fat: 68, saturatedFat: 11, sodium: 2130 },
-
-  { id: 'r_canes_caniac_combo', name: 'Caniac Combo (6 fingers + fries + coleslaw + 2 toast + 2 sauce)', brand: "Raising Cane's", category: 'Restaurant', servingSize: 794, servingUnit: '1 combo', calories: 1790, protein: 89, carbs: 124, fiber: 6, sugar: 10, fat: 104, saturatedFat: 18, sodium: 3160 },
-
-  { id: 'r_canes_crinkle_fries', name: 'Crinkle Cut Fries', brand: "Raising Cane's", category: 'Restaurant', servingSize: 170, servingUnit: '1 order', calories: 390, protein: 5, carbs: 49, fiber: 4, sugar: 0, fat: 19, saturatedFat: 3, sodium: 470 },
-
-  { id: 'r_canes_texas_toast', name: 'Texas Toast (1 slice)', brand: "Raising Cane's", category: 'Restaurant', servingSize: 50, servingUnit: '1 slice', calories: 140, protein: 4, carbs: 23, fiber: 1, sugar: 4, fat: 4, saturatedFat: 1, sodium: 260 },
-
-  { id: 'r_canes_sauce', name: "Cane's Sauce", brand: "Raising Cane's", category: 'Restaurant', servingSize: 28, servingUnit: '1 serving', calories: 190, protein: 0, carbs: 6, fiber: 0, sugar: 4, fat: 19, saturatedFat: 3, sodium: 580 },
-
   // ══ CARL'S JR. / HARDEE'S ════════════════════════════════════════════════════
 
   { id: 'r_cjr_famous_star_cheese', name: 'Famous Star with Cheese', brand: "Carl's Jr.", category: 'Restaurant', servingSize: 286, servingUnit: '1 burger', calories: 670, protein: 28, carbs: 57, fiber: 3, sugar: 10, fat: 37, saturatedFat: 13, sodium: 1210 },
