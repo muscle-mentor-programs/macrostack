@@ -283,7 +283,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
                   { label: 'CARB', val: scaled.carbs,    cls: 'text-brown-light' },
                   { label: 'FAT',  val: scaled.fat,      cls: 'text-slategray-light' },
                 ].map(({ label, val, cls }) => (
-                  <div key={label} className="bg-card border border-border rounded-lg p-1.5 text-center card-dim">
+                  <div key={label} className="border border-border/50 rounded-lg p-1.5 text-center card-inset">
                     <p className={`font-display font-black text-sm ${cls}`}>{Number(val).toFixed(0)}</p>
                     <p className="font-mono text-[9px] text-muted">{label}</p>
                   </div>
@@ -570,7 +570,7 @@ export default function ClientLog() {
                                   { l: 'CARB', v: editPreview.carb, c: 'text-brown-light' },
                                   { l: 'FAT',  v: editPreview.fat,  c: 'text-slategray-light' },
                                 ].map(({ l, v, c }) => (
-                                  <div key={l} className="bg-card border border-border rounded-lg p-2 text-center card-dim">
+                                  <div key={l} className="border border-border/50 rounded-lg p-2 text-center card-inset">
                                     <p className={`font-display font-bold text-sm ${c}`}>{v}</p>
                                     <p className="font-mono text-[10px] text-dim">{l}</p>
                                   </div>

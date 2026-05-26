@@ -182,7 +182,7 @@ function AddFoodModal({ onClose }) {
                   { label: 'CARBS', val: scaled.carbs, color: 'text-brown-light' },
                   { label: 'FAT', val: scaled.fat, color: 'text-slategray-light' },
                 ].map(({ label, val, color }) => (
-                  <div key={label} className="bg-card border border-border rounded-lg p-3 text-center card-dim">
+                  <div key={label} className="border border-border/50 rounded-lg p-3 text-center card-inset">
                     <p className={`font-display font-black text-xl ${color}`}>{val.toFixed(1)}</p>
                     <p className="font-mono text-xs text-muted">{label}</p>
                   </div>

@@ -281,7 +281,7 @@ function AddClientModal({ onClose }) {
                     { label: 'CARB', val: calcResult.carbs, color: 'text-brown-light' },
                     { label: 'FAT', val: calcResult.fat, color: 'text-slategray-light' },
                   ].map(({ label, val, color }, i) => (
-                    <div key={label} className="bg-card border border-brown/20 rounded-lg p-2.5 text-center card-dim">
+                    <div key={label} className="border border-brown/20 rounded-lg p-2.5 text-center card-inset">
                       <p className={`font-display font-black text-lg ${color} data-flicker`}>
                         <AnimatedNumber value={val} duration={700} delay={i * 60} />
                       </p>
@@ -836,7 +836,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                         { label: 'CARBS',    val: client.goals.carbs,    color: 'text-brown-light' },
                         { label: 'FAT',      val: client.goals.fat,      color: 'text-slategray-light' },
                       ].map(({ label, val, color }, i) => (
-                        <div key={label} className="bg-card border border-border rounded-lg p-3 card-dim">
+                        <div key={label} className="border border-border/50 rounded-lg p-3 card-inset">
                           <p className={`font-display font-bold text-lg ${color}`}>
                             <AnimatedNumber value={val} duration={700} delay={i * 50} />
                           </p>

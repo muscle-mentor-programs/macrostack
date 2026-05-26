@@ -504,7 +504,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                       { label: 'CARB', val: scaledPreview.carbs,    color: 'text-brown-light' },
                       { label: 'FAT',  val: scaledPreview.fat,      color: 'text-slategray-light' },
                     ].map(({ label, val, color }) => (
-                      <div key={label} className="bg-surface border border-border rounded-lg px-2.5 py-1.5 text-center card-dim">
+                      <div key={label} className="border border-border/50 rounded-lg px-2.5 py-1.5 text-center card-inset">
                         <p className={`font-display font-bold text-sm ${color}`}>{val.toFixed(0)}</p>
                         <p className="font-mono text-[9px] text-muted">{label}</p>
                       </div>

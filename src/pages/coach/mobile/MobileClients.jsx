@@ -192,7 +192,7 @@ function AddClientScreen({ onClose }) {
                   { label: 'CARB', val: calcResult.carbs,    color: 'text-brown-light' },
                   { label: 'FAT',  val: calcResult.fat,      color: 'text-slategray-light' },
                 ].map(({ label, val, color }, i) => (
-                  <div key={label} className="bg-card border border-brown/20 rounded-xl p-2.5 text-center card-dim">
+                  <div key={label} className="border border-brown/20 rounded-xl p-2.5 text-center card-inset">
                     <p className={`font-display font-black text-lg ${color}`}><AnimatedNumber value={val} duration={700} delay={i * 60} /></p>
                     <p className="font-mono text-[10px] text-muted">{label}</p>
                   </div>
@@ -634,7 +634,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
                     { label: 'CARB', val: client.goals.carbs,    color: 'text-brown-light'    },
                     { label: 'FAT',  val: client.goals.fat,      color: 'text-slategray-light' },
                   ].map(({ label, val, color }, i) => (
-                    <div key={label} className="bg-card border border-border rounded-xl p-2.5 text-center card-dim">
+                    <div key={label} className="border border-border/50 rounded-xl p-2.5 text-center card-inset">
                       <p className={`font-display font-bold text-lg ${color}`}><AnimatedNumber value={val} duration={700} delay={i * 50} /></p>
                       <p className="font-mono text-xs text-muted">{label}</p>
                     </div>

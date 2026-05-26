@@ -329,7 +329,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
         ].map(({ label, val, goal, color, bar }) => {
           const pct = Math.min(Math.round((val / (goal || 1)) * 100), 100)
           return (
-            <div key={label} className="bg-surface border border-border rounded-xl p-2.5 card-dim">
+            <div key={label} className="border border-border/50 rounded-xl p-2.5 card-inset">
               <p className={`font-display font-black text-base ${color}`}>{Math.round(val)}g</p>
               <p className="font-mono text-[10px] text-muted">{label} / {goal}g</p>
               <div className="mt-1.5 w-full overflow-hidden rounded-full h-[5px]" style={{ background: 'rgba(255,255,255,0.06)' }}>

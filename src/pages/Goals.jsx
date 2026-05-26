@@ -263,7 +263,7 @@ export default function Goals() {
                   { label: 'CARBS', val: calculated.carbs, color: 'text-brown-light' },
                   { label: 'FAT', val: calculated.fat, color: 'text-slategray-light' },
                 ].map(({ label, val, color }) => (
-                  <div key={label} className="glass-card border border-border rounded-xl p-3 text-center card-dim">
+                  <div key={label} className="border border-border/50 rounded-xl p-3 text-center card-inset">
                     <p className={`font-display font-black text-3xl ${color}`}>{val}</p>
                     <p className="font-mono text-xs text-muted">{label}</p>
                   </div>
