@@ -1133,3 +1133,21 @@ html.ocean-light .text-gold-sweep {
    Compensate with equal leading padding. */
 .track-center    { padding-left: 0.1em;  }  /* pairs with tracking-widest  */
 .track-center-lg { padding-left: 0.15em; }  /* pairs with tracking-[0.15em] */
+
+/* ─────────────────────────────────────────────
+   LANDING SCROLLYTELLING MODE
+   The app shell locks html/body/#root to the viewport (overflow:hidden)
+   for the PWA layout. The GSAP/Lenis landing needs the DOCUMENT to be the
+   scroller, so this class — added while Landing is mounted — restores
+   natural document flow. Specificity beats the base rules; no !important.
+───────────────────────────────────────────── */
+html.landing-mode,
+html.landing-mode body {
+  height: auto;
+  overflow: visible;
+  overscroll-behavior: auto;
+}
+html.landing-mode #root {
+  height: auto;
+  overflow: visible;
+}
