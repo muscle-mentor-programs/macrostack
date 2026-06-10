@@ -9,6 +9,23 @@ gsap.registerPlugin(ScrollTrigger, MotionPathPlugin)
 // Dev-only handle for driving animations in headless verification
 if (import.meta.env.DEV) window.__gsap = gsap
 
+/* ── Theme tokens — landing inherits the app's active theme ──────────────────
+   All colors come from the CSS custom properties the app's theme system sets
+   (ocean/forest/default, dark/light). Accent shades and alphas are derived
+   with color-mix so every theme renders its own correct palette.            */
+const ACCENT       = 'var(--color-accent)'
+const ACCENT_LIGHT = 'color-mix(in srgb, var(--color-accent) 72%, white)'
+const ACCENT_DARK  = 'color-mix(in srgb, var(--color-accent) 70%, black)'
+const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
+
+/* Inverted section: the theme's cream as background, its bg as ink — keeps
+   the dark/light alternation alive in every theme. */
+const INVERT_BG   = 'var(--color-cream)'
+const INVERT_INK  = 'var(--color-bg)'
+const INVERT_SOFT = 'color-mix(in srgb, var(--color-bg) 62%, var(--color-cream))'
+
+const ON_ACCENT = '#FFFFFF' /* accent is mid-tone in every theme — white reads on all */
+
 /* ── Content data ─────────────────────────────────────────────────────────── */
 
 const HERO_LINES = [
@@ -55,8 +72,6 @@ const STATS = [
   { value: 100,  suffix: '%',  label: 'FREE TO START'  },
   { value: 24,   suffix: '/7', label: 'KAY AVAILABLE'  },
 ]
-
-const ACCENT = '#9A7B55'
 
 /* Fill-vessel geometry (SVG user units). Bottom edge sits at y = VESSEL_BOTTOM;
    each story step fills one LAYER_H slab upward — animated via attr y/height. */
@@ -245,31 +260,34 @@ export default function Landing({ onGetStarted }) {
   }, [])
 
   return (
-    <div ref={rootRef} className="bg-[#0A0A09] text-[#E8E4DC] font-mono antialiased">
+    <div ref={rootRef} className="bg-bg text-cream font-mono antialiased">
 
       {/* ── Scroll progress bar ── */}
       <div
         ref={progressRef}
         className="fixed top-0 left-0 right-0 h-[3px] z-50 pointer-events-none"
-        style={{ background: `linear-gradient(90deg, ${ACCENT}, #C8A468)` }}
+        style={{ background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT_LIGHT})` }}
       />
 
       {/* ── Nav ── */}
-      <nav className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 md:px-10 py-4 bg-[#0A0A09]/70 backdrop-blur-xl border-b border-white/[0.06]">
-        <p className="font-display font-black text-lg tracking-widest">
+      <nav
+        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 md:px-10 py-4 backdrop-blur-xl border-b border-border"
+        style={{ background: 'color-mix(in srgb, var(--color-bg) 72%, transparent)' }}
+      >
+        <p className="font-display font-black text-lg tracking-widest text-cream">
           MACRO<span style={{ color: ACCENT }}>STACK</span>
         </p>
         <div className="flex items-center gap-3">
           <button
             onClick={onGetStarted}
-            className="font-display font-bold text-xs tracking-widest text-[#7A756E] hover:text-[#E8E4DC] transition-colors px-3 py-2"
+            className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-3 py-2"
           >
             SIGN IN
           </button>
           <button
             onClick={onGetStarted}
-            className="font-display font-bold text-xs tracking-widest text-[#0A0A09] px-4 py-2 rounded-lg transition-all hover:brightness-110"
-            style={{ background: `linear-gradient(135deg, ${ACCENT}, #B89060)` }}
+            className="font-display font-bold text-xs tracking-widest px-4 py-2 rounded-lg transition-all hover:brightness-110"
+            style={{ background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`, color: ON_ACCENT }}
           >
             GET STARTED
           </button>
@@ -282,7 +300,7 @@ export default function Landing({ onGetStarted }) {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: `radial-gradient(ellipse 60% 45% at 70% 20%, rgba(154,123,85,0.16), transparent 60%), radial-gradient(ellipse 50% 40% at 25% 80%, rgba(154,123,85,0.10), transparent 60%)`,
+            background: `radial-gradient(ellipse 60% 45% at 70% 20%, ${accentA(16)}, transparent 60%), radial-gradient(ellipse 50% 40% at 25% 80%, ${accentA(10)}, transparent 60%)`,
           }}
         />
         {/* Grid texture */}
@@ -295,10 +313,10 @@ export default function Landing({ onGetStarted }) {
         />
 
         <div className="hero-inner relative text-center px-6">
-          <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-[#7A756E] mb-6">
+          <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-muted mb-6">
             PRECISION NUTRITION PLATFORM
           </p>
-          <h1 className="font-display font-black leading-[0.95] text-6xl md:text-8xl tracking-[0.06em]">
+          <h1 className="font-display font-black leading-[0.95] text-6xl md:text-8xl tracking-[0.06em] text-cream">
             {HERO_LINES.map(({ text, accent }) => (
               <span key={text} className="block overflow-hidden py-1">
                 <span
@@ -310,24 +328,25 @@ export default function Landing({ onGetStarted }) {
               </span>
             ))}
           </h1>
-          <p className="hero-sub max-w-md mx-auto mt-8 text-sm md:text-base leading-relaxed text-[#9B968E]">
+          <p className="hero-sub max-w-md mx-auto mt-8 text-sm md:text-base leading-relaxed text-muted">
             The nutrition OS for serious athletes and the coaches who guide them.
             Macro tracking, coaching tools, and AI food intel — one platform.
           </p>
           <div className="hero-ctas flex items-center justify-center gap-4 mt-10">
             <button
               onClick={onGetStarted}
-              className="font-display font-bold text-sm tracking-widest text-[#0A0A09] px-8 py-4 rounded-xl transition-all hover:brightness-110"
+              className="font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl transition-all hover:brightness-110"
               style={{
-                background: `linear-gradient(135deg, ${ACCENT}, #B89060)`,
-                boxShadow: '0 8px 32px rgba(154,123,85,0.35)',
+                background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
+                boxShadow: `0 8px 32px ${accentA(35)}`,
+                color: ON_ACCENT,
               }}
             >
               START FOR FREE →
             </button>
             <button
               onClick={onGetStarted}
-              className="font-display font-bold text-sm tracking-widest text-[#E8E4DC] px-6 py-4 rounded-xl border border-white/15 hover:border-white/40 transition-colors"
+              className="font-display font-bold text-sm tracking-widest text-cream px-6 py-4 rounded-xl border border-border hover:border-muted transition-colors"
             >
               SIGN IN
             </button>
@@ -336,15 +355,15 @@ export default function Landing({ onGetStarted }) {
 
         {/* Scroll cue */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
-          <p className="font-mono text-[9px] tracking-[0.35em] text-[#5A554E]">SCROLL</p>
-          <div className="w-[22px] h-[36px] rounded-full border border-white/20 flex justify-center pt-2">
+          <p className="font-mono text-[9px] tracking-[0.35em] text-muted opacity-70">SCROLL</p>
+          <div className="w-[22px] h-[36px] rounded-full border border-border flex justify-center pt-2">
             <div className="scroll-cue-dot w-1 h-2 rounded-full" style={{ background: ACCENT }} />
           </div>
         </div>
       </section>
 
-      {/* ══ 3+4. GUIDE LINE over STATEMENT (light) ═══════════════════════════ */}
-      <div className="guide-wrap relative bg-[#F5F1EB] text-[#161310]">
+      {/* ══ 3+4. GUIDE LINE over STATEMENT (inverted theme section) ══════════ */}
+      <div className="guide-wrap relative" style={{ background: INVERT_BG, color: INVERT_INK }}>
         {/* Weaving SVG guide line — behind content */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -355,11 +374,10 @@ export default function Landing({ onGetStarted }) {
           <path
             ref={guidePathRef}
             d="M 500 0 C 500 260, 160 330, 160 560 C 160 800, 840 760, 840 1010 C 840 1260, 200 1300, 320 1560 C 400 1740, 500 1800, 500 2000"
-            stroke={ACCENT}
-            strokeOpacity="0.55"
+            style={{ stroke: ACCENT, strokeOpacity: 0.55 }}
             strokeWidth="2.5"
           />
-          <circle ref={guideDotRef} r="7" fill={ACCENT}>
+          <circle ref={guideDotRef} r="7" style={{ fill: ACCENT }}>
             <animate attributeName="opacity" values="1;0.6;1" dur="1.6s" repeatCount="indefinite" />
           </circle>
         </svg>
@@ -378,8 +396,10 @@ export default function Landing({ onGetStarted }) {
         {/* How-it-works intro */}
         <section className="relative px-6 pb-36 max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-5">
-            <span className="w-8 h-px" style={{ background: `${ACCENT}99` }} />
-            <p className="font-mono text-[10px] tracking-[0.3em] text-[#8A8378]">HOW IT WORKS</p>
+            <span className="w-8 h-px" style={{ background: accentA(60) }} />
+            <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
+              HOW IT WORKS
+            </p>
           </div>
           <h2 className="font-display font-black text-5xl md:text-7xl tracking-wide leading-[1.02]">
             FOUR STEPS TO
@@ -389,8 +409,8 @@ export default function Landing({ onGetStarted }) {
         </section>
       </div>
 
-      {/* ══ 5. PINNED STORY (dark) ═══════════════════════════════════════════ */}
-      <section className="story relative h-screen overflow-hidden bg-[#0A0A09]">
+      {/* ══ 5. PINNED STORY (theme dark) ═════════════════════════════════════ */}
+      <section className="story relative h-screen overflow-hidden bg-bg">
         <div className="h-full max-w-6xl mx-auto px-6 md:px-10 grid md:grid-cols-2 items-center gap-10 pt-16 md:pt-0">
 
           {/* Steps — stacked, crossfade */}
@@ -398,20 +418,20 @@ export default function Landing({ onGetStarted }) {
             {STORY_STEPS.map((s) => (
               <div key={s.n} className="story-step absolute inset-0 flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="font-display font-black text-5xl" style={{ color: `${ACCENT}55` }}>
+                  <span className="font-display font-black text-5xl" style={{ color: accentA(33) }}>
                     {s.n}
                   </span>
                   <span
                     className="font-mono text-[10px] tracking-[0.3em] px-2.5 py-1 rounded-full border"
-                    style={{ color: ACCENT, borderColor: `${ACCENT}44`, background: `${ACCENT}11` }}
+                    style={{ color: ACCENT, borderColor: accentA(27), background: accentA(7) }}
                   >
                     {s.tag}
                   </span>
                 </div>
-                <h3 className="font-display font-black text-3xl md:text-5xl tracking-wide leading-tight mb-4">
+                <h3 className="font-display font-black text-3xl md:text-5xl tracking-wide leading-tight mb-4 text-cream">
                   {s.title}
                 </h3>
-                <p className="text-sm md:text-base leading-relaxed text-[#9B968E] max-w-md">
+                <p className="text-sm md:text-base leading-relaxed text-muted max-w-md">
                   {s.body}
                 </p>
               </div>
@@ -426,14 +446,14 @@ export default function Landing({ onGetStarted }) {
                   <rect x="80" y="40" width="160" height="280" rx="18" />
                 </clipPath>
                 <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#C8A468" />
-                  <stop offset="100%" stopColor={ACCENT} />
+                  <stop offset="0%" style={{ stopColor: ACCENT_LIGHT }} />
+                  <stop offset="100%" style={{ stopColor: 'var(--color-accent)' }} />
                 </linearGradient>
               </defs>
 
               {/* Vessel outline */}
               <rect x="80" y="40" width="160" height="280" rx="18"
-                stroke={`${ACCENT}66`} strokeWidth="2" fill="rgba(255,255,255,0.02)" />
+                style={{ stroke: accentA(40), fill: 'rgba(127,127,127,0.04)' }} strokeWidth="2" />
 
               {/* The fill — y/height animated, clipped to vessel */}
               <g clipPath="url(#vesselClip)">
@@ -447,7 +467,7 @@ export default function Landing({ onGetStarted }) {
                     key={i}
                     x1="80" x2="240"
                     y1={VESSEL_BOTTOM - LAYER_H * i} y2={VESSEL_BOTTOM - LAYER_H * i}
-                    stroke="#0A0A09" strokeOpacity="0.45" strokeWidth="2"
+                    style={{ stroke: 'var(--color-bg)' }} strokeOpacity="0.45" strokeWidth="2"
                   />
                 ))}
               </g>
@@ -459,8 +479,11 @@ export default function Landing({ onGetStarted }) {
                   className="story-pct"
                   x="160" y="190"
                   textAnchor="middle"
-                  fill="#E8E4DC"
-                  style={{ font: '900 44px "Barlow Condensed", sans-serif', letterSpacing: '2px' }}
+                  style={{
+                    fill: 'var(--color-cream)',
+                    font: '900 44px "Barlow Condensed", sans-serif',
+                    letterSpacing: '2px',
+                  }}
                 >
                   {p}
                 </text>
@@ -472,8 +495,11 @@ export default function Landing({ onGetStarted }) {
                   key={label}
                   className="story-layer-label"
                   x="252" y={VESSEL_BOTTOM - LAYER_H * i - LAYER_H / 2 + 5}
-                  fill={ACCENT}
-                  style={{ font: '700 13px "Courier Prime", monospace', letterSpacing: '2px' }}
+                  style={{
+                    fill: 'var(--color-accent)',
+                    font: '700 13px "Courier Prime", monospace',
+                    letterSpacing: '2px',
+                  }}
                 >
                   {label}
                 </text>
@@ -483,12 +509,14 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 6. HORIZONTAL SHOWCASE (light) ═══════════════════════════════════ */}
-      <section className="showcase relative h-screen overflow-hidden bg-[#F5F1EB] text-[#161310]">
+      {/* ══ 6. HORIZONTAL SHOWCASE (inverted theme section) ══════════════════ */}
+      <section className="showcase relative h-screen overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
         <div className="pt-24 md:pt-28 px-6 md:px-10 max-w-5xl">
           <div className="flex items-center gap-3 mb-4">
-            <span className="w-8 h-px" style={{ background: `${ACCENT}99` }} />
-            <p className="font-mono text-[10px] tracking-[0.3em] text-[#8A8378]">THE PLATFORM</p>
+            <span className="w-8 h-px" style={{ background: accentA(60) }} />
+            <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
+              THE PLATFORM
+            </p>
           </div>
           <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide">
             EVERYTHING YOU NEED.
@@ -499,14 +527,18 @@ export default function Landing({ onGetStarted }) {
           {CARDS.map((c) => (
             <div
               key={c.title}
-              className="w-[78vw] sm:w-[380px] md:w-[420px] flex-shrink-0 rounded-3xl border border-[#161310]/10 bg-white/60 p-8 md:p-10 backdrop-blur-sm"
-              style={{ boxShadow: '0 8px 40px rgba(22,19,16,0.08)' }}
+              className="w-[78vw] sm:w-[380px] md:w-[420px] flex-shrink-0 rounded-3xl p-8 md:p-10 backdrop-blur-sm"
+              style={{
+                background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.45))',
+                border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)',
+                boxShadow: '0 8px 40px color-mix(in srgb, var(--color-bg) 10%, transparent)',
+              }}
             >
               <span className="text-4xl" style={{ color: ACCENT }}>{c.icon}</span>
               <h3 className="font-display font-black text-2xl md:text-3xl tracking-wide mt-6 mb-3">
                 {c.title}
               </h3>
-              <p className="text-sm leading-relaxed text-[#5A544C]">{c.body}</p>
+              <p className="text-sm leading-relaxed" style={{ color: INVERT_SOFT }}>{c.body}</p>
             </div>
           ))}
           {/* View-all card */}
@@ -514,18 +546,19 @@ export default function Landing({ onGetStarted }) {
             onClick={onGetStarted}
             className="w-[78vw] sm:w-[380px] md:w-[420px] flex-shrink-0 rounded-3xl p-8 md:p-10 text-left flex flex-col justify-between transition-all hover:brightness-110"
             style={{
-              background: `linear-gradient(150deg, ${ACCENT}, #7A5F3E)`,
-              boxShadow: '0 12px 48px rgba(154,123,85,0.35)',
+              background: `linear-gradient(150deg, ${ACCENT}, ${ACCENT_DARK})`,
+              boxShadow: `0 12px 48px ${accentA(35)}`,
+              color: ON_ACCENT,
             }}
           >
-            <span className="text-4xl text-[#F5F1EB]">→</span>
+            <span className="text-4xl">→</span>
             <div>
-              <h3 className="font-display font-black text-3xl md:text-4xl tracking-wide text-[#F5F1EB]">
+              <h3 className="font-display font-black text-3xl md:text-4xl tracking-wide">
                 SEE IT ALL.
                 <br />
                 FREE.
               </h3>
-              <p className="font-mono text-xs tracking-[0.25em] text-[#F5F1EB]/70 mt-4">
+              <p className="font-mono text-xs tracking-[0.25em] mt-4" style={{ opacity: 0.75 }}>
                 CREATE YOUR ACCOUNT →
               </p>
             </div>
@@ -533,8 +566,8 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 7. FINALE (dark) ═════════════════════════════════════════════════ */}
-      <section className="relative bg-[#0A0A09] px-6 pt-32 pb-24">
+      {/* ══ 7. FINALE (theme dark) ═══════════════════════════════════════════ */}
+      <section className="relative bg-bg px-6 pt-32 pb-24">
         {/* Stats */}
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 md:gap-12 text-center">
           {STATS.map((s) => (
@@ -543,7 +576,7 @@ export default function Landing({ onGetStarted }) {
                 <span className="stat-num" data-value={s.value}>0</span>
                 <span>{s.suffix}</span>
               </p>
-              <p className="font-mono text-[9px] md:text-xs tracking-[0.3em] text-[#7A756E] mt-2">
+              <p className="font-mono text-[9px] md:text-xs tracking-[0.3em] text-muted mt-2">
                 {s.label}
               </p>
             </div>
@@ -552,20 +585,21 @@ export default function Landing({ onGetStarted }) {
 
         {/* CTA */}
         <div className="finale-cta max-w-3xl mx-auto text-center mt-36 mb-12">
-          <h2 className="font-display font-black text-5xl md:text-8xl tracking-wide leading-[0.98]">
+          <h2 className="font-display font-black text-5xl md:text-8xl tracking-wide leading-[0.98] text-cream">
             START
             <br />
             <span style={{ color: ACCENT }}>STACKING.</span>
           </h2>
-          <p className="text-sm md:text-base text-[#9B968E] mt-6 max-w-md mx-auto">
+          <p className="text-sm md:text-base text-muted mt-6 max-w-md mx-auto">
             Free to start. No credit card. Your coach — or your goals — are waiting.
           </p>
           <button
             onClick={onGetStarted}
-            className="font-display font-bold text-base tracking-widest text-[#0A0A09] px-10 py-5 rounded-2xl mt-10 transition-all hover:brightness-110"
+            className="font-display font-bold text-base tracking-widest px-10 py-5 rounded-2xl mt-10 transition-all hover:brightness-110"
             style={{
-              background: `linear-gradient(135deg, ${ACCENT}, #B89060)`,
-              boxShadow: '0 12px 48px rgba(154,123,85,0.4)',
+              background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
+              boxShadow: `0 12px 48px ${accentA(40)}`,
+              color: ON_ACCENT,
             }}
           >
             GET STARTED FREE →
@@ -573,11 +607,11 @@ export default function Landing({ onGetStarted }) {
         </div>
 
         {/* Footer */}
-        <footer className="max-w-5xl mx-auto mt-24 pt-8 border-t border-white/[0.06] flex items-center justify-between">
-          <p className="font-display font-black text-sm tracking-widest">
+        <footer className="max-w-5xl mx-auto mt-24 pt-8 border-t border-border flex items-center justify-between">
+          <p className="font-display font-black text-sm tracking-widest text-cream">
             MACRO<span style={{ color: ACCENT }}>STACK</span>
           </p>
-          <p className="font-mono text-[10px] tracking-[0.2em] text-[#5A554E]">
+          <p className="font-mono text-[10px] tracking-[0.2em] text-muted opacity-70">
             NUTRITION OS · {new Date().getFullYear()}
           </p>
         </footer>
