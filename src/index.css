@@ -1074,23 +1074,21 @@ html.ocean-light .skeleton {
   background-size: 200% 100%;
 }
 
-/* Gold shimmer sweep across text — for hitting targets */
-@keyframes goldSweep {
-  from { background-position: 200% center; }
-  to   { background-position: -200% center; }
+/* Gold glow on text — for hitting targets.
+   NOTE: deliberately avoids background-clip:text + transparent fill —
+   that combo renders invisible text on iOS Safari when animated. */
+@keyframes goldPulse {
+  0%, 100% { text-shadow: 0 0 8px rgba(212,184,130,0.25); }
+  50%       { text-shadow: 0 0 20px rgba(212,184,130,0.60); }
 }
 .text-gold-sweep {
-  background: linear-gradient(
-    100deg,
-    var(--color-cream) 40%,
-    #D4B882 50%,
-    var(--color-cream) 60%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: goldSweep 2.4s linear infinite;
+  color: #D4B882;
+  animation: goldPulse 2.4s ease-in-out infinite;
+}
+html.light .text-gold-sweep,
+html.forest-light .text-gold-sweep,
+html.ocean-light .text-gold-sweep {
+  color: #8A6B35; /* deeper gold for contrast on light backgrounds */
 }
 
 /* Progress bar — gradient fill with a lit tip */
