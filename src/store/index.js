@@ -160,17 +160,21 @@ const useStore = create(
 
         set(update)
 
-        // Keep session in sync across tabs
-        supabase?.auth.onAuthStateChange((event) => {
-          if (event === 'SIGNED_OUT') {
-            set({
-              isAuthenticated: false, currentUser: null,
-              activeRole: null, activeClientId: null,
-              clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [],
-              coachProfile: null,
-            })
-          }
-        })
+        // Keep session in sync across tabs — subscribe exactly once even if
+        // initAuth re-runs (HMR, re-mount), otherwise listeners accumulate
+        if (!get()._authListenerAttached) {
+          set({ _authListenerAttached: true })
+          supabase?.auth.onAuthStateChange((event) => {
+            if (event === 'SIGNED_OUT') {
+              set({
+                isAuthenticated: false, currentUser: null,
+                activeRole: null, activeClientId: null,
+                clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [],
+                coachProfile: null,
+              })
+            }
+          })
+        }
       },
 
       login: async (email, password, edition = null) => {
@@ -244,15 +248,23 @@ const useStore = create(
 
       // ── DATA LOADING ──────────────────────────────────────────────────────
       loadAllData: async () => {
-        // Clients + all nested data in a single query
-        const { data: clientRows, error: cErr } = await supabase
-          .from('clients')
-          .select('*, food_log(*), weight_log(*), meal_plans(*)')
-          .order('created_at', { ascending: true })
+        // All four queries run in parallel — cuts login latency to the slowest
+        // single query instead of the sum of all four
+        const [clientRes, msgRes, foodRes, reqRes] = await Promise.all([
+          supabase.from('clients')
+            .select('*, food_log(*), weight_log(*), meal_plans(*)')
+            .order('created_at', { ascending: true }),
+          supabase.from('messages').select('*').order('created_at', { ascending: true }),
+          supabase.from('custom_foods').select('*').order('created_at', { ascending: true }),
+          supabase.from('coach_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
+        ])
 
-        if (cErr) console.error('loadAllData clients:', cErr)
+        if (clientRes.error) console.error('loadAllData clients:', clientRes.error)
+        if (msgRes.error)    console.error('loadAllData messages:', msgRes.error)
+        if (foodRes.error)   console.error('loadAllData foods:', foodRes.error)
+        if (reqRes.error)    console.error('loadAllData requests:', reqRes.error)
 
-        const clients = (clientRows || []).map((row) => {
+        const clients = (clientRes.data || []).map((row) => {
           // Group food_log entries by date
           const log = {}
           ;(row.food_log || []).forEach((e) => {
@@ -270,27 +282,18 @@ const useStore = create(
         })
 
         // Messages grouped by client_id
-        const { data: msgRows } = await supabase
-          .from('messages').select('*').order('created_at', { ascending: true })
-
         const messages = {}
-        ;(msgRows || []).forEach((row) => {
+        ;(msgRes.data || []).forEach((row) => {
           if (!messages[row.client_id]) messages[row.client_id] = []
           messages[row.client_id].push(dbToMessage(row))
         })
 
-        // Custom + scanned foods
-        const { data: foodRows } = await supabase
-          .from('custom_foods').select('*').order('created_at', { ascending: true })
+        const foodRows      = foodRes.data || []
+        const customFoods   = foodRows.filter((f) => f.source === 'custom').map(dbToFood)
+        const overrideFoods = foodRows.filter((f) => f.source === 'override').map(dbToFood)
+        const scannedFoods  = foodRows.filter((f) => f.source !== 'custom' && f.source !== 'override').map(dbToFood)
 
-        const customFoods   = (foodRows || []).filter((f) => f.source === 'custom').map(dbToFood)
-        const overrideFoods = (foodRows || []).filter((f) => f.source === 'override').map(dbToFood)
-        const scannedFoods  = (foodRows || []).filter((f) => f.source !== 'custom' && f.source !== 'override').map(dbToFood)
-
-        const { data: reqRows } = await supabase
-          .from('coach_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false })
-
-        set({ clients, messages, customFoods, scannedFoods, overrideFoods, coachRequests: reqRows || [] })
+        set({ clients, messages, customFoods, scannedFoods, overrideFoods, coachRequests: reqRes.data || [] })
       },
 
       // ── THEME ─────────────────────────────────────────────────────────────
@@ -862,9 +865,10 @@ Rules:
           if (linkErr) { console.error('respondToRequest link:', linkErr); return { ok: false } }
         }
 
-        await supabase.from('coach_requests').update({
+        const { error: statusErr } = await supabase.from('coach_requests').update({
           status: accept ? 'accepted' : 'rejected',
         }).eq('id', requestId)
+        if (statusErr) console.error('respondToRequest status:', statusErr)
 
         set((s) => ({ coachRequests: s.coachRequests.filter((r) => r.id !== requestId) }))
 

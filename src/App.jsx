@@ -1,40 +1,50 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import useStore from './store'
 import useIsMobile from './hooks/useIsMobile'
 
-// Layouts
+// Layouts (small — keep eager so the shell paints instantly)
 import CoachLayout from './layouts/CoachLayout'
 import ClientLayout from './layouts/ClientLayout'
 
-// Auth
-import Landing from './pages/Landing'
-import LoginScreen from './pages/LoginScreen'
-import SetPasswordScreen from './pages/SetPasswordScreen'
+// ── Code-split pages — each loads on demand, keeping the initial bundle
+//    small (Landing, the 1900-item food DB, and recharts are the heavy ones)
+const Landing           = lazy(() => import('./pages/Landing'))
+const LoginScreen       = lazy(() => import('./pages/LoginScreen'))
+const SetPasswordScreen = lazy(() => import('./pages/SetPasswordScreen'))
 
 // Role entry points
-import RoleSelector from './pages/RoleSelector'
-import ClientSelector from './pages/client/ClientSelector'
+const RoleSelector   = lazy(() => import('./pages/RoleSelector'))
+const ClientSelector = lazy(() => import('./pages/client/ClientSelector'))
 
 // Coach pages — desktop
-import CoachDashboard from './pages/coach/CoachDashboard'
-import CoachChat      from './pages/coach/CoachChat'
-import CoachProfile   from './pages/coach/CoachProfile'
-import MyFoods        from './pages/MyFoods'
-import Clients        from './pages/coach/Clients'
+const CoachDashboard = lazy(() => import('./pages/coach/CoachDashboard'))
+const CoachChat      = lazy(() => import('./pages/coach/CoachChat'))
+const CoachProfile   = lazy(() => import('./pages/coach/CoachProfile'))
+const MyFoods        = lazy(() => import('./pages/MyFoods'))
+const Clients        = lazy(() => import('./pages/coach/Clients'))
 
 // Coach pages — mobile (auto-selected when viewport < 768 px)
-import MobileCoachDashboard from './pages/coach/mobile/MobileCoachDashboard'
-import MobileClients        from './pages/coach/mobile/MobileClients'
-import MobileChat           from './pages/coach/mobile/MobileChat'
-import MobileMyFoods        from './pages/coach/mobile/MobileMyFoods'
+const MobileCoachDashboard = lazy(() => import('./pages/coach/mobile/MobileCoachDashboard'))
+const MobileClients        = lazy(() => import('./pages/coach/mobile/MobileClients'))
+const MobileChat           = lazy(() => import('./pages/coach/mobile/MobileChat'))
+const MobileMyFoods        = lazy(() => import('./pages/coach/mobile/MobileMyFoods'))
 
 // Client pages (always mobile)
-import ClientDashboard    from './pages/client/ClientDashboard'
-import ClientLog          from './pages/client/ClientLog'
-import ClientWeight       from './pages/client/ClientWeight'
-import ClientMessages     from './pages/client/ClientMessages'
-import ClientProfile      from './pages/client/ClientProfile'
-import ClientCoachProfile from './pages/client/ClientCoachProfile'
+const ClientDashboard    = lazy(() => import('./pages/client/ClientDashboard'))
+const ClientLog          = lazy(() => import('./pages/client/ClientLog'))
+const ClientWeight       = lazy(() => import('./pages/client/ClientWeight'))
+const ClientMessages     = lazy(() => import('./pages/client/ClientMessages'))
+const ClientProfile      = lazy(() => import('./pages/client/ClientProfile'))
+const ClientCoachProfile = lazy(() => import('./pages/client/ClientCoachProfile'))
+
+// Shared suspense fallback — matches the auth spinner so transitions feel seamless
+function PageLoader() {
+  return (
+    <div className="flex h-full w-full bg-bg items-center justify-center">
+      <div className="w-8 h-8 border-2 border-brown border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+}
 
 const COACH_PAGES_DESKTOP = {
   dashboard: CoachDashboard,
@@ -109,26 +119,46 @@ export default function App() {
   }
 
   if (!isAuthenticated) {
-    if (showLogin) return <LoginScreen onBack={IS_PWA ? null : () => setShowLogin(false)} />
-    return <Landing onGetStarted={() => setShowLogin(true)} />
+    return (
+      <Suspense fallback={<PageLoader />}>
+        {showLogin
+          ? <LoginScreen onBack={IS_PWA ? null : () => setShowLogin(false)} />
+          : <Landing onGetStarted={() => setShowLogin(true)} />}
+      </Suspense>
+    )
   }
 
   // Invited client just confirmed their email — make them set a password first
   if (postInvite) {
-    return <SetPasswordScreen onDone={() => setPostInvite(false)} />
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <SetPasswordScreen onDone={() => setPostInvite(false)} />
+      </Suspense>
+    )
   }
 
   if (!activeRole) {
-    if (currentUser?.role === 'client') return <ClientSelector />
-    return <RoleSelector />
+    return (
+      <Suspense fallback={<PageLoader />}>
+        {currentUser?.role === 'client' ? <ClientSelector /> : <RoleSelector />}
+      </Suspense>
+    )
   }
 
   if (activeRole === 'client') {
-    if (!activeClientId) return <ClientSelector />
+    if (!activeClientId) {
+      return (
+        <Suspense fallback={<PageLoader />}>
+          <ClientSelector />
+        </Suspense>
+      )
+    }
     const ClientPage = CLIENT_PAGES[activePage] || ClientDashboard
     return (
       <ClientLayout>
-        <ClientPage />
+        <Suspense fallback={<PageLoader />}>
+          <ClientPage />
+        </Suspense>
       </ClientLayout>
     )
   }
@@ -140,7 +170,9 @@ export default function App() {
 
   return (
     <CoachLayout>
-      <CoachPage />
+      <Suspense fallback={<PageLoader />}>
+        <CoachPage />
+      </Suspense>
     </CoachLayout>
   )
 }
