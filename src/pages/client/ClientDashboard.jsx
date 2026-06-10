@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
-import { format } from 'date-fns'
-import { LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList } from 'lucide-react'
+import { format, subDays } from 'date-fns'
+import { LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList, Flame } from 'lucide-react'
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts'
 import useStore from '../../store'
 import AnimatedNumber from '../../components/AnimatedNumber'
@@ -255,6 +255,22 @@ export default function ClientDashboard() {
     return acc
   }, {})
 
+  // Consecutive logged days. A day counts if anything was logged. Today not
+  // having entries yet doesn't break the streak — it starts from yesterday.
+  const streak = useMemo(() => {
+    const log = client?.log || {}
+    const todayStr = format(new Date(), 'yyyy-MM-dd')
+    let s = 0
+    let i = (log[todayStr]?.length > 0) ? 0 : 1
+    for (; ; i++) {
+      const d = format(subDays(new Date(), i), 'yyyy-MM-dd')
+      if ((log[d] || []).length > 0) s++
+      else break
+      if (i > 365) break // sanity cap
+    }
+    return s
+  }, [client?.log])
+
   const handleSignOut = () => {
     setActiveClientId(null)
     setActiveRole(null)
@@ -298,9 +314,17 @@ export default function ClientDashboard() {
             <ScrambleText text={client?.name?.split(' ')[0]?.toUpperCase() || 'ATHLETE'} duration={700} delay={50} />
           </h1>
         </div>
-        <button onClick={handleSignOut} className="text-muted hover:text-cream transition-colors p-2">
-          <LogOut size={18} />
-        </button>
+        <div className="flex items-center gap-2">
+          {streak >= 2 && (
+            <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-brown/30 bg-brown/10 anim-pop" style={{ animationDelay: '500ms' }}>
+              <Flame size={13} className="text-brown-light" fill="currentColor" />
+              <span className="font-mono text-[10px] text-brown-light font-bold">{streak}</span>
+            </div>
+          )}
+          <button onClick={handleSignOut} className="text-muted hover:text-cream transition-colors p-2">
+            <LogOut size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Calorie ring */}

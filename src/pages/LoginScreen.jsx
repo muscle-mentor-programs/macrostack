@@ -218,7 +218,7 @@ export default function LoginScreen({ onBack }) {
             className={`${inputCls} ${accentFocusCls}`}
           />
         </div>
-        {signupError && <p className="font-mono text-xs text-red-400 anim-fade-in">{signupError}</p>}
+        {signupError && <p className="font-mono text-xs text-red-400 anim-shake">{signupError}</p>}
         <button
           type="submit"
           tabIndex={tabIdx}
@@ -266,15 +266,21 @@ export default function LoginScreen({ onBack }) {
 
         {/* Brand */}
         <div className="text-center mb-8 scanline-parent py-3">
-          <div className="flex justify-center mb-3">
-            <img src="/MSLOGO2.png" width="56" height="56" alt="MacroStack logo" />
+          <div className="flex justify-center mb-4">
+            <div className="relative">
+              {/* Ambient glow behind the logo */}
+              <div className="absolute inset-0 rounded-full bg-brown/30 blur-2xl scale-150" />
+              <img src="/MSLOGO2.png" width="56" height="56" alt="MacroStack logo" className="relative" />
+            </div>
           </div>
-          <h1 className="font-display font-black text-6xl tracking-widest leading-none text-cream">
+          {/* track-center compensates the trailing letter-space so the
+              tracked display text sits on true center */}
+          <h1 className="font-display font-black text-6xl tracking-widest track-center leading-none text-cream">
             <ScrambleText text="MACRO" duration={900} />
             <br />
             <ScrambleText text="STACK" className="text-brown" duration={900} delay={150} />
           </h1>
-          <p className="font-mono text-xs text-muted tracking-widest mt-2 cursor">NUTRITION OS</p>
+          <p className="font-mono text-xs text-muted tracking-widest track-center mt-3">NUTRITION OS</p>
         </div>
 
         {/* ── 3D flip card ─────────────────────────────── */}
@@ -292,7 +298,7 @@ export default function LoginScreen({ onBack }) {
               aria-hidden={isClient}
               style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             >
-              <div className="bg-card border border-border rounded-2xl p-6 shadow-2xl space-y-4">
+              <div className="relative overflow-hidden glass-card border border-border rounded-2xl p-6 space-y-4 accent-line">
                 <div>
                   <p className="font-display font-black text-xl tracking-widest text-cream">
                     {mode === 'login' ? 'COACH SIGN IN' : 'COACH SIGN UP'}
@@ -306,7 +312,7 @@ export default function LoginScreen({ onBack }) {
                   <form onSubmit={handleLogin} className="space-y-3">
                     {emailField(isClient ? -1 : 0)}
                     {passwordField(isClient ? -1 : 0)}
-                    {error && <p className="font-mono text-xs text-red-400 anim-fade-in">{error}</p>}
+                    {error && <p className="font-mono text-xs text-red-400 anim-shake">{error}</p>}
                     <button
                       type="submit"
                       tabIndex={isClient ? -1 : 0}
@@ -333,7 +339,7 @@ export default function LoginScreen({ onBack }) {
                 top: 0, left: 0, right: 0,
               }}
             >
-              <div className="bg-card border border-border rounded-2xl p-6 shadow-2xl space-y-4">
+              <div className="relative overflow-hidden glass-card border border-border rounded-2xl p-6 space-y-4 accent-line">
                 <div>
                   <p className="font-display font-black text-xl tracking-widest text-blue-light">
                     {mode === 'login' ? 'USER SIGN IN' : 'USER SIGN UP'}
@@ -347,7 +353,7 @@ export default function LoginScreen({ onBack }) {
                   <form onSubmit={handleLogin} className="space-y-3">
                     {emailField(!isClient ? -1 : 0, 'focus:border-blue')}
                     {passwordField(!isClient ? -1 : 0, 'focus:border-blue')}
-                    {error && <p className="font-mono text-xs text-red-400 anim-fade-in">{error}</p>}
+                    {error && <p className="font-mono text-xs text-red-400 anim-shake">{error}</p>}
                     <button
                       type="submit"
                       tabIndex={!isClient ? -1 : 0}
@@ -366,24 +372,34 @@ export default function LoginScreen({ onBack }) {
         </div>
         {/* ─────────────────────────────────────────────── */}
 
-        {/* Edition toggle */}
-        <div className="flex gap-2 mt-4">
+        {/* Edition toggle — segmented control with sliding pill */}
+        <div className="relative flex mt-4 bg-card border border-border rounded-xl p-1 card-dim">
+          <div
+            className="absolute top-1 bottom-1 rounded-lg pointer-events-none"
+            style={{
+              left:  isClient ? '4px' : '50%',
+              width: 'calc(50% - 4px)',
+              background: isClient
+                ? 'linear-gradient(135deg, #4A80C4 0%, #6B9FD8 100%)'
+                : 'linear-gradient(135deg, #558A55 0%, #6EAA6E 100%)',
+              boxShadow: isClient
+                ? '0 2px 14px rgba(74,128,196,0.45), inset 0 1px 0 rgba(255,255,255,0.25)'
+                : '0 2px 14px rgba(85,138,85,0.45), inset 0 1px 0 rgba(255,255,255,0.25)',
+              transition: 'left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1), background 0.3s ease, box-shadow 0.3s ease',
+            }}
+          />
           <button
             onClick={() => switchEdition('client')}
-            className={`flex-1 py-2.5 rounded-xl font-display font-bold text-xs tracking-widest transition-all duration-200 ${
-              isClient
-                ? 'bg-blue text-bg shadow-sm'
-                : 'bg-card border border-border text-muted hover:text-cream'
+            className={`relative z-10 flex-1 py-2.5 font-display font-bold text-xs tracking-widest transition-colors duration-200 ${
+              isClient ? 'text-bg' : 'text-muted hover:text-cream'
             }`}
           >
             USER EDITION
           </button>
           <button
             onClick={() => switchEdition('coach')}
-            className={`flex-1 py-2.5 rounded-xl font-display font-bold text-xs tracking-widest transition-all duration-200 ${
-              !isClient
-                ? 'bg-green text-bg shadow-sm'
-                : 'bg-card border border-border text-muted hover:text-cream'
+            className={`relative z-10 flex-1 py-2.5 font-display font-bold text-xs tracking-widest transition-colors duration-200 ${
+              !isClient ? 'text-bg' : 'text-muted hover:text-cream'
             }`}
           >
             COACH EDITION

@@ -1117,3 +1117,21 @@ html.ocean-light .skeleton {
 .anim-content-rise {
   animation: contentRise 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Error shake — wrong password, invalid input */
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+.anim-shake {
+  animation: shakeX 0.4s ease both;
+}
+
+/* Centered tracked text — letter-spacing adds trailing space after the last
+   glyph, shifting tracked display text visually left of true center.
+   Compensate with equal leading padding. */
+.track-center    { padding-left: 0.1em;  }  /* pairs with tracking-widest  */
+.track-center-lg { padding-left: 0.15em; }  /* pairs with tracking-[0.15em] */

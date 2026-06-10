@@ -457,6 +457,14 @@ export default function ClientLog() {
             <ScrambleText key={logDate} text={format(parsedDate, 'EEEE').toUpperCase()} duration={600} />
           </h2>
           <p className="font-mono text-xs text-muted">{format(parsedDate, 'MMMM d, yyyy')}</p>
+          {logDate !== format(new Date(), 'yyyy-MM-dd') && (
+            <button
+              onClick={() => setLogDate(format(new Date(), 'yyyy-MM-dd'))}
+              className="mt-1.5 px-3 py-1 rounded-full border border-brown/30 bg-brown/10 font-mono text-[10px] tracking-[0.18em] text-brown-light anim-pop press"
+            >
+              ↩ TODAY
+            </button>
+          )}
         </div>
         <button onClick={next} className="w-10 h-10 flex items-center justify-center text-muted hover:text-cream">
           <ChevronRight size={22} />
