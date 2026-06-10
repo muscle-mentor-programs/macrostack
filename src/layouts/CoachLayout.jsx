@@ -74,9 +74,10 @@ export default function CoachLayout({ children }) {
           </button>
         </div>
 
-        {/* Scrollable page content with entrance animation */}
-        <main ref={mainRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
-          <div key={activePage} className="anim-page-reveal min-h-full">
+        {/* Scrollable page content — MotionPage (in App) choreographs entrances
+            and binds scroll reveals to this scroller via data-scroller */}
+        <main ref={mainRef} data-scroller className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
+          <div key={activePage} className="min-h-full">
             {children}
           </div>
         </main>
@@ -92,7 +93,7 @@ export default function CoachLayout({ children }) {
       <AmbientBackground />
       <Sidebar />
       <main className="flex-1 overflow-hidden relative">
-        <div key={activePage} className="anim-page-reveal h-full">
+        <div key={activePage} className="h-full">
           {children}
         </div>
       </main>

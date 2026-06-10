@@ -67,9 +67,10 @@ export default function ClientLayout({ children }) {
         </button>
       </div>
 
-      {/* Scrollable page content with entrance animation */}
-      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
-        <div key={activePage} className="anim-page-reveal min-h-full">
+      {/* Scrollable page content — MotionPage (in App) choreographs entrances
+          and binds scroll reveals to this scroller via data-scroller */}
+      <main data-scroller className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
+        <div key={activePage} className="min-h-full">
           {children}
         </div>
       </main>

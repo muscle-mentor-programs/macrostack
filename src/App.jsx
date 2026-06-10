@@ -5,6 +5,7 @@ import useIsMobile from './hooks/useIsMobile'
 // Layouts (small — keep eager so the shell paints instantly)
 import CoachLayout from './layouts/CoachLayout'
 import ClientLayout from './layouts/ClientLayout'
+import MotionPage from './components/MotionPage'
 
 // ── Code-split pages — each loads on demand, keeping the initial bundle
 //    small (Landing, the 1900-item food DB, and recharts are the heavy ones)
@@ -166,7 +167,10 @@ export default function App() {
     return (
       <ClientLayout>
         <Suspense fallback={<PageLoader />}>
-          <ClientPage />
+          {/* keyed so the motion engine re-choreographs on every page switch */}
+          <MotionPage key={activePage}>
+            <ClientPage />
+          </MotionPage>
         </Suspense>
       </ClientLayout>
     )
@@ -180,7 +184,9 @@ export default function App() {
   return (
     <CoachLayout>
       <Suspense fallback={<PageLoader />}>
-        <CoachPage />
+        <MotionPage key={`${activePage}-${isMobile}`}>
+          <CoachPage />
+        </MotionPage>
       </Suspense>
     </CoachLayout>
   )
