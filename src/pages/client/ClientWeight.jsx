@@ -4,6 +4,7 @@ import { Scale, TrendingDown, TrendingUp, Minus, Trash2, Calendar } from 'lucide
 import { ComposedChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts'
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
+import { successHaptic } from '../../utils/haptics'
 
 // Compute 7-day moving average keyed by calendar date so backfilled entries
 // slot into the correct window automatically.
@@ -30,6 +31,7 @@ export default function ClientWeight() {
     const val = parseFloat(input)
     if (!val) return
     addClientWeight(activeClientId, { value: val, unit, date: logDate })
+    successHaptic()
     setInput('')
     // Reset date back to today after logging
     setLogDate(todayStr)

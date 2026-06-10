@@ -3,6 +3,7 @@ import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { MessageCircle, Send, Loader2, Sparkles, ChevronLeft, UserCircle2 } from 'lucide-react'
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
+import { tapHaptic } from '../../utils/haptics'
 
 function msgTime(ts) {
   if (!ts) return ''
@@ -193,6 +194,7 @@ export default function ClientMessages() {
     } else if (openThread === 'kay') {
       sendKayMessage(activeClientId, input.trim())
     }
+    tapHaptic()
     setInput('')
   }
   const overlayBottom      = kbHeight > 0 ? `${kbHeight}px` : '0px'

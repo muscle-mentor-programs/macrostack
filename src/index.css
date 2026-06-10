@@ -1013,3 +1013,107 @@ html.ocean-light  .card-inset { background: rgba(0,0,0,0.05) !important; box-sha
   box-shadow: 0 6px 28px rgba(154,123,85,0.48), 0 0 0 1px rgba(154,123,85,0.35), inset 0 1px 0 rgba(255,255,255,0.22);
   filter: brightness(1.06);
 }
+
+/* ─────────────────────────────────────────────
+   PREMIUM MOTION SYSTEM
+───────────────────────────────────────────── */
+
+/* Spring pop — overshoot entrance for modals and confirmations */
+@keyframes springIn {
+  0%   { opacity: 0; transform: scale(0.90) translateY(8px); }
+  60%  { opacity: 1; transform: scale(1.015) translateY(-1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.anim-spring-in {
+  animation: springIn 0.42s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+/* Success pulse — single gold ripple for goal hits / saves */
+@keyframes successPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(154,123,85,0.55); }
+  100% { box-shadow: 0 0 0 18px rgba(154,123,85,0); }
+}
+.anim-success {
+  animation: successPulse 0.7s cubic-bezier(0.16, 1, 0.3, 1) 1;
+}
+
+/* Goal-hit ring glow — breathes gold while a target is met */
+@keyframes goalGlow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(184,150,96,0.35)); }
+  50%       { filter: drop-shadow(0 0 18px rgba(184,150,96,0.65)); }
+}
+.anim-goal-glow {
+  animation: goalGlow 2.6s ease-in-out infinite;
+}
+
+/* Skeleton shimmer — branded loading placeholder */
+@keyframes skeletonSweep {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+.skeleton {
+  border-radius: 12px;
+  background: linear-gradient(
+    100deg,
+    rgba(255,255,255,0.04) 35%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.04) 65%
+  );
+  background-size: 200% 100%;
+  animation: skeletonSweep 1.6s ease infinite;
+}
+html.light .skeleton,
+html.forest-light .skeleton,
+html.ocean-light .skeleton {
+  background: linear-gradient(
+    100deg,
+    rgba(0,0,0,0.05) 35%,
+    rgba(0,0,0,0.10) 50%,
+    rgba(0,0,0,0.05) 65%
+  );
+  background-size: 200% 100%;
+}
+
+/* Gold shimmer sweep across text — for hitting targets */
+@keyframes goldSweep {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+.text-gold-sweep {
+  background: linear-gradient(
+    100deg,
+    var(--color-cream) 40%,
+    #D4B882 50%,
+    var(--color-cream) 60%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: goldSweep 2.4s linear infinite;
+}
+
+/* Progress bar — gradient fill with a lit tip */
+.bar-premium {
+  position: relative;
+  background: linear-gradient(90deg, var(--color-accent) 0%, #C8A468 100%);
+  box-shadow: 0 0 8px rgba(154,123,85,0.45);
+}
+.bar-premium::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 6px;
+  border-radius: inherit;
+  background: rgba(255,255,255,0.45);
+  filter: blur(2px);
+}
+
+/* Soft entrance for whole-page content — gentler than page-reveal */
+@keyframes contentRise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; }
+}
+.anim-content-rise {
+  animation: contentRise 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

@@ -1,5 +1,6 @@
 import { Home, BookOpen, Scale, User, MessageCircle } from 'lucide-react'
 import useStore from '../store'
+import { tapHaptic } from '../utils/haptics'
 
 const NAV = [
   { id: 'dashboard', label: 'HOME',    icon: Home          },
@@ -30,7 +31,7 @@ export default function BottomNav() {
           return (
             <button
               key={id}
-              onClick={() => setActivePage(id)}
+              onClick={() => { tapHaptic(); setActivePage(id) }}
               className={`relative flex flex-col items-center justify-center py-3 gap-1 transition-all duration-200 ${
                 active ? 'text-brown-light' : 'text-muted hover:text-cream'
               }`}
@@ -43,8 +44,11 @@ export default function BottomNav() {
                 />
               )}
 
-              <div className="relative z-10 transition-all duration-200"
-                style={{ transform: active ? 'scale(1.14)' : 'scale(1)' }}>
+              <div className="relative z-10"
+                style={{
+                  transform: active ? 'scale(1.14)' : 'scale(1)',
+                  transition: 'transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                }}>
                 <Icon
                   size={active ? 21 : 19}
                   strokeWidth={active ? 2.2 : 1.6}

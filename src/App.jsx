@@ -37,11 +37,20 @@ const ClientMessages     = lazy(() => import('./pages/client/ClientMessages'))
 const ClientProfile      = lazy(() => import('./pages/client/ClientProfile'))
 const ClientCoachProfile = lazy(() => import('./pages/client/ClientCoachProfile'))
 
-// Shared suspense fallback — matches the auth spinner so transitions feel seamless
+// Shared suspense fallback — branded skeleton so page swaps feel intentional,
+// not like a loading failure. Mirrors the typical page anatomy.
 function PageLoader() {
   return (
-    <div className="flex h-full w-full bg-bg items-center justify-center">
-      <div className="w-8 h-8 border-2 border-brown border-t-transparent rounded-full animate-spin" />
+    <div className="h-full w-full bg-bg px-5 pt-mobile-header anim-fade-in">
+      <div className="skeleton h-8 w-44 mb-2" />
+      <div className="skeleton h-3 w-28 mb-8" />
+      <div className="skeleton h-36 w-full mb-4 !rounded-2xl" />
+      <div className="flex gap-3 mb-4">
+        <div className="skeleton h-24 flex-1 !rounded-2xl" />
+        <div className="skeleton h-24 flex-1 !rounded-2xl" />
+        <div className="skeleton h-24 flex-1 !rounded-2xl" />
+      </div>
+      <div className="skeleton h-28 w-full !rounded-2xl" />
     </div>
   )
 }

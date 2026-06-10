@@ -21,11 +21,17 @@ function CalorieRing({ current, goal }) {
     return v || '#3A3733'
   }, [theme])
 
-  const pct  = Math.min((current / (goal || 1)) * 100, 100)
+  const rawPct  = (current / (goal || 1)) * 100
+  const pct     = Math.min(rawPct, 100)
+  // "On target" = within 90–105% of goal — ring breathes gold
+  const onTarget = rawPct >= 90 && rawPct <= 105
   const data = [{ value: pct, fill: accentColor }]
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
+    <div
+      className={`relative flex items-center justify-center ${onTarget ? 'anim-goal-glow' : ''}`}
+      style={{ width: 200, height: 200 }}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <RadialBarChart innerRadius="72%" outerRadius="100%" data={data} startAngle={90} endAngle={-270}>
           <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
@@ -41,18 +47,25 @@ function CalorieRing({ current, goal }) {
         </RadialBarChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display font-black text-5xl text-cream leading-none data-flicker">
+        <span className={`font-display font-black text-5xl leading-none data-flicker ${onTarget ? 'text-gold-sweep' : 'text-cream'}`}>
           <AnimatedNumber value={current} duration={1000} />
         </span>
         <span className="font-mono text-xs text-muted mt-1">KCAL</span>
         <span className="font-mono text-xs text-muted">/ {goal}</span>
+        {onTarget && (
+          <span className="font-mono text-[9px] tracking-[0.2em] text-brown-light mt-1 anim-pop">
+            ✦ ON TARGET
+          </span>
+        )}
       </div>
     </div>
   )
 }
 
 function MacroChip({ label, current, goal, color, delay = 0 }) {
-  const pct = Math.min(Math.round((current / (goal || 1)) * 100), 100)
+  const rawPct = Math.round((current / (goal || 1)) * 100)
+  const pct    = Math.min(rawPct, 100)
+  const hit    = rawPct >= 90 && rawPct <= 110
   const barColors = {
     olive: { bar: 'bg-olive', text: 'text-olive-light' },
     brown: { bar: 'bg-brown', text: 'text-brown-light' },
@@ -66,9 +79,14 @@ function MacroChip({ label, current, goal, color, delay = 0 }) {
       </p>
       <p className="font-mono text-xs text-muted">{label}</p>
       <div className="mt-2 w-full overflow-hidden rounded-full h-[5px]" style={{ background: 'rgba(255,255,255,0.06)' }}>
-        <div className={`h-[5px] rounded-full ${c.bar} bar-fill`} style={{ width: `${pct}%`, animationDelay: `${delay + 100}ms` }} />
+        <div
+          className={`h-[5px] rounded-full bar-fill ${hit ? 'bar-premium' : c.bar}`}
+          style={{ width: `${pct}%`, animationDelay: `${delay + 100}ms` }}
+        />
       </div>
-      <p className="font-mono text-xs text-dim mt-1">{pct}%</p>
+      <p className={`font-mono text-xs mt-1 ${hit ? 'text-brown-light' : 'text-dim'}`}>
+        {hit ? `✦ ${rawPct}%` : `${rawPct}%`}
+      </p>
     </div>
   )
 }
@@ -269,7 +287,13 @@ export default function ClientDashboard() {
       {/* Header */}
       <div className="relative flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <div>
-          <p className="font-mono text-xs text-muted tracking-widest">{format(new Date(), 'EEEE, MMMM d').toUpperCase()}</p>
+          <p className="font-mono text-xs text-muted tracking-widest">
+            {(() => {
+              const h = new Date().getHours()
+              const greet = h < 5 ? 'UP LATE' : h < 12 ? 'GOOD MORNING' : h < 17 ? 'GOOD AFTERNOON' : 'GOOD EVENING'
+              return `${greet} · ${format(new Date(), 'EEE, MMM d').toUpperCase()}`
+            })()}
+          </p>
           <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream mt-0.5">
             <ScrambleText text={client?.name?.split(' ')[0]?.toUpperCase() || 'ATHLETE'} duration={700} delay={50} />
           </h1>
