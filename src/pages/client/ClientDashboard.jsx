@@ -246,14 +246,6 @@ export default function ClientDashboard() {
   const client = clients.find((c) => c.id === activeClientId)
   const totals = getClientTotalsForDate(activeClientId, logDate)
   const remaining = (client?.goals?.calories || 0) - totals.calories
-  const entries = client?.log?.[logDate] || []
-
-  const mealGroups = entries.reduce((acc, e) => {
-    const m = e.meal || 'Other'
-    if (!acc[m]) acc[m] = []
-    acc[m].push(e)
-    return acc
-  }, {})
 
   // Consecutive logged days. A day counts if anything was logged. Today not
   // having entries yet doesn't break the streak — it starts from yesterday.
@@ -352,62 +344,6 @@ export default function ClientDashboard() {
         <MacroChip label="PROTEIN" current={totals.protein} goal={client?.goals?.protein} color="olive" delay={150} />
         <MacroChip label="CARBS" current={totals.carbs} goal={client?.goals?.carbs} color="brown" delay={220} />
         <MacroChip label="FAT" current={totals.fat} goal={client?.goals?.fat} color="slate" delay={290} />
-      </div>
-
-      {/* Today's meals */}
-      <div className="px-5 mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">TODAY'S MEALS</p>
-          </div>
-          <button onClick={() => setActivePage('log')} className="font-mono text-[10px] tracking-[0.15em] text-brown">
-            VIEW LOG →
-          </button>
-        </div>
-
-        {entries.length === 0 ? (
-          <div className="glass-card border border-border rounded-2xl p-8 text-center anim-fade-in" style={{ animationDelay: '300ms' }}>
-            <p className="font-display font-bold text-lg text-muted tracking-widest">NOTHING LOGGED</p>
-            <p className="font-mono text-xs text-dim mt-1">Tap the log tab to add your meals</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {Object.entries(mealGroups).map(([meal, items], gi) => {
-              const mTotal = items.reduce((a, e) => ({ cal: a.cal + e.calories }), { cal: 0 })
-              return (
-                <div
-                  key={meal}
-                  className="glass-card border border-border rounded-2xl overflow-hidden anim-fade-in-up card-hover"
-                  style={{ animationDelay: `${gi * 60 + 200}ms` }}
-                >
-                  <div className="flex justify-between px-4 py-2.5 bg-white/[0.04]">
-                    <span className="font-display font-bold text-xs tracking-widest text-cream">{meal.toUpperCase()}</span>
-                    <span className="font-mono text-xs text-muted">{mTotal.cal.toFixed(0)} kcal</span>
-                  </div>
-                  <div className="divide-y divide-border">
-                    {items.map((entry) => (
-                      <div key={entry.id} className="flex items-center justify-between px-4 py-3 gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-mono text-sm text-cream truncate">{entry.name}</p>
-                          <p className="font-mono text-xs text-muted">{entryServingLabel(entry)}</p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="font-display font-bold text-sm text-cream">{entry.calories.toFixed(0)}</p>
-                          <p className="font-mono text-xs text-olive-light">
-                            {entry.protein.toFixed(0)}p{' '}
-                            <span className="text-brown-light">{entry.carbs.toFixed(0)}c</span>{' '}
-                            <span className="text-slategray-light">{entry.fat.toFixed(0)}f</span>
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
       </div>
 
       {/* Meal Plan Section */}
