@@ -128,18 +128,18 @@ export default function ClientWeight() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleLog()}
-            className="flex-1 bg-surface border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30"
+            className="flex-1 min-w-0 bg-surface border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30"
           />
           <button
             onClick={() => setUnit(unit === 'lbs' ? 'kg' : 'lbs')}
-            className="bg-surface border border-border rounded-xl px-4 font-display font-bold text-sm text-muted hover:text-cream transition-colors"
+            className="flex-shrink-0 bg-surface border border-border rounded-xl px-3.5 font-display font-bold text-sm text-muted hover:text-cream transition-colors"
           >
             {unit}
           </button>
           <button
             onClick={handleLog}
             disabled={!input}
-            className="btn-accent disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest px-5 rounded-xl transition-colors glow-hover"
+            className="flex-shrink-0 btn-accent disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest px-4 rounded-xl transition-colors glow-hover"
           >
             LOG
           </button>

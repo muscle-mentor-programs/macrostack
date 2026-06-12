@@ -44,6 +44,14 @@ html.light {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Form fields have large intrinsic min-widths (number inputs especially on
+   iOS). Inside flex rows they refuse to shrink and push siblings out of
+   their cards. Let them compress like any other flex child. */
+input, select, textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+
 html, body, #root {
   height: var(--app-height, 100%);
   width: 100%;
