@@ -51,8 +51,8 @@ const STORY_STEPS = [
     body: 'Daily intake, 7-day compliance, weight trends — live on your coach’s dashboard, with real-time messaging built in.',
   },
   {
-    n: '04', tag: 'ADAPT', title: 'KAY FILLS THE GAPS',
-    body: 'Tell Kay, the built-in AI nutritionist, what macros you have left. Get meal suggestions that fit exactly.',
+    n: '04', tag: 'COMING SOON', title: 'MEET KAY — AI NUTRITIONIST',
+    body: 'Kay is on the way: a built-in AI nutritionist that suggests meals to fit your remaining macros. Launching soon.',
   },
 ]
 
@@ -62,7 +62,7 @@ const CARDS = [
   { icon: '◎', title: 'PRECISION TRACKING', body: 'Exact macros for every meal. Custom foods, serving math, gram-level control.' },
   { icon: '▤', title: 'BARCODE SCANNER',    body: 'Instant nutrition data from any label. No typing, no guessing.' },
   { icon: '↗', title: 'COACH DASHBOARD',    body: 'Unlimited clients, individual targets, live compliance — one screen.' },
-  { icon: '✦', title: 'KAY AI',             body: 'A nutrition expert in your pocket. Food intel and answers, 24/7.' },
+  { icon: '✦', title: 'KAY AI',             body: 'A nutrition expert in your pocket. Food intel and answers, 24/7.', soon: true },
   { icon: '▦', title: 'MEAL PLANS',         body: 'Coaches build day-by-day plans. Clients log a full meal with one tap.' },
   { icon: '◠', title: 'WEIGHT & TRENDS',    body: '7-day moving averages, calorie trends, consistency heatmaps.' },
 ]
@@ -70,7 +70,7 @@ const CARDS = [
 const STATS = [
   { value: 1924, suffix: '+',  label: 'VERIFIED FOODS' },
   { value: 100,  suffix: '%',  label: 'FREE TO START'  },
-  { value: 24,   suffix: '/7', label: 'KAY AVAILABLE'  },
+  { value: 24,   suffix: '/7', label: 'COACH ACCESS'   },
 ]
 
 /* Fill-vessel geometry (SVG user units). Bottom edge sits at y = VESSEL_BOTTOM;
@@ -534,7 +534,17 @@ export default function Landing({ onGetStarted }) {
                 boxShadow: '0 8px 40px color-mix(in srgb, var(--color-bg) 10%, transparent)',
               }}
             >
-              <span className="text-4xl" style={{ color: ACCENT }}>{c.icon}</span>
+              <div className="flex items-start justify-between">
+                <span className="text-4xl" style={{ color: ACCENT }}>{c.icon}</span>
+                {c.soon && (
+                  <span
+                    className="font-mono text-[9px] tracking-[0.25em] px-2.5 py-1 rounded-full border"
+                    style={{ color: ACCENT, borderColor: accentA(35), background: accentA(8) }}
+                  >
+                    COMING SOON
+                  </span>
+                )}
+              </div>
               <h3 className="font-display font-black text-2xl md:text-3xl tracking-wide mt-6 mb-3">
                 {c.title}
               </h3>
