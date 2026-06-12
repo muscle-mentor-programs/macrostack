@@ -17,65 +17,62 @@ export default function RoleSelector() {
         HOMEPAGE
       </button>
 
-      <div className="w-full max-w-2xl px-8">
+      <div className="w-full max-w-md px-6">
         {/* Brand */}
-        <div className="text-center mb-16 anim-fade-in-down">
-          <h1 className="font-display font-black text-6xl tracking-widest text-cream">
+        <div className="text-center mb-12 anim-fade-in-down">
+          <h1 className="font-display font-black text-6xl tracking-widest track-center text-cream">
             <ScrambleText text="MACRO" duration={1000} delay={100} />
             <ScrambleText text="STACK" className="text-brown" duration={1000} delay={300} />
           </h1>
-          <p className="font-mono text-sm text-muted mt-2 tracking-widest cursor" style={{ animationDelay: '800ms' }}>
+          <p className="font-mono text-sm text-muted mt-2 tracking-widest track-center" style={{ animationDelay: '800ms' }}>
             NUTRITION OS
           </p>
         </div>
 
-        {/* Role cards — stacked on mobile (natural height), squares on sm+ */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 anim-stagger">
+        {/* Role cards — stacked vertically, full-width rows */}
+        <div className="flex flex-col gap-4">
           {/* Coach Portal */}
-          <div className="sm:aspect-square overflow-hidden anim-fade-in-up">
-            <button
-              onClick={() => setActiveRole('coach')}
-              className="group w-full sm:h-full bg-card border border-border hover:border-green/60 rounded-2xl p-6 transition-all duration-200 hover:bg-green/5 glow-hover card-hover flex flex-col items-center justify-center text-center"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-green/20 border border-green/30 flex items-center justify-center mb-4 group-hover:bg-green/30 transition-colors flex-shrink-0">
-                <Monitor size={28} className="text-green-light" />
-              </div>
-              <h2 className="font-display font-black text-xl tracking-wider text-cream mb-2">
+          <button
+            onClick={() => setActiveRole('coach')}
+            className="group w-full glass-card bg-card border border-border hover:border-green/60 rounded-2xl p-5 transition-all duration-200 hover:bg-green/5 glow-hover card-hover flex items-center gap-5 text-left anim-fade-in-up"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-green/20 border border-green/30 flex items-center justify-center group-hover:bg-green/30 transition-colors flex-shrink-0">
+              <Monitor size={24} className="text-green-light" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-display font-black text-lg tracking-wider text-cream">
                 COACH PORTAL
               </h2>
-              <p className="font-mono text-xs text-muted leading-relaxed">
+              <p className="font-mono text-xs text-muted leading-relaxed mt-0.5">
                 Manage users & monitor progress
               </p>
-              <div className="mt-4">
-                <span className="font-display font-bold text-xs tracking-widest text-green group-hover:text-green-light transition-colors">
-                  ENTER →
-                </span>
-              </div>
-            </button>
-          </div>
+            </div>
+            <span className="font-display font-bold text-xs tracking-widest text-green group-hover:text-green-light transition-colors flex-shrink-0">
+              ENTER →
+            </span>
+          </button>
 
           {/* Client App */}
-          <div className="sm:aspect-square overflow-hidden anim-fade-in-up" style={{ animationDelay: '80ms' }}>
-            <button
-              onClick={() => setActiveRole('client')}
-              className="group w-full sm:h-full bg-card border border-border hover:border-blue/60 rounded-2xl p-6 transition-all duration-200 hover:bg-blue/5 glow-hover card-hover flex flex-col items-center justify-center text-center"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-blue/20 border border-blue/30 flex items-center justify-center mb-4 group-hover:bg-blue/30 transition-colors flex-shrink-0">
-                <Smartphone size={28} className="text-blue-light" />
-              </div>
-              <h2 className="font-display font-black text-xl tracking-wider text-cream mb-2">
+          <button
+            onClick={() => setActiveRole('client')}
+            className="group w-full glass-card bg-card border border-border hover:border-blue/60 rounded-2xl p-5 transition-all duration-200 hover:bg-blue/5 glow-hover card-hover flex items-center gap-5 text-left anim-fade-in-up"
+            style={{ animationDelay: '80ms' }}
+          >
+            <div className="w-14 h-14 rounded-2xl bg-blue/20 border border-blue/30 flex items-center justify-center group-hover:bg-blue/30 transition-colors flex-shrink-0">
+              <Smartphone size={24} className="text-blue-light" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-display font-black text-lg tracking-wider text-cream">
                 USER APP
               </h2>
-              <p className="font-mono text-xs text-muted leading-relaxed">
+              <p className="font-mono text-xs text-muted leading-relaxed mt-0.5">
                 Log meals & track daily macros
               </p>
-              <div className="mt-4">
-                <span className="font-display font-bold text-xs tracking-widest text-blue group-hover:text-blue-light transition-colors">
-                  OPEN →
-                </span>
-              </div>
-            </button>
-          </div>
+            </div>
+            <span className="font-display font-bold text-xs tracking-widest text-blue group-hover:text-blue-light transition-colors flex-shrink-0">
+              OPEN →
+            </span>
+          </button>
         </div>
       </div>
     </div>
