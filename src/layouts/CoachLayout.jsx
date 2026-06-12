@@ -87,13 +87,35 @@ export default function CoachLayout({ children }) {
     )
   }
 
-  /* ── Desktop layout ────────────────────────────────────────── */
+  /* ── Desktop layout — floating rail + floating page canvas ──── */
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-bg relative">
       <AmbientBackground />
+
+      {/* Landing-style ambient accent glows behind the shell */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: `
+            radial-gradient(ellipse 50% 40% at 85% 8%, color-mix(in srgb, var(--color-accent) 9%, transparent), transparent 65%),
+            radial-gradient(ellipse 45% 35% at 8% 95%, color-mix(in srgb, var(--color-accent) 6%, transparent), transparent 65%)
+          `,
+        }}
+      />
+
       <Sidebar />
-      <main className="flex-1 overflow-hidden relative">
-        <div key={activePage} className="h-full">
+
+      {/* Page canvas — rounded floating surface, pages scroll inside it */}
+      <main className="flex-1 overflow-hidden relative p-4">
+        <div
+          key={activePage}
+          className="h-full rounded-3xl border border-border overflow-hidden relative"
+          style={{
+            background: 'color-mix(in srgb, var(--color-surface) 55%, var(--color-bg))',
+            boxShadow:
+              'inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.02)',
+          }}
+        >
           {children}
         </div>
       </main>
