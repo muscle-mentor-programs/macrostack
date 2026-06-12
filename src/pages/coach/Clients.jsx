@@ -1,6 +1,6 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
-import { Plus, X, User, Edit2, Trash2, ChevronRight, Check, Calculator, BookOpen, Sparkles, Star, StarOff, Pencil } from 'lucide-react'
+import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle } from 'lucide-react'
 import useStore from '../../store'
 import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
@@ -663,12 +663,19 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-surface border-l border-border overflow-hidden anim-slide-right">
-      {/* Header */}
-      <div className="relative flex items-center justify-between px-6 py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col h-full overflow-hidden anim-fade-in">
+      {/* Focus header — back to grid + identity */}
+      <div className="relative flex items-center gap-4 px-6 py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
+        <button
+          onClick={onClose}
+          className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-border text-muted hover:text-cream hover:border-muted transition-colors flex-shrink-0"
+        >
+          <ChevronLeft size={14} />
+          <span className="font-display font-bold text-[10px] tracking-widest">USERS</span>
+        </button>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
-          <div>
+          <div className="min-w-0">
             {editName ? (
               <div className="flex items-center gap-2">
                 <input value={name} onChange={(e) => setName(e.target.value)}
@@ -683,12 +690,9 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                 <Edit2 size={12} className="text-dim group-hover:text-muted" />
               </button>
             )}
-            <p className="font-mono text-xs text-muted">{client.email || 'No email'}</p>
+            <p className="font-mono text-xs text-muted truncate">{client.email || 'No email'}</p>
           </div>
         </div>
-        <button onClick={onClose} className="text-muted hover:text-cream transition-colors">
-          <X size={16} />
-        </button>
       </div>
 
       {/* Tabs */}
@@ -713,7 +717,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
 
       <div className="flex-1 overflow-y-auto">
         {tab === 'overview' && (
-          <div className="p-6 max-w-4xl mx-auto">
+          <div className="p-6 max-w-5xl mx-auto">
             <div className="grid grid-cols-2 gap-6">
 
               {/* ── Left column: today's intake + 7-day compliance ── */}
@@ -888,195 +892,278 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   )
 }
 
+/* ── Mini calorie ring for grid tiles ───────────────────────────────────────── */
+function TileRing({ pct }) {
+  const R = 17
+  const C = 2 * Math.PI * R
+  const clamped = Math.min(pct, 100)
+  return (
+    <svg width="44" height="44" viewBox="0 0 44 44" className="flex-shrink-0 -rotate-90">
+      <circle cx="22" cy="22" r={R} fill="none" stroke="var(--color-dim)" strokeWidth="3.5" />
+      <circle
+        cx="22" cy="22" r={R} fill="none"
+        stroke={pct > 110 ? '#f87171' : 'var(--color-accent)'}
+        strokeWidth="3.5" strokeLinecap="round"
+        strokeDasharray={C} strokeDashoffset={C - (C * clamped) / 100}
+        style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}
+      />
+    </svg>
+  )
+}
+
+const FILTERS = [
+  { id: 'all',     label: 'ALL'          },
+  { id: 'logged',  label: 'LOGGED TODAY' },
+  { id: 'quiet',   label: 'NOT LOGGED'   },
+  { id: 'pending', label: 'PENDING'      },
+]
+
 export default function Clients() {
-  const { clients, getClientTotalsForDate, viewingClientId, viewingClientTab, setViewingClientId } = useStore()
+  const { clients, getClientTotalsForDate, messages, viewingClientId, viewingClientTab, setViewingClientId } = useStore()
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedId,   setSelectedId]   = useState(viewingClientId || null)
   const [initialTab,   setInitialTab]   = useState(viewingClientTab || 'overview')
-  const [detailWidth,  setDetailWidth]  = useState(null)
-  const containerRef = useRef(null)
+  const [search,       setSearch]       = useState('')
+  const [filter,       setFilter]       = useState('all')
 
-  useLayoutEffect(() => {
-    if (containerRef.current) {
-      setDetailWidth(Math.floor(containerRef.current.offsetWidth / 2))
-    }
-  }, [])
   const today = format(new Date(), 'yyyy-MM-dd')
 
   // Consume the navigation hint from the store once (clear after reading)
   useEffect(() => {
-    if (viewingClientId) {
-      setViewingClientId(null, null)
-    }
+    if (viewingClientId) setViewingClientId(null, null)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const startDrag = useCallback((e) => {
-    e.preventDefault()
-    const startX    = e.clientX
-    const startWidth = detailWidth
-
-    const onMove = (mv) => {
-      const containerWidth = containerRef.current?.offsetWidth || 1000
-      const delta    = startX - mv.clientX          // drag left → wider detail
-      const newWidth = Math.min(
-        containerWidth - 280,                        // keep at least 280px for list
-        Math.max(380, startWidth + delta)
-      )
-      setDetailWidth(newWidth)
-    }
-
-    const onUp = () => {
-      document.body.style.cursor    = ''
-      document.body.style.userSelect = ''
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup',   onUp)
-    }
-
-    document.body.style.cursor    = 'col-resize'
-    document.body.style.userSelect = 'none'
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup',   onUp)
-  }, [detailWidth])
-
   const selectedClient = clients.find((c) => c.id === selectedId)
 
+  /* ── FOCUS VIEW — full-page client detail, no split pane ── */
+  if (selectedClient) {
+    return (
+      <>
+        <ClientDetail
+          key={selectedClient.id}
+          client={selectedClient}
+          initialTab={initialTab}
+          onClose={() => { setSelectedId(null); setInitialTab('overview') }}
+        />
+        {showAddModal && <AddClientModal onClose={() => setShowAddModal(false)} />}
+      </>
+    )
+  }
+
+  /* ── GRID VIEW — every client as a glanceable mini-dashboard ── */
+  const annotated = clients.map((client) => {
+    const totals      = getClientTotalsForDate(client.id, today)
+    const calPct      = Math.round((totals.calories / (client.goals.calories || 1)) * 100)
+    const loggedToday = (client.log?.[today] || []).length > 0
+
+    // Last 7 days, oldest -> newest, for the dot row
+    const days7 = Array.from({ length: 7 }, (_, j) => {
+      const d = format(subDays(new Date(), 6 - j), 'yyyy-MM-dd')
+      return (client.log?.[d] || []).length > 0
+    })
+
+    // Forgiving streak: today not logged yet doesn't break it
+    let streak = 0
+    for (let j = loggedToday ? 0 : 1; ; j++) {
+      const d = format(subDays(new Date(), j), 'yyyy-MM-dd')
+      if ((client.log?.[d] || []).length > 0) streak++
+      else break
+      if (j > 365) break
+    }
+
+    const unread = (messages[client.id] || []).filter(
+      (m) => m.from === 'client' && !m.readByCoach
+    ).length
+
+    return { client, totals, calPct, loggedToday, days7, streak, unread }
+  })
+
+  const loggedCount = annotated.filter((a) => a.loggedToday).length
+
+  const visible = annotated.filter(({ client, loggedToday }) => {
+    const q = search.trim().toLowerCase()
+    if (q && !(client.name + ' ' + (client.email || '')).toLowerCase().includes(q)) return false
+    if (filter === 'logged')  return loggedToday
+    if (filter === 'quiet')   return !loggedToday && client.status !== 'pending'
+    if (filter === 'pending') return client.status === 'pending'
+    return true
+  })
+
   return (
-    <div ref={containerRef} className="flex h-full overflow-hidden">
-      {/* Client list */}
-      <div className={`flex flex-col flex-1 min-w-[280px] ${selectedClient ? '' : ''} border-r border-border overflow-hidden`}>
-        {/* Header */}
-        <div className="relative flex items-center justify-between px-6 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Header */}
+      <div className="relative px-8 pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+        <div className="flex items-end justify-between gap-6">
           <div>
-            <h2 className="font-display font-black text-3xl tracking-wider text-cream">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-5 h-px flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--color-accent) 50%, transparent)' }} />
+              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">YOUR ROSTER</p>
+            </div>
+            <h2 className="font-display font-black text-4xl tracking-wider text-cream leading-none">
               <ScrambleText text="USERS" duration={700} />
             </h2>
-            <p className="font-mono text-sm text-muted mt-0.5">
-              <AnimatedNumber value={clients.length} duration={600} /> active {clients.length === 1 ? 'user' : 'users'}
-            </p>
           </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-brown hover:bg-brown-light text-bg font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded transition-colors glow-hover"
-          >
-            <Plus size={14} />
-            ADD USER
-          </button>
+
+          {/* Pulse stats */}
+          <div className="flex items-center gap-6">
+            <div className="text-right">
+              <p className="font-display font-black text-2xl leading-none" style={{ color: 'var(--color-accent)' }}>
+                <AnimatedNumber value={loggedCount} duration={600} />
+                <span className="text-muted text-lg">/{clients.length}</span>
+              </p>
+              <p className="font-mono text-[9px] tracking-[0.2em] text-muted mt-1">LOGGED TODAY</p>
+            </div>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 btn-accent text-bg font-display font-bold text-xs tracking-widest px-5 py-3 rounded-xl transition-colors glow-hover"
+            >
+              <Plus size={14} />
+              ADD USER
+            </button>
+          </div>
         </div>
 
-        {/* List */}
-        <div className="flex-1 overflow-y-auto">
-          {clients.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 anim-fade-in">
-              <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">
-                <User size={24} className="text-muted" />
-              </div>
-              <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS</p>
-              <p className="font-mono text-sm text-dim mt-2">Add your first user to get started</p>
+        {/* Search + filters */}
+        <div className="flex items-center gap-3 mt-5">
+          <div className="relative flex-1 max-w-xs">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search users…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-surface border border-border rounded-xl pl-8 pr-3 py-2 font-mono text-xs text-cream placeholder:text-dim focus:outline-none focus:border-brown transition-colors"
+            />
+          </div>
+          <div className="flex gap-1.5">
+            {FILTERS.map((f) => (
               <button
-                onClick={() => setShowAddModal(true)}
-                className="mt-6 bg-brown/20 border border-brown/30 text-brown-light font-display font-bold text-sm tracking-widest px-6 py-2.5 rounded hover:bg-brown/30 transition-colors"
+                key={f.id}
+                onClick={() => setFilter(f.id)}
+                className={`px-3 py-2 rounded-xl font-display font-bold text-[10px] tracking-widest transition-all border ${
+                  filter === f.id
+                    ? 'text-bg border-transparent'
+                    : 'text-muted border-border hover:text-cream hover:border-muted'
+                }`}
+                style={filter === f.id ? { background: 'var(--color-accent)', color: '#fff' } : undefined}
               >
-                + ADD FIRST USER
+                {f.label}
               </button>
-            </div>
-          ) : (
-            <div className="space-y-2 p-3">
-              {clients.map((client, i) => {
-                const todayTotals = getClientTotalsForDate(client.id, today)
-                const calPct = Math.min(Math.round((todayTotals.calories / (client.goals.calories || 1)) * 100), 100)
-                const isSelected = selectedId === client.id
-
-                const days7 = Array.from({ length: 7 }, (_, j) => {
-                  const d = format(subDays(new Date(), j), 'yyyy-MM-dd')
-                  return (client.log?.[d] || []).length > 0
-                })
-                const streak = days7.findIndex((logged) => !logged)
-                const streakDays = streak === -1 ? 7 : streak
-
-                return (
-                  <button
-                    key={client.id}
-                    onClick={() => {
-                      setInitialTab('overview')
-                      setSelectedId(isSelected ? null : client.id)
-                    }}
-                    style={{
-                      animationDelay: `${i * 50}ms`,
-                      boxShadow: isSelected
-                        ? '0 4px 16px rgba(0,0,0,0.45), 0 0 0 1px rgba(154,123,85,0.35), inset 0 1px 0 rgba(255,255,255,0.06)'
-                        : '0 2px 8px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.05)',
-                    }}
-                    className={`anim-fade-in-up w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all text-left card-hover ${
-                      isSelected
-                        ? 'bg-card border-l-4 border-l-brown'
-                        : 'bg-surface hover:bg-card border border-border'
-                    }`}
-                  >
-                    <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <p className="font-mono text-sm text-cream truncate">{client.name}</p>
-                          {client.status === 'pending' && (
-                            <span className="flex-shrink-0 font-display font-bold text-[8px] tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/30 rounded px-1 py-0.5">
-                              PENDING
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-display font-bold text-xs text-muted ml-2 flex-shrink-0">{calPct}%</span>
-                      </div>
-                      <div className="w-full bg-dim rounded-full h-1 mb-1.5">
-                        <div
-                          className={`h-1 rounded-full bar-fill transition-all ${calPct >= 100 ? 'bg-red-400' : 'bg-brown'}`}
-                          style={{ width: `${calPct}%`, animationDelay: `${i * 50 + 100}ms` }}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="font-mono text-xs text-muted">
-                          {todayTotals.calories.toFixed(0)} / {client.goals.calories} kcal
-                        </p>
-                        {streakDays > 0 && (
-                          <span className="font-mono text-xs text-olive-light">{streakDays}d streak</span>
-                        )}
-                      </div>
-                    </div>
-                    <ChevronRight size={14} className={`text-dim flex-shrink-0 transition-transform duration-200 ${isSelected ? 'rotate-90' : ''}`} />
-                  </button>
-                )
-              })}
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Drag handle */}
-      {selectedClient && (
-        <div
-          onMouseDown={startDrag}
-          className="relative flex-shrink-0 w-[3px] bg-border hover:bg-brown/50 active:bg-brown cursor-col-resize transition-colors group"
-          title="Drag to resize"
-        >
-          {/* Wider invisible hit area */}
-          <div className="absolute inset-y-0 -left-2 -right-2" />
-          {/* Centre grip dots */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            {[0,1,2].map((i) => <div key={i} className="w-0.5 h-0.5 rounded-full bg-brown-light" />)}
+      {/* Grid */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {clients.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 anim-fade-in">
+            <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">
+              <User size={24} className="text-muted" />
+            </div>
+            <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS</p>
+            <p className="font-mono text-sm text-dim mt-2">Add your first user to get started</p>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="mt-6 btn-accent text-bg font-display font-bold text-sm tracking-widest px-6 py-2.5 rounded-xl transition-colors"
+            >
+              + ADD FIRST USER
+            </button>
           </div>
-        </div>
-      )}
+        ) : visible.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 anim-fade-in">
+            <p className="font-display font-bold text-lg text-muted tracking-widest">NO MATCHES</p>
+            <p className="font-mono text-xs text-dim mt-2">Try a different search or filter</p>
+          </div>
+        ) : (
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))' }}>
+            {visible.map(({ client, totals, calPct, loggedToday, days7, streak, unread }, i) => (
+              <button
+                key={client.id}
+                onClick={() => { setInitialTab('overview'); setSelectedId(client.id) }}
+                style={{ animationDelay: `${i * 40}ms` }}
+                className="anim-fade-in-up glass-card border border-border rounded-2xl p-5 text-left card-hover relative overflow-hidden"
+              >
+                {/* Identity row */}
+                <div className="flex items-center gap-3 mb-4">
+                  <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-11 h-11" textClassName="text-base" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="font-display font-bold text-base text-cream truncate">{client.name}</p>
+                      {client.status === 'pending' && (
+                        <span className="flex-shrink-0 font-display font-bold text-[8px] tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/30 rounded px-1 py-0.5">
+                          PENDING
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-mono text-[10px] text-dim truncate">{client.email || 'No email'}</p>
+                  </div>
+                  {unread > 0 && (
+                    <span
+                      className="flex items-center gap-1 flex-shrink-0 font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{ background: 'var(--color-accent)', color: '#fff' }}
+                    >
+                      <MessageCircle size={9} />
+                      {unread}
+                    </span>
+                  )}
+                </div>
 
-      {/* Client detail panel */}
-      {selectedClient && (
-        <div className="flex-shrink-0 overflow-hidden" style={{ width: detailWidth ?? '50%' }}>
-          <ClientDetail
-            key={selectedClient.id}
-            client={selectedClient}
-            initialTab={initialTab}
-            onClose={() => { setSelectedId(null); setInitialTab('overview') }}
-          />
-        </div>
-      )}
+                {/* Calories ring + numbers */}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="relative">
+                    <TileRing pct={calPct} />
+                    <span className="absolute inset-0 flex items-center justify-center font-display font-black text-[10px] text-cream">
+                      {calPct}%
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-display font-black text-xl text-cream leading-none">
+                      {totals.calories.toFixed(0)}
+                      <span className="font-mono text-[10px] text-muted font-normal"> / {client.goals.calories} kcal</span>
+                    </p>
+                    {/* Macro micro-bars */}
+                    <div className="flex gap-2 mt-2">
+                      {[
+                        { v: totals.protein, g: client.goals.protein, cls: 'bg-olive'     },
+                        { v: totals.carbs,   g: client.goals.carbs,   cls: 'bg-brown'     },
+                        { v: totals.fat,     g: client.goals.fat,     cls: 'bg-slategray' },
+                      ].map(({ v, g, cls }, mi) => (
+                        <div key={mi} className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: 'rgba(127,127,127,0.18)' }}>
+                          <div className={`h-full rounded-full ${cls}`} style={{ width: `${Math.min(Math.round((v / (g || 1)) * 100), 100)}%` }} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer: 7-day dots + streak */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    {days7.map((logged, di) => (
+                      <span
+                        key={di}
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ background: logged ? 'var(--color-accent)' : 'var(--color-dim)' }}
+                      />
+                    ))}
+                    <span className="font-mono text-[9px] text-dim ml-1.5 tracking-widest">7D</span>
+                  </div>
+                  {streak >= 2 ? (
+                    <span className="flex items-center gap-1 font-mono text-[10px] text-olive-light">
+                      <Flame size={10} fill="currentColor" />
+                      {streak}d
+                    </span>
+                  ) : !loggedToday ? (
+                    <span className="font-mono text-[9px] tracking-widest text-dim">NO LOG TODAY</span>
+                  ) : null}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {showAddModal && <AddClientModal onClose={() => setShowAddModal(false)} />}
     </div>
