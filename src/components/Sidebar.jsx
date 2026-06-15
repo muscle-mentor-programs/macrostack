@@ -1,15 +1,17 @@
 import useStore from '../store'
 import ScrambleText from './ScrambleText'
 import ThemeToggle from './ThemeToggle'
-import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User } from 'lucide-react'
+import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard } from 'lucide-react'
 
-const NAV = [
-  { id: 'dashboard', n: '01', label: 'DASHBOARD', icon: LayoutDashboard },
-  { id: 'clients',   n: '02', label: 'USERS',     icon: Users           },
-  { id: 'chat',      n: '03', label: 'CHAT',      icon: MessageCircle   },
-  { id: 'foods',     n: '04', label: 'MY FOODS',  icon: Utensils        },
-  { id: 'profile',   n: '05', label: 'PROFILE',   icon: User            },
+const BASE_NAV = [
+  { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
+  { id: 'clients',   label: 'USERS',     icon: Users           },
+  { id: 'chat',      label: 'CHAT',      icon: MessageCircle   },
+  { id: 'foods',     label: 'MY FOODS',  icon: Utensils        },
+  { id: 'profile',   label: 'PROFILE',   icon: User            },
 ]
+// Superadmin-only billing panel appended after profile
+const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }
 
 /* Nav geometry — items are fixed-height so the active pill can slide
    between them with spring physics (same easing as the login toggle). */
@@ -25,6 +27,10 @@ export default function Sidebar() {
     (n, c) => n + (messages[c.id] || []).filter((m) => m.from === 'client' && !m.readByCoach).length,
     0
   )
+
+  // Build nav with numbering; append BILLING for superadmins
+  const NAV = (currentUser?.role === 'superadmin' ? [...BASE_NAV, BILLING_NAV] : BASE_NAV)
+    .map((item, i) => ({ ...item, n: String(i + 1).padStart(2, '0') }))
 
   const activeIdx = Math.max(0, NAV.findIndex((n) => n.id === activePage))
 

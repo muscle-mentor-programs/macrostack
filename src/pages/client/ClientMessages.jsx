@@ -3,6 +3,8 @@ import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { MessageCircle, Send, UserCircle2 } from 'lucide-react'
 import useStore from '../../store'
 import { tapHaptic } from '../../utils/haptics'
+import PremiumGate from '../../components/PremiumGate'
+import useSubscription from '../../hooks/useSubscription'
 
 function msgTime(ts) {
   if (!ts) return ''
@@ -22,6 +24,7 @@ export default function ClientMessages() {
     activeClientId, messages, sendMessage, markMessagesRead,
     setNavHidden,
   } = useStore()
+  const { hasAccess } = useSubscription()
 
   const [input,        setInput]        = useState('')
   const [kbHeight,     setKbHeight]     = useState(0)
@@ -76,6 +79,24 @@ export default function ClientMessages() {
 
   const overlayBottom      = kbHeight > 0 ? `${kbHeight}px` : '0px'
   const inputPaddingBottom = kbActive ? '12px' : `${navH + 8}px`
+
+  // Coach messaging is premium
+  if (!hasAccess) {
+    return (
+      <div className="fixed inset-x-0 top-0 bottom-0 flex flex-col bg-bg z-10">
+        <div className="px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
+          <h1 className="font-display font-black text-2xl tracking-[0.15em] text-cream leading-none">COACH</h1>
+          <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
+        </div>
+        <div className="flex-1 flex items-center justify-center px-5">
+          <PremiumGate
+            title="COACH MESSAGING"
+            blurb="Connect with your coach and message them in real time."
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div

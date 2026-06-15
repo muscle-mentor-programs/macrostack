@@ -38,6 +38,10 @@ const ClientMessages     = lazy(() => import('./pages/client/ClientMessages'))
 const ClientProfile      = lazy(() => import('./pages/client/ClientProfile'))
 const ClientCoachProfile = lazy(() => import('./pages/client/ClientCoachProfile'))
 
+// Shared
+const UpgradePage = lazy(() => import('./pages/UpgradePage'))
+const AdminBilling = lazy(() => import('./pages/coach/AdminBilling'))
+
 // Shared suspense fallback — branded skeleton so page swaps feel intentional,
 // not like a loading failure. Mirrors the typical page anatomy.
 function PageLoader() {
@@ -62,6 +66,8 @@ const COACH_PAGES_DESKTOP = {
   chat:      CoachChat,
   foods:     MyFoods,
   profile:   CoachProfile,
+  upgrade:   UpgradePage,
+  billing:   AdminBilling,
 }
 
 const COACH_PAGES_MOBILE = {
@@ -70,6 +76,8 @@ const COACH_PAGES_MOBILE = {
   chat:      MobileChat,
   foods:     MobileMyFoods,
   profile:   CoachProfile,
+  upgrade:   UpgradePage,
+  billing:   AdminBilling,
 }
 
 const CLIENT_PAGES = {
@@ -79,6 +87,7 @@ const CLIENT_PAGES = {
   messages:  ClientMessages,
   profile:   ClientProfile,
   coach:     ClientCoachProfile,
+  upgrade:   UpgradePage,
 }
 
 // True when running as an installed PWA (homescreen shortcut).

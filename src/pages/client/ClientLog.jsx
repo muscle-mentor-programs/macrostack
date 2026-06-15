@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, Plus, Search, ArrowLeft, Trash2,
-  Scan, Check, ChevronDown,
+  Scan, Check, ChevronDown, Lock,
 } from 'lucide-react'
 import useStore from '../../store'
 import { FOODS, MEALS } from '../../data/foods'
@@ -32,7 +32,8 @@ function entryServingLabel(entry) {
 
 // ─── Full-screen food selector (replaces modal) ──────────────────────────────
 function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
-  const { addClientEntry, customFoods, scannedFoods, overrideFoods, clients } = useStore()
+  const { addClientEntry, customFoods, scannedFoods, overrideFoods, clients, currentUser, setActivePage } = useStore()
+  const canScan = !!currentUser?.hasAccess
 
   const [query,       setQuery]       = useState('')
   const [selected,    setSelected]    = useState(null)
@@ -152,10 +153,19 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
           <p className="font-mono text-xs text-muted">{meal.toUpperCase()}</p>
         </div>
         <button
-          onClick={() => setShowScanner(true)}
-          className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-surface transition-colors flex-shrink-0"
+          onClick={() => { if (canScan) { setShowScanner(true) } else { onClose(); setActivePage('upgrade') } }}
+          title={canScan ? 'Scan barcode' : 'Premium — scan barcodes'}
+          className="relative w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-surface transition-colors flex-shrink-0"
         >
           <Scan size={20} />
+          {!canScan && (
+            <span
+              className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center"
+              style={{ background: 'var(--color-accent)' }}
+            >
+              <Lock size={8} className="text-bg" />
+            </span>
+          )}
         </button>
       </div>
 

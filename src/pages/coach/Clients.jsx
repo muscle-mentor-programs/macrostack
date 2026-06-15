@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
-import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle } from 'lucide-react'
-import useStore from '../../store'
+import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock } from 'lucide-react'
+import useStore, { FREE_CLIENT_CAP } from '../../store'
 import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
@@ -49,7 +49,7 @@ function calcTDEE({ sex, age, weightLbs, heightIn, activityIdx, goalIdx }) {
 }
 
 function AddClientModal({ onClose }) {
-  const { addClient } = useStore()
+  const { addClient, setActivePage } = useStore()
 
   // Basic info
   const [name, setName]   = useState('')
@@ -57,6 +57,7 @@ function AddClientModal({ onClose }) {
   const [saving,      setSaving]      = useState(false)
   const [inviteSent,  setInviteSent]  = useState(false)
   const [inviteError, setInviteError] = useState(false)
+  const [capReached,  setCapReached]  = useState(false)
 
   // Calculator
   const [sex, setSex]               = useState('male')
@@ -121,7 +122,8 @@ function AddClientModal({ onClose }) {
       },
     })
     setSaving(false)
-    const { id, inviteSent } = result || {}
+    const { id, inviteSent, capReached: cap } = result || {}
+    if (cap) { setCapReached(true); return }
     if (id && hasEmail) {
       if (inviteSent) {
         setInviteSent(true)
@@ -151,6 +153,34 @@ function AddClientModal({ onClose }) {
   }
 
   const inputCls = 'w-full bg-surface border border-border rounded-xl px-3 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors'
+
+  // Free-tier cap reached → upgrade prompt instead of the form
+  if (capReached) {
+    return (
+      <div className="fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-50 anim-fade-in p-4">
+        <div className="glass-card border border-border rounded-2xl w-[440px] max-w-full p-8 text-center anim-spring-in card-dim">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 anim-pop"
+            style={{ background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 28%, transparent)' }}>
+            <Lock size={22} style={{ color: 'var(--color-accent)' }} />
+          </div>
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted mb-2">CLIENT LIMIT REACHED</p>
+          <h3 className="font-display font-black text-xl tracking-widest text-cream">GO UNLIMITED</h3>
+          <p className="font-mono text-xs text-muted mt-2 leading-relaxed">
+            The free plan is limited to {FREE_CLIENT_CAP} clients. Upgrade to add unlimited clients and unlock the full coaching toolkit.
+          </p>
+          <button
+            onClick={() => { onClose(); setActivePage('upgrade') }}
+            className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl mt-5 transition-colors glow-hover press"
+          >
+            VIEW PLANS
+          </button>
+          <button onClick={onClose} className="w-full font-mono text-xs text-muted hover:text-cream transition-colors mt-3 py-2">
+            Maybe later
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-50 anim-fade-in">

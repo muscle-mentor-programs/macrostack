@@ -2,9 +2,12 @@ import { useEffect } from 'react'
 import { Globe, Award, User, BookOpen, MessageCircle } from 'lucide-react'
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
+import PremiumGate from '../../components/PremiumGate'
+import useSubscription from '../../hooks/useSubscription'
 
 export default function ClientCoachProfile() {
   const { coachProfile, activeClientId, clients, setActivePage, loadCoachProfile } = useStore()
+  const { hasAccess } = useSubscription()
 
   const client = clients.find((c) => c.id === activeClientId)
 
@@ -14,6 +17,25 @@ export default function ClientCoachProfile() {
       loadCoachProfile(client.coachId)
     }
   }, [client?.coachId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Coach connection is premium
+  if (!hasAccess) {
+    return (
+      <div className="flex flex-col min-h-full w-full overflow-x-hidden">
+        <div className="glass-panel accent-line relative px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
+          <h2 className="font-display font-black text-3xl tracking-wider text-cream">
+            <ScrambleText text="COACH" duration={700} />
+          </h2>
+        </div>
+        <div className="flex-1 flex items-center justify-center px-5 py-10">
+          <PremiumGate
+            title="COACH CONNECTION"
+            blurb="Link with a certified coach for personalized targets, meal plans, and messaging."
+          />
+        </div>
+      </div>
+    )
+  }
 
   if (!coachProfile && !client?.coachId) {
     return (

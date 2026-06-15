@@ -5,6 +5,42 @@ import { supabase } from '../lib/supabase'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 
+// ─── Subscription helpers ────────────────────────────────────────────────────
+
+// Free-tier coach client cap. Subscription → unlimited.
+export const FREE_CLIENT_CAP = 3
+
+// Effective access: superadmin override beats Stripe status (so a webhook can
+// never undo a manual unlock). Superadmins always have full access.
+export function computeSubscriptionAccess(profile) {
+  if (!profile) return false
+  if (profile.role === 'superadmin') return true
+  if (profile.admin_override === 'unlocked') return true
+  if (profile.admin_override === 'locked')   return false
+  return profile.subscription_status === 'active' || profile.subscription_status === 'trialing'
+}
+
+// profile row (from get_my_profile) + email → currentUser store shape
+function profileToUser(profile, email) {
+  return {
+    id:          profile.id,
+    name:        profile.name,
+    email,
+    role:        profile.role,
+    coachCode:   profile.coach_code   || null,
+    bio:         profile.bio          || '',
+    specialties: profile.specialties  || '',
+    credentials: profile.credentials  || '',
+    website:     profile.website      || '',
+    // Subscription
+    subscriptionStatus: profile.subscription_status || 'inactive',
+    subscriptionPlan:   profile.subscription_plan   || null,
+    currentPeriodEnd:   profile.current_period_end  || null,
+    adminOverride:      profile.admin_override       || null,
+    hasAccess:          computeSubscriptionAccess(profile),
+  }
+}
+
 // ─── DB row → store shape transformers ───────────────────────────────────────
 
 function dbToClient(row) {
@@ -127,17 +163,7 @@ const useStore = create(
           return
         }
 
-        const currentUser = {
-          id:          profile.id,
-          name:        profile.name,
-          email:       session.user.email,
-          role:        profile.role,
-          coachCode:   profile.coach_code   || null,
-          bio:         profile.bio          || '',
-          specialties: profile.specialties  || '',
-          credentials: profile.credentials  || '',
-          website:     profile.website      || '',
-        }
+        const currentUser = profileToUser(profile, session.user.email)
 
         await get().loadAllData()
 
@@ -202,17 +228,7 @@ const useStore = create(
           return { ok: false, error: 'This account requires the Coach Edition.' }
         }
 
-        const currentUser = {
-          id:          profile.id,
-          name:        profile.name,
-          email:       data.user.email,
-          role:        profile.role,
-          coachCode:   profile.coach_code   || null,
-          bio:         profile.bio          || '',
-          specialties: profile.specialties  || '',
-          credentials: profile.credentials  || '',
-          website:     profile.website      || '',
-        }
+        const currentUser = profileToUser(profile, data.user.email)
 
         await get().loadAllData()
 
@@ -296,6 +312,95 @@ const useStore = create(
         set({ clients, messages, customFoods, scannedFoods, overrideFoods, coachRequests: reqRes.data || [] })
       },
 
+      // ── SUBSCRIPTIONS ─────────────────────────────────────────────────────
+      adminAccounts: [],
+
+      // Refresh the signed-in user's subscription state (e.g. after returning
+      // from Stripe Checkout). Recomputes hasAccess from the latest profile.
+      refreshSubscription: async () => {
+        const { data, error } = await supabase.rpc('get_my_profile')
+        const profile = data?.[0]
+        if (error || !profile) return
+        set((s) => ({
+          currentUser: s.currentUser
+            ? { ...s.currentUser, ...profileToUser(profile, s.currentUser.email) }
+            : s.currentUser,
+        }))
+      },
+
+      // Superadmin: list every account with subscription state
+      loadAdminAccounts: async () => {
+        const { data, error } = await supabase.rpc('admin_list_accounts')
+        if (error) { console.error('admin_list_accounts:', error); return }
+        set({ adminAccounts: data || [] })
+      },
+
+      // Superadmin: lock / unlock / clear an account's access.
+      // value: 'locked' | 'unlocked' | null (null = follow Stripe status)
+      setSubscriptionOverride: async (targetId, value) => {
+        const { error } = await supabase.rpc('set_subscription_override', {
+          target_id: targetId, new_override: value,
+        })
+        if (error) { console.error('set_subscription_override:', error); return { ok: false } }
+        // Optimistically reflect in the admin list
+        set((s) => ({
+          adminAccounts: s.adminAccounts.map((a) =>
+            a.id === targetId ? { ...a, admin_override: value } : a
+          ),
+          // If the superadmin changed their own override, refresh access
+          currentUser: s.currentUser?.id === targetId
+            ? { ...s.currentUser, adminOverride: value,
+                hasAccess: value === 'unlocked' ? true : value === 'locked' ? false : s.currentUser.hasAccess }
+            : s.currentUser,
+        }))
+        return { ok: true }
+      },
+
+      // Start Stripe Checkout for the signed-in user.
+      // audience: 'coach' | 'user'  ·  plan: 'monthly' | 'annual'
+      startCheckout: async (audience, plan) => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return { ok: false, error: 'Not signed in.' }
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ audience, plan, returnUrl: window.location.origin }),
+            }
+          )
+          const json = await res.json()
+          if (!res.ok || !json.url) return { ok: false, error: json.error || 'Checkout failed.' }
+          window.location.href = json.url
+          return { ok: true }
+        } catch (e) {
+          return { ok: false, error: e.message || 'Checkout failed.' }
+        }
+      },
+
+      // Open the Stripe customer portal (manage / cancel).
+      openBillingPortal: async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return { ok: false }
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`,
+            {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${session.access_token}` },
+              body: JSON.stringify({ returnUrl: window.location.origin }),
+            }
+          )
+          const json = await res.json()
+          if (json.url) { window.location.href = json.url; return { ok: true } }
+          return { ok: false }
+        } catch { return { ok: false } }
+      },
+
       // ── THEME ─────────────────────────────────────────────────────────────
       theme: 'ocean-light',
       setTheme: (name) => {
@@ -331,6 +436,13 @@ const useStore = create(
       setViewingClientId: (id, tab = null) => set({ viewingClientId: id, viewingClientTab: tab }),
 
       addClient: async (data) => {
+        // Free-tier coach cap — unlimited once subscribed. Enforced here in the
+        // data layer (not just hidden in UI) so the limit can't be clicked past.
+        const me = get().currentUser
+        if (me && !me.hasAccess && get().clients.length >= FREE_CLIENT_CAP) {
+          return { id: null, inviteSent: false, capReached: true }
+        }
+
         const hasEmail = Boolean(data.email?.trim())
 
         const { data: row, error } = await supabase
@@ -785,17 +897,7 @@ Rules:
         const profile = profileRows?.[0] ?? null
         if (!profile) return { ok: false, error: 'Profile setup failed. Please try again.' }
 
-        const currentUser = {
-          id:          data.user.id,
-          name:        profile.name,
-          email:       data.user.email,
-          role:        profile.role,
-          coachCode:   profile.coach_code   || null,
-          bio:         profile.bio          || '',
-          specialties: profile.specialties  || '',
-          credentials: profile.credentials  || '',
-          website:     profile.website      || '',
-        }
+        const currentUser = profileToUser(profile, data.user.email)
 
         await get().loadAllData()
 

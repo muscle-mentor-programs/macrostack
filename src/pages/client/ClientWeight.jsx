@@ -5,6 +5,8 @@ import { ComposedChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 import { successHaptic } from '../../utils/haptics'
+import PremiumGate from '../../components/PremiumGate'
+import useSubscription from '../../hooks/useSubscription'
 
 // Compute 7-day moving average keyed by calendar date so backfilled entries
 // slot into the correct window automatically.
@@ -18,6 +20,7 @@ function movingAvg(sortedWeights, n = 7) {
 
 export default function ClientWeight() {
   const { activeClientId, clients, addClientWeight, removeClientWeight } = useStore()
+  const { hasAccess } = useSubscription()
   const client = clients.find((c) => c.id === activeClientId)
   const weightLog = client?.weightLog || []
 
@@ -171,8 +174,13 @@ export default function ClientWeight() {
         </div>
       </div>
 
-      {/* Chart */}
-      {chartData.length > 1 && (
+      {/* Chart — premium analytics */}
+      {!hasAccess && chartData.length > 1 && (
+        <div className="mx-5 mb-5">
+          <PremiumGate title="WEIGHT TRENDS" blurb="See your weight trend, 7-day moving average, and 30-day change." inline />
+        </div>
+      )}
+      {hasAccess && chartData.length > 1 && (
         <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center gap-2 mb-2"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.22em] text-muted">WEIGHT TREND</p></div>
           <div className="flex items-center gap-5 mb-3">
