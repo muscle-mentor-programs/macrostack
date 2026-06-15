@@ -20,11 +20,12 @@ export default function RoleSelector() {
       <div className="w-full max-w-md px-6">
         {/* Brand */}
         <div className="text-center mb-12 anim-fade-in-down">
-          <h1 className="font-display font-black text-6xl tracking-widest track-center text-cream">
+          <h1 className="font-display font-black text-5xl tracking-[0.12em] leading-[0.95] text-cream">
             <ScrambleText text="MACRO" duration={1000} delay={100} />
+            <br />
             <ScrambleText text="STACK" className="text-brown" duration={1000} delay={300} />
           </h1>
-          <p className="font-mono text-sm text-muted mt-2 tracking-widest track-center" style={{ animationDelay: '800ms' }}>
+          <p className="font-mono text-xs text-muted mt-3 tracking-[0.3em]" style={{ animationDelay: '800ms' }}>
             NUTRITION OS
           </p>
         </div>
