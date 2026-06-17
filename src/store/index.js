@@ -326,6 +326,16 @@ const useStore = create(
             ? { ...s.currentUser, ...profileToUser(profile, s.currentUser.email) }
             : s.currentUser,
         }))
+        // Reload client records too — a fresh subscription auto-links the user
+        // to their coach (server-side), so coach_id may have just changed.
+        await get().loadAllData()
+        const me = get()
+        const myClient = me.clients.find(
+          (c) => c.id === me.activeClientId || c.email?.toLowerCase() === profile?.email?.toLowerCase?.()
+        )
+        if (myClient?.coachId && !me.coachProfile) {
+          get().loadCoachProfile(myClient.coachId)
+        }
       },
 
       // Superadmin: list every account with subscription state

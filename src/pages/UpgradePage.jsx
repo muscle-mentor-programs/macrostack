@@ -33,12 +33,17 @@ export default function UpgradePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
 
-  // Returning from Stripe Checkout → refresh access state
+  // Returning from Stripe Checkout → refresh access state. The webhook that
+  // flips status to active fires a beat after the redirect, so refresh now and
+  // again shortly after to catch it without a manual reload.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('checkout') === 'success') {
       refreshSubscription()
+      const t1 = setTimeout(() => refreshSubscription(), 2500)
+      const t2 = setTimeout(() => refreshSubscription(), 6000)
       window.history.replaceState({}, '', window.location.pathname)
+      return () => { clearTimeout(t1); clearTimeout(t2) }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
