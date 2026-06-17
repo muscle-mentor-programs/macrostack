@@ -30,17 +30,19 @@ const PRICES = {
 const CADENCES = ['weekly', 'monthly', 'annual']
 const SUFFIX   = { weekly: 'wk', monthly: 'mo', annual: 'yr' }
 
-// Annualized cost of each cadence → used to show how much longer plans save
-// vs paying weekly (the default, priciest per-unit option).
+// Annualized cost of each cadence, so cadences compare apples-to-apples.
 function annualizedCost(prices, cadence) {
   if (cadence === 'weekly')  return prices.weekly * 52
   if (cadence === 'monthly') return prices.monthly * 12
   return prices.annual
 }
+// Savings of a cadence vs the next-cheaper one up (monthly vs weekly,
+// annual vs monthly) — the "step up and save" comparison.
+const PREV_CADENCE = { monthly: 'weekly', annual: 'monthly' }
 function savingsPct(prices, cadence) {
-  if (cadence === 'weekly') return 0
-  const base = annualizedCost(prices, 'weekly')
-  return Math.round((1 - annualizedCost(prices, cadence) / base) * 100)
+  const prev = PREV_CADENCE[cadence]
+  if (!prev) return 0
+  return Math.round((1 - annualizedCost(prices, cadence) / annualizedCost(prices, prev)) * 100)
 }
 
 export default function UpgradePage() {
@@ -171,14 +173,14 @@ export default function UpgradePage() {
             <span className="font-display font-black text-5xl text-cream">${price}</span>
             <span className="font-mono text-sm text-muted">/{SUFFIX[cadence]}</span>
           </div>
-          {/* Savings vs paying weekly */}
+          {/* Savings vs the next-cheaper cadence */}
           {savingsPct(PRICES[audience], cadence) > 0 ? (
             <p className="font-mono text-xs mb-5" style={{ color: 'var(--color-accent)' }}>
-              ✦ Save {savingsPct(PRICES[audience], cadence)}% vs paying weekly
+              ✦ Save {savingsPct(PRICES[audience], cadence)}% vs {PREV_CADENCE[cadence]}
             </p>
           ) : (
             <p className="font-mono text-xs text-muted mb-5">
-              Switch to monthly or annual to save up to {savingsPct(PRICES[audience], 'annual')}%
+              Switch to monthly and save {savingsPct(PRICES[audience], 'monthly')}%
             </p>
           )}
           <div className="space-y-3">
