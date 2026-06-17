@@ -884,39 +884,81 @@ Rules:
 
       signup: async (name, email, password, role) => {
         if (!supabase) return { ok: false, error: 'Supabase not configured' }
+        const cleanEmail = email.trim()
+
+        // Finalize once a session exists — shared by both signup paths.
+        const finalize = async () => {
+          const { data: profileRows } = await supabase.rpc('get_my_profile')
+          const profile = profileRows?.[0] ?? null
+          if (!profile) return { ok: false, error: 'Profile setup failed. Please try again.' }
+
+          const currentUser = profileToUser(profile, cleanEmail)
+          await get().loadAllData()
+
+          const update = { isAuthenticated: true, currentUser }
+          if (role === 'client') {
+            const clientProfile = get().clients.find(
+              (c) => c.email?.toLowerCase() === cleanEmail.toLowerCase()
+            )
+            if (clientProfile) {
+              update.activeRole     = 'client'
+              update.activeClientId = clientProfile.id
+              update.activePage     = 'dashboard'
+              if (clientProfile.coachId) {
+                setTimeout(() => get().loadCoachProfile(clientProfile.coachId), 0)
+              }
+            }
+          }
+          set(update)
+          return { ok: true }
+        }
+
+        // ── Preferred path: the `register` edge function creates an already-
+        //    confirmed user via the admin API, sidestepping Supabase's built-in
+        //    confirmation mailer (the source of "Error sending confirmation
+        //    email"). Then we sign in directly. Falls back to the legacy
+        //    signUp if the function isn't deployed / is unreachable.
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/register`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+              },
+              body: JSON.stringify({ email: cleanEmail, password, name: name.trim(), role }),
+            }
+          )
+          const json = await res.json().catch(() => ({}))
+
+          if (res.ok && json.ok) {
+            const { error: signInErr } = await supabase.auth.signInWithPassword({
+              email: cleanEmail, password,
+            })
+            if (signInErr) return { ok: false, error: signInErr.message }
+            return finalize()
+          }
+          // Real, actionable error (e.g. already registered) — surface it.
+          if (res.status === 409 || json.already) {
+            return { ok: false, error: json.error || 'An account with this email already exists.' }
+          }
+          // 404 / 500 / unexpected → fall through to the legacy path.
+        } catch {
+          // Network error / function not deployed → fall through.
+        }
+
+        // ── Fallback: original Supabase signUp (works once custom SMTP is set
+        //    or email confirmation is disabled in the Supabase dashboard).
         const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
+          email: cleanEmail,
           password,
           options: { data: { name: name.trim(), role } },
         })
         if (error) return { ok: false, error: error.message }
         if (!data.session) return { ok: true, needsConfirmation: true }
-
-        // Profile was auto-created by trigger — fetch it
-        const { data: profileRows } = await supabase.rpc('get_my_profile')
-        const profile = profileRows?.[0] ?? null
-        if (!profile) return { ok: false, error: 'Profile setup failed. Please try again.' }
-
-        const currentUser = profileToUser(profile, data.user.email)
-
-        await get().loadAllData()
-
-        const update = { isAuthenticated: true, currentUser }
-        if (role === 'client') {
-          const clientProfile = get().clients.find(
-            (c) => c.email?.toLowerCase() === email.toLowerCase()
-          )
-          if (clientProfile) {
-            update.activeRole     = 'client'
-            update.activeClientId = clientProfile.id
-            update.activePage     = 'dashboard'
-            if (clientProfile.coachId) {
-              setTimeout(() => get().loadCoachProfile(clientProfile.coachId), 0)
-            }
-          }
-        }
-        set(update)
-        return { ok: true }
+        return finalize()
       },
 
       submitCoachCode: async (code) => {
