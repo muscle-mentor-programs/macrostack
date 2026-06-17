@@ -41,19 +41,22 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await admin.auth.getUser(token)
     if (userError || !user) throw new Error('Unauthorized')
 
-    const { audience, plan, returnUrl } = await req.json()
-    if (!['coach', 'user'].includes(audience)) throw new Error('Invalid audience')
+    const { plan, returnUrl } = await req.json()
     if (!['monthly', 'annual'].includes(plan)) throw new Error('Invalid plan')
-
-    const priceId = PRICE_IDS[`${audience}:${plan}`]
-    if (!priceId) throw new Error(`No price configured for ${audience}:${plan}`)
 
     // Reuse an existing Stripe customer if we have one, else create + persist it.
     const { data: profile } = await admin
       .from('profiles')
-      .select('stripe_customer_id')
+      .select('stripe_customer_id, role')
       .eq('id', user.id)
       .single()
+
+    // Audience is derived from the account's real role — never trusted from the
+    // client — so a user can't check out at the wrong plan/price.
+    const audience = profile?.role === 'client' ? 'user' : 'coach'
+
+    const priceId = PRICE_IDS[`${audience}:${plan}`]
+    if (!priceId) throw new Error(`No price configured for ${audience}:${plan}`)
 
     let customerId = profile?.stripe_customer_id
     if (!customerId) {

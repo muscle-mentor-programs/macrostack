@@ -100,7 +100,7 @@ export default function App() {
   const {
     isAuthenticated, authLoading, currentUser,
     activeRole, activePage, activeClientId,
-    theme, initAuth,
+    theme, initAuth, setActivePage,
   } = useStore()
   const isMobile = useIsMobile()
 
@@ -124,6 +124,15 @@ export default function App() {
   useEffect(() => {
     initAuth()
   }, [])
+
+  // Returning from Stripe Checkout → land on the upgrade page so its
+  // success handler refreshes access and shows the confirmation. activePage
+  // isn't persisted, so without this the redirect would drop onto the dashboard.
+  useEffect(() => {
+    if (!isAuthenticated) return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('checkout') === 'success') setActivePage('upgrade')
+  }, [isAuthenticated])
 
   // Show nothing while the session check is in flight (avoids login-screen flash)
   if (authLoading) {
