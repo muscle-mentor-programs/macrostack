@@ -7,11 +7,6 @@ const cors = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
-  apiVersion: '2024-06-20',
-  httpClient: Stripe.createFetchHttpClient(),
-})
-
 // Stripe Price IDs — create one Price per (audience, cadence) in the Stripe
 // dashboard and set these as function secrets.
 const PRICE_IDS: Record<string, string | undefined> = {
@@ -25,6 +20,15 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
+    // Init Stripe inside the handler so a missing key returns a clear JSON
+    // error (with CORS) instead of crashing on boot → browser "Failed to fetch".
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
+    if (!stripeKey) throw new Error('Subscriptions are not configured yet (missing STRIPE_SECRET_KEY).')
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: '2024-06-20',
+      httpClient: Stripe.createFetchHttpClient(),
+    })
+
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) throw new Error('Missing authorization header')
 

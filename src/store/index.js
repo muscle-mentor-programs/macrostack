@@ -373,12 +373,15 @@ const useStore = create(
               body: JSON.stringify({ audience, plan, returnUrl: window.location.origin }),
             }
           )
-          const json = await res.json()
-          if (!res.ok || !json.url) return { ok: false, error: json.error || 'Checkout failed.' }
+          const json = await res.json().catch(() => ({}))
+          if (!res.ok || !json.url) {
+            return { ok: false, error: json.error || 'Checkout is not available right now. Please try again later.' }
+          }
           window.location.href = json.url
           return { ok: true }
-        } catch (e) {
-          return { ok: false, error: e.message || 'Checkout failed.' }
+        } catch {
+          // Network-level failure: function unreachable / not deployed / CORS
+          return { ok: false, error: 'Could not reach checkout. Subscriptions may not be set up yet — please try again later or contact support.' }
         }
       },
 

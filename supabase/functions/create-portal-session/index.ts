@@ -7,15 +7,17 @@ const cors = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
-  apiVersion: '2024-06-20',
-  httpClient: Stripe.createFetchHttpClient(),
-})
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
+    if (!stripeKey) throw new Error('Subscriptions are not configured yet (missing STRIPE_SECRET_KEY).')
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: '2024-06-20',
+      httpClient: Stripe.createFetchHttpClient(),
+    })
+
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) throw new Error('Missing authorization header')
 
