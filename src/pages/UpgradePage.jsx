@@ -30,11 +30,24 @@ const PRICES = {
 const CADENCES = ['weekly', 'monthly', 'annual']
 const SUFFIX   = { weekly: 'wk', monthly: 'mo', annual: 'yr' }
 
+// Annualized cost of each cadence → used to show how much longer plans save
+// vs paying weekly (the default, priciest per-unit option).
+function annualizedCost(prices, cadence) {
+  if (cadence === 'weekly')  return prices.weekly * 52
+  if (cadence === 'monthly') return prices.monthly * 12
+  return prices.annual
+}
+function savingsPct(prices, cadence) {
+  if (cadence === 'weekly') return 0
+  const base = annualizedCost(prices, 'weekly')
+  return Math.round((1 - annualizedCost(prices, cadence) / base) * 100)
+}
+
 export default function UpgradePage() {
   const { startCheckout, refreshSubscription, openBillingPortal, setActivePage } = useStore()
   const { hasAccess, isSubscribed, audience, plan, status } = useSubscription()
 
-  const [cadence, setCadence] = useState('annual') // 'monthly' | 'annual'
+  const [cadence, setCadence] = useState('weekly') // 'weekly' | 'monthly' | 'annual'
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
 
@@ -123,27 +136,51 @@ export default function UpgradePage() {
               transition: 'left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1)',
             }}
           />
-          {CADENCES.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCadence(c)}
-              className={`relative z-10 flex-1 py-2.5 font-display font-bold text-[11px] tracking-[0.12em] transition-colors ${
-                cadence === c ? 'text-bg' : 'text-muted hover:text-cream'
-              }`}
-              style={cadence === c ? { color: '#fff' } : undefined}
-            >
-              {c.toUpperCase()}
-            </button>
-          ))}
+          {CADENCES.map((c) => {
+            const pct = savingsPct(PRICES[audience], c)
+            const active = cadence === c
+            return (
+              <button
+                key={c}
+                onClick={() => setCadence(c)}
+                className={`relative z-10 flex-1 py-2 flex flex-col items-center gap-0.5 font-display font-bold transition-colors ${
+                  active ? 'text-bg' : 'text-muted hover:text-cream'
+                }`}
+                style={active ? { color: '#fff' } : undefined}
+              >
+                <span className="text-[11px] tracking-[0.12em]">{c.toUpperCase()}</span>
+                {pct > 0 && (
+                  <span
+                    className="font-mono text-[8px] tracking-wide leading-none px-1 py-0.5 rounded"
+                    style={active
+                      ? { background: 'rgba(255,255,255,0.22)', color: '#fff' }
+                      : { background: accentA(14), color: 'var(--color-accent)' }}
+                  >
+                    SAVE {pct}%
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </div>
 
         {/* Price card */}
         <div className="glass-card border rounded-2xl p-6 card-dim mb-5"
           style={{ borderColor: accentA(35) }}>
-          <div className="flex items-baseline gap-1.5 mb-5">
+          <div className="flex items-baseline gap-1.5 mb-1">
             <span className="font-display font-black text-5xl text-cream">${price}</span>
             <span className="font-mono text-sm text-muted">/{SUFFIX[cadence]}</span>
           </div>
+          {/* Savings vs paying weekly */}
+          {savingsPct(PRICES[audience], cadence) > 0 ? (
+            <p className="font-mono text-xs mb-5" style={{ color: 'var(--color-accent)' }}>
+              ✦ Save {savingsPct(PRICES[audience], cadence)}% vs paying weekly
+            </p>
+          ) : (
+            <p className="font-mono text-xs text-muted mb-5">
+              Switch to monthly or annual to save up to {savingsPct(PRICES[audience], 'annual')}%
+            </p>
+          )}
           <div className="space-y-3">
             {perks.map((perk) => (
               <div key={perk} className="flex items-center gap-3">
