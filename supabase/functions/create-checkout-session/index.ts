@@ -10,8 +10,10 @@ const cors = {
 // Stripe Price IDs — create one Price per (audience, cadence) in the Stripe
 // dashboard and set these as function secrets.
 const PRICE_IDS: Record<string, string | undefined> = {
+  'coach:weekly':  Deno.env.get('STRIPE_PRICE_COACH_WEEKLY'),
   'coach:monthly': Deno.env.get('STRIPE_PRICE_COACH_MONTHLY'),
   'coach:annual':  Deno.env.get('STRIPE_PRICE_COACH_ANNUAL'),
+  'user:weekly':   Deno.env.get('STRIPE_PRICE_USER_WEEKLY'),
   'user:monthly':  Deno.env.get('STRIPE_PRICE_USER_MONTHLY'),
   'user:annual':   Deno.env.get('STRIPE_PRICE_USER_ANNUAL'),
 }
@@ -42,7 +44,7 @@ serve(async (req) => {
     if (userError || !user) throw new Error('Unauthorized')
 
     const { plan, returnUrl } = await req.json()
-    if (!['monthly', 'annual'].includes(plan)) throw new Error('Invalid plan')
+    if (!['weekly', 'monthly', 'annual'].includes(plan)) throw new Error('Invalid plan')
 
     // Reuse an existing Stripe customer if we have one, else create + persist it.
     const { data: profile } = await admin

@@ -29,8 +29,9 @@ async function syncSubscription(stripe: Stripe, admin: ReturnType<typeof createC
     if (!userId) { console.error('No supabase_user_id on subscription/customer'); return }
   }
 
+  const interval = sub.items.data[0]?.price.recurring?.interval
   const plan = sub.metadata?.plan
-    || (sub.items.data[0]?.price.recurring?.interval === 'year' ? 'annual' : 'monthly')
+    || (interval === 'year' ? 'annual' : interval === 'week' ? 'weekly' : 'monthly')
 
   const { error } = await admin.from('profiles').update({
     stripe_subscription_id: sub.id,

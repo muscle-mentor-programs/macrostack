@@ -20,10 +20,15 @@ const USER_PERKS = [
 
 // Display pricing. Stripe is the source of truth at checkout; these are the
 // shown numbers and should match the Stripe Prices you create.
+// Display amounts only — Stripe is the source of truth at checkout. Update
+// these to match the real Prices you set in Stripe.
 const PRICES = {
-  coach: { monthly: 29, annual: 290 },
-  user:  { monthly: 9,  annual: 90  },
+  coach: { weekly: 9,  monthly: 29, annual: 290 },
+  user:  { weekly: 3,  monthly: 9,  annual: 90  },
 }
+
+const CADENCES = ['weekly', 'monthly', 'annual']
+const SUFFIX   = { weekly: 'wk', monthly: 'mo', annual: 'yr' }
 
 export default function UpgradePage() {
   const { startCheckout, refreshSubscription, openBillingPortal, setActivePage } = useStore()
@@ -106,28 +111,28 @@ export default function UpgradePage() {
           </p>
         </div>
 
-        {/* Cadence toggle — sliding pill */}
+        {/* Cadence toggle — sliding pill across 3 options */}
         <div className="relative flex bg-card border border-border rounded-xl p-1 card-dim mb-6">
           <div
             className="absolute top-1 bottom-1 rounded-lg pointer-events-none"
             style={{
-              left:  cadence === 'monthly' ? '4px' : '50%',
-              width: 'calc(50% - 4px)',
+              left:  `calc(4px + ${CADENCES.indexOf(cadence)} * (100% - 8px) / ${CADENCES.length})`,
+              width: `calc((100% - 8px) / ${CADENCES.length})`,
               background: 'linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, white))',
               boxShadow: `0 2px 14px ${accentA(40)}, inset 0 1px 0 rgba(255,255,255,0.25)`,
               transition: 'left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1)',
             }}
           />
-          {['monthly', 'annual'].map((c) => (
+          {CADENCES.map((c) => (
             <button
               key={c}
               onClick={() => setCadence(c)}
-              className={`relative z-10 flex-1 py-2.5 font-display font-bold text-xs tracking-widest transition-colors ${
+              className={`relative z-10 flex-1 py-2.5 font-display font-bold text-[11px] tracking-[0.12em] transition-colors ${
                 cadence === c ? 'text-bg' : 'text-muted hover:text-cream'
               }`}
               style={cadence === c ? { color: '#fff' } : undefined}
             >
-              {c === 'monthly' ? 'MONTHLY' : 'ANNUAL · SAVE 17%'}
+              {c.toUpperCase()}
             </button>
           ))}
         </div>
@@ -137,7 +142,7 @@ export default function UpgradePage() {
           style={{ borderColor: accentA(35) }}>
           <div className="flex items-baseline gap-1.5 mb-5">
             <span className="font-display font-black text-5xl text-cream">${price}</span>
-            <span className="font-mono text-sm text-muted">/{cadence === 'monthly' ? 'mo' : 'yr'}</span>
+            <span className="font-mono text-sm text-muted">/{SUFFIX[cadence]}</span>
           </div>
           <div className="space-y-3">
             {perks.map((perk) => (
@@ -163,7 +168,7 @@ export default function UpgradePage() {
         >
           {loading
             ? <><Loader2 size={16} className="animate-spin" /> STARTING CHECKOUT…</>
-            : <>SUBSCRIBE — ${price}/{cadence === 'monthly' ? 'mo' : 'yr'}</>}
+            : <>SUBSCRIBE — ${price}/{SUFFIX[cadence]}</>}
         </button>
 
         <button
