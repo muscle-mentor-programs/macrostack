@@ -42,7 +42,15 @@ export default function ClientCoachProfile() {
       <div className="flex flex-col items-center justify-center h-full py-24 text-center px-8 anim-fade-in">
         <User size={36} className="text-dim mb-4" />
         <p className="font-display font-bold text-xl text-muted tracking-widest">NO COACH LINKED</p>
-        <p className="font-mono text-sm text-dim mt-2">You haven't been linked to a coach yet.</p>
+        <p className="font-mono text-sm text-dim mt-2 max-w-xs leading-relaxed">
+          Have a coach code? Enter it under Profile → Link to Coach to connect.
+        </p>
+        <button
+          onClick={() => setActivePage('profile')}
+          className="mt-6 px-5 py-2.5 rounded-xl border border-border text-cream font-display font-bold text-xs tracking-widest hover:border-muted transition-colors press"
+        >
+          ENTER COACH CODE
+        </button>
       </div>
     )
   }

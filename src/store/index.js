@@ -974,29 +974,30 @@ Rules:
         return finalize()
       },
 
+      // Enter a coach code → link directly to that coach (no accept step).
       submitCoachCode: async (code) => {
         const { currentUser } = get()
         if (!currentUser) return { ok: false, error: 'Not logged in' }
 
-        const { data: coaches, error: coachErr } = await supabase
-          .rpc('get_coach_by_code', { p_code: code.trim().toUpperCase() })
+        const { data, error } = await supabase
+          .rpc('link_client_by_coach_code', { p_code: code.trim().toUpperCase() })
 
-        const coach = coaches?.[0] ?? null
-        if (coachErr || !coach) return { ok: false, error: 'Invalid coach code. Double-check with your coach.' }
-
-        const { error: reqErr } = await supabase.from('coach_requests').insert({
-          client_profile_id: currentUser.id,
-          client_name:       currentUser.name,
-          client_email:      currentUser.email,
-          coach_id:          coach.id,
-          status:            'pending',
-        })
-
-        if (reqErr) {
-          if (reqErr.code === '23505') return { ok: false, error: 'You already sent a request to this coach.' }
-          return { ok: false, error: reqErr.message }
+        if (error) {
+          const msg = /invalid coach code/i.test(error.message)
+            ? 'Invalid coach code. Double-check with your coach.'
+            : error.message
+          return { ok: false, error: msg }
         }
-        return { ok: true, coachName: coach.name }
+
+        const coachName = data?.[0]?.coach_name || ''
+
+        // Reload client records so the new coach link + profile appear.
+        await get().loadAllData()
+        const me = get()
+        const myClient = me.clients.find((c) => c.id === me.activeClientId)
+        if (myClient?.coachId) get().loadCoachProfile(myClient.coachId)
+
+        return { ok: true, coachName }
       },
 
       fetchCoachRequests: async () => {

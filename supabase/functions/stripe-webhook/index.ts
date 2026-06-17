@@ -41,13 +41,6 @@ async function syncSubscription(stripe: Stripe, admin: ReturnType<typeof createC
   }).eq('id', userId)
 
   if (error) console.error('profile update failed:', error.message)
-
-  // When the subscription is live, auto-link the user to the default coach
-  // (single-coach setup). No-ops if they're already linked.
-  if (sub.status === 'active' || sub.status === 'trialing') {
-    const { error: linkErr } = await admin.rpc('link_subscriber_to_coach', { p_profile_id: userId })
-    if (linkErr) console.error('link_subscriber_to_coach failed:', linkErr.message)
-  }
 }
 
 serve(async (req) => {
