@@ -23,8 +23,8 @@ const USER_PERKS = [
 // Display amounts only — Stripe is the source of truth at checkout. Update
 // these to match the real Prices you set in Stripe.
 const PRICES = {
-  coach: { weekly: 9,  monthly: 29, annual: 290 },
-  user:  { weekly: 3,  monthly: 9,  annual: 90  },
+  coach: { weekly: 9,     monthly: 29,    annual: 290    },
+  user:  { weekly: 5.95,  monthly: 9.95,  annual: 89.95  },
 }
 
 const CADENCES = ['weekly', 'monthly', 'annual']
