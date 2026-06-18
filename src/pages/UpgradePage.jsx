@@ -104,7 +104,7 @@ export default function UpgradePage() {
   }
 
   return (
-    <div className="min-h-full px-6 py-12 anim-content-rise">
+    <div className="min-h-full px-6 pt-mobile-header pb-12 anim-content-rise">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
