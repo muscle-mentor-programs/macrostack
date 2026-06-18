@@ -7,6 +7,7 @@ import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
 import MealPlanBuilder from './MealPlanBuilder'
 import { generateMealPlan } from '../../services/mealPlanAI'
+import { generateCheckinReview } from '../../services/checkinAI'
 
 // ─── Harris-Benedict (Mifflin-St Jeor revision) ──────────────────────────────
 const ACTIVITY = [
@@ -656,6 +657,175 @@ function MealPlansTab({ clientId }) {
   )
 }
 
+// ── Coach weekly check-in review (latest submission + AI analysis) ───────────
+function CheckinTab({ client }) {
+  const { getClientTotalsForDate, updateClientGoals } = useStore()
+  const [loading, setLoading] = useState(false)
+  const [review, setReview]   = useState(null)
+  const [error, setError]     = useState('')
+  const [applied, setApplied] = useState(false)
+
+  const latest = client.checkins?.[0] || null
+
+  // Last 7 days of logged intake (oldest → newest)
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const date = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd')
+    const logged = (client.log?.[date] || []).length > 0
+    const t = getClientTotalsForDate(client.id, date)
+    return { date, logged, calories: t.calories, protein: t.protein, carbs: t.carbs, fat: t.fat }
+  })
+  const loggedDays = week.filter((d) => d.logged).length
+
+  // Weight trend from the last ~30 days of weight log
+  const wl = [...(client.weightLog || [])].sort((a, b) => a.date.localeCompare(b.date))
+  const weightTrend = wl.length >= 2
+    ? { start: wl[0].value, end: wl[wl.length - 1].value, change: +(wl[wl.length - 1].value - wl[0].value).toFixed(1), unit: wl[wl.length - 1].unit || 'lbs' }
+    : null
+
+  const runReview = async () => {
+    setLoading(true); setError(''); setReview(null); setApplied(false)
+    try {
+      const r = await generateCheckinReview({
+        clientName: client.name, goals: client.goals, week, weightTrend, checkin: latest,
+      })
+      setReview(r)
+    } catch (e) {
+      setError(e.message || 'Could not generate review.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const goalsChanged = review && (
+    review.suggestedGoals.calories !== client.goals.calories ||
+    review.suggestedGoals.protein  !== client.goals.protein  ||
+    review.suggestedGoals.carbs    !== client.goals.carbs    ||
+    review.suggestedGoals.fat      !== client.goals.fat
+  )
+
+  const applyGoals = () => {
+    updateClientGoals(client.id, review.suggestedGoals)
+    setApplied(true)
+  }
+
+  const scaleLabel = (n) => (n ? `${n}/5` : '—')
+  const checkinDate = latest?.createdAt ? format(parseISO(latest.createdAt), 'MMM d, yyyy') : null
+
+  return (
+    <div className="max-w-3xl mx-auto space-y-5">
+      {/* Latest submission */}
+      <div className="anim-fade-in-up">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">LATEST CHECK-IN</p>
+        </div>
+        {latest ? (
+          <div className="glass-card border border-border rounded-2xl p-5 card-dim space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="font-display font-bold text-sm text-cream">{checkinDate}</p>
+              {latest.weight != null && (
+                <p className="font-mono text-sm text-cream">{latest.weight} {latest.weightUnit}</p>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {[['ADHERENCE', latest.adherence], ['HUNGER', latest.hunger], ['ENERGY', latest.energy]].map(([l, v]) => (
+                <div key={l} className="border border-border/50 rounded-lg p-2.5 text-center card-inset">
+                  <p className="font-display font-black text-lg text-cream">{scaleLabel(v)}</p>
+                  <p className="font-mono text-[9px] text-muted tracking-widest mt-0.5">{l}</p>
+                </div>
+              ))}
+            </div>
+            {latest.notes && (
+              <div>
+                <p className="font-mono text-[10px] tracking-widest text-muted mb-1">NOTES</p>
+                <p className="font-mono text-sm text-cream leading-relaxed">{latest.notes}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="glass-card border border-border rounded-2xl p-8 text-center card-dim">
+            <p className="font-display font-bold text-sm text-muted tracking-widest">NO CHECK-IN YET</p>
+            <p className="font-mono text-xs text-dim mt-1.5">
+              {client.name.split(' ')[0]} hasn't submitted a weekly check-in. You can still generate a review from their logged data.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* AI review */}
+      <button
+        onClick={runReview}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover disabled:opacity-50"
+      >
+        {loading
+          ? <><div className="w-4 h-4 border-2 border-bg/30 border-t-bg rounded-full animate-spin" /> KAY IS REVIEWING…</>
+          : <><Sparkles size={15} /> {review ? 'REGENERATE REVIEW' : 'GENERATE WEEKLY REVIEW'}</>}
+      </button>
+      <p className="font-mono text-[10px] text-dim text-center -mt-2">
+        Reviews {loggedDays}/7 logged days{weightTrend ? ' + weight trend' : ''}{latest ? ' + their check-in' : ''}
+      </p>
+
+      {error && (
+        <p className="font-mono text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">{error}</p>
+      )}
+
+      {review && (
+        <div className="glass-card border rounded-2xl p-5 card-dim space-y-4 anim-fade-in-up" style={{ borderColor: 'color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
+          <div className="flex items-center gap-2">
+            <Sparkles size={13} style={{ color: 'var(--color-accent)' }} />
+            <p className="font-display text-xs text-muted tracking-widest">KAY'S REVIEW</p>
+          </div>
+          <p className="font-mono text-sm text-cream leading-relaxed">{review.summary}</p>
+          <div className="border-t border-border/50 pt-4">
+            <p className="font-mono text-[10px] tracking-widest text-muted mb-1.5">RECOMMENDATION</p>
+            <p className="font-mono text-sm text-cream leading-relaxed">{review.recommendation}</p>
+          </div>
+
+          {/* Suggested targets */}
+          <div className="border-t border-border/50 pt-4">
+            <p className="font-mono text-[10px] tracking-widest text-muted mb-2.5">
+              {goalsChanged ? 'SUGGESTED TARGETS' : 'TARGETS — NO CHANGE'}
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                ['KCAL', client.goals.calories, review.suggestedGoals.calories],
+                ['PRO',  client.goals.protein,  review.suggestedGoals.protein],
+                ['CARB', client.goals.carbs,    review.suggestedGoals.carbs],
+                ['FAT',  client.goals.fat,      review.suggestedGoals.fat],
+              ].map(([l, cur, sug]) => {
+                const changed = cur !== sug
+                return (
+                  <div key={l} className="border border-border/50 rounded-lg p-2 text-center card-inset">
+                    <p className="font-display font-black text-base" style={{ color: changed ? 'var(--color-accent)' : 'var(--color-cream)' }}>{sug}</p>
+                    {changed && <p className="font-mono text-[9px] text-dim line-through">{cur}</p>}
+                    <p className="font-mono text-[9px] text-muted tracking-widest mt-0.5">{l}</p>
+                  </div>
+                )
+              })}
+            </div>
+            {goalsChanged && (
+              applied ? (
+                <div className="flex items-center justify-center gap-2 mt-4 text-olive-light">
+                  <Check size={14} />
+                  <span className="font-display font-bold text-xs tracking-widest">TARGETS UPDATED</span>
+                </div>
+              ) : (
+                <button
+                  onClick={applyGoals}
+                  className="w-full mt-4 btn-accent text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors"
+                >
+                  APPLY THESE TARGETS
+                </button>
+              )
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   const { updateClientGoals, updateClientInfo, removeClient, getClientTotalsForDate } = useStore()
   const [tab, setTab]           = useState(initialTab)
@@ -729,6 +899,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
       <div className="flex border-b border-border flex-shrink-0">
         {[
           { id: 'overview',   label: 'OVERVIEW'   },
+          { id: 'checkin',    label: 'CHECK-IN'   },
           { id: 'mealplans',  label: 'MEAL PLANS' },
         ].map((t) => (
           <button
@@ -909,6 +1080,12 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
               </div>
 
             </div>
+          </div>
+        )}
+
+        {tab === 'checkin' && (
+          <div className="p-6">
+            <CheckinTab client={client} />
           </div>
         )}
 
