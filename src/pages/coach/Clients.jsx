@@ -8,6 +8,7 @@ import ScrambleText from '../../components/ScrambleText'
 import MealPlanBuilder from './MealPlanBuilder'
 import { generateMealPlan } from '../../services/mealPlanAI'
 import { generateCheckinReview } from '../../services/checkinAI'
+import { reconcileGoals } from '../../utils/macros'
 
 // ─── Harris-Benedict (Mifflin-St Jeor revision) ──────────────────────────────
 const ACTIVITY = [
@@ -1010,20 +1011,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                           <div key={key}>
                             <label className={`font-display text-xs tracking-widest block mb-1.5 ${color}`}>{label}</label>
                             <input type="number" value={goals[key]}
-                              onChange={(e) => {
-                                const val = e.target.value
-                                setGoals((p) => {
-                                  const next = { ...p, [key]: val }
-                                  if (key !== 'calories') {
-                                    next.calories = Math.round(
-                                      Number(next.protein || 0) * 4 +
-                                      Number(next.carbs   || 0) * 4 +
-                                      Number(next.fat     || 0) * 9
-                                    )
-                                  }
-                                  return next
-                                })
-                              }}
+                              onChange={(e) => setGoals((p) => reconcileGoals(p, key, e.target.value))}
                               className="w-full bg-card border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown" />
                           </div>
                         ))}

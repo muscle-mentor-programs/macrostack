@@ -10,6 +10,7 @@ import ClientAvatar from '../../../components/ClientAvatar'
 import AnimatedNumber from '../../../components/AnimatedNumber'
 import ScrambleText from '../../../components/ScrambleText'
 import MealPlanBuilder from '../MealPlanBuilder'
+import { reconcileGoals } from '../../../utils/macros'
 import { generateMealPlan } from '../../../services/mealPlanAI'
 
 // ─── Harris-Benedict (Mifflin-St Jeor) ───────────────────────────────────────
@@ -603,20 +604,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
                       <div key={key}>
                         <label className={`font-display text-xs tracking-widest block mb-1.5 ${color}`}>{label}</label>
                         <input type="number" value={goals[key]}
-                          onChange={(e) => {
-                            const val = e.target.value
-                            setGoals((p) => {
-                              const next = { ...p, [key]: val }
-                              if (key !== 'calories') {
-                                next.calories = Math.round(
-                                  Number(next.protein || 0) * 4 +
-                                  Number(next.carbs   || 0) * 4 +
-                                  Number(next.fat     || 0) * 9
-                                )
-                              }
-                              return next
-                            })
-                          }}
+                          onChange={(e) => setGoals((p) => reconcileGoals(p, key, e.target.value))}
                           className={inp} />
                       </div>
                     ))}
