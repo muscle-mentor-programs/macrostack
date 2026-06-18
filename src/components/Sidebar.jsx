@@ -20,7 +20,7 @@ const ITEM_GAP = 6
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
-export default function Sidebar() {
+export default function Sidebar({ width }) {
   const { activePage, setActivePage, setActiveRole, logout, currentUser, clients, messages } = useStore()
 
   const totalUnread = clients.reduce(
@@ -35,8 +35,8 @@ export default function Sidebar() {
   const activeIdx = Math.max(0, NAV.findIndex((n) => n.id === activePage))
 
   return (
-    <aside className="w-64 flex-shrink-0 flex flex-col h-full relative z-10 my-4 ml-4 rounded-3xl glass-sidebar border border-border overflow-hidden"
-      style={{ borderRight: '1px solid var(--color-border)' }}
+    <aside className="flex-shrink-0 flex flex-col h-full relative z-10 my-4 ml-4 rounded-3xl glass-sidebar border border-border overflow-hidden"
+      style={{ width: width ?? 256, borderRight: '1px solid var(--color-border)' }}
     >
       {/* Ambient accent glow — landing hero language */}
       <div

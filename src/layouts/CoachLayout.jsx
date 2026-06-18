@@ -1,10 +1,19 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import { Smartphone, LogOut } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import CoachBottomNav from '../components/CoachBottomNav'
 import ThemeToggle from '../components/ThemeToggle'
 import useStore from '../store'
 import useIsMobile from '../hooks/useIsMobile'
+
+// Resizable sidebar width — persisted so it survives reloads.
+const SIDEBAR_MIN = 200
+const SIDEBAR_MAX = 460
+const SIDEBAR_KEY = 'macrostack-sidebar-w'
+const readSidebarWidth = () => {
+  const v = Number(localStorage.getItem(SIDEBAR_KEY))
+  return v >= SIDEBAR_MIN && v <= SIDEBAR_MAX ? v : 256
+}
 
 /* ── Minimal ambient background — grain + grid + directional depth ── */
 function AmbientBackground() {
@@ -44,10 +53,34 @@ export default function CoachLayout({ children }) {
   const isMobile = useIsMobile()
   const mainRef  = useRef(null)
 
+  const [sidebarWidth, setSidebarWidth] = useState(readSidebarWidth)
+
   // Reset scroll position to top whenever the active page changes
   useEffect(() => {
     mainRef.current?.scrollTo({ top: 0, behavior: 'instant' })
   }, [activePage])
+
+  // Drag the divider to resize the sidebar (the main canvas fills the rest)
+  const startResize = useCallback((e) => {
+    e.preventDefault()
+    let latest = 256
+    const onMove = (mv) => {
+      // 16 = sidebar's ml-4 offset from the viewport's left edge
+      latest = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, mv.clientX - 16))
+      setSidebarWidth(latest)
+    }
+    const onUp = () => {
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      try { localStorage.setItem(SIDEBAR_KEY, String(Math.round(latest))) } catch { /* ignore */ }
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }, [])
 
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
@@ -103,10 +136,24 @@ export default function CoachLayout({ children }) {
         }}
       />
 
-      <Sidebar />
+      <Sidebar width={sidebarWidth} />
+
+      {/* Drag handle — resize the sidebar / main split */}
+      <div
+        onMouseDown={startResize}
+        title="Drag to resize"
+        className="group relative w-2 flex-shrink-0 cursor-col-resize flex items-center justify-center"
+      >
+        <div
+          className="w-[3px] h-16 rounded-full transition-colors"
+          style={{ background: 'var(--color-border)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-accent)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--color-border)')}
+        />
+      </div>
 
       {/* Page canvas — rounded floating surface, pages scroll inside it */}
-      <main className="flex-1 overflow-hidden relative p-4">
+      <main className="flex-1 min-w-0 overflow-hidden relative py-4 pr-4">
         <div
           key={activePage}
           className="h-full rounded-3xl border border-border overflow-hidden relative"

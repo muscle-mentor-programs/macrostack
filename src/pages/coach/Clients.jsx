@@ -400,7 +400,7 @@ function MealPlansTab({ clientId }) {
 
   const [showBuilder, setShowBuilder]   = useState(false)
   const [editingPlan, setEditingPlan]   = useState(null)   // plan object or null
-  const [aiDays, setAiDays]             = useState(7)
+  const [aiDays, setAiDays]             = useState(1)
   const [aiPrefs, setAiPrefs]           = useState('')
   const [aiLoading, setAiLoading]       = useState(false)
   const [aiError, setAiError]           = useState('')
