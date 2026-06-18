@@ -617,7 +617,7 @@ export default function Landing({ onGetStarted }) {
           </p>
 
           {/* Price */}
-          <div className="coach-reveal flex flex-col items-center mt-10 mb-10">
+          <div className="coach-reveal flex flex-col items-center mt-10 mb-8">
             <div className="flex items-baseline gap-2">
               <span className="font-display font-black text-6xl md:text-7xl text-cream">$400</span>
               <span className="font-mono text-sm text-muted">/ month</span>
@@ -625,6 +625,26 @@ export default function Landing({ onGetStarted }) {
             <p className="font-mono text-xs text-muted mt-3 max-w-xs text-center leading-relaxed">
               Month to month. No setup fee, no separate app subscriptions to deal with.
             </p>
+          </div>
+
+          {/* What's included */}
+          <div className="coach-reveal max-w-md mx-auto mb-10 space-y-3">
+            {[
+              { t: 'Weekly check-ins via MacroStack', d: 'I review your logged week and we course-correct.' },
+              { t: 'Custom meal plans',               d: 'Built around your goal, schedule, and the food you actually eat.' },
+              { t: 'Ongoing adjustments',             d: 'Targets and plan change the moment your progress says they should.' },
+            ].map(({ t, d }) => (
+              <div key={t} className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold"
+                  style={{ background: accentA(18), color: ACCENT }}>
+                  ✓
+                </div>
+                <div>
+                  <p className="font-mono text-sm text-cream">{t}</p>
+                  <p className="font-mono text-xs text-muted leading-relaxed">{d}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Two pillars */}
