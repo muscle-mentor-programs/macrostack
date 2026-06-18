@@ -1,8 +1,62 @@
 import { useState } from 'react'
-import { Eye, EyeOff, UserPlus } from 'lucide-react'
+import { Eye, EyeOff, UserPlus, Share, MoreVertical, PlusSquare, Smartphone } from 'lucide-react'
 import useStore from '../store'
 import ScrambleText from '../components/ScrambleText'
 import ThemeToggle from '../components/ThemeToggle'
+
+// Detected once at module load — platform + whether already installed.
+const UA = typeof navigator !== 'undefined' ? navigator.userAgent || '' : ''
+const IS_IOS = /iphone|ipad|ipod/i.test(UA)
+const IS_ANDROID = /android/i.test(UA)
+const IS_INSTALLED =
+  (typeof window !== 'undefined' &&
+    (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true))
+
+// "Add to Home Screen" instructions — platform-aware. Hidden once installed.
+function AddToHomeScreen() {
+  if (IS_INSTALLED) return null
+
+  const steps = IS_IOS
+    ? [
+        { icon: Share, text: <>Tap the <b className="text-cream">Share</b> button in Safari's toolbar</> },
+        { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home Screen</b></> },
+      ]
+    : IS_ANDROID
+    ? [
+        { icon: MoreVertical, text: <>Tap the <b className="text-cream">⋮ menu</b> in Chrome</> },
+        { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home screen</b></> },
+      ]
+    : [
+        { icon: PlusSquare, text: <>Use your browser's <b className="text-cream">Install</b> icon in the address bar</> },
+      ]
+
+  return (
+    <div className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Smartphone size={14} className="text-brown-light" />
+        <p className="font-display font-bold text-xs tracking-widest text-cream">ADD TO HOME SCREEN</p>
+      </div>
+      <p className="font-mono text-[11px] text-muted leading-relaxed mb-3">
+        Install MacroStack for a full-screen app experience — fastest way to log every day.
+      </p>
+      <div className="space-y-2">
+        {steps.map((s, i) => {
+          const Icon = s.icon
+          return (
+            <div key={i} className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-brown/15 border border-brown/25 flex items-center justify-center flex-shrink-0">
+                <Icon size={12} className="text-brown-light" />
+              </div>
+              <p className="font-mono text-[11px] text-muted">
+                <span className="text-dim mr-1">{i + 1}.</span>{s.text}
+              </p>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export default function LoginScreen({ onBack }) {
   const { login, signup } = useStore()
@@ -426,6 +480,9 @@ export default function LoginScreen({ onBack }) {
             </button>
           )}
         </div>
+
+        {/* Add to Home Screen instructions */}
+        <AddToHomeScreen />
 
       </div>{/* max-w-sm content */}
       </div>{/* min-h-full centering wrapper */}
