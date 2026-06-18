@@ -10,11 +10,9 @@ import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
-import useSubscription from '../../hooks/useSubscription'
 
 export default function ClientProfile() {
-  const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode, setActivePage } = useStore()
-  const { hasAccess } = useSubscription()
+  const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
 
   // Coach code linking
@@ -175,18 +173,6 @@ export default function ClientProfile() {
             <p className="font-mono text-sm text-olive-light">
               Linked to {coachName ? <span className="text-cream">{coachName}</span> : 'your coach'}
             </p>
-          </div>
-        ) : !hasAccess ? (
-          <div className="py-1">
-            <p className="font-mono text-xs text-muted leading-relaxed mb-3">
-              Coaching is a Premium feature. Upgrade, then enter the code your coach gives you to connect.
-            </p>
-            <button
-              onClick={() => setActivePage('upgrade')}
-              className="w-full py-3 rounded-xl font-display font-bold text-sm tracking-widest btn-accent text-bg transition-colors glow-hover press"
-            >
-              UNLOCK WITH PREMIUM
-            </button>
           </div>
         ) : codeStatus === 'sent' ? (
           <p className="font-mono text-sm text-olive-light py-2">

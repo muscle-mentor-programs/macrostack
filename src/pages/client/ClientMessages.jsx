@@ -3,8 +3,6 @@ import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { MessageCircle, Send, UserCircle2 } from 'lucide-react'
 import useStore from '../../store'
 import { tapHaptic } from '../../utils/haptics'
-import PremiumGate from '../../components/PremiumGate'
-import useSubscription from '../../hooks/useSubscription'
 
 function msgTime(ts) {
   if (!ts) return ''
@@ -21,10 +19,12 @@ function msgTime(ts) {
 
 export default function ClientMessages() {
   const {
-    activeClientId, messages, sendMessage, markMessagesRead,
-    setNavHidden,
+    activeClientId, clients, messages, sendMessage, markMessagesRead,
+    setNavHidden, setActivePage,
   } = useStore()
-  const { hasAccess } = useSubscription()
+  // Messaging unlocks by being linked to a coach (via coach code) — not by
+  // subscription. A linked client is a coaching client and can message.
+  const hasCoach = !!clients.find((c) => c.id === activeClientId)?.coachId
 
   const [input,        setInput]        = useState('')
   const [kbHeight,     setKbHeight]     = useState(0)
@@ -80,19 +80,26 @@ export default function ClientMessages() {
   const overlayBottom      = kbHeight > 0 ? `${kbHeight}px` : '0px'
   const inputPaddingBottom = kbActive ? '12px' : `${navH + 8}px`
 
-  // Coach messaging is premium
-  if (!hasAccess) {
+  // Messaging unlocks once you're linked to a coach (via coach code).
+  if (!hasCoach) {
     return (
       <div className="fixed inset-x-0 top-0 bottom-0 flex flex-col bg-bg z-10">
         <div className="px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
           <h1 className="font-display font-black text-2xl tracking-[0.15em] text-cream leading-none">COACH</h1>
           <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
         </div>
-        <div className="flex-1 flex items-center justify-center px-5">
-          <PremiumGate
-            title="COACH MESSAGING"
-            blurb="Connect with your coach and message them in real time."
-          />
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-8 anim-fade-in">
+          <MessageCircle size={36} className="text-dim mb-3 anim-pop" />
+          <p className="font-display font-bold text-xl text-muted tracking-widest">NOT CONNECTED YET</p>
+          <p className="font-mono text-sm text-dim mt-2 max-w-xs leading-relaxed">
+            Enter your coach code under Profile → Link to Coach to start messaging your coach.
+          </p>
+          <button
+            onClick={() => setActivePage('profile')}
+            className="mt-6 px-5 py-2.5 rounded-xl border border-border text-cream font-display font-bold text-xs tracking-widest hover:border-muted transition-colors press"
+          >
+            ENTER COACH CODE
+          </button>
         </div>
       </div>
     )
