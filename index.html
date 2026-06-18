@@ -26,7 +26,7 @@
     // Apply the persisted theme before first paint so there's no flash.
     // Dark (ocean-dark) is the default when nothing is stored.
     try {
-      var s = JSON.parse(localStorage.getItem('macrostack-v2') || '{}')
+      var s = JSON.parse(localStorage.getItem('macrostack-ui-dark2') || '{}')
       var t = (s && s.state && s.state.theme) || 'ocean-dark'
       document.documentElement.classList.add(t)
     } catch(e) {

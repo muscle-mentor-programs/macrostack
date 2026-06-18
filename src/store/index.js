@@ -1233,10 +1233,13 @@ Rules:
       setActiveClientId: (id) => set({ activeClientId: id, activePage: 'dashboard' }),
     }),
     {
-      name: 'macrostack-ui',
-      version: 2, // bump to clear stale kayThreads from broken API sessions
+      // Storage key bumped to -dark2: abandons stale pre-default-change theme
+      // preferences (which were stuck on ocean-light) so everyone falls back to
+      // the ocean-dark default. Future theme choices persist under this key.
+      name: 'macrostack-ui-dark2',
+      version: 2,
       // Only persist UI preferences — all data comes from Supabase
-      partialize: (state) => ({ theme: state.theme, kayThreads: state.kayThreads }),
+      partialize: (state) => ({ theme: state.theme }),
     }
   )
 )
