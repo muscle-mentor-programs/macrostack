@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Check, Sparkles, Loader2, Settings } from 'lucide-react'
+import { Check, Loader2, Settings } from 'lucide-react'
 import useStore from '../store'
 import useSubscription from '../hooks/useSubscription'
 
@@ -11,11 +11,12 @@ const COACH_PERKS = [
   'Full coaching dashboard & compliance',
   'Real-time client messaging',
 ]
+// Pro covers the solo power features. Coach connection, messaging, and
+// meal plans unlock separately via a coach code — so they're NOT listed here.
 const USER_PERKS = [
-  'Barcode scanner',
-  'Progress & analytics dashboards',
-  'Connect with your coach + messaging',
-  'Coach-assigned meal plans',
+  'Barcode scanner — instant macros from any label',
+  'Weight trends & 7-day moving averages',
+  'Calorie history & consistency insights',
 ]
 
 // Display pricing. Stripe is the source of truth at checkout; these are the
@@ -107,10 +108,6 @@ export default function UpgradePage() {
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 anim-pop"
-            style={{ background: accentA(12), border: `1px solid ${accentA(28)}` }}>
-            <Sparkles size={24} style={{ color: 'var(--color-accent)' }} />
-          </div>
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
             <p className="font-mono text-[10px] tracking-[0.22em] text-muted">MACROSTACK {label}</p>
@@ -122,7 +119,7 @@ export default function UpgradePage() {
           <p className="font-mono text-xs text-muted mt-3 max-w-xs mx-auto leading-relaxed">
             {audience === 'coach'
               ? 'Unlock unlimited clients and the full coaching toolkit.'
-              : 'Unlock scanning, analytics, and your coach connection.'}
+              : 'Unlock the barcode scanner and full progress analytics.'}
           </p>
         </div>
 

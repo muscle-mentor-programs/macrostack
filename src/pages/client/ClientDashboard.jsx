@@ -5,8 +5,6 @@ import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from '
 import useStore from '../../store'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
-import PremiumGate from '../../components/PremiumGate'
-import useSubscription from '../../hooks/useSubscription'
 
 function CalorieRing({ current, goal }) {
   const theme = useStore((s) => s.theme)
@@ -245,7 +243,6 @@ function MealPlanSection({ client, onLogMeal }) {
 
 export default function ClientDashboard() {
   const { activeClientId, clients, getClientTotalsForDate, logDate, setActivePage, setActiveClientId, setActiveRole, addClientEntry, coachProfile } = useStore()
-  const { hasAccess } = useSubscription()
   const client = clients.find((c) => c.id === activeClientId)
   const totals = getClientTotalsForDate(activeClientId, logDate)
   const remaining = (client?.goals?.calories || 0) - totals.calories
@@ -349,13 +346,9 @@ export default function ClientDashboard() {
         <MacroChip label="FAT" current={totals.fat} goal={client?.goals?.fat} color="slate" delay={290} />
       </div>
 
-      {/* Meal Plan Section — premium */}
-      {hasAccess ? (
+      {/* Meal Plan Section — only relevant once linked to a coach (code-based) */}
+      {client?.coachId && (
         <MealPlanSection client={client} onLogMeal={handleLogMeal} />
-      ) : (
-        <div className="px-5 mb-6">
-          <PremiumGate title="MEAL PLANS" blurb="Follow coach-assigned meal plans and log a full meal in one tap." inline />
-        </div>
       )}
 
       {/* Your Coach card */}
