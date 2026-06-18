@@ -1,29 +1,22 @@
 import { useState } from 'react'
-import { Eye, EyeOff, UserPlus, Share, MoreVertical, PlusSquare, Smartphone } from 'lucide-react'
+import { Eye, EyeOff, UserPlus, Share, PlusSquare, Smartphone } from 'lucide-react'
 import useStore from '../store'
 import ScrambleText from '../components/ScrambleText'
 import ThemeToggle from '../components/ThemeToggle'
 
-// Detected once at module load — platform + whether already installed.
-const UA = typeof navigator !== 'undefined' ? navigator.userAgent || '' : ''
-const IS_IOS = /iphone|ipad|ipod/i.test(UA)
+// Hidden once the app is already running as an installed PWA.
 const IS_INSTALLED =
   (typeof window !== 'undefined' &&
     (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true))
 
-// "Add to Home Screen" instructions — platform-aware. Hidden once installed.
+// "Add to Home Screen" instructions — Share → Add to Home Screen.
 function AddToHomeScreen() {
   if (IS_INSTALLED) return null
 
-  const steps = IS_IOS
-    ? [
-        { icon: Share, text: <>Tap the <b className="text-cream">Share</b> button in Safari's toolbar</> },
-        { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home Screen</b></> },
-      ]
-    : [
-        { icon: MoreVertical, text: <>Open your browser <b className="text-cream">menu</b> (⋮)</> },
-        { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home Screen</b></> },
-      ]
+  const steps = [
+    { icon: Share, text: <>Tap the <b className="text-cream">Share</b> button</> },
+    { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home Screen</b></> },
+  ]
 
   return (
     <div className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
