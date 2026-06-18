@@ -651,7 +651,15 @@ export default function Landing({ onGetStarted }) {
             {/* Muscle Mentor */}
             <div className="coach-reveal glass-card border border-border rounded-2xl p-6 card-dim">
               <div className="flex items-center justify-between gap-2 mb-1">
-                <p className="font-display font-black text-xl tracking-wide text-cream">MUSCLE MENTOR</p>
+                <a
+                  href="https://musclementor.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-display font-black text-xl tracking-wide text-cream inline-flex items-center gap-1.5 transition-colors hover:opacity-80"
+                >
+                  MUSCLE MENTOR
+                  <span className="text-sm" style={{ color: ACCENT }}>↗</span>
+                </a>
                 <span
                   className="font-mono text-[9px] tracking-[0.2em] px-2 py-0.5 rounded-full flex-shrink-0"
                   style={{ color: ACCENT, background: accentA(12), border: `1px solid ${accentA(28)}` }}
