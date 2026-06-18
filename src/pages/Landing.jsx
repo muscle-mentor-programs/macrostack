@@ -225,6 +225,15 @@ export default function Landing({ onGetStarted }) {
         })
       })
 
+      /* ── 6.5 Coaching section — staggered reveal on scroll ── */
+      gsap.set(q('.coach-reveal'), { y: 28, autoAlpha: 0 })
+      ScrollTrigger.batch(q('.coach-reveal'), {
+        start: 'top 88%',
+        onEnter: (els) => gsap.to(els, {
+          y: 0, autoAlpha: 1, duration: 0.6, ease: 'power3.out', stagger: 0.1, overwrite: true,
+        }),
+      })
+
       /* ── 7b. CTA scales in with scrub ── */
       gsap.fromTo(q('.finale-cta'),
         { scale: 0.86, autoAlpha: 0.25 },
@@ -576,8 +585,131 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
+      {/* ══ 6.5 COACHING — work with Branden ═════════════════════════════════ */}
+      <section className="relative bg-bg px-6 pt-28 pb-8 overflow-hidden">
+        {/* ambient glow */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accentA(12)}, transparent 65%)` }}
+        />
+        <div className="relative max-w-3xl mx-auto">
+          {/* Heading */}
+          <div className="coach-reveal text-center mb-3">
+            <div className="flex items-center gap-2 justify-center mb-4">
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">NUTRITION COACHING</p>
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+            </div>
+            <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide leading-[1.05] text-cream">
+              COACHING THAT ACTUALLY
+              <br />
+              <span style={{ color: ACCENT }}>KEEPS UP</span> WITH YOU.
+            </h2>
+          </div>
+
+          <p className="coach-reveal max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed text-muted mt-6">
+            Most people don't need more information. They need someone watching the numbers
+            with them and adjusting before things stall.
+          </p>
+          <p className="coach-reveal max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed text-muted mt-4">
+            That's what this is. I build your nutrition, you log it, I check it every week and
+            we course-correct. You also get my training app to handle the lifting side.
+          </p>
+
+          {/* Price */}
+          <div className="coach-reveal flex flex-col items-center mt-10 mb-10">
+            <div className="flex items-baseline gap-2">
+              <span className="font-display font-black text-6xl md:text-7xl text-cream">$400</span>
+              <span className="font-mono text-sm text-muted">/ month</span>
+            </div>
+            <p className="font-mono text-xs text-muted mt-3 max-w-xs text-center leading-relaxed">
+              Month to month. No setup fee, no separate app subscriptions to deal with.
+            </p>
+          </div>
+
+          {/* Two pillars */}
+          <div className="grid md:grid-cols-2 gap-4 md:gap-5">
+            {/* MacroStack */}
+            <div className="coach-reveal glass-card border border-border rounded-2xl p-6 card-dim">
+              <div className="flex items-center justify-between mb-1">
+                <p className="font-display font-black text-xl tracking-wide text-cream">
+                  MACRO<span style={{ color: ACCENT }}>STACK</span>
+                </p>
+              </div>
+              <p className="font-mono text-[10px] tracking-[0.2em] text-muted mb-4">WHERE WE RUN YOUR NUTRITION</p>
+              <p className="text-sm leading-relaxed text-muted mb-3">
+                I build your meal plan around your goal, your schedule, and the food you'll
+                actually eat. You log it in the app the same way you would in MyFitnessPal,
+                except I'm on the other end looking at it.
+              </p>
+              <p className="text-sm leading-relaxed text-muted">
+                When the scale or the mirror says something needs to change, I change it.
+                That's the whole point of paying for a coach instead of downloading a free tracker.
+              </p>
+            </div>
+
+            {/* Muscle Mentor */}
+            <div className="coach-reveal glass-card border border-border rounded-2xl p-6 card-dim">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <p className="font-display font-black text-xl tracking-wide text-cream">MUSCLE MENTOR</p>
+                <span
+                  className="font-mono text-[9px] tracking-[0.2em] px-2 py-0.5 rounded-full flex-shrink-0"
+                  style={{ color: ACCENT, background: accentA(12), border: `1px solid ${accentA(28)}` }}
+                >
+                  INCLUDED
+                </span>
+              </div>
+              <p className="font-mono text-[10px] tracking-[0.2em] text-muted mb-4">YOUR TRAINING, HANDLED</p>
+              <p className="text-sm leading-relaxed text-muted mb-3">
+                You get full access to my training app at no extra charge. Pick a mesocycle
+                that fits where you're at and run it. If something doesn't make sense or you're
+                not sure how to scale it, message me and I'll sort it out.
+              </p>
+              <p className="text-sm leading-relaxed text-muted">
+                I'd rather you follow programming that's already proven than chase a custom
+                plan that looks impressive and goes nowhere.
+              </p>
+            </div>
+          </div>
+
+          {/* Who it's for */}
+          <p className="coach-reveal max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed text-muted mt-10">
+            This is built for people who already know the basics but can't stay consistent on
+            their own. If that's you, the weekly check-ins are the thing that finally makes it
+            stick.
+          </p>
+
+          {/* CTA */}
+          <div className="coach-reveal mt-8 rounded-2xl border p-6 md:p-8 text-center"
+            style={{ borderColor: accentA(35), background: accentA(6) }}>
+            <p className="font-display font-bold text-lg md:text-xl tracking-wide text-cream mb-1">
+              Want to talk through whether it's a fit?
+            </p>
+            <p className="font-mono text-xs text-muted mb-5 max-w-md mx-auto leading-relaxed">
+              Reach out and I'll get you set up with a unique coach code to link your account to me.
+            </p>
+            <a
+              href="mailto:musclementorprograms@gmail.com?subject=Nutrition%20Coaching"
+              className="inline-block font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl transition-all hover:brightness-110"
+              style={{
+                background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
+                boxShadow: `0 8px 32px ${accentA(35)}`,
+                color: ON_ACCENT,
+              }}
+            >
+              musclementorprograms@gmail.com
+            </a>
+          </div>
+
+          {/* Fine print */}
+          <p className="coach-reveal text-center font-mono text-[10px] text-dim mt-6 leading-relaxed max-w-md mx-auto">
+            Training app access comes with active coaching and ends when coaching does. Rate good for 2026.
+          </p>
+        </div>
+      </section>
+
       {/* ══ 7. FINALE (theme dark) ═══════════════════════════════════════════ */}
-      <section className="relative bg-bg px-6 pt-32 pb-24">
+      <section className="relative bg-bg px-6 pt-20 pb-24">
         {/* Stats */}
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 md:gap-12 text-center">
           {STATS.map((s) => (
