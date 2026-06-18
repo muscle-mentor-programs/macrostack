@@ -7,7 +7,6 @@ import ThemeToggle from '../components/ThemeToggle'
 // Detected once at module load — platform + whether already installed.
 const UA = typeof navigator !== 'undefined' ? navigator.userAgent || '' : ''
 const IS_IOS = /iphone|ipad|ipod/i.test(UA)
-const IS_ANDROID = /android/i.test(UA)
 const IS_INSTALLED =
   (typeof window !== 'undefined' &&
     (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true))
@@ -21,13 +20,9 @@ function AddToHomeScreen() {
         { icon: Share, text: <>Tap the <b className="text-cream">Share</b> button in Safari's toolbar</> },
         { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home Screen</b></> },
       ]
-    : IS_ANDROID
-    ? [
-        { icon: MoreVertical, text: <>Tap the <b className="text-cream">⋮ menu</b> in Chrome</> },
-        { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home screen</b></> },
-      ]
     : [
-        { icon: PlusSquare, text: <>Use your browser's <b className="text-cream">Install</b> icon in the address bar</> },
+        { icon: MoreVertical, text: <>Open your browser <b className="text-cream">menu</b> (⋮)</> },
+        { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home Screen</b></> },
       ]
 
   return (
@@ -37,7 +32,7 @@ function AddToHomeScreen() {
         <p className="font-display font-bold text-xs tracking-widest text-cream">ADD TO HOME SCREEN</p>
       </div>
       <p className="font-mono text-[11px] text-muted leading-relaxed mb-3">
-        Install MacroStack for a full-screen app experience — fastest way to log every day.
+        Add MacroStack to your home screen for the full-screen app experience — the fastest way to log every day.
       </p>
       <div className="space-y-2">
         {steps.map((s, i) => {

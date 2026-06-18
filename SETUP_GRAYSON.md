@@ -29,6 +29,6 @@ This will:
 ## Verification
 
 After completing the steps above:
-- Grayson can log in at [macrostack-plum.vercel.app](https://macrostack-plum.vercel.app) using Client Edition
+- Grayson can log in at [getmacrostack.com](https://getmacrostack.com) using Client Edition
 - They will appear in Branden's client list automatically
 - The "Your Coach" section will show in Grayson's dashboard once the coach profile is set up

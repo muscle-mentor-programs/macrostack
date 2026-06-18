@@ -9,7 +9,7 @@ A full-featured nutrition coaching web app for coaches and their clients. Mobile
 | Service | Account / URL |
 |---|---|
 | **GitHub** | [muscle-mentor-programs/macrostack](https://github.com/muscle-mentor-programs/macrostack) |
-| **Vercel** | Auto-deploys from `master` → [macrostack.vercel.app](https://macrostack.vercel.app) |
+| **Vercel** | Auto-deploys from `master` → [getmacrostack.com](https://getmacrostack.com) |
 | **Supabase** | Project `macrostack` · ref `ryvsbidtwhxfmashwsqt` · West US (Oregon) |
 
 > Push to `master` → Vercel picks it up automatically. No manual deploy step needed.
