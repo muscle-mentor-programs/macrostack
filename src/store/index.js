@@ -67,6 +67,20 @@ function dbToClient(row) {
     log:       {},
     weightLog: [],
     mealPlans: [],
+    checkins:  [],
+  }
+}
+
+function dbToCheckin(row) {
+  return {
+    id:        row.id,
+    weight:    row.weight,
+    weightUnit: row.weight_unit || 'lbs',
+    adherence: row.adherence,
+    hunger:    row.hunger,
+    energy:    row.energy,
+    notes:     row.notes || '',
+    createdAt: row.created_at,
   }
 }
 
@@ -268,7 +282,7 @@ const useStore = create(
         // single query instead of the sum of all four
         const [clientRes, msgRes, foodRes, reqRes] = await Promise.all([
           supabase.from('clients')
-            .select('*, food_log(*), weight_log(*), meal_plans(*)')
+            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*)')
             .order('created_at', { ascending: true }),
           supabase.from('messages').select('*').order('created_at', { ascending: true }),
           supabase.from('custom_foods').select('*').order('created_at', { ascending: true }),
@@ -294,6 +308,9 @@ const useStore = create(
               .map(dbToWeight)
               .sort((a, b) => a.date.localeCompare(b.date)),
             mealPlans: (row.meal_plans || []).map(dbToPlan),
+            checkins: (row.checkins || [])
+              .map(dbToCheckin)
+              .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')),
           }
         })
 
@@ -665,6 +682,30 @@ const useStore = create(
           }),
         }))
         await supabase.from('weight_log').delete().eq('id', weightId)
+      },
+
+      // ── WEEKLY CHECK-INS ──────────────────────────────────────────────────
+      // Client submits a weekly check-in. Newest first.
+      addClientCheckin: async (clientId, data) => {
+        const { data: row, error } = await supabase.from('checkins').insert({
+          client_id:   clientId,
+          weight:      data.weight ?? null,
+          weight_unit: data.weightUnit || 'lbs',
+          adherence:   data.adherence ?? null,
+          hunger:      data.hunger ?? null,
+          energy:      data.energy ?? null,
+          notes:       data.notes || '',
+        }).select().single()
+
+        if (error) { console.error('checkin insert:', error); return { ok: false } }
+
+        const checkin = dbToCheckin(row)
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId ? { ...c, checkins: [checkin, ...(c.checkins || [])] } : c
+          ),
+        }))
+        return { ok: true }
       },
 
       // ── MEAL PLANS ────────────────────────────────────────────────────────
