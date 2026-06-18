@@ -49,7 +49,7 @@ function shell(body) {
           <td style="text-align:center;padding:0 16px;">
             <p style="margin:0;font-size:11px;color:${BRAND.dim};letter-spacing:1px;">
               MacroStack · Nutrition coaching platform<br/>
-              <a href="https://macrostack-plum.vercel.app" style="color:${BRAND.muted};text-decoration:none;">macrostack-plum.vercel.app</a>
+              <a href="https://getmacrostack.com" style="color:${BRAND.muted};text-decoration:none;">getmacrostack.com</a>
             </p>
           </td>
         </tr>
@@ -78,7 +78,7 @@ export function coachBroadcastTemplate({ coachName, subject, body, clientName })
     <hr style="border:none;border-top:1px solid ${BRAND.border};margin:28px 0 20px;"/>
     <p style="margin:0;font-size:12px;color:${BRAND.dim};text-align:center;">
       Log into the app to reply to your coach.<br/>
-      <a href="https://macrostack-plum.vercel.app" style="color:${BRAND.brown};text-decoration:none;letter-spacing:2px;font-size:11px;">OPEN MACROSTACK →</a>
+      <a href="https://getmacrostack.com" style="color:${BRAND.brown};text-decoration:none;letter-spacing:2px;font-size:11px;">OPEN MACROSTACK →</a>
     </p>
   `)
 }
@@ -119,7 +119,7 @@ export function mealPlanTemplate({ clientName, planName, days, coachName }) {
       ${days.length > 3 ? `<tr><td colspan="2" style="padding:10px 0;text-align:center;font-size:11px;color:${BRAND.dim};">+ ${days.length - 3} more days in the attached PDF</td></tr>` : ''}
     </table>
 
-    <a href="https://macrostack-plum.vercel.app" style="display:block;background:${BRAND.olive};color:${BRAND.bg};text-align:center;text-decoration:none;font-family:Impact,'Arial Black',sans-serif;font-size:13px;letter-spacing:4px;padding:14px;border-radius:10px;margin-bottom:20px;">OPEN IN APP →</a>
+    <a href="https://getmacrostack.com" style="display:block;background:${BRAND.olive};color:${BRAND.bg};text-align:center;text-decoration:none;font-family:Impact,'Arial Black',sans-serif;font-size:13px;letter-spacing:4px;padding:14px;border-radius:10px;margin-bottom:20px;">OPEN IN APP →</a>
 
     ${coachName ? `<p style="margin:0;font-size:12px;color:${BRAND.muted};text-align:center;">Plan created by ${coachName}</p>` : ''}
   `)
@@ -140,7 +140,7 @@ export function newMessageTemplate({ recipientName, senderName, senderRole, prev
       <p style="margin:0;font-size:14px;color:${BRAND.cream};line-height:1.6;">${preview}</p>
     </div>
 
-    <a href="https://macrostack-plum.vercel.app" style="display:block;background:${accentColor};color:${BRAND.bg};text-align:center;text-decoration:none;font-family:Impact,'Arial Black',sans-serif;font-size:13px;letter-spacing:4px;padding:14px;border-radius:10px;">OPEN MESSAGES →</a>
+    <a href="https://getmacrostack.com" style="display:block;background:${accentColor};color:${BRAND.bg};text-align:center;text-decoration:none;font-family:Impact,'Arial Black',sans-serif;font-size:13px;letter-spacing:4px;padding:14px;border-radius:10px;">OPEN MESSAGES →</a>
   `)
 }
 
@@ -172,7 +172,7 @@ export function welcomeTemplate({ name, role, loginUrl }) {
       `}
     </table>
 
-    <a href="${loginUrl || 'https://macrostack-plum.vercel.app'}" style="display:block;background:${accentColor};color:${BRAND.bg};text-align:center;text-decoration:none;font-family:Impact,'Arial Black',sans-serif;font-size:13px;letter-spacing:4px;padding:14px;border-radius:10px;">OPEN ${roleLabel} →</a>
+    <a href="${loginUrl || 'https://getmacrostack.com'}" style="display:block;background:${accentColor};color:${BRAND.bg};text-align:center;text-decoration:none;font-family:Impact,'Arial Black',sans-serif;font-size:13px;letter-spacing:4px;padding:14px;border-radius:10px;">OPEN ${roleLabel} →</a>
   `)
 }
 

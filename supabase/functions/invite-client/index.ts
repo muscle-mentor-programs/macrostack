@@ -46,7 +46,7 @@ serve(async (req) => {
 
     const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       // Explicit redirect so the invite link always points to the live app
-      redirectTo: 'https://macrostack-plum.vercel.app',
+      redirectTo: 'https://getmacrostack.com',
       data: { role: 'client', name: clientName ?? email.split('@')[0] },
     })
 
