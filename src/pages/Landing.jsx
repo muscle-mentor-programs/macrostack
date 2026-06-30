@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
@@ -87,6 +87,33 @@ export default function Landing({ onGetStarted }) {
   const guideDotRef  = useRef(null)
   const fillRef      = useRef(null)
   const trackRef     = useRef(null)
+  const mockupVidRef = useRef(null)
+
+  /* Mockup video plays forward then reverses — a smooth back-and-forth loop.
+     HTML <video loop> can only restart, so we drive currentTime by hand. */
+  useEffect(() => {
+    const v = mockupVidRef.current
+    if (!v) return
+    let raf, dir = 1, last = null
+    const SPEED = 0.7 // playback rate of the back-and-forth
+    const tick = (t) => {
+      if (last == null) last = t
+      const dt = Math.min((t - last) / 1000, 0.05) // clamp tab-switch jumps
+      last = t
+      const dur = v.duration
+      if (dur) {
+        let nt = v.currentTime + dir * dt * SPEED
+        if (nt >= dur) { nt = dur; dir = -1 }
+        else if (nt <= 0) { nt = 0; dir = 1 }
+        try { v.currentTime = nt } catch { /* not seekable yet */ }
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    const start = () => { v.pause(); last = null; raf = requestAnimationFrame(tick) }
+    if (v.readyState >= 1) start()
+    else v.addEventListener('loadedmetadata', start, { once: true })
+    return () => { cancelAnimationFrame(raf); v.removeEventListener('loadedmetadata', start) }
+  }, [])
 
   useLayoutEffect(() => {
     const root = rootRef.current
@@ -390,6 +417,7 @@ export default function Landing({ onGetStarted }) {
         {/* Weaving SVG guide line — behind content */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
+          style={{ zIndex: 5 }}
           viewBox="0 0 1000 2000"
           preserveAspectRatio="none"
           fill="none"
@@ -406,7 +434,7 @@ export default function Landing({ onGetStarted }) {
         </svg>
 
         {/* Statement */}
-        <section className="relative min-h-[120vh] flex items-center justify-center px-6 py-40">
+        <section className="relative z-10 min-h-[120vh] flex items-center justify-center px-6 py-40">
           <p className="stmt max-w-3xl text-center font-display font-black text-4xl md:text-6xl leading-[1.15] tracking-wide">
             {STATEMENT.split(' ').map((w, i) => (
               <span key={i} className="stmt-word inline-block mr-[0.28em]">
@@ -433,11 +461,10 @@ export default function Landing({ onGetStarted }) {
                 hidden by the screen blend, so nothing gets clipped. */}
             <div className="mx-auto" style={{ width: '100%', maxWidth: '46rem' }}>
               <video
+                ref={mockupVidRef}
                 className="mockup-video w-full block"
                 src="/app-mockup.mp4"
-                autoPlay
                 muted
-                loop
                 playsInline
                 preload="auto"
                 style={{ mixBlendMode: 'screen' }}
@@ -447,8 +474,8 @@ export default function Landing({ onGetStarted }) {
         </section>
 
         {/* How-it-works intro */}
-        <section className="relative px-6 pb-36 max-w-5xl mx-auto">
-          <div className="flex items-center gap-3 mb-5">
+        <section className="relative z-10 px-6 pt-40 pb-52 md:pt-56 md:pb-72 max-w-5xl mx-auto text-center">
+          <div className="flex items-center gap-3 mb-5 justify-center">
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
             <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
               HOW IT WORKS
