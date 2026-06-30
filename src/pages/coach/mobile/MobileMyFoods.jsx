@@ -100,8 +100,10 @@ function FoodForm({ initial = null, onSave, onClose }) {
         <div>
           <label className={lbl}>SERVING SIZE *</label>
           <div className="flex gap-2">
-            <input type="number" placeholder="100" value={form.servingSize} onChange={f('servingSize')} className={`${inputCls} flex-1`} />
-            <select value={form.servingUnit} onChange={f('servingUnit')} className={`${inputCls} w-28`}>
+            <input type="number" placeholder="100" value={form.servingSize} onChange={f('servingSize')}
+              className="flex-1 min-w-0 bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors" />
+            <select value={form.servingUnit} onChange={f('servingUnit')}
+              className="w-24 flex-shrink-0 bg-surface border border-border rounded-xl px-3 py-3 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors">
               {SERVING_UNITS.map((u) => <option key={u}>{u}</option>)}
             </select>
           </div>

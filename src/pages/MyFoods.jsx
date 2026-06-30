@@ -106,7 +106,7 @@ function FoodModal({ initial = null, onSave, onClose }) {
             </div>
           </div>
 
-          {/* Serving */}
+          {/* Serving — number input grows, unit stays a fixed width */}
           <div>
             <label className={lbl}>SERVING SIZE *</label>
             <div className="flex gap-3">
@@ -115,9 +115,13 @@ function FoodModal({ initial = null, onSave, onClose }) {
                 placeholder="100"
                 value={form.servingSize}
                 onChange={f('servingSize')}
-                className={`${inputCls} flex-1`}
+                className="flex-1 min-w-0 bg-surface border border-border rounded-xl px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
               />
-              <select value={form.servingUnit} onChange={f('servingUnit')} className={`${inputCls} w-32`}>
+              <select
+                value={form.servingUnit}
+                onChange={f('servingUnit')}
+                className="w-28 flex-shrink-0 bg-surface border border-border rounded-xl px-3 py-2.5 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
+              >
                 {SERVING_UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
