@@ -397,16 +397,25 @@ export default function Landing({ onGetStarted }) {
             <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SEE IT IN ACTION</p>
             <span className="w-6 h-px" style={{ background: accentA(60) }} />
           </div>
-          <video
-            className="mockup-video w-full max-w-md mx-auto rounded-3xl"
-            src="/app-mockup.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            style={{ filter: `drop-shadow(0 30px 80px ${accentA(30)})` }}
-          />
+          {/* Plain overflow-hidden crop box (NO transform, so it doesn't
+              isolate the blend) trims the bottom BrandBird watermark.
+              The video itself carries the GSAP transform + screen blend, so
+              its black background composites away against the dark section. */}
+          <div
+            className="mx-auto overflow-hidden"
+            style={{ width: '100%', maxWidth: '30rem', aspectRatio: '2.04 / 1' }}
+          >
+            <video
+              className="mockup-video w-full h-full"
+              src="/app-mockup.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              style={{ objectFit: 'cover', objectPosition: 'center top', mixBlendMode: 'screen' }}
+            />
+          </div>
         </div>
       </section>
 
