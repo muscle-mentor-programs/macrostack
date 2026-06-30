@@ -46,6 +46,32 @@ function FoodModal({ initial = null, onSave, onClose }) {
   const isEdit  = !!initial
   const canSave = form.name.trim() && form.calories && form.servingSize
 
+  // Editing an existing food: changing the serving size rescales every macro
+  // proportionally (macros are "per serving at this size"). Scaled from the
+  // ORIGINAL values so repeated keystrokes never compound rounding drift.
+  const handleServingChange = (e) => {
+    const raw      = e.target.value
+    const newSize  = Number(raw)
+    const origSize = Number(initial?.servingSize)
+    setForm((p) => {
+      const next = { ...p, servingSize: raw }
+      if (isEdit && origSize > 0 && newSize > 0) {
+        const s   = newSize / origSize
+        const r0  = (v) => String(Math.round((Number(v) || 0) * s))
+        const r1  = (v) => String(Math.round((Number(v) || 0) * s * 10) / 10)
+        const has = (v) => v !== null && v !== undefined && v !== '' && Number(v) > 0
+        next.calories = r0(initial.calories)
+        next.protein  = r1(initial.protein)
+        next.carbs    = r1(initial.carbs)
+        next.fat      = r1(initial.fat)
+        if (has(initial.fiber))  next.fiber  = r1(initial.fiber)
+        if (has(initial.sugar))  next.sugar  = r1(initial.sugar)
+        if (has(initial.sodium)) next.sodium = r0(initial.sodium)
+      }
+      return next
+    })
+  }
+
   const handleSave = () => {
     if (!canSave) return
     onSave({
@@ -114,7 +140,7 @@ function FoodModal({ initial = null, onSave, onClose }) {
                 type="number"
                 placeholder="100"
                 value={form.servingSize}
-                onChange={f('servingSize')}
+                onChange={handleServingChange}
                 className="flex-1 min-w-0 bg-surface border border-border rounded-xl px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
               />
               <select
