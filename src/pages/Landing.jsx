@@ -419,7 +419,6 @@ export default function Landing({ onGetStarted }) {
         {/* Weaving SVG guide line — behind content */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
-          style={{ zIndex: 5 }}
           viewBox="0 0 1000 2000"
           preserveAspectRatio="none"
           fill="none"
