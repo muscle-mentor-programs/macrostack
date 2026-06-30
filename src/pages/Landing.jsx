@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
@@ -87,35 +87,6 @@ export default function Landing({ onGetStarted }) {
   const guideDotRef  = useRef(null)
   const fillRef      = useRef(null)
   const trackRef     = useRef(null)
-  const mockupVidRef = useRef(null)
-
-  /* Mockup video plays forward then reverses — a smooth back-and-forth loop.
-     HTML <video loop> can only restart, so we drive currentTime by hand. */
-  useEffect(() => {
-    const v = mockupVidRef.current
-    if (!v) return
-    let raf, dir = 1, last = null
-    const SPEED = 0.875 // playback rate of the back-and-forth
-    const tick = (t) => {
-      if (last == null) last = t
-      const dt = Math.min((t - last) / 1000, 0.05) // clamp tab-switch jumps
-      last = t
-      const dur = v.duration
-      if (dur) {
-        let nt = v.currentTime + dir * dt * SPEED
-        if (nt >= dur) { nt = dur; dir = -1 }
-        else if (nt <= 0) { nt = 0; dir = 1 }
-        try { v.currentTime = nt } catch { /* not seekable yet */ }
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    // Kick the loop the instant the page mounts — the tick no-ops until the
-    // duration is known, so the back-and-forth is already running on landing.
-    // A muted play()/pause() primes the decoder so frames render right away.
-    v.play().then(() => v.pause()).catch(() => {})
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [])
 
   useLayoutEffect(() => {
     const root = rootRef.current
@@ -162,20 +133,6 @@ export default function Landing({ onGetStarted }) {
           trigger: q('.hero')[0], start: 'top top', end: 'bottom top', scrub: true,
         },
       })
-
-      /* ── 2.5 App mockup — scales + fades in as it enters view ── */
-      gsap.fromTo(q('.mockup-cap'),
-        { y: 24, autoAlpha: 0 },
-        {
-          y: 0, autoAlpha: 1, ease: 'none',
-          scrollTrigger: { trigger: q('.mockup')[0], start: 'top bottom', end: 'top 70%', scrub: true },
-        })
-      gsap.fromTo(q('.mockup-video'),
-        { scale: 0.82, autoAlpha: 0.2, yPercent: 6 },
-        {
-          scale: 1, autoAlpha: 1, yPercent: 0, ease: 'none',
-          scrollTrigger: { trigger: q('.mockup')[0], start: 'top bottom', end: 'top 65%', scrub: true },
-        })
 
       /* ── 3. Guide line — draws itself + glowing dot rides the tip ── */
       const path = guidePathRef.current
@@ -435,7 +392,7 @@ export default function Landing({ onGetStarted }) {
         </svg>
 
         {/* Statement */}
-        <section className="relative z-10 min-h-[120vh] flex items-center justify-center px-6 py-40">
+        <section className="relative min-h-[120vh] flex items-center justify-center px-6 py-40">
           <p className="stmt max-w-3xl text-center font-display font-black text-4xl md:text-6xl leading-[1.15] tracking-wide">
             {STATEMENT.split(' ').map((w, i) => (
               <span key={i} className="stmt-word inline-block mr-[0.28em]">
@@ -445,38 +402,9 @@ export default function Landing({ onGetStarted }) {
           </p>
         </section>
 
-        {/* ══ APP MOCKUP band — dark break so the black-bg video keys out
-             cleanly (screen blend) and the phones float; scales in on scroll ══ */}
-        <section className="mockup relative bg-bg overflow-hidden py-20 md:py-28" style={{ color: '#E8E4DC' }}>
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{ background: `radial-gradient(ellipse 55% 60% at 50% 50%, ${accentA(14)}, transparent 70%)` }}
-          />
-          <div className="relative max-w-5xl mx-auto px-6 text-center">
-            <div className="flex items-center gap-2 justify-center mb-8 mockup-cap">
-              <span className="w-6 h-px" style={{ background: accentA(60) }} />
-              <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: 'var(--color-muted)' }}>SEE IT IN ACTION</p>
-              <span className="w-6 h-px" style={{ background: accentA(60) }} />
-            </div>
-            {/* Full uncropped square — watermark is blacked out in the file and
-                hidden by the screen blend, so nothing gets clipped. */}
-            <div className="mx-auto" style={{ width: '100%', maxWidth: '46rem' }}>
-              <video
-                ref={mockupVidRef}
-                className="mockup-video w-full block"
-                src="/app-mockup.mp4"
-                muted
-                playsInline
-                preload="auto"
-                style={{ mixBlendMode: 'screen' }}
-              />
-            </div>
-          </div>
-        </section>
-
         {/* How-it-works intro */}
-        <section className="relative z-10 px-6 pt-40 pb-52 md:pt-56 md:pb-72 max-w-5xl mx-auto text-center">
-          <div className="flex items-center gap-3 mb-5 justify-center">
+        <section className="relative px-6 pb-36 max-w-5xl mx-auto">
+          <div className="flex items-center gap-3 mb-5">
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
             <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
               HOW IT WORKS
