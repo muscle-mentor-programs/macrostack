@@ -134,6 +134,20 @@ export default function Landing({ onGetStarted }) {
         },
       })
 
+      /* ── 2.5 App mockup — scales + fades in as it enters view ── */
+      gsap.fromTo(q('.mockup-cap'),
+        { y: 24, autoAlpha: 0 },
+        {
+          y: 0, autoAlpha: 1, ease: 'none',
+          scrollTrigger: { trigger: q('.mockup')[0], start: 'top 80%', end: 'top 55%', scrub: true },
+        })
+      gsap.fromTo(q('.mockup-video'),
+        { scale: 0.82, autoAlpha: 0.2, yPercent: 6 },
+        {
+          scale: 1, autoAlpha: 1, yPercent: 0, ease: 'none',
+          scrollTrigger: { trigger: q('.mockup')[0], start: 'top 85%', end: 'center 60%', scrub: true },
+        })
+
       /* ── 3. Guide line — draws itself + glowing dot rides the tip ── */
       const path = guidePathRef.current
       const len  = path.getTotalLength()
@@ -368,6 +382,31 @@ export default function Landing({ onGetStarted }) {
           <div className="w-[22px] h-[36px] rounded-full border border-border flex justify-center pt-2">
             <div className="scroll-cue-dot w-1 h-2 rounded-full" style={{ background: ACCENT }} />
           </div>
+        </div>
+      </section>
+
+      {/* ══ 2.5 APP MOCKUP — scales in on scroll ═════════════════════════════ */}
+      <section className="mockup relative bg-bg overflow-hidden py-24 md:py-32">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(ellipse 55% 50% at 50% 50%, ${accentA(12)}, transparent 70%)` }}
+        />
+        <div className="relative max-w-3xl mx-auto px-6 text-center">
+          <div className="flex items-center gap-2 justify-center mb-8 mockup-cap">
+            <span className="w-6 h-px" style={{ background: accentA(60) }} />
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SEE IT IN ACTION</p>
+            <span className="w-6 h-px" style={{ background: accentA(60) }} />
+          </div>
+          <video
+            className="mockup-video w-full max-w-md mx-auto rounded-3xl"
+            src="/app-mockup.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            style={{ filter: `drop-shadow(0 30px 80px ${accentA(30)})` }}
+          />
         </div>
       </section>
 
