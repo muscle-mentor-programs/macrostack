@@ -73,6 +73,22 @@ const STATS = [
   { value: 24,   suffix: '/7', label: 'COACH ACCESS'   },
 ]
 
+/* MacroStack Pro billing options — same Pro features, three cadences.
+   Display prices; Stripe is the source of truth at checkout. */
+const PRO_PLANS = [
+  { id: 'weekly',  name: 'WEEKLY',  price: '5.95',  unit: '/wk', note: 'Billed weekly' },
+  { id: 'monthly', name: 'MONTHLY', price: '9.95',  unit: '/mo', note: 'Billed monthly', tag: 'POPULAR' },
+  { id: 'annual',  name: 'ANNUAL',  price: '89.95', unit: '/yr', note: '≈ $7.50/mo · save 25%', tag: 'BEST VALUE', best: true },
+]
+
+/* What Pro unlocks on top of the always-free core. */
+const PRO_FEATURES = [
+  'Barcode scanner — instant macros from any label',
+  'Weight trends & 7-day moving averages',
+  'Calorie history & consistency insights',
+  'Everything in Free — unlimited logging, 1,900+ foods, custom foods',
+]
+
 /* Fill-vessel geometry (SVG user units). Bottom edge sits at y = VESSEL_BOTTOM;
    each story step fills one LAYER_H slab upward — animated via attr y/height. */
 const VESSEL_BOTTOM = 320
@@ -584,6 +600,95 @@ export default function Landing({ onGetStarted }) {
               </p>
             </div>
           </button>
+        </div>
+      </section>
+
+      {/* ══ 6.2 PRICING — MacroStack Pro ═════════════════════════════════════ */}
+      <section className="relative bg-bg px-6 py-28 md:py-36 overflow-hidden">
+        {/* ambient glow */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(ellipse 65% 45% at 50% 0%, ${accentA(12)}, transparent 65%)` }}
+        />
+        <div className="relative max-w-5xl mx-auto">
+          {/* Heading */}
+          <div className="coach-reveal text-center mb-12">
+            <div className="flex items-center gap-2 justify-center mb-4">
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PRICING</p>
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+            </div>
+            <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide leading-[1.05] text-cream">
+              MACROSTACK <span style={{ color: ACCENT }}>PRO</span>.
+            </h2>
+            <p className="font-mono text-xs md:text-sm text-muted mt-4 max-w-md mx-auto leading-relaxed">
+              Start free, forever. Go Pro for the barcode scanner and full progress
+              analytics — same features on every plan, cancel anytime.
+            </p>
+          </div>
+
+          {/* Plan cards — three billing cadences */}
+          <div className="coach-reveal grid gap-5 md:grid-cols-3 items-stretch">
+            {PRO_PLANS.map((p) => (
+              <div
+                key={p.id}
+                className="relative rounded-3xl p-7 md:p-8 flex flex-col"
+                style={p.best
+                  ? { background: `linear-gradient(160deg, ${accentA(16)}, ${accentA(5)})`, border: `1px solid ${accentA(45)}`, boxShadow: `0 14px 50px ${accentA(20)}` }
+                  : { background: 'var(--color-card)', border: '1px solid var(--color-border)' }}
+              >
+                {p.tag && (
+                  <span
+                    className="absolute -top-3 left-1/2 -translate-x-1/2 font-mono text-[9px] tracking-[0.25em] px-3 py-1 rounded-full whitespace-nowrap"
+                    style={{ background: ACCENT, color: ON_ACCENT, boxShadow: `0 4px 16px ${accentA(40)}` }}
+                  >
+                    {p.tag}
+                  </span>
+                )}
+                <p className="font-mono text-[10px] tracking-[0.3em] text-muted mb-5">{p.name}</p>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-display font-black text-5xl text-cream">${p.price}</span>
+                  <span className="font-mono text-sm text-muted">{p.unit}</span>
+                </div>
+                <p
+                  className="font-mono text-[11px] mt-2 mb-6"
+                  style={{ color: p.best ? ACCENT : 'var(--color-muted)' }}
+                >
+                  {p.note}
+                </p>
+                <button
+                  onClick={onGetStarted}
+                  className="mt-auto w-full font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-all"
+                  style={p.best
+                    ? { background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`, color: ON_ACCENT, boxShadow: `0 8px 28px ${accentA(35)}` }
+                    : { border: '1px solid var(--color-border)', color: 'var(--color-cream)' }}
+                >
+                  GET PRO →
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* What's included — identical across every Pro plan */}
+          <div
+            className="coach-reveal mt-10 rounded-3xl p-7 md:p-9"
+            style={{ background: 'var(--color-card)', border: '1px solid var(--color-border)' }}
+          >
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted mb-6">EVERYTHING IN PRO</p>
+            <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4">
+              {PRO_FEATURES.map((f) => (
+                <div key={f} className="flex items-start gap-3">
+                  <span
+                    className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[11px]"
+                    style={{ background: accentA(18), color: ACCENT }}
+                  >
+                    ✓
+                  </span>
+                  <span className="text-sm leading-relaxed text-cream">{f}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
