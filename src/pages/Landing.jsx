@@ -429,21 +429,18 @@ export default function Landing({ onGetStarted }) {
               <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: 'var(--color-muted)' }}>SEE IT IN ACTION</p>
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
             </div>
-            {/* overflow-hidden crop (no transform → blend targets the band);
-                object-position top trims the bottom-right BrandBird watermark */}
-            <div
-              className="mx-auto overflow-hidden"
-              style={{ width: '100%', maxWidth: '52rem', aspectRatio: '1.2 / 1' }}
-            >
+            {/* Full uncropped square — watermark is blacked out in the file and
+                hidden by the screen blend, so nothing gets clipped. */}
+            <div className="mx-auto" style={{ width: '100%', maxWidth: '46rem' }}>
               <video
-                className="mockup-video w-full h-full"
+                className="mockup-video w-full block"
                 src="/app-mockup.mp4"
                 autoPlay
                 muted
                 loop
                 playsInline
                 preload="auto"
-                style={{ objectFit: 'cover', objectPosition: 'center top', mixBlendMode: 'screen' }}
+                style={{ mixBlendMode: 'screen' }}
               />
             </div>
           </div>
