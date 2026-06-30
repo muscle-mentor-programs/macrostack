@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
@@ -87,33 +87,6 @@ export default function Landing({ onGetStarted }) {
   const guideDotRef  = useRef(null)
   const fillRef      = useRef(null)
   const trackRef     = useRef(null)
-  const heroPhoneRef = useRef(null)
-
-  /* Hero phone plays forward then reverses — a smooth back-and-forth loop that
-     runs from page load. HTML <video loop> can only restart, so we drive
-     currentTime by hand (the file is all-intra, so reverse scrubbing is smooth). */
-  useEffect(() => {
-    const v = heroPhoneRef.current
-    if (!v) return
-    let raf, dir = 1, last = null
-    const SPEED = 0.875
-    const tick = (t) => {
-      if (last == null) last = t
-      const dt = Math.min((t - last) / 1000, 0.05)
-      last = t
-      const dur = v.duration
-      if (dur) {
-        let nt = v.currentTime + dir * dt * SPEED
-        if (nt >= dur) { nt = dur; dir = -1 }
-        else if (nt <= 0) { nt = 0; dir = 1 }
-        try { v.currentTime = nt } catch { /* not seekable yet */ }
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    v.play().then(() => v.pause()).catch(() => {})
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [])
 
   useLayoutEffect(() => {
     const root = rootRef.current
@@ -331,7 +304,7 @@ export default function Landing({ onGetStarted }) {
       </nav>
 
       {/* ══ 2. HERO ══════════════════════════════════════════════════════════ */}
-      <section className="hero relative h-screen overflow-hidden">
+      <section className="hero relative h-screen overflow-hidden flex items-center justify-center">
         {/* Radial brand glows */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -348,61 +321,44 @@ export default function Landing({ onGetStarted }) {
           }}
         />
 
-        <div className="relative h-full max-w-7xl mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-2 items-center gap-4 md:gap-8">
-          {/* LEFT — copy, left-aligned (recedes on scroll) */}
-          <div className="hero-inner relative text-left order-2 md:order-1">
-            <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-muted mb-6">
-              PRECISION NUTRITION PLATFORM
-            </p>
-            <h1 className="font-display font-black leading-[0.95] text-6xl md:text-8xl tracking-[0.06em] text-cream">
-              {HERO_LINES.map(({ text, accent }) => (
-                <span key={text} className="block overflow-hidden py-1">
-                  <span
-                    className="hero-word block will-change-transform"
-                    style={accent ? { color: ACCENT } : undefined}
-                  >
-                    {text}
-                  </span>
+        <div className="hero-inner relative text-center px-6">
+          <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-muted mb-6">
+            PRECISION NUTRITION PLATFORM
+          </p>
+          <h1 className="font-display font-black leading-[0.95] text-6xl md:text-8xl tracking-[0.06em] text-cream">
+            {HERO_LINES.map(({ text, accent }) => (
+              <span key={text} className="block overflow-hidden py-1">
+                <span
+                  className="hero-word block will-change-transform"
+                  style={accent ? { color: ACCENT } : undefined}
+                >
+                  {text}
                 </span>
-              ))}
-            </h1>
-            <p className="hero-sub max-w-md mt-8 text-sm md:text-base leading-relaxed text-muted">
-              The nutrition OS for serious athletes and the coaches who guide them.
-              Macro tracking, coaching tools, and AI food intel — one platform.
-            </p>
-            <div className="hero-ctas flex flex-wrap items-center gap-4 mt-10">
-              <button
-                onClick={onGetStarted}
-                className="font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl transition-all hover:brightness-110"
-                style={{
-                  background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
-                  boxShadow: `0 8px 32px ${accentA(35)}`,
-                  color: ON_ACCENT,
-                }}
-              >
-                START FOR FREE →
-              </button>
-              <button
-                onClick={onGetStarted}
-                className="font-display font-bold text-sm tracking-widest text-cream px-6 py-4 rounded-xl border border-border hover:border-muted transition-colors"
-              >
-                SIGN IN
-              </button>
-            </div>
-          </div>
-
-          {/* RIGHT — big phone. OUTSIDE .hero-inner so its scroll transform
-              never isolates the screen blend; black bg keys out on the dark hero. */}
-          <div className="order-1 md:order-2 relative h-[44vh] md:h-full">
-            <video
-              ref={heroPhoneRef}
-              className="hero-phone absolute inset-0 h-full w-full"
-              src="/hero-phone.mp4"
-              muted
-              playsInline
-              preload="auto"
-              style={{ mixBlendMode: 'screen', objectFit: 'contain', objectPosition: 'center' }}
-            />
+              </span>
+            ))}
+          </h1>
+          <p className="hero-sub max-w-md mx-auto mt-8 text-sm md:text-base leading-relaxed text-muted">
+            The nutrition OS for serious athletes and the coaches who guide them.
+            Macro tracking, coaching tools, and AI food intel — one platform.
+          </p>
+          <div className="hero-ctas flex items-center justify-center gap-4 mt-10">
+            <button
+              onClick={onGetStarted}
+              className="font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl transition-all hover:brightness-110"
+              style={{
+                background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
+                boxShadow: `0 8px 32px ${accentA(35)}`,
+                color: ON_ACCENT,
+              }}
+            >
+              START FOR FREE →
+            </button>
+            <button
+              onClick={onGetStarted}
+              className="font-display font-bold text-sm tracking-widest text-cream px-6 py-4 rounded-xl border border-border hover:border-muted transition-colors"
+            >
+              SIGN IN
+            </button>
           </div>
         </div>
 
