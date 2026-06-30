@@ -519,8 +519,8 @@ export default function Landing({ onGetStarted }) {
       </section>
 
       {/* ══ 6. HORIZONTAL SHOWCASE (inverted theme section) ══════════════════ */}
-      <section className="showcase relative h-screen overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
-        <div className="pt-24 md:pt-28 px-6 md:px-10 max-w-5xl">
+      <section className="showcase relative h-screen overflow-hidden flex flex-col justify-center" style={{ background: INVERT_BG, color: INVERT_INK }}>
+        <div className="px-6 md:px-10 max-w-5xl">
           <div className="flex items-center gap-3 mb-4">
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
             <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
@@ -536,7 +536,7 @@ export default function Landing({ onGetStarted }) {
           {CARDS.map((c) => (
             <div
               key={c.title}
-              className="w-[78vw] sm:w-[380px] md:w-[420px] flex-shrink-0 rounded-3xl p-8 md:p-10 backdrop-blur-sm"
+              className="w-[78vw] sm:w-[380px] md:w-[420px] h-[58vh] max-h-[560px] flex-shrink-0 rounded-3xl p-8 md:p-10 backdrop-blur-sm flex flex-col justify-between"
               style={{
                 background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.45))',
                 border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)',
@@ -544,7 +544,7 @@ export default function Landing({ onGetStarted }) {
               }}
             >
               <div className="flex items-start justify-between">
-                <span className="text-4xl" style={{ color: ACCENT }}>{c.icon}</span>
+                <span className="text-5xl" style={{ color: ACCENT }}>{c.icon}</span>
                 {c.soon && (
                   <span
                     className="font-mono text-[9px] tracking-[0.25em] px-2.5 py-1 rounded-full border"
@@ -554,16 +554,18 @@ export default function Landing({ onGetStarted }) {
                   </span>
                 )}
               </div>
-              <h3 className="font-display font-black text-2xl md:text-3xl tracking-wide mt-6 mb-3">
-                {c.title}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: INVERT_SOFT }}>{c.body}</p>
+              <div>
+                <h3 className="font-display font-black text-2xl md:text-3xl tracking-wide mb-3">
+                  {c.title}
+                </h3>
+                <p className="text-sm md:text-base leading-relaxed" style={{ color: INVERT_SOFT }}>{c.body}</p>
+              </div>
             </div>
           ))}
           {/* View-all card */}
           <button
             onClick={onGetStarted}
-            className="w-[78vw] sm:w-[380px] md:w-[420px] flex-shrink-0 rounded-3xl p-8 md:p-10 text-left flex flex-col justify-between transition-all hover:brightness-110"
+            className="w-[78vw] sm:w-[380px] md:w-[420px] h-[58vh] max-h-[560px] flex-shrink-0 rounded-3xl p-8 md:p-10 text-left flex flex-col justify-between transition-all hover:brightness-110"
             style={{
               background: `linear-gradient(150deg, ${ACCENT}, ${ACCENT_DARK})`,
               boxShadow: `0 12px 48px ${accentA(35)}`,
