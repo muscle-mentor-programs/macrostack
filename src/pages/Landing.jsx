@@ -385,40 +385,6 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 2.5 APP MOCKUP — scales in on scroll ═════════════════════════════ */}
-      <section className="mockup relative bg-bg overflow-hidden py-24 md:py-32">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(ellipse 55% 50% at 50% 50%, ${accentA(12)}, transparent 70%)` }}
-        />
-        <div className="relative max-w-3xl mx-auto px-6 text-center">
-          <div className="flex items-center gap-2 justify-center mb-8 mockup-cap">
-            <span className="w-6 h-px" style={{ background: accentA(60) }} />
-            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SEE IT IN ACTION</p>
-            <span className="w-6 h-px" style={{ background: accentA(60) }} />
-          </div>
-          {/* Plain overflow-hidden crop box (NO transform, so it doesn't
-              isolate the blend) trims the bottom BrandBird watermark.
-              The video itself carries the GSAP transform + screen blend, so
-              its black background composites away against the dark section. */}
-          <div
-            className="mx-auto overflow-hidden"
-            style={{ width: '100%', maxWidth: '30rem', aspectRatio: '2.04 / 1' }}
-          >
-            <video
-              className="mockup-video w-full h-full"
-              src="/app-mockup.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              style={{ objectFit: 'cover', objectPosition: 'center top', mixBlendMode: 'screen' }}
-            />
-          </div>
-        </div>
-      </section>
-
       {/* ══ 3+4. GUIDE LINE over STATEMENT (inverted theme section) ══════════ */}
       <div className="guide-wrap relative" style={{ background: INVERT_BG, color: INVERT_INK }}>
         {/* Weaving SVG guide line — behind content */}
@@ -448,6 +414,39 @@ export default function Landing({ onGetStarted }) {
               </span>
             ))}
           </p>
+        </section>
+
+        {/* ══ APP MOCKUP band — dark break so the black-bg video keys out
+             cleanly (screen blend) and the phones float; scales in on scroll ══ */}
+        <section className="mockup relative bg-bg overflow-hidden py-20 md:py-28" style={{ color: '#E8E4DC' }}>
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ background: `radial-gradient(ellipse 55% 60% at 50% 50%, ${accentA(14)}, transparent 70%)` }}
+          />
+          <div className="relative max-w-2xl mx-auto px-6 text-center">
+            <div className="flex items-center gap-2 justify-center mb-8 mockup-cap">
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+              <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: 'var(--color-muted)' }}>SEE IT IN ACTION</p>
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+            </div>
+            {/* overflow-hidden crop (no transform → blend targets the band);
+                object-position top trims the bottom-right BrandBird watermark */}
+            <div
+              className="mx-auto overflow-hidden"
+              style={{ width: '100%', maxWidth: '24rem', aspectRatio: '1.2 / 1' }}
+            >
+              <video
+                className="mockup-video w-full h-full"
+                src="/app-mockup.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                style={{ objectFit: 'cover', objectPosition: 'center top', mixBlendMode: 'screen' }}
+              />
+            </div>
+          </div>
         </section>
 
         {/* How-it-works intro */}
