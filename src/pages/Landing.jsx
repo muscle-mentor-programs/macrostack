@@ -423,7 +423,7 @@ export default function Landing({ onGetStarted }) {
             className="pointer-events-none absolute inset-0"
             style={{ background: `radial-gradient(ellipse 55% 60% at 50% 50%, ${accentA(14)}, transparent 70%)` }}
           />
-          <div className="relative max-w-2xl mx-auto px-6 text-center">
+          <div className="relative max-w-5xl mx-auto px-6 text-center">
             <div className="flex items-center gap-2 justify-center mb-8 mockup-cap">
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
               <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: 'var(--color-muted)' }}>SEE IT IN ACTION</p>
@@ -433,7 +433,7 @@ export default function Landing({ onGetStarted }) {
                 object-position top trims the bottom-right BrandBird watermark */}
             <div
               className="mx-auto overflow-hidden"
-              style={{ width: '100%', maxWidth: '24rem', aspectRatio: '1.2 / 1' }}
+              style={{ width: '100%', maxWidth: '52rem', aspectRatio: '1.2 / 1' }}
             >
               <video
                 className="mockup-video w-full h-full"
