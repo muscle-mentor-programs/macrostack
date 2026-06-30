@@ -1,35 +1,42 @@
 /**
  * Food search utilities — multi-word relevance ranking + recency boost.
  *
- * Scoring overview (higher = better match):
- *   Text match scores:
- *   1000  exact name match
- *    500  name starts with the full query string
- *    100  a word in the name exactly equals a query word
- *     50  a word in the name starts with a query word
- *     30  name contains the full query string (not at start)
- *     20  name contains a query word (mid-word / substring)
- *      5  only the brand field matches a query word
+ * Brand and product name are BOTH first-class search terms in the one search
+ * bar. A query word matches against either field; brand matches score just
+ * below the equivalent name match so "quest" surfaces all Quest products and
+ * "chocolate quest" surfaces Quest's chocolate items.
  *
- *   Recency boost (replaces flat +800 — decays with days since last log):
- *   1200  logged today
- *   1160  logged yesterday
- *    ~920  logged 7 days ago
- *    ~640  logged 14 days ago
- *    ~120  logged 28 days ago
- *      0  not logged in the last daysBack days
- *   + up to +150 frequency bonus (logged multiple times)
+ * Scoring overview (higher = better match):
+ *   Full-query bonuses:
+ *   1000  exact name match
+ *    700  exact brand match
+ *    500  name starts with the full query
+ *    400  brand starts with the full query
+ *     30  name contains the full query (mid-string)
+ *     25  brand contains the full query (mid-string)
+ *
+ *   Per-query-word bonuses (best single match per word):
+ *    100  a name word exactly equals the word
+ *     80  a brand word exactly equals the word
+ *     50  a name word starts with the word
+ *     45  a brand word starts with the word
+ *     20  the word appears inside the name (substring)
+ *     10  the word appears inside the brand (substring)
+ *
+ *   Recency boost (decays with days since last log): up to ~1200 + freq bonus.
  *
  * ALL query words must match somewhere (name OR brand) — AND logic.
  * With an empty query every food passes; recency score still sorts recent first.
  */
+
+const tokenize = (s) => s.split(/[\s,./\-()]+/).filter(Boolean)
 
 function scoreFoodItem(food, queryWords, fullQuery, recentScores) {
   const nameL    = (food.name  || '').toLowerCase()
   const brandL   = (food.brand || '').toLowerCase()
   const combined = brandL ? nameL + ' ' + brandL : nameL
 
-  // ── Hard filter: every query word must appear somewhere ───────────────
+  // ── Hard filter: every query word must appear in name OR brand ────────
   if (queryWords.length > 0) {
     for (const w of queryWords) {
       if (!combined.includes(w)) return -1
@@ -39,34 +46,26 @@ function scoreFoodItem(food, queryWords, fullQuery, recentScores) {
   let score = 0
 
   if (queryWords.length > 0) {
-    // Exact name
+    // ── Full-query bonuses — name and brand each evaluated ──
     if (nameL === fullQuery) score += 1000
+    else if (brandL === fullQuery) score += 700
 
-    // Name starts with full query (highest prefix bonus)
-    if (nameL.startsWith(fullQuery)) {
-      score += 500
-    } else if (nameL.includes(fullQuery)) {
-      // Full query is a substring, just not at the front
-      score += 30
-    }
+    if (nameL.startsWith(fullQuery)) score += 500
+    else if (brandL.startsWith(fullQuery)) score += 400
+    else if (nameL.includes(fullQuery)) score += 30
+    else if (brandL.includes(fullQuery)) score += 25
 
-    // Word-level bonuses — tokenise name on common delimiters
-    const nameWords = nameL.split(/[\s,./\-()]+/).filter(Boolean)
+    // ── Per-word bonuses — name and brand both searched; best match wins ──
+    const nameWords  = tokenize(nameL)
+    const brandWords = tokenize(brandL)
 
     for (const qw of queryWords) {
-      if (nameWords.includes(qw)) {
-        // A name word exactly equals this query word
-        score += 100
-      } else if (nameWords.some((nw) => nw.startsWith(qw))) {
-        // A name word starts with this query word
-        score += 50
-      } else if (nameL.includes(qw)) {
-        // Query word appears inside the name (mid-word substring)
-        score += 20
-      } else if (brandL.includes(qw)) {
-        // Only the brand field matched — lower priority
-        score += 5
-      }
+      if (nameWords.includes(qw))                       score += 100  // name word exact
+      else if (brandWords.includes(qw))                 score += 80   // brand word exact
+      else if (nameWords.some((w) => w.startsWith(qw))) score += 50   // name word prefix
+      else if (brandWords.some((w) => w.startsWith(qw)))score += 45   // brand word prefix
+      else if (nameL.includes(qw))                      score += 20   // name substring
+      else if (brandL.includes(qw))                     score += 10   // brand substring
     }
   }
 
