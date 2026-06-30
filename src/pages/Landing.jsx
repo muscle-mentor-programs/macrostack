@@ -95,7 +95,7 @@ export default function Landing({ onGetStarted }) {
     const v = mockupVidRef.current
     if (!v) return
     let raf, dir = 1, last = null
-    const SPEED = 0.7 // playback rate of the back-and-forth
+    const SPEED = 0.875 // playback rate of the back-and-forth
     const tick = (t) => {
       if (last == null) last = t
       const dt = Math.min((t - last) / 1000, 0.05) // clamp tab-switch jumps
@@ -166,13 +166,13 @@ export default function Landing({ onGetStarted }) {
         { y: 24, autoAlpha: 0 },
         {
           y: 0, autoAlpha: 1, ease: 'none',
-          scrollTrigger: { trigger: q('.mockup')[0], start: 'top 80%', end: 'top 55%', scrub: true },
+          scrollTrigger: { trigger: q('.mockup')[0], start: 'top bottom', end: 'top 70%', scrub: true },
         })
       gsap.fromTo(q('.mockup-video'),
         { scale: 0.82, autoAlpha: 0.2, yPercent: 6 },
         {
           scale: 1, autoAlpha: 1, yPercent: 0, ease: 'none',
-          scrollTrigger: { trigger: q('.mockup')[0], start: 'top 85%', end: 'center 60%', scrub: true },
+          scrollTrigger: { trigger: q('.mockup')[0], start: 'top bottom', end: 'top 65%', scrub: true },
         })
 
       /* ── 3. Guide line — draws itself + glowing dot rides the tip ── */
