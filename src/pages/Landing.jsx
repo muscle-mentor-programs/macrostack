@@ -416,27 +416,36 @@ export default function Landing({ onGetStarted }) {
           </p>
         </section>
 
-        {/* ══ APP MOCKUP — true-transparent WebM (black keyed to alpha via
-             ffmpeg), floats directly on the light section. Scales in on scroll.
-             MP4 is a fallback for browsers without VP9-alpha. ══ */}
-        <section className="mockup relative overflow-hidden py-12 md:py-20">
+        {/* ══ APP MOCKUP band — dark break so the black-bg video keys out
+             cleanly (screen blend) and the phones float; scales in on scroll ══ */}
+        <section className="mockup relative bg-bg overflow-hidden py-20 md:py-28" style={{ color: '#E8E4DC' }}>
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ background: `radial-gradient(ellipse 55% 60% at 50% 50%, ${accentA(14)}, transparent 70%)` }}
+          />
           <div className="relative max-w-2xl mx-auto px-6 text-center">
-            <div className="flex items-center gap-2 justify-center mb-6 mockup-cap">
+            <div className="flex items-center gap-2 justify-center mb-8 mockup-cap">
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
-              <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>SEE IT IN ACTION</p>
+              <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: 'var(--color-muted)' }}>SEE IT IN ACTION</p>
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
             </div>
-            <video
-              className="mockup-video w-full max-w-sm mx-auto"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
+            {/* overflow-hidden crop (no transform → blend targets the band);
+                object-position top trims the bottom-right BrandBird watermark */}
+            <div
+              className="mx-auto overflow-hidden"
+              style={{ width: '100%', maxWidth: '24rem', aspectRatio: '1.2 / 1' }}
             >
-              <source src="/app-mockup.webm" type="video/webm" />
-              <source src="/app-mockup.mp4" type="video/mp4" />
-            </video>
+              <video
+                className="mockup-video w-full h-full"
+                src="/app-mockup.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                style={{ objectFit: 'cover', objectPosition: 'center top', mixBlendMode: 'screen' }}
+              />
+            </div>
           </div>
         </section>
 
