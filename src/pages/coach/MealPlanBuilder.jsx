@@ -49,7 +49,7 @@ function makeEmptyDay(label) {
 }
 
 export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose }) {
-  const { customFoods, clients, setNavHidden } = useStore()
+  const { customFoods, clients, setNavHidden, hiddenFoodIds } = useStore()
   const isMobile = useIsMobile()
 
   // Hide the bottom nav while this full-screen overlay is open
@@ -57,7 +57,10 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     setNavHidden(true)
     return () => setNavHidden(false)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const allFoods = useMemo(() => [...FOODS, ...customFoods], [customFoods])
+  const allFoods = useMemo(
+    () => [...FOODS.filter((f) => !(hiddenFoodIds || []).includes(f.id)), ...customFoods],
+    [customFoods, hiddenFoodIds]
+  )
 
   // Foods used by any client in the last 30 days float to the top
   const recentFoodIds = useMemo(() => getRecentFoodIdsFromClients(clients), [clients])

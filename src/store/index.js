@@ -209,7 +209,7 @@ const useStore = create(
               set({
                 isAuthenticated: false, currentUser: null,
                 activeRole: null, activeClientId: null,
-                clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [],
+                clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [], hiddenFoodIds: [],
                 coachProfile: null,
               })
             }
@@ -271,7 +271,7 @@ const useStore = create(
         set({
           isAuthenticated: false, currentUser: null,
           activeRole: null, activeClientId: null,
-          clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [],
+          clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [], hiddenFoodIds: [],
           coachProfile: null,
         })
       },
@@ -324,9 +324,13 @@ const useStore = create(
         const foodRows      = foodRes.data || []
         const customFoods   = foodRows.filter((f) => f.source === 'custom').map(dbToFood)
         const overrideFoods = foodRows.filter((f) => f.source === 'override').map(dbToFood)
-        const scannedFoods  = foodRows.filter((f) => f.source !== 'custom' && f.source !== 'override').map(dbToFood)
+        // 'deleted' markers hide a built-in food from the shared database (superadmin action)
+        const hiddenFoodIds = foodRows.filter((f) => f.source === 'deleted').map((f) => f.id)
+        const scannedFoods  = foodRows
+          .filter((f) => f.source !== 'custom' && f.source !== 'override' && f.source !== 'deleted')
+          .map(dbToFood)
 
-        set({ clients, messages, customFoods, scannedFoods, overrideFoods, coachRequests: reqRes.data || [] })
+        set({ clients, messages, customFoods, scannedFoods, overrideFoods, hiddenFoodIds, coachRequests: reqRes.data || [] })
       },
 
       // ── SUBSCRIPTIONS ─────────────────────────────────────────────────────
@@ -1131,6 +1135,7 @@ Rules:
       // ── SCANNED FOODS (synchronous return value required by ScannedFoodModal) ──
       scannedFoods: [],
       overrideFoods: [],
+      hiddenFoodIds: [],   // built-in food ids hidden from the shared DB (superadmin)
 
       addScannedFood: (food) => {
         const { scannedFoods } = get()
@@ -1211,6 +1216,36 @@ Rules:
       removeFoodOverride: async (id) => {
         set((s) => ({ overrideFoods: s.overrideFoods.filter((f) => f.id !== id) }))
         await supabase.from('custom_foods').delete().eq('id', id)
+      },
+
+      // Superadmin: hide a built-in food from the shared database. Stored as a
+      // 'deleted' marker row keyed by the built-in id; loadAllData reads these
+      // into hiddenFoodIds and every food list filters them out globally.
+      // Mirrors the override pattern (insert when new, flip the row when it was
+      // already overridden) so it persists wherever overrides persist.
+      deleteBuiltinFood: async (food) => {
+        const id = food.id
+        const wasOverride = get().overrideFoods.some((f) => f.id === id)
+        set((s) => ({
+          hiddenFoodIds: s.hiddenFoodIds.includes(id) ? s.hiddenFoodIds : [...s.hiddenFoodIds, id],
+          overrideFoods: s.overrideFoods.filter((f) => f.id !== id),
+        }))
+        const { error } = wasOverride
+          ? await supabase.from('custom_foods').update({ source: 'deleted' }).eq('id', id)
+          : await supabase.from('custom_foods').insert({
+              id, source: 'deleted',
+              name: food.name || 'deleted', brand: food.brand || '',
+              serving_size: food.servingSize ?? null, serving_unit: food.servingUnit ?? null,
+              calories: 0, protein: 0, carbs: 0, fat: 0,
+            })
+        if (error) console.error('deleteBuiltinFood:', error)
+      },
+
+      // Superadmin: bring a deleted built-in food back into the database.
+      restoreBuiltinFood: async (id) => {
+        set((s) => ({ hiddenFoodIds: s.hiddenFoodIds.filter((x) => x !== id) }))
+        const { error } = await supabase.from('custom_foods').delete().eq('id', id)
+        if (error) console.error('restoreBuiltinFood:', error)
       },
 
       // Add an AI-sourced food to the shared database (superadmin only)

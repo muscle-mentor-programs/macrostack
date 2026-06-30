@@ -397,6 +397,7 @@ export default function MyFoods() {
     customFoods, addCustomFood, removeCustomFood, updateCustomFood,
     scannedFoods, removeScannedFood, updateScannedFood,
     overrideFoods, upsertFoodOverride, removeFoodOverride,
+    hiddenFoodIds, deleteBuiltinFood, restoreBuiltinFood,
   } = useStore()
 
   const isSuperadmin = currentUser?.role === 'superadmin'
@@ -410,18 +411,26 @@ export default function MyFoods() {
   const [showAISearch, setShowAISearch] = useState(false)
 
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
+  const hiddenIds   = useMemo(() => new Set(hiddenFoodIds || []), [hiddenFoodIds])
 
   const allFoods = useMemo(
     () => [
-      ...FOODS.filter((f) => !overrideIds.has(f.id)),
-      ...overrideFoods,
+      ...FOODS.filter((f) => !overrideIds.has(f.id) && !hiddenIds.has(f.id)),
+      ...overrideFoods.filter((f) => !hiddenIds.has(f.id)),
       ...customFoods,
       ...scannedFoods,
     ],
-    [customFoods, scannedFoods, overrideFoods, overrideIds]
+    [customFoods, scannedFoods, overrideFoods, overrideIds, hiddenIds]
+  )
+
+  // Deleted built-ins — only shown under the DELETED filter so they can be restored
+  const deletedFoods = useMemo(
+    () => FOODS.filter((f) => hiddenIds.has(f.id)),
+    [hiddenIds]
   )
 
   const filtered = useMemo(() => {
+    if (filter === 'deleted') return rankFoods(deletedFoods, query)
     // Apply type filter first, then relevance-rank the subset
     const base = allFoods.filter((f) => {
       const isCustom  = f.id.startsWith('custom_')
@@ -432,7 +441,7 @@ export default function MyFoods() {
              /* builtin */         (!isCustom && !isScanned)
     })
     return rankFoods(base, query)
-  }, [allFoods, query, filter])
+  }, [allFoods, deletedFoods, query, filter])
 
   const openAdd   = () => { setEditTarget(null); setShowModal(true) }
   const openEdit  = (food) => { setEditTarget(food); setShowModal(true) }
@@ -532,6 +541,7 @@ export default function MyFoods() {
             { id: 'builtin', label: 'BUILT-IN' },
             { id: 'custom',  label: 'CUSTOM'   },
             { id: 'scanned', label: 'SCANNED'  },
+            ...(isSuperadmin ? [{ id: 'deleted', label: `DELETED${deletedFoods.length ? ` (${deletedFoods.length})` : ''}` }] : []),
           ].map(({ id, label }) => (
             <button
               key={id}
@@ -612,27 +622,46 @@ export default function MyFoods() {
                 {/* Fat + actions */}
                 <div className="flex items-center justify-end gap-1.5 self-center">
                   <span className="font-display font-bold text-sm text-slategray-light">{food.fat.toFixed(1)}g</span>
-                  {/* Edit button: custom foods always; superadmin gets all types */}
-                  {(isCustom || (isSuperadmin && !isBuiltIn) || (isSuperadmin && isBuiltIn)) && (
-                    <button onClick={() => openEdit(food)} title="Edit"
-                      className="text-dim hover:text-brown-light transition-colors opacity-0 group-hover:opacity-100 p-1">
-                      <Pencil size={12} />
-                    </button>
-                  )}
-                  {/* Delete / revert */}
-                  {(isCustom || (isSuperadmin && isScanned)) && (
-                    <button onClick={() => isCustom ? removeCustomFood(food.id) : removeScannedFood(food.id)}
-                      title="Delete"
-                      className="text-dim hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1">
-                      <Trash2 size={12} />
-                    </button>
-                  )}
-                  {/* Revert override back to original built-in values */}
-                  {isSuperadmin && isOverride && (
-                    <button onClick={() => removeFoodOverride(food.id)} title="Revert to original"
+
+                  {filter === 'deleted' ? (
+                    /* Deleted view — restore the built-in back into the database */
+                    <button onClick={() => restoreBuiltinFood(food.id)} title="Restore to database"
                       className="text-dim hover:text-olive-light transition-colors opacity-0 group-hover:opacity-100 p-1 font-display text-[9px] tracking-widest">
-                      REVERT
+                      RESTORE
                     </button>
+                  ) : (
+                    <>
+                      {/* Edit button: custom foods always; superadmin gets all types */}
+                      {(isCustom || isSuperadmin) && (
+                        <button onClick={() => openEdit(food)} title="Edit"
+                          className="text-dim hover:text-brown-light transition-colors opacity-0 group-hover:opacity-100 p-1">
+                          <Pencil size={12} />
+                        </button>
+                      )}
+                      {/* Revert override back to original built-in values */}
+                      {isSuperadmin && isOverride && (
+                        <button onClick={() => removeFoodOverride(food.id)} title="Revert to original"
+                          className="text-dim hover:text-olive-light transition-colors opacity-0 group-hover:opacity-100 p-1 font-display text-[9px] tracking-widest">
+                          REVERT
+                        </button>
+                      )}
+                      {/* Delete: custom (owner) and scanned/built-in/override (superadmin) */}
+                      {(isCustom || (isSuperadmin && (isScanned || isBuiltIn || isOverride))) && (
+                        <button
+                          onClick={() => {
+                            if (isCustom)       return removeCustomFood(food.id)
+                            if (isScanned)      return removeScannedFood(food.id)
+                            // built-in or overridden built-in → hide from the shared DB
+                            if (window.confirm(`Delete "${food.name}" from the food database for everyone?`)) {
+                              deleteBuiltinFood(food)
+                            }
+                          }}
+                          title="Delete"
+                          className="text-dim hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1">
+                          <Trash2 size={12} />
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

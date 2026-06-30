@@ -198,6 +198,7 @@ export default function MobileMyFoods() {
     customFoods, addCustomFood, addAIFood, removeCustomFood, updateCustomFood,
     scannedFoods, removeScannedFood, updateScannedFood,
     overrideFoods, upsertFoodOverride, removeFoodOverride,
+    hiddenFoodIds, deleteBuiltinFood,
   } = useStore()
 
   const isSuperadmin = currentUser?.role === 'superadmin'
@@ -248,15 +249,16 @@ export default function MobileMyFoods() {
   }
 
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
+  const hiddenIds   = useMemo(() => new Set(hiddenFoodIds || []), [hiddenFoodIds])
 
   const allFoods = useMemo(
     () => [
-      ...FOODS.filter((f) => !overrideIds.has(f.id)),
-      ...overrideFoods,
+      ...FOODS.filter((f) => !overrideIds.has(f.id) && !hiddenIds.has(f.id)),
+      ...overrideFoods.filter((f) => !hiddenIds.has(f.id)),
       ...customFoods,
       ...scannedFoods,
     ],
-    [customFoods, scannedFoods, overrideFoods, overrideIds]
+    [customFoods, scannedFoods, overrideFoods, overrideIds, hiddenIds]
   )
 
   const filtered = useMemo(() => {
@@ -425,10 +427,16 @@ export default function MobileMyFoods() {
                       <Pencil size={13} />
                     </button>
                   )}
-                  {/* Delete: custom always; superadmin for scanned */}
-                  {(isCustom || (isSuperadmin && isScanned)) && (
+                  {/* Delete: custom (owner); superadmin for scanned/built-in/override */}
+                  {(isCustom || (isSuperadmin && (isScanned || isBuiltIn || isOverride))) && (
                     <button
-                      onClick={() => isCustom ? removeCustomFood(food.id) : removeScannedFood(food.id)}
+                      onClick={() => {
+                        if (isCustom)  return removeCustomFood(food.id)
+                        if (isScanned) return removeScannedFood(food.id)
+                        if (window.confirm(`Delete "${food.name}" from the food database for everyone?`)) {
+                          deleteBuiltinFood(food)
+                        }
+                      }}
                       className="w-8 h-8 flex items-center justify-center rounded-lg text-dim hover:text-red-400 hover:bg-red-400/10 transition-colors"
                     >
                       <Trash2 size={13} />

@@ -26,14 +26,14 @@ function entryServingLabel(entry) {
 }
 
 function AddFoodModal({ onClose }) {
-  const { addEntry, logDate, customFoods } = useStore()
+  const { addEntry, logDate, customFoods, hiddenFoodIds } = useStore()
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
   const [selected, setSelected] = useState(null)
   const [quantity, setQuantity] = useState('1')
   const [meal, setMeal] = useState('Breakfast')
 
-  const allFoods = [...FOODS, ...customFoods]
+  const allFoods = [...FOODS.filter((f) => !(hiddenFoodIds || []).includes(f.id)), ...customFoods]
   const filtered = allFoods.filter((f) => {
     const matchQ = f.name.toLowerCase().includes(query.toLowerCase()) ||
       (f.brand && f.brand.toLowerCase().includes(query.toLowerCase()))

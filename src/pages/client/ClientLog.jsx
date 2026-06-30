@@ -32,7 +32,7 @@ function entryServingLabel(entry) {
 
 // ─── Full-screen food selector (replaces modal) ──────────────────────────────
 function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
-  const { addClientEntry, customFoods, scannedFoods, overrideFoods, clients, currentUser, setActivePage } = useStore()
+  const { addClientEntry, customFoods, scannedFoods, overrideFoods, hiddenFoodIds, clients, currentUser, setActivePage } = useStore()
   const canScan = !!currentUser?.hasAccess
 
   const [query,       setQuery]       = useState('')
@@ -44,13 +44,14 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const [scannedUPC,  setScannedUPC]  = useState(null)
 
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
+  const hiddenIds   = useMemo(() => new Set(hiddenFoodIds || []), [hiddenFoodIds])
 
   const allFoods = useMemo(() => [
-    ...FOODS.filter((f) => !overrideIds.has(f.id)),
-    ...overrideFoods,
+    ...FOODS.filter((f) => !overrideIds.has(f.id) && !hiddenIds.has(f.id)),
+    ...overrideFoods.filter((f) => !hiddenIds.has(f.id)),
     ...customFoods,
     ...scannedFoods,
-  ], [overrideIds, overrideFoods, customFoods, scannedFoods])
+  ], [overrideIds, hiddenIds, overrideFoods, customFoods, scannedFoods])
 
   const recentFoodIds = useMemo(() => {
     const client = clients.find((c) => c.id === clientId)
