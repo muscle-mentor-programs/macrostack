@@ -692,44 +692,66 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 6.5 COACHING — work with Branden ═════════════════════════════════ */}
-      <section className="relative bg-bg px-6 pt-28 pb-8 overflow-hidden">
+      {/* ══ 6.5 COACHING — work with Branden (light-blue section) ════════════ */}
+      <section className="relative px-6 pt-28 pb-16 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
         {/* ambient glow */}
         <div
           className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accentA(12)}, transparent 65%)` }}
+          style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accentA(16)}, transparent 65%)` }}
         />
         <div className="relative max-w-3xl mx-auto">
           {/* Heading */}
           <div className="coach-reveal text-center mb-3">
             <div className="flex items-center gap-2 justify-center mb-4">
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
-              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">NUTRITION COACHING</p>
+              <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>1-ON-1 NUTRITION COACHING</p>
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
             </div>
-            <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide leading-[1.05] text-cream">
-              COACHING THAT ACTUALLY
+            <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide leading-[1.05]">
+              WHEN TRACKING ISN'T ENOUGH,
               <br />
-              <span style={{ color: ACCENT }}>KEEPS UP</span> WITH YOU.
+              YOU NEED A <span style={{ color: ACCENT }}>COACH</span>.
             </h2>
           </div>
 
-          <p className="coach-reveal max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed text-muted mt-6">
-            Most people don't need more information. They need someone watching the numbers
-            with them and adjusting before things stall.
+          <p className="coach-reveal max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed mt-6" style={{ color: INVERT_SOFT }}>
+            MacroStack Pro hands you the tools. This is the level above — {''}
+            <strong style={{ color: INVERT_INK }}>full-blown coaching with a nutrition expert</strong> who
+            builds your plan, reads your logged week, and adjusts everything for you. No more
+            guessing on your own.
           </p>
-          <p className="coach-reveal max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed text-muted mt-4">
-            That's what this is. I build your nutrition, you log it, I check it every week and
-            we course-correct. You also get my training app to handle the lifting side.
-          </p>
+
+          {/* Coach credentials — make it obvious this is a real expert */}
+          <div
+            className="coach-reveal max-w-xl mx-auto mt-9 rounded-2xl p-6 md:p-8 text-center"
+            style={{ background: 'color-mix(in srgb, var(--color-cream) 35%, rgba(255,255,255,0.6))', border: '1px solid color-mix(in srgb, var(--color-bg) 14%, transparent)', boxShadow: '0 10px 40px color-mix(in srgb, var(--color-bg) 8%, transparent)' }}
+          >
+            <p className="font-mono text-[10px] tracking-[0.25em] mb-2" style={{ color: INVERT_SOFT }}>YOUR COACH</p>
+            <p className="font-display font-black text-2xl md:text-4xl tracking-wide">BRANDEN HALES</p>
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
+              {['MS, NUTRITION', 'BS, EXERCISE PHYSIOLOGY', '10+ YEARS COACHING'].map((cred) => (
+                <span
+                  key={cred}
+                  className="font-mono text-[10px] tracking-[0.15em] px-3 py-1.5 rounded-full"
+                  style={{ color: ACCENT, background: accentA(12), border: `1px solid ${accentA(30)}` }}
+                >
+                  {cred}
+                </span>
+              ))}
+            </div>
+            <p className="text-sm leading-relaxed mt-6 max-w-md mx-auto" style={{ color: INVERT_SOFT }}>
+              Not an app guessing at your macros — a credentialed nutrition expert in your
+              corner, watching the numbers with you and adjusting before things stall.
+            </p>
+          </div>
 
           {/* Price */}
           <div className="coach-reveal flex flex-col items-center mt-10 mb-8">
             <div className="flex items-baseline gap-2">
-              <span className="font-display font-black text-6xl md:text-7xl text-cream">$400</span>
-              <span className="font-mono text-sm text-muted">/ month</span>
+              <span className="font-display font-black text-6xl md:text-7xl">$400</span>
+              <span className="font-mono text-sm" style={{ color: INVERT_SOFT }}>/ month</span>
             </div>
-            <p className="font-mono text-xs text-muted mt-3 max-w-xs text-center leading-relaxed">
+            <p className="font-mono text-xs mt-3 max-w-xs text-center leading-relaxed" style={{ color: INVERT_SOFT }}>
               Month to month. No setup fee, no separate app subscriptions to deal with.
             </p>
           </div>
@@ -747,8 +769,8 @@ export default function Landing({ onGetStarted }) {
                   ✓
                 </div>
                 <div>
-                  <p className="font-mono text-sm text-cream">{t}</p>
-                  <p className="font-mono text-xs text-muted leading-relaxed">{d}</p>
+                  <p className="font-mono text-sm">{t}</p>
+                  <p className="font-mono text-xs leading-relaxed" style={{ color: INVERT_SOFT }}>{d}</p>
                 </div>
               </div>
             ))}
@@ -757,32 +779,38 @@ export default function Landing({ onGetStarted }) {
           {/* Two pillars */}
           <div className="grid md:grid-cols-2 gap-4 md:gap-5">
             {/* MacroStack */}
-            <div className="coach-reveal glass-card border border-border rounded-2xl p-6 card-dim">
+            <div
+              className="coach-reveal rounded-2xl p-6"
+              style={{ background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.5))', border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)' }}
+            >
               <div className="flex items-center justify-between mb-1">
-                <p className="font-display font-black text-xl tracking-wide text-cream">
+                <p className="font-display font-black text-xl tracking-wide">
                   MACRO<span style={{ color: ACCENT }}>STACK</span>
                 </p>
               </div>
-              <p className="font-mono text-[10px] tracking-[0.2em] text-muted mb-4">WHERE WE RUN YOUR NUTRITION</p>
-              <p className="text-sm leading-relaxed text-muted mb-3">
+              <p className="font-mono text-[10px] tracking-[0.2em] mb-4" style={{ color: INVERT_SOFT }}>WHERE WE RUN YOUR NUTRITION</p>
+              <p className="text-sm leading-relaxed mb-3" style={{ color: INVERT_SOFT }}>
                 I build your meal plan around your goal, your schedule, and the food you'll
                 actually eat. You log it in the app the same way you would in MyFitnessPal,
                 except I'm on the other end looking at it.
               </p>
-              <p className="text-sm leading-relaxed text-muted">
+              <p className="text-sm leading-relaxed" style={{ color: INVERT_SOFT }}>
                 When the scale or the mirror says something needs to change, I change it.
                 That's the whole point of paying for a coach instead of downloading a free tracker.
               </p>
             </div>
 
             {/* Muscle Mentor */}
-            <div className="coach-reveal glass-card border border-border rounded-2xl p-6 card-dim">
+            <div
+              className="coach-reveal rounded-2xl p-6"
+              style={{ background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.5))', border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)' }}
+            >
               <div className="flex items-center justify-between gap-2 mb-1">
                 <a
                   href="https://musclementor.app"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-display font-black text-xl tracking-wide text-cream inline-flex items-center gap-1.5 transition-colors hover:opacity-80"
+                  className="font-display font-black text-xl tracking-wide inline-flex items-center gap-1.5 transition-colors hover:opacity-80"
                 >
                   MUSCLE MENTOR
                   <span className="text-sm" style={{ color: ACCENT }}>↗</span>
@@ -794,13 +822,13 @@ export default function Landing({ onGetStarted }) {
                   INCLUDED
                 </span>
               </div>
-              <p className="font-mono text-[10px] tracking-[0.2em] text-muted mb-4">YOUR TRAINING, HANDLED</p>
-              <p className="text-sm leading-relaxed text-muted mb-3">
+              <p className="font-mono text-[10px] tracking-[0.2em] mb-4" style={{ color: INVERT_SOFT }}>YOUR TRAINING, HANDLED</p>
+              <p className="text-sm leading-relaxed mb-3" style={{ color: INVERT_SOFT }}>
                 You get full access to my training app at no extra charge. Pick a mesocycle
                 that fits where you're at and run it. If something doesn't make sense or you're
                 not sure how to scale it, message me and I'll sort it out.
               </p>
-              <p className="text-sm leading-relaxed text-muted">
+              <p className="text-sm leading-relaxed" style={{ color: INVERT_SOFT }}>
                 I'd rather you follow programming that's already proven than chase a custom
                 plan that looks impressive and goes nowhere.
               </p>
@@ -808,19 +836,19 @@ export default function Landing({ onGetStarted }) {
           </div>
 
           {/* Who it's for */}
-          <p className="coach-reveal max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed text-muted mt-10">
-            This is built for people who already know the basics but can't stay consistent on
-            their own. If that's you, the weekly check-ins are the thing that finally makes it
-            stick.
+          <p className="coach-reveal max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed mt-10" style={{ color: INVERT_SOFT }}>
+            This is for people who need more than a tracker — you know the basics but can't stay
+            consistent on your own. With an expert running your nutrition and weekly check-ins,
+            it finally sticks.
           </p>
 
           {/* CTA */}
           <div className="coach-reveal mt-8 rounded-2xl border p-6 md:p-8 text-center"
-            style={{ borderColor: accentA(35), background: accentA(6) }}>
-            <p className="font-display font-bold text-lg md:text-xl tracking-wide text-cream mb-1">
+            style={{ borderColor: accentA(40), background: accentA(10) }}>
+            <p className="font-display font-bold text-lg md:text-xl tracking-wide mb-1">
               Want to talk through whether it's a fit?
             </p>
-            <p className="font-mono text-xs text-muted mb-5 max-w-md mx-auto leading-relaxed">
+            <p className="font-mono text-xs mb-5 max-w-md mx-auto leading-relaxed" style={{ color: INVERT_SOFT }}>
               Reach out and I'll get you set up with a unique coach code to link your account to me.
             </p>
             <a
@@ -837,7 +865,7 @@ export default function Landing({ onGetStarted }) {
           </div>
 
           {/* Fine print */}
-          <p className="coach-reveal text-center font-mono text-[10px] text-dim mt-6 leading-relaxed max-w-md mx-auto">
+          <p className="coach-reveal text-center font-mono text-[10px] mt-6 leading-relaxed max-w-md mx-auto" style={{ color: 'color-mix(in srgb, var(--color-bg) 45%, var(--color-cream))' }}>
             Training app access comes with active coaching and ends when coaching does. Rate good for 2026.
           </p>
         </div>
