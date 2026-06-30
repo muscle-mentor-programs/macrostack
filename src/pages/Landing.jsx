@@ -109,10 +109,12 @@ export default function Landing({ onGetStarted }) {
       }
       raf = requestAnimationFrame(tick)
     }
-    const start = () => { v.pause(); last = null; raf = requestAnimationFrame(tick) }
-    if (v.readyState >= 1) start()
-    else v.addEventListener('loadedmetadata', start, { once: true })
-    return () => { cancelAnimationFrame(raf); v.removeEventListener('loadedmetadata', start) }
+    // Kick the loop the instant the page mounts — the tick no-ops until the
+    // duration is known, so the back-and-forth is already running on landing.
+    // A muted play()/pause() primes the decoder so frames render right away.
+    v.play().then(() => v.pause()).catch(() => {})
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   useLayoutEffect(() => {
