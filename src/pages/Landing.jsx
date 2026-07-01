@@ -183,13 +183,20 @@ export default function Landing({ onGetStarted }) {
   const fillRef      = useRef(null)
   const trackRef     = useRef(null)
 
-  /* Jump straight to a section — use Lenis so the pinned ScrollTrigger
-     sections stay in sync; fall back to native scroll if it's not ready. */
+  /* Smooth-scroll to a section — use Lenis so the pinned ScrollTrigger
+     sections stay in sync; fall back to native smooth scroll if it's not ready. */
   const scrollToSection = (id) => {
     const el = document.getElementById(id)
     if (!el) return
-    if (window.lenis) window.lenis.scrollTo(el, { immediate: true, offset: -72 })
-    else el.scrollIntoView()
+    if (window.lenis) {
+      window.lenis.scrollTo(el, {
+        offset: -72,
+        duration: 1.2,
+        easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2), // easeInOutCubic
+      })
+    } else {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 
   useLayoutEffect(() => {
@@ -387,7 +394,7 @@ export default function Landing({ onGetStarted }) {
         style={{ background: 'color-mix(in srgb, var(--color-bg) 72%, transparent)' }}
       >
         <button
-          onClick={() => window.lenis ? window.lenis.scrollTo(0, { immediate: true }) : window.scrollTo(0, 0)}
+          onClick={() => window.lenis ? window.lenis.scrollTo(0, { duration: 1.2 }) : window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="font-display font-black text-lg tracking-widest text-cream"
         >
           MACRO<span style={{ color: ACCENT }}>STACK</span>
