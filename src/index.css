@@ -1012,14 +1012,16 @@ html.ocean-light  .card-inset { background: rgba(0,0,0,0.05) !important; box-sha
   -webkit-text-fill-color: transparent;
 }
 
-/* Premium CTA button — gradient + glow */
+/* Premium CTA button — matches the landing page primary button:
+   accent → lighter-accent gradient, white text, accent glow (no brown). */
 .btn-accent {
-  background: linear-gradient(135deg, var(--color-accent) 0%, #B89060 100%);
-  box-shadow: 0 4px 20px rgba(154,123,85,0.35), 0 0 0 1px rgba(154,123,85,0.25), inset 0 1px 0 rgba(255,255,255,0.18);
+  background: linear-gradient(135deg, var(--color-accent) 0%, color-mix(in srgb, var(--color-accent) 72%, white) 100%);
+  color: #fff;
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--color-accent) 35%, transparent), inset 0 1px 0 rgba(255,255,255,0.20);
   transition: all 0.2s ease;
 }
 .btn-accent:hover {
-  box-shadow: 0 6px 28px rgba(154,123,85,0.48), 0 0 0 1px rgba(154,123,85,0.35), inset 0 1px 0 rgba(255,255,255,0.22);
+  box-shadow: 0 10px 38px color-mix(in srgb, var(--color-accent) 45%, transparent), inset 0 1px 0 rgba(255,255,255,0.24);
   filter: brightness(1.06);
 }
 

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { format, subDays } from 'date-fns'
-import { LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList, Flame } from 'lucide-react'
+import { LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList, Flame, UserPlus } from 'lucide-react'
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts'
 import useStore from '../../store'
 import AnimatedNumber from '../../components/AnimatedNumber'
@@ -346,42 +346,55 @@ export default function ClientDashboard() {
         <MacroChip label="FAT" current={totals.fat} goal={client?.goals?.fat} color="slate" delay={290} />
       </div>
 
-      {/* Meal Plan Section — only relevant once linked to a coach (code-based) */}
-      {client?.coachId && (
-        <MealPlanSection client={client} onLogMeal={handleLogMeal} />
-      )}
-
-      {/* Your Coach card */}
-      {coachProfile && (
-        <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '400ms' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">YOUR COACH</p>
-          </div>
+      {/* Your Coach — between the macros and the meal plan. Connected clients
+          get a card into their coach; unlinked clients can connect from here. */}
+      <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '330ms' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">YOUR COACH</p>
+        </div>
+        {client?.coachId ? (
           <button
             onClick={() => setActivePage('coach')}
             className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all card-hover card-dim"
           >
             <div className="w-11 h-11 rounded-xl bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
               <span className="font-display font-black text-lg text-brown-light">
-                {(coachProfile.name || 'C').charAt(0).toUpperCase()}
+                {(coachProfile?.name || 'C').charAt(0).toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-display font-bold text-sm text-cream">{coachProfile.name}</p>
-              {coachProfile.credentials && (
+              <p className="font-display font-bold text-sm text-cream">{coachProfile?.name || 'Your Coach'}</p>
+              {coachProfile?.credentials ? (
                 <p className="font-mono text-xs text-muted truncate">{coachProfile.credentials}</p>
-              )}
-              {!coachProfile.credentials && coachProfile.specialties && (
+              ) : coachProfile?.specialties ? (
                 <p className="font-mono text-xs text-muted truncate">{coachProfile.specialties.split(',')[0].trim()}</p>
-              )}
-              {!coachProfile.credentials && !coachProfile.specialties && (
+              ) : (
                 <p className="font-mono text-xs text-muted">Nutrition Coach</p>
               )}
             </div>
             <ChevronRight size={14} className="text-dim flex-shrink-0" />
           </button>
-        </div>
+        ) : (
+          <button
+            onClick={() => setActivePage('profile')}
+            className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center gap-3 text-left hover:border-brown/40 active:bg-surface transition-all card-hover card-dim"
+          >
+            <div className="w-11 h-11 rounded-xl bg-brown/10 border border-brown/25 flex items-center justify-center flex-shrink-0">
+              <UserPlus size={18} className="text-brown-light" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-bold text-sm text-cream">Connect with a coach</p>
+              <p className="font-mono text-xs text-muted truncate">Enter a coach code for meal plans &amp; check-ins</p>
+            </div>
+            <ChevronRight size={14} className="text-dim flex-shrink-0" />
+          </button>
+        )}
+      </div>
+
+      {/* Meal Plan Section — only relevant once linked to a coach (code-based) */}
+      {client?.coachId && (
+        <MealPlanSection client={client} onLogMeal={handleLogMeal} />
       )}
 
     </div>
