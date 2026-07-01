@@ -18,10 +18,12 @@ function AddToHomeScreen() {
     { icon: PlusSquare, text: <>Choose <b className="text-cream">Add to Home Screen</b></> },
   ]
 
+  const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
+
   return (
-    <div className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
+    <div className="mt-6 rounded-2xl border glass-card p-4" style={{ borderColor: accentA(30) }}>
       <div className="flex items-center gap-2 mb-3">
-        <Smartphone size={14} className="text-brown-light" />
+        <Smartphone size={14} style={{ color: 'var(--color-accent)' }} />
         <p className="font-display font-bold text-xs tracking-widest text-cream">ADD TO HOME SCREEN</p>
       </div>
       <p className="font-mono text-[11px] text-muted leading-relaxed mb-3">
@@ -32,11 +34,14 @@ function AddToHomeScreen() {
           const Icon = s.icon
           return (
             <div key={i} className="flex items-center gap-2.5">
-              <div className="w-6 h-6 rounded-lg bg-brown/15 border border-brown/25 flex items-center justify-center flex-shrink-0">
-                <Icon size={12} className="text-brown-light" />
+              <div
+                className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: accentA(14), border: `1px solid ${accentA(32)}` }}
+              >
+                <Icon size={12} style={{ color: 'var(--color-accent)' }} />
               </div>
               <p className="font-mono text-[11px] text-muted">
-                <span className="text-dim mr-1">{i + 1}.</span>{s.text}
+                <span className="mr-1 font-bold" style={{ color: 'var(--color-accent)' }}>{i + 1}.</span>{s.text}
               </p>
             </div>
           )
