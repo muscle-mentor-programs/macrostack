@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- App icon: MACRO / STACK wordmark on a dark rounded square, no border -->
+  <rect width="512" height="512" rx="116" ry="116" fill="#0A0E17"/>
+  <g font-family="'Arial Black', Impact, 'Arial Bold', Arial, sans-serif"
+     font-weight="900" text-anchor="middle" letter-spacing="-6">
+    <text x="256" y="238" font-size="164" fill="#DCE8F6"
+          transform="translate(256,0) scale(0.86,1) translate(-256,0)">MACRO</text>
+    <text x="256" y="398" font-size="164" fill="#4E80C0"
+          transform="translate(256,0) scale(0.86,1) translate(-256,0)">STACK</text>
+  </g>
+</svg>

@@ -612,9 +612,9 @@ export default function Landing({ onGetStarted }) {
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">HOW IT WORKS</p>
             </div>
             <h2 className="font-display font-black text-5xl md:text-7xl tracking-wide leading-[1.02] text-cream">
-              FOUR STEPS TO
+              HOW MACROSTACK
               <br />
-              <span style={{ color: ACCENT }}>DIALED-IN</span> NUTRITION.
+              <span style={{ color: ACCENT }}>KEEPS YOU ON TRACK.</span>
             </h2>
           </div>
         </section>
