@@ -209,6 +209,9 @@ export default function Landing({ onGetStarted }) {
       gsap.fromTo(q('.hero-ctas'),
         { y: 26, autoAlpha: 0 },
         { y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out', delay: 0.85 })
+      gsap.fromTo(q('.hero-mockup'),
+        { y: 40, autoAlpha: 0, scale: 0.96 },
+        { y: 0, autoAlpha: 1, scale: 1, duration: 1.1, ease: 'power3.out', delay: 0.55 })
       gsap.to(q('.scroll-cue-dot'), {
         y: 9, repeat: -1, yoyo: true, duration: 0.7, ease: 'power1.inOut',
       })
@@ -404,44 +407,61 @@ export default function Landing({ onGetStarted }) {
           }}
         />
 
-        <div className="hero-inner relative text-center px-6">
-          <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-muted mb-6">
-            PRECISION NUTRITION PLATFORM
-          </p>
-          <h1 className="font-display font-black leading-[0.95] text-6xl md:text-8xl tracking-[0.06em] text-cream">
-            {HERO_LINES.map(({ text, accent }) => (
-              <span key={text} className="block overflow-hidden py-1">
-                <span
-                  className="hero-word block will-change-transform"
-                  style={accent ? { color: ACCENT } : undefined}
-                >
-                  {text}
+        <div className="hero-inner relative w-full max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 md:gap-10 items-center">
+          {/* Left — copy */}
+          <div className="text-center md:text-left">
+            <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-muted mb-6">
+              PRECISION NUTRITION PLATFORM
+            </p>
+            <h1 className="font-display font-black leading-[0.95] text-5xl md:text-7xl tracking-[0.06em] text-cream">
+              {HERO_LINES.map(({ text, accent }) => (
+                <span key={text} className="block overflow-hidden py-1">
+                  <span
+                    className="hero-word block will-change-transform"
+                    style={accent ? { color: ACCENT } : undefined}
+                  >
+                    {text}
+                  </span>
                 </span>
-              </span>
-            ))}
-          </h1>
-          <p className="hero-sub max-w-md mx-auto mt-8 text-sm md:text-base leading-relaxed text-muted">
-            The nutrition OS for serious athletes and the coaches who guide them.
-            Macro tracking, coaching tools, and AI food intel — one platform.
-          </p>
-          <div className="hero-ctas flex items-center justify-center gap-4 mt-10">
-            <button
-              onClick={onGetStarted}
-              className="font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl transition-all hover:brightness-110"
-              style={{
-                background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
-                boxShadow: `0 8px 32px ${accentA(35)}`,
-                color: ON_ACCENT,
-              }}
-            >
-              START FOR FREE →
-            </button>
-            <button
-              onClick={onGetStarted}
-              className="font-display font-bold text-sm tracking-widest text-cream px-6 py-4 rounded-xl border border-border hover:border-muted transition-colors"
-            >
-              SIGN IN
-            </button>
+              ))}
+            </h1>
+            <p className="hero-sub max-w-md mx-auto md:mx-0 mt-8 text-sm md:text-base leading-relaxed text-muted">
+              The nutrition OS for serious athletes and the coaches who guide them.
+              Macro tracking, coaching tools, and AI food intel — one platform.
+            </p>
+            <div className="hero-ctas flex items-center justify-center md:justify-start gap-4 mt-10">
+              <button
+                onClick={onGetStarted}
+                className="font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl transition-all hover:brightness-110"
+                style={{
+                  background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
+                  boxShadow: `0 8px 32px ${accentA(35)}`,
+                  color: ON_ACCENT,
+                }}
+              >
+                START FOR FREE →
+              </button>
+              <button
+                onClick={onGetStarted}
+                className="font-display font-bold text-sm tracking-widest text-cream px-6 py-4 rounded-xl border border-border hover:border-muted transition-colors"
+              >
+                SIGN IN
+              </button>
+            </div>
+          </div>
+
+          {/* Right — home screen mockup */}
+          <div className="hero-mockup relative flex justify-center md:justify-end">
+            <div
+              className="pointer-events-none absolute inset-0 -z-10"
+              style={{ background: `radial-gradient(ellipse 55% 55% at 55% 45%, ${accentA(22)}, transparent 65%)` }}
+            />
+            <img
+              src="/mockups/app-home.png"
+              alt="MacroStack home screen"
+              className="w-[42vw] max-w-[150px] md:w-full md:max-w-[300px] h-auto"
+              style={{ filter: 'drop-shadow(0 34px 70px rgba(0,0,0,0.55))' }}
+            />
           </div>
         </div>
 
@@ -729,8 +749,8 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 6.1 THE APP — alternating large mockups + copy ══════════════════ */}
-      <section className="relative bg-bg px-6 pt-10 pb-24 md:pb-32 overflow-hidden">
+      {/* ══ 6.1 THE APP + 6.2 PRICING — one continuous dark section, no seam ═ */}
+      <section className="relative bg-bg px-6 pt-10 pb-28 md:pb-36 overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0"
           style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accentA(9)}, transparent 60%)` }}
@@ -752,16 +772,9 @@ export default function Landing({ onGetStarted }) {
             ))}
           </div>
         </div>
-      </section>
 
-      {/* ══ 6.2 PRICING — MacroStack Pro ═════════════════════════════════════ */}
-      <section className="relative bg-bg px-6 py-28 md:py-36 overflow-hidden">
-        {/* ambient glow */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(ellipse 65% 45% at 50% 0%, ${accentA(12)}, transparent 65%)` }}
-        />
-        <div className="relative max-w-5xl mx-auto">
+        {/* ── PRICING — MacroStack Pro (same section as the app showcase, no divider line) ── */}
+        <div className="relative max-w-5xl mx-auto mt-28 md:mt-40">
           {/* Heading */}
           <div className="coach-reveal text-center mb-12">
             <div className="flex items-center gap-2 justify-center mb-4">
