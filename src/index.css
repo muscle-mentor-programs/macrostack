@@ -774,6 +774,28 @@ input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
 }
 
+/* Premium horizontal scrollbar — thin, rounded, accent-tinted (replaces the
+   chunky default bar on the showcase card row). */
+.premium-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-accent) 45%, transparent) transparent;
+}
+.premium-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.premium-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin-inline: 1.5rem;
+}
+.premium-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-accent) 42%, transparent);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+.premium-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-accent) 65%, transparent);
+}
+
 /* Kill the browser autofill yellow — tint the field with the theme accent
    (light blue) and keep the text legible, so autofilled fields stay on-theme. */
 input:-webkit-autofill,

@@ -603,7 +603,7 @@ export default function Landing({ onGetStarted }) {
           </h2>
         </div>
 
-        <div ref={trackRef} className="flex items-start gap-5 md:gap-6 mt-10 md:mt-12 px-6 md:px-10 overflow-x-auto pb-4 snap-x snap-mandatory">
+        <div ref={trackRef} className="premium-scroll flex items-start gap-5 md:gap-6 mt-10 md:mt-12 px-6 md:px-10 overflow-x-auto pb-5 snap-x snap-mandatory">
           {CARDS.map((c) => (
             <div
               key={c.title}
