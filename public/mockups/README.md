@@ -7,6 +7,7 @@ landing shows broken-image placeholders where they go.
 ## Client app (dark) — used in the "SEE IT IN ACTION" strip
 - `app-home.png`     — Home dashboard (calorie ring)
 - `app-log.png`      — Daily food log
+- `app-search.png`   — Add-food search (1,900+ foods + scan)
 - `app-weight.png`   — Weight trends
 - `app-chat.png`     — Client ↔ coach chat
 - `app-profile.png`  — Coach-assigned targets

@@ -118,6 +118,7 @@ const COACH_FEATURES = [
 const APP_MOCKUPS = [
   { src: '/mockups/app-home.png',    label: 'DIALED-IN DASHBOARD' },
   { src: '/mockups/app-log.png',     label: 'LOG MEALS IN SECONDS' },
+  { src: '/mockups/app-search.png',  label: '1,900+ FOODS · SCAN ANY LABEL' },
   { src: '/mockups/app-weight.png',  label: 'WEIGHT TRENDS' },
   { src: '/mockups/app-chat.png',    label: 'MESSAGE YOUR COACH' },
   { src: '/mockups/app-profile.png', label: 'YOUR TARGETS' },
