@@ -716,12 +716,13 @@ export default function Landing({ onGetStarted }) {
 
       {/* ══ 6. SHOWCASE (inverted theme section) — square cards, compact ═════ */}
       <section id="features" className="showcase relative py-20 md:py-28 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
-        <div className="px-6 md:px-10 max-w-5xl mx-auto">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="px-6 md:px-10 max-w-5xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
             <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
               THE PLATFORM
             </p>
+            <span className="w-8 h-px" style={{ background: accentA(60) }} />
           </div>
           <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide">
             EVERYTHING YOU NEED.
