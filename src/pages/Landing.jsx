@@ -408,7 +408,7 @@ export default function Landing({ onGetStarted }) {
         </svg>
 
         {/* Statement */}
-        <section className="relative min-h-[120vh] flex items-center justify-center px-6 py-40">
+        <section className="relative min-h-[70vh] flex items-center justify-center px-6 py-24 md:py-28">
           <p className="stmt max-w-3xl text-center font-display font-black text-4xl md:text-6xl leading-[1.15] tracking-wide">
             {STATEMENT.split(' ').map((w, i) => (
               <span key={i} className="stmt-word inline-block mr-[0.28em]">
