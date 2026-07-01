@@ -2,7 +2,7 @@ import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
 import ScrambleText from './ScrambleText'
 import ThemeToggle from './ThemeToggle'
-import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog } from 'lucide-react'
+import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap } from 'lucide-react'
 
 const BASE_NAV = [
   { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
@@ -11,6 +11,9 @@ const BASE_NAV = [
   { id: 'foods',     label: 'MY FOODS',  icon: Utensils        },
   { id: 'profile',   label: 'PROFILE',   icon: User            },
 ]
+// Coach plan management (superadmins have override access — they get the
+// admin panels instead)
+const UPGRADE_NAV = { id: 'upgrade', label: 'UPGRADE', icon: Zap }
 // Superadmin-only panels appended after profile
 const COACHES_NAV = { id: 'coaches', label: 'COACHES', icon: UserCog }
 const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }
@@ -33,8 +36,9 @@ export default function Sidebar({ width }) {
     0
   )
 
-  // Build nav with numbering; append COACHES + BILLING only in the Superadmin Portal
-  const NAV = (isSuperadmin ? [...BASE_NAV, ...ADMIN_NAV] : BASE_NAV)
+  // Build nav with numbering; coaches get UPGRADE (plan management), the
+  // Superadmin Portal gets COACHES + BILLING instead
+  const NAV = (isSuperadmin ? [...BASE_NAV, ...ADMIN_NAV] : [...BASE_NAV, UPGRADE_NAV])
     .map((item, i) => ({ ...item, n: String(i + 1).padStart(2, '0') }))
 
   const activeIdx = Math.max(0, NAV.findIndex((n) => n.id === activePage))
