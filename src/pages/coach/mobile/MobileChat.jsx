@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { ChevronLeft, ChevronRight, MessageCircle, Send } from 'lucide-react'
 import useStore from '../../../store'
@@ -25,6 +25,7 @@ function ThreadScreen({ client, onBack }) {
   const { messages, sendMessage, markMessagesRead, setNavHidden } = useStore()
   const [input,    setInput]    = useState('')
   const [kbHeight, setKbHeight] = useState(0)
+  const inputRef = useRef(null)
   const thread = messages[client.id] || []
 
   useEffect(() => {
@@ -60,6 +61,8 @@ function ThreadScreen({ client, onBack }) {
     if (!input.trim()) return
     sendMessage(client.id, 'coach', input.trim())
     setInput('')
+    // Keep focus so the keyboard stays up for the next message
+    inputRef.current?.focus()
   }
 
   return (
@@ -124,15 +127,20 @@ function ThreadScreen({ client, onBack }) {
         }}
       >
         <input
+          ref={inputRef}
           type="text"
           placeholder={`Message ${client.name.split(' ')[0]}…`}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          // Reset keyboard height on blur so the bottom nav never sticks hidden
+          onBlur={() => setKbHeight(0)}
           className="flex-1 bg-bg border border-border rounded-2xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
         />
         <button
           onClick={handleSend}
+          // preventDefault keeps input focus so Send doesn't dismiss the keyboard
+          onMouseDown={(e) => e.preventDefault()}
           disabled={!input.trim()}
           className="w-11 h-11 self-end bg-brown hover:bg-brown-light disabled:opacity-40 text-bg rounded-2xl flex items-center justify-center transition-colors flex-shrink-0"
         >

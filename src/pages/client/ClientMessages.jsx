@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 import { MessageCircle, Send, UserCircle2 } from 'lucide-react'
 import useStore from '../../store'
@@ -30,6 +30,7 @@ export default function ClientMessages() {
   const [kbHeight,     setKbHeight]     = useState(0)
   const [navH,         setNavH]         = useState(57)
   const [inputFocused, setInputFocused] = useState(false)
+  const inputRef = useRef(null)
 
   const thread = messages[activeClientId] || []
 
@@ -75,6 +76,8 @@ export default function ClientMessages() {
     sendMessage(activeClientId, 'client', input.trim())
     tapHaptic()
     setInput('')
+    // Keep focus so the keyboard stays up for the next message (no dismiss/re-open)
+    inputRef.current?.focus()
   }
 
   const overlayBottom      = kbHeight > 0 ? `${kbHeight}px` : '0px'
@@ -161,17 +164,22 @@ export default function ClientMessages() {
         style={{ paddingTop: '12px', paddingBottom: inputPaddingBottom }}
       >
         <input
+          ref={inputRef}
           type="text"
           placeholder="Message your coach…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           onFocus={() => setInputFocused(true)}
-          onBlur={() => setInputFocused(false)}
+          // Reset keyboard height on blur so nav visibility never sticks hidden
+          onBlur={() => { setInputFocused(false); setKbHeight(0) }}
           className="flex-1 min-w-0 bg-bg border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
         />
         <button
           onClick={handleSend}
+          // preventDefault on press keeps focus on the input, so tapping Send
+          // does NOT dismiss the keyboard — it sends on the first tap.
+          onMouseDown={(e) => e.preventDefault()}
           disabled={!input.trim()}
           className="flex-shrink-0 flex items-center justify-center px-4 py-3 rounded-xl transition-colors bg-brown hover:bg-brown-light disabled:opacity-40 text-bg"
         >
