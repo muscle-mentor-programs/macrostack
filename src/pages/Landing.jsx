@@ -216,20 +216,13 @@ export default function Landing({ onGetStarted }) {
       }
       storyTl.to({}, { duration: 0.5 }) // hold the finished state briefly
 
-      /* ── 6. Horizontal showcase ── */
-      const track = trackRef.current
-      gsap.to(track, {
-        x: () => -(track.scrollWidth - window.innerWidth),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: q('.showcase')[0],
-          start: 'top top',
-          end: () => `+=${track.scrollWidth - window.innerWidth}`,
-          pin: true,
-          scrub: true,
-          invalidateOnRefresh: true,
-        },
-      })
+      /* ── 6. Showcase — native horizontal scroll (no pin); cards reveal ── */
+      gsap.fromTo(q('.showcase .snap-start'),
+        { autoAlpha: 0, y: 24 },
+        {
+          autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.08,
+          scrollTrigger: { trigger: q('.showcase')[0], start: 'top 75%', once: true },
+        })
 
       /* ── 7a. Stat counters — count up once ── */
       q('.stat-num').forEach((el) => {
@@ -472,21 +465,22 @@ export default function Landing({ onGetStarted }) {
           </div>
         </section>
 
-        {/* How-it-works intro */}
-        <section className="relative px-6 pb-36 max-w-5xl mx-auto">
+      </div>
+
+      {/* ══ 4.5 HOW IT WORKS heading (theme dark) ════════════════════════════ */}
+      <section className="relative bg-bg px-6 pt-24 md:pt-28 pb-6">
+        <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-5">
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
-            <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
-              HOW IT WORKS
-            </p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">HOW IT WORKS</p>
           </div>
-          <h2 className="font-display font-black text-5xl md:text-7xl tracking-wide leading-[1.02]">
+          <h2 className="font-display font-black text-5xl md:text-7xl tracking-wide leading-[1.02] text-cream">
             FOUR STEPS TO
             <br />
             <span style={{ color: ACCENT }}>DIALED-IN</span> NUTRITION.
           </h2>
-        </section>
-      </div>
+        </div>
+      </section>
 
       {/* ══ 5. PINNED STORY (theme dark) ═════════════════════════════════════ */}
       <section className="story relative h-screen overflow-hidden bg-bg">
@@ -588,9 +582,9 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 6. HORIZONTAL SHOWCASE (inverted theme section) ══════════════════ */}
-      <section className="showcase relative h-screen overflow-hidden flex flex-col justify-center" style={{ background: INVERT_BG, color: INVERT_INK }}>
-        <div className="px-6 md:px-10 max-w-5xl">
+      {/* ══ 6. SHOWCASE (inverted theme section) — square cards, compact ═════ */}
+      <section className="showcase relative py-20 md:py-28 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
+        <div className="px-6 md:px-10 max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
             <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
@@ -602,11 +596,11 @@ export default function Landing({ onGetStarted }) {
           </h2>
         </div>
 
-        <div ref={trackRef} className="flex gap-5 md:gap-7 mt-12 md:mt-16 pl-6 md:pl-10 pr-10 w-max">
+        <div ref={trackRef} className="flex items-start gap-5 md:gap-6 mt-10 md:mt-12 px-6 md:px-10 overflow-x-auto pb-4 snap-x snap-mandatory">
           {CARDS.map((c) => (
             <div
               key={c.title}
-              className="w-[78vw] sm:w-[380px] md:w-[420px] h-[58vh] max-h-[560px] flex-shrink-0 rounded-3xl p-8 md:p-10 backdrop-blur-sm flex flex-col justify-between"
+              className="w-[74vw] sm:w-[300px] md:w-[340px] aspect-square flex-shrink-0 snap-start rounded-3xl p-6 md:p-8 backdrop-blur-sm flex flex-col justify-between"
               style={{
                 background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.45))',
                 border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)',
@@ -635,7 +629,7 @@ export default function Landing({ onGetStarted }) {
           {/* View-all card */}
           <button
             onClick={onGetStarted}
-            className="w-[78vw] sm:w-[380px] md:w-[420px] h-[58vh] max-h-[560px] flex-shrink-0 rounded-3xl p-8 md:p-10 text-left flex flex-col justify-between transition-all hover:brightness-110"
+            className="w-[74vw] sm:w-[300px] md:w-[340px] aspect-square flex-shrink-0 snap-start rounded-3xl p-6 md:p-8 text-left flex flex-col justify-between transition-all hover:brightness-110"
             style={{
               background: `linear-gradient(150deg, ${ACCENT}, ${ACCENT_DARK})`,
               boxShadow: `0 12px 48px ${accentA(35)}`,
