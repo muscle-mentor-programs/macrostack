@@ -113,10 +113,48 @@ const COACH_FEATURES = [
   { t: 'Your brand, front & center', d: 'A coach profile clients see — credentials, bio, specialties, and your links.' },
 ]
 
+/* Product mockups — drop the screenshot files in public/mockups/ with these
+   exact names and they render in the strips below. */
+const APP_MOCKUPS = [
+  { src: '/mockups/app-home.png',    label: 'DIALED-IN DASHBOARD' },
+  { src: '/mockups/app-log.png',     label: 'LOG MEALS IN SECONDS' },
+  { src: '/mockups/app-weight.png',  label: 'WEIGHT TRENDS' },
+  { src: '/mockups/app-chat.png',    label: 'MESSAGE YOUR COACH' },
+  { src: '/mockups/app-profile.png', label: 'YOUR TARGETS' },
+]
+const COACH_MOCKUPS = [
+  { src: '/mockups/coach-dashboard.png', label: 'ROSTER DASHBOARD' },
+  { src: '/mockups/coach-users.png',     label: 'EVERY CLIENT AT A GLANCE' },
+  { src: '/mockups/coach-chat.png',      label: 'MESSAGE YOUR CLIENTS' },
+  { src: '/mockups/coach-profile.png',   label: 'YOUR COACH PROFILE' },
+]
+
 /* Fill-vessel geometry (SVG user units). Bottom edge sits at y = VESSEL_BOTTOM;
    each story step fills one LAYER_H slab upward — animated via attr y/height. */
 const VESSEL_BOTTOM = 320
 const LAYER_H       = 70
+
+/* ── Product-mockup strip — horizontally-scrolling framed phone screenshots ── */
+function MockupStrip({ items, captionColor }) {
+  return (
+    <div className="premium-scroll flex items-start justify-start md:justify-center gap-6 md:gap-8 overflow-x-auto pb-6 px-6 md:px-10 snap-x snap-mandatory">
+      {items.map(({ src, label }) => (
+        <figure key={src} className="coach-reveal flex-shrink-0 snap-center w-[58vw] sm:w-[220px] md:w-[236px]">
+          <img
+            src={src}
+            alt={label}
+            loading="lazy"
+            className="w-full h-auto"
+            style={{ filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.35))' }}
+          />
+          <figcaption className="text-center font-mono text-[10px] tracking-[0.22em] mt-4" style={{ color: captionColor }}>
+            {label}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  )
+}
 
 /* ── Component ────────────────────────────────────────────────────────────── */
 
@@ -682,6 +720,21 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
+      {/* ══ 6.1 APP IN ACTION — client app mockups ══════════════════════════ */}
+      <section className="relative bg-bg pt-6 pb-20 md:pb-24 overflow-hidden">
+        <div className="max-w-5xl mx-auto text-center mb-10 px-6 coach-reveal">
+          <div className="flex items-center gap-2 justify-center mb-4">
+            <span className="w-6 h-px" style={{ background: accentA(60) }} />
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SEE IT IN ACTION</p>
+            <span className="w-6 h-px" style={{ background: accentA(60) }} />
+          </div>
+          <h2 className="font-display font-black text-3xl md:text-5xl tracking-wide text-cream leading-[1.05]">
+            YOUR NUTRITION, <span style={{ color: ACCENT }}>IN YOUR POCKET</span>.
+          </h2>
+        </div>
+        <MockupStrip items={APP_MOCKUPS} captionColor="var(--color-muted)" />
+      </section>
+
       {/* ══ 6.2 PRICING — MacroStack Pro ═════════════════════════════════════ */}
       <section className="relative bg-bg px-6 py-28 md:py-36 overflow-hidden">
         {/* ambient glow */}
@@ -819,6 +872,16 @@ export default function Landing({ onGetStarted }) {
               </div>
             ))}
           </div>
+
+          {/* Coach portal mockups — peek inside the coaching experience */}
+          <div className="coach-reveal mt-16 mb-6 text-center">
+            <div className="flex items-center gap-2 justify-center">
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+              <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>INSIDE THE COACH PORTAL</p>
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+            </div>
+          </div>
+          <MockupStrip items={COACH_MOCKUPS} captionColor={INVERT_SOFT} />
 
           {/* Pricing — tiered by roster size */}
           <div className="coach-reveal mt-16">
