@@ -491,36 +491,11 @@ export default function Landing({ onGetStarted }) {
 
       {/* ══ 5. PINNED STORY (theme dark) ═════════════════════════════════════ */}
       <section className="story relative h-screen overflow-hidden bg-bg">
-        <div className="h-full max-w-6xl mx-auto px-6 md:px-10 grid md:grid-cols-2 items-center gap-10 pt-16 md:pt-0">
+        <div className="h-full max-w-2xl mx-auto px-6 flex flex-col items-center justify-center gap-6 md:gap-8">
 
-          {/* Steps — stacked, crossfade */}
-          <div className="relative h-64 md:h-72 order-2 md:order-1">
-            {STORY_STEPS.map((s) => (
-              <div key={s.n} className="story-step absolute inset-0 flex flex-col justify-center">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="font-display font-black text-5xl" style={{ color: accentA(33) }}>
-                    {s.n}
-                  </span>
-                  <span
-                    className="font-mono text-[10px] tracking-[0.3em] px-2.5 py-1 rounded-full border"
-                    style={{ color: ACCENT, borderColor: accentA(27), background: accentA(7) }}
-                  >
-                    {s.tag}
-                  </span>
-                </div>
-                <h3 className="font-display font-black text-3xl md:text-5xl tracking-wide leading-tight mb-4 text-cream">
-                  {s.title}
-                </h3>
-                <p className="text-sm md:text-base leading-relaxed text-muted max-w-md">
-                  {s.body}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Vessel illustration — fill level animates via attr y/height */}
-          <div className="flex justify-center order-1 md:order-2">
-            <svg width="280" height="340" viewBox="0 0 320 360" className="max-h-[32vh] md:max-h-none w-auto">
+          {/* Vessel illustration — sits ABOVE the text, centered */}
+          <div className="flex justify-center">
+            <svg width="280" height="340" viewBox="0 0 320 360" className="max-h-[30vh] md:max-h-[40vh] w-auto">
               <defs>
                 <clipPath id="vesselClip">
                   <rect x="80" y="40" width="160" height="280" rx="18" />
@@ -585,6 +560,31 @@ export default function Landing({ onGetStarted }) {
                 </text>
               ))}
             </svg>
+          </div>
+
+          {/* Steps — stacked crossfade, centered below the animation */}
+          <div className="relative h-56 md:h-60 w-full">
+            {STORY_STEPS.map((s) => (
+              <div key={s.n} className="story-step absolute inset-0 flex flex-col items-center justify-start text-center">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <span className="font-display font-black text-5xl" style={{ color: accentA(33) }}>
+                    {s.n}
+                  </span>
+                  <span
+                    className="font-mono text-[10px] tracking-[0.3em] px-2.5 py-1 rounded-full border"
+                    style={{ color: ACCENT, borderColor: accentA(27), background: accentA(7) }}
+                  >
+                    {s.tag}
+                  </span>
+                </div>
+                <h3 className="font-display font-black text-3xl md:text-5xl tracking-wide leading-tight mb-4 text-cream">
+                  {s.title}
+                </h3>
+                <p className="text-sm md:text-base leading-relaxed text-muted max-w-md mx-auto">
+                  {s.body}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
