@@ -113,21 +113,19 @@ const COACH_FEATURES = [
   { t: 'Your brand, front & center', d: 'A coach profile clients see — credentials, bio, specialties, and your links.' },
 ]
 
-/* Product mockups — drop the screenshot files in public/mockups/ with these
-   exact names and they render in the strips below. */
-const APP_MOCKUPS = [
-  { src: '/mockups/app-home.png',    label: 'DIALED-IN DASHBOARD' },
-  { src: '/mockups/app-log.png',     label: 'LOG MEALS IN SECONDS' },
-  { src: '/mockups/app-search.png',  label: '1,900+ FOODS · SCAN ANY LABEL' },
-  { src: '/mockups/app-weight.png',  label: 'WEIGHT TRENDS' },
-  { src: '/mockups/app-chat.png',    label: 'MESSAGE YOUR COACH' },
-  { src: '/mockups/app-profile.png', label: 'YOUR TARGETS' },
+/* Product mockups — large phones alternate left/right beside feature copy as
+   you scroll. Files live in public/mockups/. */
+const APP_SHOWCASE = [
+  { src: '/mockups/app-home.png',   eyebrow: 'YOUR DAY',  title: 'EVERY GRAM, AT A GLANCE',  body: 'Calories, macros, and your streak the second you open the app — no digging required.' },
+  { src: '/mockups/app-search.png', eyebrow: 'LOG FAST',  title: '1,900+ FOODS, ONE TAP',    body: 'Search the database or scan any barcode for verified macros. Your go-to foods surface first.' },
+  { src: '/mockups/app-weight.png', eyebrow: 'PROGRESS',  title: 'WATCH THE REAL TREND',     body: '7-day moving averages cut the daily scale noise so you see actual change, not water weight.' },
+  { src: '/mockups/app-chat.png',   eyebrow: 'COACHING',  title: 'YOUR COACH, ONE TAP AWAY', body: 'Message your coach and submit weekly check-ins right inside the app.' },
 ]
-const COACH_MOCKUPS = [
-  { src: '/mockups/coach-dashboard.png', label: 'ROSTER DASHBOARD' },
-  { src: '/mockups/coach-users.png',     label: 'EVERY CLIENT AT A GLANCE' },
-  { src: '/mockups/coach-chat.png',      label: 'MESSAGE YOUR CLIENTS' },
-  { src: '/mockups/coach-profile.png',   label: 'YOUR COACH PROFILE' },
+const COACH_SHOWCASE = [
+  { src: '/mockups/coach-dashboard.png', eyebrow: 'DASHBOARD', title: 'YOUR ROSTER, LIVE',      body: "Every client's intake, compliance, and streaks on one screen — spot who's on track in seconds." },
+  { src: '/mockups/coach-users.png',     eyebrow: 'USERS',     title: 'EVERY CLIENT, TRACKED',  body: "See who's dialed in and who needs a nudge at a glance, then drill into anyone." },
+  { src: '/mockups/coach-chat.png',      eyebrow: 'MESSAGING', title: 'MESSAGE ANY CLIENT',     body: 'Direct chat with your whole roster — unread badges so nothing slips.' },
+  { src: '/mockups/coach-profile.png',   eyebrow: 'YOUR BRAND', title: "A PROFILE THAT'S YOURS", body: 'Clients see your code, bio, credentials, and specialties — your brand, front and center.' },
 ]
 
 /* Fill-vessel geometry (SVG user units). Bottom edge sits at y = VESSEL_BOTTOM;
@@ -135,24 +133,34 @@ const COACH_MOCKUPS = [
 const VESSEL_BOTTOM = 320
 const LAYER_H       = 70
 
-/* ── Product-mockup strip — horizontally-scrolling framed phone screenshots ── */
-function MockupStrip({ items, captionColor }) {
+/* ── Feature row — a large phone mockup on one side, copy on the other.
+   `flip` puts the phone on the right. Reveals on scroll via coach-reveal. ── */
+function FeatureRow({ src, eyebrow, title, body, flip, textColor, softColor }) {
   return (
-    <div className="premium-scroll flex items-start justify-start md:justify-center gap-6 md:gap-8 overflow-x-auto pb-6 px-6 md:px-10 snap-x snap-mandatory">
-      {items.map(({ src, label }) => (
-        <figure key={src} className="coach-reveal flex-shrink-0 snap-center w-[58vw] sm:w-[220px] md:w-[236px]">
-          <img
-            src={src}
-            alt={label}
-            loading="lazy"
-            className="w-full h-auto"
-            style={{ filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.35))' }}
-          />
-          <figcaption className="text-center font-mono text-[10px] tracking-[0.22em] mt-4" style={{ color: captionColor }}>
-            {label}
-          </figcaption>
-        </figure>
-      ))}
+    <div className={`flex flex-col ${flip ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-10 md:gap-16`}>
+      {/* Phone */}
+      <div className="coach-reveal flex-shrink-0 w-[60vw] max-w-[260px] md:w-[320px] md:max-w-[320px]">
+        <img
+          src={src}
+          alt={title}
+          loading="lazy"
+          className="w-full h-auto"
+          style={{ filter: 'drop-shadow(0 34px 64px rgba(0,0,0,0.45))' }}
+        />
+      </div>
+      {/* Copy */}
+      <div className="coach-reveal flex-1 text-center md:text-left">
+        <div className="flex items-center gap-2 justify-center md:justify-start mb-4">
+          <span className="w-6 h-px" style={{ background: accentA(60) }} />
+          <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: softColor }}>{eyebrow}</p>
+        </div>
+        <h3 className="font-display font-black text-3xl md:text-5xl tracking-wide leading-[1.03]" style={{ color: textColor }}>
+          {title}
+        </h3>
+        <p className="text-sm md:text-base leading-relaxed mt-5 max-w-md mx-auto md:mx-0" style={{ color: softColor }}>
+          {body}
+        </p>
+      </div>
     </div>
   )
 }
@@ -721,19 +729,29 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 6.1 APP IN ACTION — client app mockups ══════════════════════════ */}
-      <section className="relative bg-bg pt-6 pb-20 md:pb-24 overflow-hidden">
-        <div className="max-w-5xl mx-auto text-center mb-10 px-6 coach-reveal">
-          <div className="flex items-center gap-2 justify-center mb-4">
-            <span className="w-6 h-px" style={{ background: accentA(60) }} />
-            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SEE IT IN ACTION</p>
-            <span className="w-6 h-px" style={{ background: accentA(60) }} />
+      {/* ══ 6.1 THE APP — alternating large mockups + copy ══════════════════ */}
+      <section className="relative bg-bg px-6 pt-10 pb-24 md:pb-32 overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accentA(9)}, transparent 60%)` }}
+        />
+        <div className="relative max-w-5xl mx-auto">
+          <div className="coach-reveal text-center mb-16 md:mb-24">
+            <div className="flex items-center gap-2 justify-center mb-4">
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SEE IT IN ACTION</p>
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+            </div>
+            <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide text-cream leading-[1.05]">
+              YOUR NUTRITION, <span style={{ color: ACCENT }}>IN YOUR POCKET</span>.
+            </h2>
           </div>
-          <h2 className="font-display font-black text-3xl md:text-5xl tracking-wide text-cream leading-[1.05]">
-            YOUR NUTRITION, <span style={{ color: ACCENT }}>IN YOUR POCKET</span>.
-          </h2>
+          <div className="space-y-24 md:space-y-36">
+            {APP_SHOWCASE.map((f, i) => (
+              <FeatureRow key={f.src} {...f} flip={i % 2 === 1} textColor="var(--color-cream)" softColor="var(--color-muted)" />
+            ))}
+          </div>
         </div>
-        <MockupStrip items={APP_MOCKUPS} captionColor="var(--color-muted)" />
       </section>
 
       {/* ══ 6.2 PRICING — MacroStack Pro ═════════════════════════════════════ */}
@@ -874,15 +892,19 @@ export default function Landing({ onGetStarted }) {
             ))}
           </div>
 
-          {/* Coach portal mockups — peek inside the coaching experience */}
-          <div className="coach-reveal mt-16 mb-6 text-center">
+          {/* Coach portal mockups — alternating large mockups + copy */}
+          <div className="coach-reveal mt-20 mb-16 md:mb-24 text-center">
             <div className="flex items-center gap-2 justify-center">
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
               <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>INSIDE THE COACH PORTAL</p>
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
             </div>
           </div>
-          <MockupStrip items={COACH_MOCKUPS} captionColor={INVERT_SOFT} />
+          <div className="space-y-20 md:space-y-32">
+            {COACH_SHOWCASE.map((f, i) => (
+              <FeatureRow key={f.src} {...f} flip={i % 2 === 1} textColor={INVERT_INK} softColor={INVERT_SOFT} />
+            ))}
+          </div>
 
           {/* Pricing — tiered by roster size */}
           <div className="coach-reveal mt-16">
