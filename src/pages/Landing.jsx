@@ -420,7 +420,7 @@ export default function Landing({ onGetStarted }) {
         >
           <path
             ref={guidePathRef}
-            d="M 500 0 C 500 260, 160 330, 160 560 C 160 800, 840 760, 840 1010 C 840 1260, 200 1300, 360 1560 C 460 1760, 500 1860, 500 2000"
+            d="M 500 0 C 500 260, 160 330, 160 560 C 160 800, 840 760, 840 1010 C 840 1260, 200 1300, 320 1560 C 400 1740, 500 1800, 500 2000"
             style={{ stroke: ACCENT, strokeOpacity: 0.55 }}
             strokeWidth="2.5"
           />
@@ -583,19 +583,6 @@ export default function Landing({ onGetStarted }) {
                 </text>
               ))}
 
-              {/* Feed line — descends from above and flows into the vessel's
-                  bottom-left corner, as if it's what fills it up */}
-              <path
-                d="M 150 -60 C 96 40, 30 200, 84 314"
-                fill="none"
-                style={{ stroke: 'var(--color-accent)', strokeOpacity: 0.7 }}
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-              <circle cx="84" cy="314" r="9" style={{ fill: accentA(22) }} />
-              <circle cx="84" cy="314" r="4.5" style={{ fill: ACCENT_LIGHT }}>
-                <animate attributeName="opacity" values="1;0.55;1" dur="1.6s" repeatCount="indefinite" />
-              </circle>
             </svg>
           </div>
 
