@@ -535,6 +535,64 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
+      {/* ══ 5.5 MOBILE WEB APP — install instructions ══════════════════════ */}
+      <section className="relative bg-bg px-6 pt-24 pb-10 overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accentA(10)}, transparent 65%)` }}
+        />
+        <div className="relative max-w-4xl mx-auto">
+          {/* Heading */}
+          <div className="coach-reveal text-center mb-2">
+            <div className="flex items-center gap-2 justify-center mb-4">
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MOBILE WEB APP</p>
+              <span className="w-6 h-px" style={{ background: accentA(60) }} />
+            </div>
+            <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide leading-[1.05] text-cream">
+              NO APP STORE.
+              <br />
+              <span style={{ color: ACCENT }}>ADD TO HOME SCREEN.</span>
+            </h2>
+            <p className="font-mono text-xs md:text-sm text-muted mt-5 max-w-md mx-auto leading-relaxed">
+              MacroStack runs right in your browser. Add it to your home screen for a
+              full-screen, app-like experience — no download, no updates to chase.
+            </p>
+          </div>
+
+          {/* Install steps */}
+          <div className="coach-reveal grid gap-4 md:grid-cols-3 mt-12">
+            {[
+              { n: '01', icon: Smartphone, t: 'Open in your browser', d: <>Go to <span className="text-cream">getmacrostack.com</span> on your phone — Safari on iPhone, Chrome on Android.</> },
+              { n: '02', icon: Share,      t: 'Tap Share',            d: <>Tap the <span className="text-cream">Share</span> button in your browser's toolbar.</> },
+              { n: '03', icon: PlusSquare, t: 'Add to Home Screen',   d: <>Choose <span className="text-cream">Add to Home Screen</span> — MacroStack lands right beside your other apps.</> },
+            ].map(({ n, icon: Icon, t, d }) => (
+              <div
+                key={n}
+                className="rounded-2xl p-6 border"
+                style={{ borderColor: accentA(20), background: accentA(5) }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-display font-black text-3xl" style={{ color: accentA(45) }}>{n}</span>
+                  <span
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}
+                  >
+                    <Icon size={18} style={{ color: ACCENT }} />
+                  </span>
+                </div>
+                <p className="font-display font-bold text-base tracking-wide text-cream mb-1.5">{t}</p>
+                <p className="text-sm leading-relaxed text-muted">{d}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="coach-reveal text-center font-mono text-[10px] text-dim mt-8 tracking-[0.25em]">
+            WORKS ON ANY PHONE · NO DOWNLOAD · INSTANT UPDATES
+          </p>
+        </div>
+      </section>
+
       {/* ══ 6. HORIZONTAL SHOWCASE (inverted theme section) ══════════════════ */}
       <section className="showcase relative h-screen overflow-hidden flex flex-col justify-center" style={{ background: INVERT_BG, color: INVERT_INK }}>
         <div className="px-6 md:px-10 max-w-5xl">
@@ -868,64 +926,6 @@ export default function Landing({ onGetStarted }) {
           {/* Fine print */}
           <p className="coach-reveal text-center font-mono text-[10px] mt-6 leading-relaxed max-w-md mx-auto" style={{ color: 'color-mix(in srgb, var(--color-bg) 45%, var(--color-cream))' }}>
             Training app access comes with active coaching and ends when coaching does. Rate good for 2026.
-          </p>
-        </div>
-      </section>
-
-      {/* ══ 6.8 MOBILE WEB APP — install instructions ═══════════════════════ */}
-      <section className="relative bg-bg px-6 pt-24 pb-10 overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accentA(10)}, transparent 65%)` }}
-        />
-        <div className="relative max-w-4xl mx-auto">
-          {/* Heading */}
-          <div className="coach-reveal text-center mb-2">
-            <div className="flex items-center gap-2 justify-center mb-4">
-              <span className="w-6 h-px" style={{ background: accentA(60) }} />
-              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MOBILE WEB APP</p>
-              <span className="w-6 h-px" style={{ background: accentA(60) }} />
-            </div>
-            <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide leading-[1.05] text-cream">
-              NO APP STORE.
-              <br />
-              <span style={{ color: ACCENT }}>ADD TO HOME SCREEN.</span>
-            </h2>
-            <p className="font-mono text-xs md:text-sm text-muted mt-5 max-w-md mx-auto leading-relaxed">
-              MacroStack runs right in your browser. Add it to your home screen for a
-              full-screen, app-like experience — no download, no updates to chase.
-            </p>
-          </div>
-
-          {/* Install steps */}
-          <div className="coach-reveal grid gap-4 md:grid-cols-3 mt-12">
-            {[
-              { n: '01', icon: Smartphone, t: 'Open in your browser', d: <>Go to <span className="text-cream">getmacrostack.com</span> on your phone — Safari on iPhone, Chrome on Android.</> },
-              { n: '02', icon: Share,      t: 'Tap Share',            d: <>Tap the <span className="text-cream">Share</span> button in your browser's toolbar.</> },
-              { n: '03', icon: PlusSquare, t: 'Add to Home Screen',   d: <>Choose <span className="text-cream">Add to Home Screen</span> — MacroStack lands right beside your other apps.</> },
-            ].map(({ n, icon: Icon, t, d }) => (
-              <div
-                key={n}
-                className="rounded-2xl p-6 border"
-                style={{ borderColor: accentA(20), background: accentA(5) }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-display font-black text-3xl" style={{ color: accentA(45) }}>{n}</span>
-                  <span
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}
-                  >
-                    <Icon size={18} style={{ color: ACCENT }} />
-                  </span>
-                </div>
-                <p className="font-display font-bold text-base tracking-wide text-cream mb-1.5">{t}</p>
-                <p className="text-sm leading-relaxed text-muted">{d}</p>
-              </div>
-            ))}
-          </div>
-
-          <p className="coach-reveal text-center font-mono text-[10px] text-dim mt-8 tracking-[0.25em]">
-            WORKS ON ANY PHONE · NO DOWNLOAD · INSTANT UPDATES
           </p>
         </div>
       </section>
