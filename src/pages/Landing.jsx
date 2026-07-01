@@ -780,8 +780,6 @@ export default function Landing({ onGetStarted }) {
             <div>
               <h3 className="font-display font-black text-3xl md:text-4xl tracking-wide">
                 SEE IT ALL.
-                <br />
-                FREE.
               </h3>
               <p className="font-mono text-xs tracking-[0.25em] mt-4" style={{ opacity: 0.75 }}>
                 CREATE YOUR ACCOUNT →
