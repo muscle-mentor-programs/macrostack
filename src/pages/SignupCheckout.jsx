@@ -31,7 +31,7 @@ const inputCls =
 const lblCls = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
 export default function SignupCheckout({ onBack, onSignIn }) {
-  const { signup, startCheckout } = useStore()
+  const { signup, startCheckout, setCheckoutRedirect } = useStore()
 
   const [pending, setPending] = useState(readPendingPlan)
   const paidPlan = pending?.plan || null
@@ -61,17 +61,28 @@ export default function SignupCheckout({ onBack, onSignIn }) {
     if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
     setLoading(true); setError('')
 
+    // Raise the redirect gate BEFORE signup flips isAuthenticated, so the app
+    // never flashes in before Stripe opens — checkout comes first.
+    if (paidPlan) setCheckoutRedirect(true)
+
     const res = await signup(name.trim(), email.trim(), password, effectiveRole)
-    if (!res.ok) { setError(res.error || 'Could not create your account.'); setLoading(false); return }
-    if (res.needsConfirmation) { setConfirmSent(true); setLoading(false); return }
+    if (!res.ok) {
+      setCheckoutRedirect(false)
+      setError(res.error || 'Could not create your account.'); setLoading(false); return
+    }
+    if (res.needsConfirmation) {
+      setCheckoutRedirect(false)
+      setConfirmSent(true); setLoading(false); return
+    }
 
     // Account is live and signed in — go straight to payment if a plan was picked.
     if (paidPlan) {
       setPaying(true)
       const co = await startCheckout(pending.audience, paidPlan)
       if (!co.ok) {
-        // They're signed in; the app's pending-plan redirect lands them on the
-        // Upgrade page to retry — so just let the app take over.
+        // Checkout didn't start; drop the gate so the app takes over — its
+        // pending-plan redirect lands them on the Upgrade page to retry.
+        setCheckoutRedirect(false)
         setPaying(false)
       }
     }

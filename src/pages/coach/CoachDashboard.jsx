@@ -411,6 +411,13 @@ export default function CoachDashboard() {
   const [emailModal,      setEmailModal]      = useState(false)
   const [emailPreselect,  setEmailPreselect]  = useState(null)
   const [copied,          setCopied]          = useState(false)
+  const [reqError,        setReqError]        = useState('')
+
+  const handleAccept = async (reqId) => {
+    setReqError('')
+    const res = await respondToRequest(reqId, true)
+    if (res?.capReached) setReqError(res.error)
+  }
 
   useEffect(() => { fetchCoachRequests() }, [])
 
@@ -515,6 +522,14 @@ export default function CoachDashboard() {
                 PENDING REQUESTS ({coachRequests.length})
               </span>
             </div>
+            {reqError && (
+              <button
+                onClick={() => setActivePage('upgrade')}
+                className="w-full text-left font-mono text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2 hover:border-red-400/40 transition-colors"
+              >
+                {reqError} →
+              </button>
+            )}
             <div className="space-y-2">
               {coachRequests.map((req) => (
                 <div
@@ -527,7 +542,7 @@ export default function CoachDashboard() {
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
                     <button
-                      onClick={() => respondToRequest(req.id, true)}
+                      onClick={() => handleAccept(req.id)}
                       className="font-display font-bold text-xs tracking-widest px-3 py-1.5 rounded-lg bg-olive/20 hover:bg-olive/40 text-olive-light border border-olive/30 transition-colors"
                     >
                       ACCEPT

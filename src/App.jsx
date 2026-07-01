@@ -104,7 +104,7 @@ export default function App() {
   const {
     isAuthenticated, authLoading, currentUser,
     activeRole, activePage, activeClientId,
-    theme, initAuth, setActivePage,
+    theme, initAuth, setActivePage, checkoutRedirect,
   } = useStore()
   const isMobile = useIsMobile()
 
@@ -152,6 +152,18 @@ export default function App() {
       else localStorage.removeItem('ms-pending-plan') // free tier — nothing to buy
     } catch { /* ignore malformed value */ }
   }, [isAuthenticated])
+
+  // A fresh signup is on its way to Stripe checkout — hold this screen so the
+  // app (role/dashboard views) never renders before the payment page opens.
+  if (checkoutRedirect) {
+    return (
+      <div className="fixed inset-0 bg-bg flex flex-col items-center justify-center gap-4 anim-fade-in">
+        <div className="w-10 h-10 border-2 border-brown border-t-transparent rounded-full animate-spin" />
+        <p className="font-display font-bold text-sm tracking-widest text-cream">ACCOUNT CREATED</p>
+        <p className="font-mono text-xs text-muted">Redirecting to secure checkout…</p>
+      </div>
+    )
+  }
 
   // Show nothing while the session check is in flight (avoids login-screen flash)
   if (authLoading) {

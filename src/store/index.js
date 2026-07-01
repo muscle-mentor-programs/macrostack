@@ -2,13 +2,11 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
+import { coachClientLimit } from '../lib/coachTiers'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 
 // ─── Subscription helpers ────────────────────────────────────────────────────
-
-// Free-tier coach client cap. Subscription → unlimited.
-export const FREE_CLIENT_CAP = 3
 
 // Effective access: superadmin override beats Stripe status (so a webhook can
 // never undo a manual unlock). Superadmins always have full access.
@@ -368,6 +366,11 @@ const useStore = create(
       },
 
       // ── SUBSCRIPTIONS ─────────────────────────────────────────────────────
+      // True while a fresh signup is being sent to Stripe checkout — App holds
+      // the redirect screen instead of rendering the app (not persisted).
+      checkoutRedirect: false,
+      setCheckoutRedirect: (v) => set({ checkoutRedirect: v }),
+
       adminAccounts: [],
       adminAccountsError: null,
       adminAccountsLoaded: false,
@@ -456,6 +459,35 @@ const useStore = create(
         }
       },
 
+      // Switch coach tiers on the existing Stripe subscription (prorated).
+      // The edge function re-verifies the client count server-side before a
+      // downgrade, so this can't be spoofed from the console.
+      changeSubscriptionTier: async (plan) => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return { ok: false, error: 'Not signed in.' }
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/change-subscription`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ plan }),
+            }
+          )
+          const json = await res.json().catch(() => ({}))
+          if (!res.ok || !json.ok) {
+            return { ok: false, error: json.error || 'Could not change your plan. Please try again.' }
+          }
+          await get().refreshSubscription()
+          return { ok: true }
+        } catch {
+          return { ok: false, error: 'Could not reach the billing service. Please try again.' }
+        }
+      },
+
       // Open the Stripe customer portal (manage / cancel).
       openBillingPortal: async () => {
         const { data: { session } } = await supabase.auth.getSession()
@@ -520,10 +552,12 @@ const useStore = create(
       setViewingClientId: (id, tab = null) => set({ viewingClientId: id, viewingClientTab: tab }),
 
       addClient: async (data) => {
-        // Free-tier coach cap — unlimited once subscribed. Enforced here in the
-        // data layer (not just hidden in UI) so the limit can't be clicked past.
+        // Tier-based client cap — enforced here in the data layer (not just
+        // hidden in UI) so the limit can't be clicked past. A DB trigger
+        // enforces the same limit server-side for every other path.
         const me = get().currentUser
-        if (me && !me.hasAccess && get().clients.length >= FREE_CLIENT_CAP) {
+        const limit = coachClientLimit(me)
+        if (me && limit !== null && get().clients.length >= limit) {
           return { id: null, inviteSent: false, capReached: true }
         }
 
@@ -1168,6 +1202,14 @@ Rules:
         const { coachRequests, currentUser } = get()
         const request = coachRequests.find((r) => r.id === requestId)
         if (!request) return { ok: false }
+
+        if (accept) {
+          // Tier cap — same limit the DB trigger enforces
+          const limit = coachClientLimit(currentUser)
+          if (limit !== null && get().clients.length >= limit) {
+            return { ok: false, capReached: true, error: `Your plan allows up to ${limit} client${limit === 1 ? '' : 's'}. Upgrade your tier to accept this request.` }
+          }
+        }
 
         if (accept) {
           const { error: linkErr } = await supabase

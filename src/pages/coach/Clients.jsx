@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock } from 'lucide-react'
-import useStore, { FREE_CLIENT_CAP } from '../../store'
+import useStore from '../../store'
+import { coachClientLimit, coachTierLabel } from '../../lib/coachTiers'
 import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
@@ -52,7 +53,9 @@ function calcTDEE({ sex, age, weightLbs, heightIn, activityIdx, goalIdx }) {
 }
 
 function AddClientModal({ onClose }) {
-  const { addClient, setActivePage } = useStore()
+  const { addClient, setActivePage, currentUser } = useStore()
+  const clientLimit = coachClientLimit(currentUser)
+  const onFreeTier  = coachTierLabel(currentUser) === 'Free'
 
   // Basic info
   const [name, setName]   = useState('')
@@ -167,15 +170,19 @@ function AddClientModal({ onClose }) {
             <Lock size={22} style={{ color: 'var(--color-accent)' }} />
           </div>
           <p className="font-mono text-[10px] tracking-[0.22em] text-muted mb-2">CLIENT LIMIT REACHED</p>
-          <h3 className="font-display font-black text-xl tracking-widest text-cream">GO UNLIMITED</h3>
+          <h3 className="font-display font-black text-xl tracking-widest text-cream">
+            {onFreeTier ? 'GO PREMIUM' : 'UPGRADE YOUR TIER'}
+          </h3>
           <p className="font-mono text-xs text-muted mt-2 leading-relaxed">
-            The free plan is limited to {FREE_CLIENT_CAP} clients. Upgrade to add unlimited clients and unlock the full coaching toolkit.
+            {onFreeTier
+              ? `Coaching your first client is free. Pick a tier to grow your roster past ${clientLimit} client${clientLimit === 1 ? '' : 's'}.`
+              : `Your ${coachTierLabel(currentUser)} tier allows up to ${clientLimit} clients. Move up a tier to keep growing.`}
           </p>
           <button
             onClick={() => { onClose(); setActivePage('upgrade') }}
             className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl mt-5 transition-colors glow-hover press"
           >
-            VIEW PLANS
+            {onFreeTier ? 'VIEW PLANS' : 'CHANGE TIER'}
           </button>
           <button onClick={onClose} className="w-full font-mono text-xs text-muted hover:text-cream transition-colors mt-3 py-2">
             Maybe later

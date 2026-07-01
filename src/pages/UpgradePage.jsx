@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
-import { Check, Loader2, Settings } from 'lucide-react'
+import { Check, Loader2, Settings, Users, ArrowUpRight, ArrowDownRight, Lock } from 'lucide-react'
 import useStore from '../store'
 import useSubscription from '../hooks/useSubscription'
+// Coach tiers — shared with the landing page, client-limit gates, and edge functions
+import { COACH_TIERS, coachClientLimit, coachTierLabel } from '../lib/coachTiers'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
 const COACH_PERKS = [
-  'Unlimited clients',
+  'Roster that grows with your tier',
   'AI meal-plan builder',
   'Full coaching dashboard & compliance',
   'Real-time client messaging',
@@ -24,16 +26,6 @@ const USER_PERKS = [
 const PRICES = {
   user: { weekly: 5.95, monthly: 9.95, annual: 89.95 },
 }
-
-// Coach plans — tiered by active client count (monthly). `key` must match the
-// COACH_TIER_PRICE_IDS keys in the create-checkout-session edge function.
-const COACH_TIERS = [
-  { key: 't_2_10',     range: '2–10 clients',   price: 19.95 },
-  { key: 't_11_30',    range: '11–30 clients',  price: 39.95,  tag: 'POPULAR' },
-  { key: 't_31_60',    range: '31–60 clients',  price: 59.95 },
-  { key: 't_61_120',   range: '61–120 clients', price: 89.95 },
-  { key: 't_121_plus', range: '121+ clients',   price: 139.95, tag: 'UNLIMITED SCALE' },
-]
 
 const CADENCES = ['weekly', 'monthly', 'annual']
 const SUFFIX   = { weekly: 'wk', monthly: 'mo', annual: 'yr' }
@@ -65,7 +57,7 @@ function savingsPct(prices, cadence) {
 }
 
 export default function UpgradePage() {
-  const { startCheckout, refreshSubscription, openBillingPortal, setActivePage } = useStore()
+  const { startCheckout, refreshSubscription, openBillingPortal, setActivePage, clients, changeSubscriptionTier, currentUser } = useStore()
   const { hasAccess, isSubscribed, audience, plan, status } = useSubscription()
 
   const isCoach = audience === 'coach'
@@ -114,6 +106,11 @@ export default function UpgradePage() {
 
   // ── Already subscribed: management view ──
   if (hasAccess && isSubscribed) {
+    // Coaches manage their tier here — upgrade anytime, downgrade only once
+    // the roster fits the lower tier (also enforced server-side).
+    if (isCoach) return <CoachTierManager clients={clients} plan={plan} status={status}
+      currentUser={currentUser} changeSubscriptionTier={changeSubscriptionTier} openBillingPortal={openBillingPortal} />
+
     return (
       <div className="min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 anim-pop"
@@ -296,6 +293,143 @@ export default function UpgradePage() {
         <p className="font-mono text-[10px] text-dim text-center mt-3 leading-relaxed">
           Secure checkout via Stripe. Cancel anytime.
         </p>
+      </div>
+    </div>
+  )
+}
+
+/* ── Coach tier manager — upgrade / downgrade the active subscription ─────────
+   Upgrades apply immediately (prorated). Downgrades are blocked until the
+   roster fits the lower tier; the edge function re-verifies server-side. */
+function CoachTierManager({ clients, plan, status, currentUser, changeSubscriptionTier, openBillingPortal }) {
+  const [busyTier, setBusyTier] = useState(null)
+  const [error, setError]       = useState('')
+  const [changed, setChanged]   = useState(false)
+
+  const clientCount  = clients.length
+  const currentLimit = coachClientLimit(currentUser)
+  const currentIdx   = COACH_TIERS.findIndex((t) => t.key === plan)
+
+  const handleChange = async (tierKey) => {
+    setBusyTier(tierKey); setError(''); setChanged(false)
+    const res = await changeSubscriptionTier(tierKey)
+    if (!res.ok) setError(res.error)
+    else setChanged(true)
+    setBusyTier(null)
+  }
+
+  return (
+    <div className="min-h-full px-6 pt-mobile-header pb-12 anim-content-rise">
+      <div className="max-w-md mx-auto">
+        {/* Header */}
+        <div className="text-center mb-7">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="w-5 h-px" style={{ background: accentA(50) }} />
+            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">MACROSTACK COACH</p>
+            <span className="w-5 h-px" style={{ background: accentA(50) }} />
+          </div>
+          <h1 className="font-display font-black text-4xl tracking-widest text-cream leading-none">YOUR TIER</h1>
+          <p className="font-mono text-xs text-muted mt-3">
+            {coachTierLabel(currentUser)} · {status}
+          </p>
+        </div>
+
+        {/* Roster usage */}
+        <div className="glass-card border border-border rounded-2xl p-4 card-dim mb-6 flex items-center justify-between">
+          <span className="flex items-center gap-2.5">
+            <Users size={15} className="text-muted" />
+            <span className="font-mono text-sm text-cream">Active clients</span>
+          </span>
+          <span className="font-display font-black text-xl text-cream">
+            {clientCount}
+            <span className="font-mono text-xs text-muted font-normal">
+              {' '}/ {currentLimit === null ? '∞' : currentLimit}
+            </span>
+          </span>
+        </div>
+
+        {changed && (
+          <p className="flex items-center justify-center gap-2 font-mono text-xs text-olive-light mb-4">
+            <Check size={13} /> Tier updated — billing is prorated automatically.
+          </p>
+        )}
+        {error && (
+          <p className="font-mono text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2.5 mb-4 anim-shake leading-relaxed">{error}</p>
+        )}
+
+        {/* Tier list */}
+        <div className="space-y-2.5">
+          {COACH_TIERS.map((t, i) => {
+            const isCurrent   = t.key === plan
+            const isUpgrade   = currentIdx === -1 || i > currentIdx
+            const overCap     = t.limit !== null && clientCount > t.limit
+            const removeCount = overCap ? clientCount - t.limit : 0
+            const busy        = busyTier === t.key
+
+            return (
+              <div
+                key={t.key}
+                className="flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 border"
+                style={isCurrent
+                  ? { borderColor: 'var(--color-accent)', background: accentA(12) }
+                  : { borderColor: 'var(--color-border)', background: 'var(--color-card)' }}
+              >
+                <div className="min-w-0">
+                  <p className="font-display font-bold text-sm tracking-wide text-cream">
+                    {t.range}
+                    {t.tag && (
+                      <span className="ml-2 font-mono text-[8px] tracking-[0.18em] px-1.5 py-0.5 rounded align-middle"
+                        style={{ background: accentA(16), color: 'var(--color-accent)' }}>{t.tag}</span>
+                    )}
+                  </p>
+                  <p className="font-mono text-xs text-muted mt-0.5">
+                    ${t.price}/mo
+                    {overCap && !isCurrent && (
+                      <span className="text-red-400"> · remove {removeCount} client{removeCount === 1 ? '' : 's'} first</span>
+                    )}
+                  </p>
+                </div>
+
+                {isCurrent ? (
+                  <span className="flex-shrink-0 font-display font-bold text-[10px] tracking-widest px-3 py-2 rounded-lg"
+                    style={{ background: accentA(90), color: '#fff' }}>
+                    CURRENT
+                  </span>
+                ) : overCap ? (
+                  <span className="flex-shrink-0 flex items-center gap-1.5 font-display font-bold text-[10px] tracking-widest px-3 py-2 rounded-lg border border-border text-dim cursor-not-allowed">
+                    <Lock size={11} /> LOCKED
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleChange(t.key)}
+                    disabled={busyTier !== null}
+                    className="flex-shrink-0 flex items-center gap-1.5 font-display font-bold text-[10px] tracking-widest px-3 py-2 rounded-lg border transition-colors press disabled:opacity-50"
+                    style={isUpgrade
+                      ? { background: accentA(16), borderColor: accentA(40), color: 'var(--color-accent)' }
+                      : { borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
+                  >
+                    {busy
+                      ? <Loader2 size={11} className="animate-spin" />
+                      : isUpgrade ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+                    {isUpgrade ? 'UPGRADE' : 'DOWNGRADE'}
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        <p className="font-mono text-[10px] text-dim text-center mt-4 leading-relaxed">
+          Changes are prorated by Stripe on your next invoice.
+        </p>
+
+        <button
+          onClick={openBillingPortal}
+          className="w-full flex items-center justify-center gap-2 mt-4 border border-border text-cream font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:border-muted transition-colors press"
+        >
+          <Settings size={14} />
+          MANAGE BILLING
+        </button>
       </div>
     </div>
   )
