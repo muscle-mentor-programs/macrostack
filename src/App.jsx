@@ -11,6 +11,7 @@ import MotionPage from './components/MotionPage'
 //    small (Landing, the 1900-item food DB, and recharts are the heavy ones)
 const Landing           = lazy(() => import('./pages/Landing'))
 const LoginScreen       = lazy(() => import('./pages/LoginScreen'))
+const SignupCheckout    = lazy(() => import('./pages/SignupCheckout'))
 const SetPasswordScreen = lazy(() => import('./pages/SetPasswordScreen'))
 
 // Role entry points
@@ -107,9 +108,10 @@ export default function App() {
   } = useStore()
   const isMobile = useIsMobile()
 
-  // Controls whether the login screen is shown over the landing page.
+  // Which pre-auth view is showing: null = landing, 'login' = sign-in,
+  // 'signup' = create-account (+ payment when a plan was picked).
   // Start on login immediately when launched from the homescreen.
-  const [showLogin, setShowLogin] = useState(IS_PWA)
+  const [authView, setAuthView] = useState(IS_PWA ? 'login' : null)
 
   // True when the user landed via an email invite link and still needs to set a password
   const [postInvite, setPostInvite] = useState(
@@ -166,9 +168,11 @@ export default function App() {
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<PageLoader />}>
-        {showLogin
-          ? <LoginScreen onBack={IS_PWA ? null : () => setShowLogin(false)} />
-          : <Landing onGetStarted={() => setShowLogin(true)} />}
+        {authView === 'login'
+          ? <LoginScreen onBack={IS_PWA ? null : () => setAuthView(null)} />
+          : authView === 'signup'
+          ? <SignupCheckout onBack={() => setAuthView(null)} onSignIn={() => setAuthView('login')} />
+          : <Landing onGetStarted={() => setAuthView('login')} onSignUp={() => setAuthView('signup')} />}
       </Suspense>
     )
   }

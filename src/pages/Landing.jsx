@@ -116,6 +116,9 @@ export const PENDING_PLAN_KEY = 'ms-pending-plan'
 function rememberPlan(audience, plan) {
   try { localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify({ audience, plan })) } catch { /* private mode */ }
 }
+function clearPlan() {
+  try { localStorage.removeItem(PENDING_PLAN_KEY) } catch { /* private mode */ }
+}
 
 /* Everything a coach gets. (A few are on the near-term roadmap — we build them next.) */
 const COACH_FEATURES = [
@@ -184,7 +187,7 @@ function FeatureRow({ src, eyebrow, title, body, flip, textColor, softColor }) {
 
 /* ── Component ────────────────────────────────────────────────────────────── */
 
-export default function Landing({ onGetStarted }) {
+export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
   const rootRef      = useRef(null)
   const progressRef  = useRef(null)
   const guidePathRef = useRef(null)
@@ -430,7 +433,7 @@ export default function Landing({ onGetStarted }) {
             SIGN IN
           </button>
           <button
-            onClick={onGetStarted}
+            onClick={() => { clearPlan(); onSignUp() }}
             className="font-display font-bold text-xs tracking-widest px-4 py-2 rounded-lg btn-lift btn-shine"
             style={{ background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`, color: ON_ACCENT }}
           >
@@ -481,7 +484,7 @@ export default function Landing({ onGetStarted }) {
             </p>
             <div className="hero-ctas flex items-center justify-center md:justify-start gap-4 mt-10">
               <button
-                onClick={onGetStarted}
+                onClick={() => { clearPlan(); onSignUp() }}
                 className="font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl btn-lift btn-shine"
                 style={{
                   background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
@@ -777,7 +780,7 @@ export default function Landing({ onGetStarted }) {
           ))}
           {/* View-all card */}
           <button
-            onClick={onGetStarted}
+            onClick={() => { clearPlan(); onSignUp() }}
             className="w-[74vw] sm:w-[300px] md:w-[340px] aspect-square flex-shrink-0 snap-start rounded-3xl p-6 md:p-8 text-left flex flex-col justify-between btn-lift btn-shine"
             style={{
               background: `linear-gradient(150deg, ${ACCENT}, ${ACCENT_DARK})`,
@@ -870,7 +873,7 @@ export default function Landing({ onGetStarted }) {
                   {p.note}
                 </p>
                 <button
-                  onClick={() => { rememberPlan('user', p.id); onGetStarted() }}
+                  onClick={() => { rememberPlan('user', p.id); onSignUp() }}
                   className={`mt-auto w-full font-display font-bold text-sm tracking-widest py-3.5 rounded-xl btn-lift ${p.best ? 'btn-shine' : ''}`}
                   style={p.best
                     ? { background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`, color: ON_ACCENT, boxShadow: `0 8px 28px ${accentA(35)}` }
@@ -985,7 +988,7 @@ export default function Landing({ onGetStarted }) {
                 return (
                   <button
                     key={tier.range}
-                    onClick={() => { rememberPlan('coach', tier.plan); onGetStarted() }}
+                    onClick={() => { rememberPlan('coach', tier.plan); onSignUp() }}
                     className="btn-lift relative rounded-2xl p-5 pt-6 pb-4 text-center cursor-pointer"
                     style={highlight
                       ? { background: `linear-gradient(160deg, ${accentA(16)}, ${accentA(5)})`, border: `1px solid ${accentA(45)}`, boxShadow: `0 12px 40px ${accentA(15)}` }
@@ -1017,7 +1020,7 @@ export default function Landing({ onGetStarted }) {
           {/* CTA */}
           <div className="coach-reveal mt-12 text-center">
             <button
-              onClick={onGetStarted}
+              onClick={() => { rememberPlan('coach', null); onSignUp() }}
               className="inline-block font-display font-bold text-sm tracking-widest px-10 py-4 rounded-xl btn-lift btn-shine"
               style={{
                 background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
@@ -1062,7 +1065,7 @@ export default function Landing({ onGetStarted }) {
             Free to start. No credit card. Your coach — or your goals — are waiting.
           </p>
           <button
-            onClick={onGetStarted}
+            onClick={() => { clearPlan(); onSignUp() }}
             className="font-display font-bold text-base tracking-widest px-10 py-5 rounded-2xl mt-10 btn-lift btn-shine"
             style={{
               background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
