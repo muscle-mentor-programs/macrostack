@@ -294,7 +294,7 @@ const useStore = create(
         if (foodRes.error)   console.error('loadAllData foods:', foodRes.error)
         if (reqRes.error)    console.error('loadAllData requests:', reqRes.error)
 
-        const clients = (clientRes.data || []).map((row) => {
+        let clients = (clientRes.data || []).map((row) => {
           // Group food_log entries by date
           const log = {}
           ;(row.food_log || []).forEach((e) => {
@@ -313,6 +313,14 @@ const useStore = create(
               .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')),
           }
         })
+
+        // Coach Portal view for a superadmin: scope to only their own clients.
+        // (Superadmin Portal / regular coaches are unaffected — RLS already
+        // scopes real coaches to their own roster.)
+        const me = get().currentUser
+        if (me?.role === 'superadmin' && get().portalMode === 'coach') {
+          clients = clients.filter((c) => c.coachId === me.id)
+        }
 
         // Messages grouped by client_id
         const messages = {}
@@ -462,6 +470,16 @@ const useStore = create(
       // ── ROLE / NAVIGATION ─────────────────────────────────────────────────
       activeRole:   null,
       setActiveRole: (role) => set({ activeRole: role }),
+
+      // Superadmin portal mode: 'superadmin' = full access to everything;
+      // 'coach' = scoped coach experience (own clients only, no admin tools).
+      // Session-only (not persisted) — chosen fresh each login via RoleSelector.
+      portalMode: 'superadmin',
+      setPortalMode: async (mode) => {
+        set({ portalMode: mode, activePage: 'dashboard' })
+        // Re-load so client scope reflects the new mode.
+        await get().loadAllData()
+      },
 
       activePage:   'clients',
       setActivePage: (page) => set({ activePage: page }),

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
-import { Smartphone, LogOut } from 'lucide-react'
+import { Smartphone, LogOut, ShieldAlert } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import CoachBottomNav from '../components/CoachBottomNav'
 import ThemeToggle from '../components/ThemeToggle'
@@ -49,9 +49,10 @@ function AmbientBackground() {
 }
 
 export default function CoachLayout({ children }) {
-  const { logout, setActiveRole, activePage } = useStore()
+  const { logout, setActiveRole, activePage, currentUser, portalMode, setPortalMode } = useStore()
   const isMobile = useIsMobile()
   const mainRef  = useRef(null)
+  const isSuperAcct = currentUser?.role === 'superadmin'
 
   const [sidebarWidth, setSidebarWidth] = useState(readSidebarWidth)
 
@@ -90,6 +91,18 @@ export default function CoachLayout({ children }) {
 
         {/* Floating top-right controls */}
         <div className="fixed top-safe right-4 z-30 flex items-center gap-1.5">
+          {isSuperAcct && (
+            <button
+              onClick={() => setPortalMode(portalMode === 'superadmin' ? 'coach' : 'superadmin')}
+              title={portalMode === 'superadmin' ? 'Superadmin Portal — tap for Coach view' : 'Coach Portal — tap for full access'}
+              className="w-9 h-9 flex items-center justify-center rounded-xl border transition-all shadow-sm"
+              style={portalMode === 'superadmin'
+                ? { background: 'rgba(248,113,113,0.12)', borderColor: 'rgba(248,113,113,0.4)', color: '#f87171' }
+                : { background: 'var(--color-card)', borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
+            >
+              <ShieldAlert size={15} />
+            </button>
+          )}
           <ThemeToggle compact />
           <button
             onClick={() => setActiveRole(null)}

@@ -1,5 +1,6 @@
 import { LayoutDashboard, Users, MessageCircle, Utensils, User, CreditCard } from 'lucide-react'
 import useStore from '../store'
+import useIsSuperadmin from '../hooks/useIsSuperadmin'
 
 const BASE_NAV = [
   { id: 'dashboard', label: 'HOME',    icon: LayoutDashboard },
@@ -13,9 +14,9 @@ const BASE_NAV = [
 const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }
 
 export default function CoachBottomNav() {
-  const { activePage, setActivePage, clients, messages, navHidden, currentUser } = useStore()
+  const { activePage, setActivePage, clients, messages, navHidden } = useStore()
 
-  const isSuperadmin = currentUser?.role === 'superadmin'
+  const isSuperadmin = useIsSuperadmin()
   const NAV = isSuperadmin ? [...BASE_NAV, BILLING_NAV] : BASE_NAV
 
   const totalUnread = clients.reduce(

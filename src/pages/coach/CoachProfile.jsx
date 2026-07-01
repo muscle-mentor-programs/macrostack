@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { User, Globe, Award, BookOpen, Check, Copy, Pencil, X } from 'lucide-react'
 import useStore from '../../store'
+import useIsSuperadmin from '../../hooks/useIsSuperadmin'
 import ScrambleText from '../../components/ScrambleText'
 
 const inputCls = 'w-full bg-surface border border-border rounded-lg px-4 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors resize-none'
@@ -11,6 +12,7 @@ const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transp
 
 export default function CoachProfile() {
   const { currentUser, updateCoachProfile } = useStore()
+  const isSuperadmin = useIsSuperadmin()
 
   const [editing, setEditing]   = useState(false)
   const [saving,  setSaving]    = useState(false)
@@ -65,7 +67,7 @@ export default function CoachProfile() {
 
   const initial = (currentUser?.name || 'C').charAt(0).toUpperCase()
 
-  const roleLabel = currentUser?.role === 'superadmin' ? 'SUPER ADMIN' : 'NUTRITION COACH'
+  const roleLabel = isSuperadmin ? 'SUPER ADMIN' : 'NUTRITION COACH'
 
   return (
     <div className="flex flex-col h-full overflow-hidden">

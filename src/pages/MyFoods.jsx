@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Plus, Trash2, Search, X, Pencil, Check, Database, Scan, Sparkles, Loader2 } from 'lucide-react'
 import useStore from '../store'
+import useIsSuperadmin from '../hooks/useIsSuperadmin'
 import { FOODS } from '../data/foods'
 import ScrambleText from '../components/ScrambleText'
 import BarcodeScanner from '../components/BarcodeScanner'
@@ -400,7 +401,7 @@ export default function MyFoods() {
     hiddenFoodIds, deleteBuiltinFood, restoreBuiltinFood,
   } = useStore()
 
-  const isSuperadmin = currentUser?.role === 'superadmin'
+  const isSuperadmin = useIsSuperadmin()
 
   const [query,        setQuery]       = useState('')
   const [filter,       setFilter]      = useState('all')   // 'all' | 'builtin' | 'custom' | 'scanned'

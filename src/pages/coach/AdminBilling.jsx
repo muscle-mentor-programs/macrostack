@@ -4,6 +4,7 @@ import {
   Mail, Phone, CalendarClock, CreditCard, Users,
 } from 'lucide-react'
 import useStore from '../../store'
+import useIsSuperadmin from '../../hooks/useIsSuperadmin'
 import ScrambleText from '../../components/ScrambleText'
 import { computeSubscriptionAccess } from '../../store'
 
@@ -90,16 +91,15 @@ function InfoRow({ icon: Icon, label, value }) {
 export default function AdminBilling() {
   const {
     adminAccounts, adminAccountsError, adminAccountsLoaded,
-    loadAdminAccounts, setSubscriptionOverride, currentUser, clients,
+    loadAdminAccounts, setSubscriptionOverride, clients,
   } = useStore()
   const [search, setSearch]         = useState('')
   const [filter, setFilter]         = useState('all')
   const [busyId, setBusyId]         = useState(null)
   const [expandedId, setExpandedId] = useState(null)
+  const isSuperadmin = useIsSuperadmin()
 
   useEffect(() => { loadAdminAccounts() }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const isSuperadmin = currentUser?.role === 'superadmin'
 
   // Client records by matching key, for contact info + coach clientele
   const clientByEmail = useMemo(() => {

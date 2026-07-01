@@ -1,7 +1,8 @@
 import useStore from '../store'
+import useIsSuperadmin from '../hooks/useIsSuperadmin'
 import ScrambleText from './ScrambleText'
 import ThemeToggle from './ThemeToggle'
-import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard } from 'lucide-react'
+import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert } from 'lucide-react'
 
 const BASE_NAV = [
   { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
@@ -21,15 +22,17 @@ const ITEM_GAP = 6
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
 export default function Sidebar({ width }) {
-  const { activePage, setActivePage, setActiveRole, logout, currentUser, clients, messages } = useStore()
+  const { activePage, setActivePage, setActiveRole, setPortalMode, logout, currentUser, clients, messages, portalMode } = useStore()
+  const isSuperadmin  = useIsSuperadmin()
+  const isSuperAcct   = currentUser?.role === 'superadmin'
 
   const totalUnread = clients.reduce(
     (n, c) => n + (messages[c.id] || []).filter((m) => m.from === 'client' && !m.readByCoach).length,
     0
   )
 
-  // Build nav with numbering; append BILLING for superadmins
-  const NAV = (currentUser?.role === 'superadmin' ? [...BASE_NAV, BILLING_NAV] : BASE_NAV)
+  // Build nav with numbering; append BILLING only in the Superadmin Portal
+  const NAV = (isSuperadmin ? [...BASE_NAV, BILLING_NAV] : BASE_NAV)
     .map((item, i) => ({ ...item, n: String(i + 1).padStart(2, '0') }))
 
   const activeIdx = Math.max(0, NAV.findIndex((n) => n.id === activePage))
@@ -159,11 +162,37 @@ export default function Sidebar({ width }) {
           <p className="font-display font-bold text-sm text-cream truncate leading-tight">
             {currentUser?.name ?? 'Coach'}
           </p>
-          <p className="font-mono text-[9px] text-dim truncate leading-tight tracking-[0.18em] mt-1">
-            {currentUser?.role === 'superadmin' ? 'SUPER ADMIN' : 'COACH'}
+          <p
+            className="font-mono text-[9px] truncate leading-tight tracking-[0.18em] mt-1"
+            style={{ color: isSuperadmin ? '#f87171' : 'var(--color-dim)' }}
+          >
+            {isSuperAcct ? (portalMode === 'superadmin' ? 'SUPER ADMIN' : 'COACH VIEW') : 'COACH'}
           </p>
         </div>
       </div>
+
+      {/* Portal switcher — superadmin only. Red = full Superadmin Portal. */}
+      {isSuperAcct && (
+        <button
+          onClick={() => setPortalMode(portalMode === 'superadmin' ? 'coach' : 'superadmin')}
+          title={portalMode === 'superadmin' ? 'Switch to Coach Portal (your clients only)' : 'Switch to Superadmin Portal (full access)'}
+          className="mx-3 mb-2 px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition-colors relative"
+          style={portalMode === 'superadmin'
+            ? { background: 'rgba(248,113,113,0.10)', border: '1px solid rgba(248,113,113,0.35)' }
+            : { background: 'var(--color-card)', border: '1px solid var(--color-border)' }}
+        >
+          <ShieldAlert size={14} style={{ color: portalMode === 'superadmin' ? '#f87171' : 'var(--color-muted)' }} />
+          <div className="flex-1 min-w-0 text-left">
+            <p className="font-display font-bold text-[10px] tracking-widest leading-none"
+              style={{ color: portalMode === 'superadmin' ? '#f87171' : 'var(--color-cream)' }}>
+              {portalMode === 'superadmin' ? 'SUPERADMIN PORTAL' : 'COACH PORTAL'}
+            </p>
+            <p className="font-mono text-[8px] text-dim tracking-widest leading-none mt-1">
+              {portalMode === 'superadmin' ? 'TAP FOR COACH VIEW' : 'TAP FOR FULL ACCESS'}
+            </p>
+          </div>
+        </button>
+      )}
 
       {/* Controls — compact icon row */}
       <div className="px-3 pb-5 flex items-center gap-1.5 relative">
