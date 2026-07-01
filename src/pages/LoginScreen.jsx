@@ -313,13 +313,6 @@ export default function LoginScreen({ onBack }) {
 
         {/* Brand */}
         <div className="text-center mb-8 scanline-parent py-3">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              {/* Ambient glow behind the logo */}
-              <div className="absolute inset-0 rounded-full bg-brown/30 blur-2xl scale-150" />
-              <img src="/MSLOGO2.png" width="56" height="56" alt="MacroStack logo" className="relative" />
-            </div>
-          </div>
           {/* track-center compensates the trailing letter-space so the
               tracked display text sits on true center */}
           <h1 className="font-display font-black text-6xl tracking-widest track-center leading-none text-cream">
