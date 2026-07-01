@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, MessageCircle, Utensils, User, CreditCard } from 'lucide-react'
+import { LayoutDashboard, Users, MessageCircle, Utensils, User, CreditCard, UserCog } from 'lucide-react'
 import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
 
@@ -9,15 +9,16 @@ const BASE_NAV = [
   { id: 'foods',     label: 'FOODS',   icon: Utensils        },
   { id: 'profile',   label: 'PROFILE', icon: User            },
 ]
-// Superadmins get a BILLING tab to grant/revoke premium access (mirrors the
-// desktop sidebar). Registered as COACH_PAGES_MOBILE.billing → AdminBilling.
+// Superadmins get COACHES + BILLING tabs (mirrors the desktop sidebar).
+// Registered as COACH_PAGES_MOBILE.coaches / .billing.
+const COACHES_NAV = { id: 'coaches', label: 'COACHES', icon: UserCog }
 const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }
 
 export default function CoachBottomNav() {
   const { activePage, setActivePage, clients, messages, navHidden } = useStore()
 
   const isSuperadmin = useIsSuperadmin()
-  const NAV = isSuperadmin ? [...BASE_NAV, BILLING_NAV] : BASE_NAV
+  const NAV = isSuperadmin ? [...BASE_NAV, COACHES_NAV, BILLING_NAV] : BASE_NAV
 
   const totalUnread = clients.reduce(
     (n, c) =>
@@ -31,7 +32,7 @@ export default function CoachBottomNav() {
         navHidden ? 'translate-y-full' : ''
       }`}
     >
-      <div className={`grid ${isSuperadmin ? 'grid-cols-6' : 'grid-cols-5'}`}>
+      <div className={`grid ${isSuperadmin ? 'grid-cols-7' : 'grid-cols-5'}`}>
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = activePage === id
           const badge  = id === 'chat' && totalUnread > 0 ? totalUnread : 0

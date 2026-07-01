@@ -41,6 +41,7 @@ const ClientCoachProfile = lazy(() => import('./pages/client/ClientCoachProfile'
 // Shared
 const UpgradePage = lazy(() => import('./pages/UpgradePage'))
 const AdminBilling = lazy(() => import('./pages/coach/AdminBilling'))
+const AdminCoaches = lazy(() => import('./pages/coach/AdminCoaches'))
 
 // Shared suspense fallback — branded skeleton so page swaps feel intentional,
 // not like a loading failure. Mirrors the typical page anatomy.
@@ -67,6 +68,7 @@ const COACH_PAGES_DESKTOP = {
   foods:     MyFoods,
   profile:   CoachProfile,
   upgrade:   UpgradePage,
+  coaches:   AdminCoaches,
   billing:   AdminBilling,
 }
 
@@ -77,6 +79,7 @@ const COACH_PAGES_MOBILE = {
   foods:     MobileMyFoods,
   profile:   CoachProfile,
   upgrade:   UpgradePage,
+  coaches:   AdminCoaches,
   billing:   AdminBilling,
 }
 
