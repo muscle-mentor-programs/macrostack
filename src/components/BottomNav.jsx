@@ -20,8 +20,8 @@ export default function BottomNav() {
   return (
     <nav
       id="client-bottom-nav"
-      className={`fixed bottom-0 left-0 right-0 w-full glass-bottom-nav border-t border-white/[0.06] nav-safe-bottom z-20 transition-transform duration-200 ${
-        navHidden ? 'translate-y-full' : ''
+      className={`fixed bottom-0 left-0 right-0 w-full glass-bottom-nav border-t border-white/[0.06] nav-safe-bottom z-20 transition-all duration-200 ${
+        navHidden ? 'translate-y-full opacity-0 pointer-events-none' : ''
       }`}
     >
       <div className="grid grid-cols-5">

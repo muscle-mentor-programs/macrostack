@@ -28,8 +28,8 @@ export default function CoachBottomNav() {
 
   return (
     <nav
-      className={`flex-shrink-0 w-full glass-bottom-nav border-t border-white/[0.06] nav-safe-bottom transition-transform duration-200 ${
-        navHidden ? 'translate-y-full' : ''
+      className={`flex-shrink-0 w-full glass-bottom-nav border-t border-white/[0.06] nav-safe-bottom transition-all duration-200 ${
+        navHidden ? 'translate-y-full opacity-0 pointer-events-none' : ''
       }`}
     >
       <div className={`grid ${isSuperadmin ? 'grid-cols-7' : 'grid-cols-5'}`}>
