@@ -98,15 +98,24 @@ const PRO_FEATURES = [
   'Everything in Free — unlimited logging, 1,900+ foods, custom foods',
 ]
 
-/* MacroStack Coach — tiered by active client count. Display only; Stripe later. */
+/* MacroStack Coach — tiered by active client count. `plan` matches the tier
+   keys in UpgradePage / the create-checkout-session edge function, so a click
+   here carries through signup straight into Stripe checkout. */
 const COACH_TIERS = [
-  { range: '1 client',        price: 'Free',    unit: 'forever',  tag: 'START FREE' },
-  { range: '2–10 clients',    price: '$19.95',  unit: '/mo' },
-  { range: '11–30 clients',   price: '$39.95',  unit: '/mo', tag: 'POPULAR' },
-  { range: '31–60 clients',   price: '$59.95',  unit: '/mo' },
-  { range: '61–120 clients',  price: '$89.95',  unit: '/mo' },
-  { range: '121+ clients',    price: '$139.95', unit: '/mo', tag: 'UNLIMITED SCALE' },
+  { range: '1 client',        price: 'Free',    unit: 'forever',  tag: 'START FREE', plan: null },
+  { range: '2–10 clients',    price: '$19.95',  unit: '/mo',                         plan: 't_2_10' },
+  { range: '11–30 clients',   price: '$39.95',  unit: '/mo', tag: 'POPULAR',         plan: 't_11_30' },
+  { range: '31–60 clients',   price: '$59.95',  unit: '/mo',                         plan: 't_31_60' },
+  { range: '61–120 clients',  price: '$89.95',  unit: '/mo',                         plan: 't_61_120' },
+  { range: '121+ clients',    price: '$139.95', unit: '/mo', tag: 'UNLIMITED SCALE', plan: 't_121_plus' },
 ]
+
+/* Remember which plan was clicked on the landing page so the app can open the
+   Upgrade page with it preselected right after signup/login. */
+export const PENDING_PLAN_KEY = 'ms-pending-plan'
+function rememberPlan(audience, plan) {
+  try { localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify({ audience, plan })) } catch { /* private mode */ }
+}
 
 /* Everything a coach gets. (A few are on the near-term roadmap — we build them next.) */
 const COACH_FEATURES = [
@@ -416,13 +425,13 @@ export default function Landing({ onGetStarted }) {
         <div className="flex items-center gap-3">
           <button
             onClick={onGetStarted}
-            className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-3 py-2"
+            className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-3 py-2 btn-lift"
           >
             SIGN IN
           </button>
           <button
             onClick={onGetStarted}
-            className="font-display font-bold text-xs tracking-widest px-4 py-2 rounded-lg transition-all hover:brightness-110"
+            className="font-display font-bold text-xs tracking-widest px-4 py-2 rounded-lg btn-lift btn-shine"
             style={{ background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`, color: ON_ACCENT }}
           >
             GET STARTED
@@ -473,7 +482,7 @@ export default function Landing({ onGetStarted }) {
             <div className="hero-ctas flex items-center justify-center md:justify-start gap-4 mt-10">
               <button
                 onClick={onGetStarted}
-                className="font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl transition-all hover:brightness-110"
+                className="font-display font-bold text-sm tracking-widest px-8 py-4 rounded-xl btn-lift btn-shine"
                 style={{
                   background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
                   boxShadow: `0 8px 32px ${accentA(35)}`,
@@ -484,7 +493,7 @@ export default function Landing({ onGetStarted }) {
               </button>
               <button
                 onClick={onGetStarted}
-                className="font-display font-bold text-sm tracking-widest text-cream px-6 py-4 rounded-xl border border-border hover:border-muted transition-colors"
+                className="font-display font-bold text-sm tracking-widest text-cream px-6 py-4 rounded-xl border border-border hover:border-muted transition-colors btn-lift"
               >
                 SIGN IN
               </button>
@@ -769,7 +778,7 @@ export default function Landing({ onGetStarted }) {
           {/* View-all card */}
           <button
             onClick={onGetStarted}
-            className="w-[74vw] sm:w-[300px] md:w-[340px] aspect-square flex-shrink-0 snap-start rounded-3xl p-6 md:p-8 text-left flex flex-col justify-between transition-all hover:brightness-110"
+            className="w-[74vw] sm:w-[300px] md:w-[340px] aspect-square flex-shrink-0 snap-start rounded-3xl p-6 md:p-8 text-left flex flex-col justify-between btn-lift btn-shine"
             style={{
               background: `linear-gradient(150deg, ${ACCENT}, ${ACCENT_DARK})`,
               boxShadow: `0 12px 48px ${accentA(35)}`,
@@ -861,8 +870,8 @@ export default function Landing({ onGetStarted }) {
                   {p.note}
                 </p>
                 <button
-                  onClick={onGetStarted}
-                  className="mt-auto w-full font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-all"
+                  onClick={() => { rememberPlan('user', p.id); onGetStarted() }}
+                  className={`mt-auto w-full font-display font-bold text-sm tracking-widest py-3.5 rounded-xl btn-lift ${p.best ? 'btn-shine' : ''}`}
                   style={p.best
                     ? { background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`, color: ON_ACCENT, boxShadow: `0 8px 28px ${accentA(35)}` }
                     : { border: '1px solid var(--color-border)', color: 'var(--color-cream)' }}
@@ -974,9 +983,10 @@ export default function Landing({ onGetStarted }) {
                 const isFree = tier.price === 'Free'
                 const highlight = isFree || tier.tag === 'POPULAR'
                 return (
-                  <div
+                  <button
                     key={tier.range}
-                    className="relative rounded-2xl p-5 pt-6 text-center"
+                    onClick={() => { rememberPlan('coach', tier.plan); onGetStarted() }}
+                    className="btn-lift relative rounded-2xl p-5 pt-6 pb-4 text-center cursor-pointer"
                     style={highlight
                       ? { background: `linear-gradient(160deg, ${accentA(16)}, ${accentA(5)})`, border: `1px solid ${accentA(45)}`, boxShadow: `0 12px 40px ${accentA(15)}` }
                       : { background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.5))', border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)' }}
@@ -992,7 +1002,13 @@ export default function Landing({ onGetStarted }) {
                     <p className="font-mono text-[10px] tracking-[0.14em] mb-3" style={{ color: INVERT_SOFT }}>{tier.range}</p>
                     <span className="font-display font-black text-3xl md:text-4xl" style={isFree ? { color: ACCENT } : undefined}>{tier.price}</span>
                     <p className="font-mono text-[10px] mt-1" style={{ color: INVERT_SOFT }}>{tier.unit}</p>
-                  </div>
+                    <span
+                      className="mt-3 inline-block font-mono text-[9px] tracking-[0.2em] px-3 py-1.5 rounded-lg"
+                      style={{ background: accentA(isFree || highlight ? 90 : 14), color: isFree || highlight ? ON_ACCENT : ACCENT }}
+                    >
+                      {isFree ? 'START FREE →' : 'GET STARTED →'}
+                    </span>
+                  </button>
                 )
               })}
             </div>
@@ -1002,7 +1018,7 @@ export default function Landing({ onGetStarted }) {
           <div className="coach-reveal mt-12 text-center">
             <button
               onClick={onGetStarted}
-              className="inline-block font-display font-bold text-sm tracking-widest px-10 py-4 rounded-xl transition-all hover:brightness-110"
+              className="inline-block font-display font-bold text-sm tracking-widest px-10 py-4 rounded-xl btn-lift btn-shine"
               style={{
                 background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
                 boxShadow: `0 8px 32px ${accentA(35)}`,
@@ -1047,7 +1063,7 @@ export default function Landing({ onGetStarted }) {
           </p>
           <button
             onClick={onGetStarted}
-            className="font-display font-bold text-base tracking-widest px-10 py-5 rounded-2xl mt-10 transition-all hover:brightness-110"
+            className="font-display font-bold text-base tracking-widest px-10 py-5 rounded-2xl mt-10 btn-lift btn-shine"
             style={{
               background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
               boxShadow: `0 12px 48px ${accentA(40)}`,

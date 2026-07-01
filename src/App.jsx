@@ -137,6 +137,20 @@ export default function App() {
     if (params.get('checkout') === 'success') setActivePage('upgrade')
   }, [isAuthenticated])
 
+  // A plan was picked on the landing page before auth → open the Upgrade page
+  // right after sign-in/sign-up with it preselected (UpgradePage reads the
+  // same key for the selection, then clears it).
+  useEffect(() => {
+    if (!isAuthenticated) return
+    try {
+      const raw = localStorage.getItem('ms-pending-plan')
+      if (!raw) return
+      const { plan } = JSON.parse(raw)
+      if (plan) setActivePage('upgrade')
+      else localStorage.removeItem('ms-pending-plan') // free tier — nothing to buy
+    } catch { /* ignore malformed value */ }
+  }, [isAuthenticated])
+
   // Show nothing while the session check is in flight (avoids login-screen flash)
   if (authLoading) {
     return (

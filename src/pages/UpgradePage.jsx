@@ -69,8 +69,18 @@ export default function UpgradePage() {
   const { hasAccess, isSubscribed, audience, plan, status } = useSubscription()
 
   const isCoach = audience === 'coach'
-  const [cadence, setCadence] = useState('weekly')  // user: 'weekly' | 'monthly' | 'annual'
-  const [tier, setTier]       = useState('t_11_30') // coach: tier key
+
+  // Plan picked on the landing page before auth (stored by Landing.jsx) —
+  // preselect it here, then clear the key so it only applies once.
+  const pendingPlan = (() => {
+    try { return JSON.parse(localStorage.getItem('ms-pending-plan') || 'null') } catch { return null }
+  })()
+  const [cadence, setCadence] = useState(() =>
+    CADENCES.includes(pendingPlan?.plan) ? pendingPlan.plan : 'weekly')
+  const [tier, setTier] = useState(() =>
+    COACH_TIERS.some((t) => t.key === pendingPlan?.plan) ? pendingPlan.plan : 't_11_30')
+  useEffect(() => { localStorage.removeItem('ms-pending-plan') }, [])
+
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
 
