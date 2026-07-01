@@ -420,7 +420,7 @@ export default function Landing({ onGetStarted }) {
         >
           <path
             ref={guidePathRef}
-            d="M 500 0 C 500 260, 160 330, 160 560 C 160 800, 840 760, 840 1010 C 840 1260, 200 1300, 320 1560 C 400 1740, 500 1800, 500 2000"
+            d="M 500 0 C 500 260, 160 330, 160 560 C 160 800, 840 760, 840 1010 C 840 1260, 200 1300, 320 1560 C 400 1740, 120 1880, 40 2000"
             style={{ stroke: ACCENT, strokeOpacity: 0.55 }}
             strokeWidth="2.5"
           />
