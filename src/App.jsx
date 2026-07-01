@@ -130,6 +130,16 @@ export default function App() {
     initAuth()
   }, [])
 
+  // The landing page scrolls the window (Lenis); the app shell doesn't. If a
+  // scroll offset survives the swap (e.g. user clicked a coach tier deep down
+  // the page, then signed in), the whole app renders shifted up and cut off.
+  // Reset window scroll on every top-level view change.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [isAuthenticated, authView, checkoutRedirect])
+
   // Returning from Stripe Checkout → land on the upgrade page so its
   // success handler refreshes access and shows the confirmation. activePage
   // isn't persisted, so without this the redirect would drop onto the dashboard.
