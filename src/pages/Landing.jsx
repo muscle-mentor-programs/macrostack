@@ -29,6 +29,14 @@ const ON_ACCENT = '#FFFFFF' /* accent is mid-tone in every theme — white reads
 
 /* ── Content data ─────────────────────────────────────────────────────────── */
 
+/* In-page nav targets (section ids set on the landing sections below). */
+const NAV_LINKS = [
+  { id: 'features', label: 'FEATURES' },
+  { id: 'app',      label: 'THE APP'  },
+  { id: 'pricing',  label: 'PRICING'  },
+  { id: 'coach',    label: 'COACHES'  },
+]
+
 const HERO_LINES = [
   { text: 'TRACK.',    accent: false },
   { text: 'OPTIMIZE.', accent: false },
@@ -174,6 +182,15 @@ export default function Landing({ onGetStarted }) {
   const guideDotRef  = useRef(null)
   const fillRef      = useRef(null)
   const trackRef     = useRef(null)
+
+  /* Jump straight to a section — use Lenis so the pinned ScrollTrigger
+     sections stay in sync; fall back to native scroll if it's not ready. */
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    if (window.lenis) window.lenis.scrollTo(el, { immediate: true, offset: -72 })
+    else el.scrollIntoView()
+  }
 
   useLayoutEffect(() => {
     const root = rootRef.current
@@ -369,9 +386,26 @@ export default function Landing({ onGetStarted }) {
         className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 md:px-10 py-4 backdrop-blur-xl border-b border-border"
         style={{ background: 'color-mix(in srgb, var(--color-bg) 72%, transparent)' }}
       >
-        <p className="font-display font-black text-lg tracking-widest text-cream">
+        <button
+          onClick={() => window.lenis ? window.lenis.scrollTo(0, { immediate: true }) : window.scrollTo(0, 0)}
+          className="font-display font-black text-lg tracking-widest text-cream"
+        >
           MACRO<span style={{ color: ACCENT }}>STACK</span>
-        </p>
+        </button>
+
+        {/* Section links — jump straight to each section (hidden on mobile) */}
+        <div className="hidden md:flex items-center gap-7 absolute left-1/2 -translate-x-1/2">
+          {NAV_LINKS.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => scrollToSection(id)}
+              className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex items-center gap-3">
           <button
             onClick={onGetStarted}
@@ -681,7 +715,7 @@ export default function Landing({ onGetStarted }) {
       </section>
 
       {/* ══ 6. SHOWCASE (inverted theme section) — square cards, compact ═════ */}
-      <section className="showcase relative py-20 md:py-28 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
+      <section id="features" className="showcase relative py-20 md:py-28 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
         <div className="px-6 md:px-10 max-w-5xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
@@ -750,7 +784,7 @@ export default function Landing({ onGetStarted }) {
       </section>
 
       {/* ══ 6.1 THE APP + 6.2 PRICING — one continuous dark section, no seam ═ */}
-      <section className="relative bg-bg px-6 pt-10 pb-28 md:pb-36 overflow-hidden">
+      <section id="app" className="relative bg-bg px-6 pt-10 pb-28 md:pb-36 overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0"
           style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${accentA(9)}, transparent 60%)` }}
@@ -774,7 +808,7 @@ export default function Landing({ onGetStarted }) {
         </div>
 
         {/* ── PRICING — MacroStack Pro (same section as the app showcase, no divider line) ── */}
-        <div className="relative max-w-5xl mx-auto mt-28 md:mt-40">
+        <div id="pricing" className="relative max-w-5xl mx-auto mt-28 md:mt-40">
           {/* Heading */}
           <div className="coach-reveal text-center mb-12">
             <div className="flex items-center gap-2 justify-center mb-4">
@@ -857,7 +891,7 @@ export default function Landing({ onGetStarted }) {
       </section>
 
       {/* ══ 6.5 MACROSTACK COACH — coach your clients on the platform ════════ */}
-      <section className="relative px-6 pt-28 pb-20 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
+      <section id="coach" className="relative px-6 pt-28 pb-20 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
         {/* ambient glow */}
         <div
           className="pointer-events-none absolute inset-0"
