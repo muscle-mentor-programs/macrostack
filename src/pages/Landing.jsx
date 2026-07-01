@@ -92,12 +92,12 @@ const PRO_FEATURES = [
 
 /* MacroStack Coach — tiered by active client count. Display only; Stripe later. */
 const COACH_TIERS = [
-  { range: '1 client',       price: 'Free',     unit: 'forever',  tag: 'START FREE' },
-  { range: '2–10 clients',   price: '$19.95',   unit: '/mo' },
-  { range: '11–30 clients',  price: '$39.95',   unit: '/mo', tag: 'POPULAR' },
-  { range: '31–50 clients',  price: '$69.95',   unit: '/mo' },
-  { range: '51–100 clients', price: '$89.95',   unit: '/mo' },
-  { range: '101+ clients',   price: '$109.95',  unit: '/mo', tag: 'UNLIMITED SCALE' },
+  { range: '1 client',        price: 'Free',    unit: 'forever',  tag: 'START FREE' },
+  { range: '2–10 clients',    price: '$19.95',  unit: '/mo' },
+  { range: '11–30 clients',   price: '$39.95',  unit: '/mo', tag: 'POPULAR' },
+  { range: '31–60 clients',   price: '$59.95',  unit: '/mo' },
+  { range: '61–120 clients',  price: '$89.95',  unit: '/mo' },
+  { range: '121+ clients',    price: '$139.95', unit: '/mo', tag: 'UNLIMITED SCALE' },
 ]
 
 /* Everything a coach gets. (A few are on the near-term roadmap — we build them next.) */
