@@ -21,15 +21,33 @@ const USER_PERKS = [
 
 // Display pricing. Stripe is the source of truth at checkout; these are the
 // shown numbers and should match the Stripe Prices you create.
-// Display amounts only — Stripe is the source of truth at checkout. Update
-// these to match the real Prices you set in Stripe.
 const PRICES = {
-  coach: { weekly: 9,     monthly: 29,    annual: 290    },
-  user:  { weekly: 5.95,  monthly: 9.95,  annual: 89.95  },
+  user: { weekly: 5.95, monthly: 9.95, annual: 89.95 },
 }
+
+// Coach plans — tiered by active client count (monthly). `key` must match the
+// COACH_TIER_PRICE_IDS keys in the create-checkout-session edge function.
+const COACH_TIERS = [
+  { key: 't_2_10',     range: '2–10 clients',   price: 19.95 },
+  { key: 't_11_30',    range: '11–30 clients',  price: 39.95,  tag: 'POPULAR' },
+  { key: 't_31_60',    range: '31–60 clients',  price: 59.95 },
+  { key: 't_61_120',   range: '61–120 clients', price: 89.95 },
+  { key: 't_121_plus', range: '121+ clients',   price: 139.95, tag: 'UNLIMITED SCALE' },
+]
 
 const CADENCES = ['weekly', 'monthly', 'annual']
 const SUFFIX   = { weekly: 'wk', monthly: 'mo', annual: 'yr' }
+
+// Friendly label for the active plan on the management view — coach tiers show
+// their client range, user cadences show the cadence name.
+function planLabel(plan) {
+  if (!plan) return 'Subscription active'
+  const tier = COACH_TIERS.find((t) => t.key === plan)
+  if (tier) return `${tier.range} plan`
+  if (plan === 'annual') return 'Annual plan'
+  if (plan === 'weekly') return 'Weekly plan'
+  return 'Monthly plan'
+}
 
 // Annualized cost of each cadence, so cadences compare apples-to-apples.
 function annualizedCost(prices, cadence) {
@@ -50,7 +68,9 @@ export default function UpgradePage() {
   const { startCheckout, refreshSubscription, openBillingPortal, setActivePage } = useStore()
   const { hasAccess, isSubscribed, audience, plan, status } = useSubscription()
 
-  const [cadence, setCadence] = useState('weekly') // 'weekly' | 'monthly' | 'annual'
+  const isCoach = audience === 'coach'
+  const [cadence, setCadence] = useState('weekly')  // user: 'weekly' | 'monthly' | 'annual'
+  const [tier, setTier]       = useState('t_11_30') // coach: tier key
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
 
@@ -68,13 +88,16 @@ export default function UpgradePage() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const price = PRICES[audience][cadence]
-  const perks = audience === 'coach' ? COACH_PERKS : USER_PERKS
-  const label = audience === 'coach' ? 'COACH' : 'PRO'
+  const selectedTier = COACH_TIERS.find((t) => t.key === tier) || COACH_TIERS[1]
+  const selection = isCoach ? tier : cadence
+  const price     = isCoach ? selectedTier.price : PRICES.user[cadence]
+  const suffix    = isCoach ? 'mo' : SUFFIX[cadence]
+  const perks     = isCoach ? COACH_PERKS : USER_PERKS
+  const label     = isCoach ? 'COACH' : 'PRO'
 
   const handleSubscribe = async () => {
     setLoading(true); setError('')
-    const res = await startCheckout(audience, cadence)
+    const res = await startCheckout(audience, selection)
     if (!res.ok) { setError(res.error || 'Could not start checkout.'); setLoading(false) }
     // on success the browser redirects to Stripe
   }
@@ -90,7 +113,7 @@ export default function UpgradePage() {
         <p className="font-mono text-[10px] tracking-[0.22em] text-muted mb-2">YOUR PLAN</p>
         <h1 className="font-display font-black text-3xl tracking-widest text-cream">PREMIUM ACTIVE</h1>
         <p className="font-mono text-xs text-muted mt-2">
-          {plan ? `${plan === 'annual' ? 'Annual' : 'Monthly'} plan` : 'Subscription active'} · {status}
+          {planLabel(plan)} · {status}
         </p>
         <button
           onClick={openBillingPortal}
@@ -123,61 +146,107 @@ export default function UpgradePage() {
           </p>
         </div>
 
-        {/* Cadence toggle — sliding pill across 3 options */}
-        <div className="relative flex bg-card border border-border rounded-xl p-1 card-dim mb-6">
-          <div
-            className="absolute top-1 bottom-1 rounded-lg pointer-events-none"
-            style={{
-              left:  `calc(4px + ${CADENCES.indexOf(cadence)} * (100% - 8px) / ${CADENCES.length})`,
-              width: `calc((100% - 8px) / ${CADENCES.length})`,
-              background: 'linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, white))',
-              boxShadow: `0 2px 14px ${accentA(40)}, inset 0 1px 0 rgba(255,255,255,0.25)`,
-              transition: 'left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1)',
-            }}
-          />
-          {CADENCES.map((c) => {
-            const pct = savingsPct(PRICES[audience], c)
-            const active = cadence === c
-            return (
-              <button
-                key={c}
-                onClick={() => setCadence(c)}
-                className={`relative z-10 flex-1 py-2 flex flex-col items-center gap-0.5 font-display font-bold transition-colors ${
-                  active ? 'text-bg' : 'text-muted hover:text-cream'
-                }`}
-                style={active ? { color: '#fff' } : undefined}
-              >
-                <span className="text-[11px] tracking-[0.12em]">{c.toUpperCase()}</span>
-                {pct > 0 && (
-                  <span
-                    className="font-mono text-[8px] tracking-wide leading-none px-1 py-0.5 rounded"
-                    style={active
-                      ? { background: 'rgba(255,255,255,0.22)', color: '#fff' }
-                      : { background: accentA(14), color: 'var(--color-accent)' }}
-                  >
-                    SAVE {pct}%
+        {/* Plan selector */}
+        {isCoach ? (
+          /* Coach — pick a tier by active client count */
+          <div className="space-y-2.5 mb-6">
+            {COACH_TIERS.map((t) => {
+              const active = tier === t.key
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => setTier(t.key)}
+                  className="w-full flex items-center justify-between rounded-xl px-4 py-3.5 border transition-all press"
+                  style={active
+                    ? { borderColor: 'var(--color-accent)', background: accentA(12), boxShadow: `0 2px 18px ${accentA(28)}` }
+                    : { borderColor: 'var(--color-border)', background: 'var(--color-card)' }}
+                >
+                  <span className="flex items-center gap-2.5 min-w-0">
+                    <span
+                      className="w-4 h-4 rounded-full flex-shrink-0 border-2 flex items-center justify-center"
+                      style={{ borderColor: active ? 'var(--color-accent)' : 'var(--color-border)' }}
+                    >
+                      {active && <span className="w-2 h-2 rounded-full" style={{ background: 'var(--color-accent)' }} />}
+                    </span>
+                    <span className="font-display font-bold text-sm tracking-wide text-cream truncate">{t.range}</span>
+                    {t.tag && (
+                      <span className="font-mono text-[8px] tracking-[0.18em] px-1.5 py-0.5 rounded flex-shrink-0"
+                        style={{ background: accentA(16), color: 'var(--color-accent)' }}>
+                        {t.tag}
+                      </span>
+                    )}
                   </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
+                  <span className="font-mono text-sm whitespace-nowrap flex-shrink-0 ml-2">
+                    <span className="font-display font-black text-cream">${t.price}</span>
+                    <span className="text-muted">/mo</span>
+                  </span>
+                </button>
+              )
+            })}
+            <p className="font-mono text-[10px] text-dim text-center pt-1">
+              Coaching your first client is free, forever.
+            </p>
+          </div>
+        ) : (
+          /* User — cadence toggle, sliding pill across 3 options */
+          <div className="relative flex bg-card border border-border rounded-xl p-1 card-dim mb-6">
+            <div
+              className="absolute top-1 bottom-1 rounded-lg pointer-events-none"
+              style={{
+                left:  `calc(4px + ${CADENCES.indexOf(cadence)} * (100% - 8px) / ${CADENCES.length})`,
+                width: `calc((100% - 8px) / ${CADENCES.length})`,
+                background: 'linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, white))',
+                boxShadow: `0 2px 14px ${accentA(40)}, inset 0 1px 0 rgba(255,255,255,0.25)`,
+                transition: 'left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1)',
+              }}
+            />
+            {CADENCES.map((c) => {
+              const pct = savingsPct(PRICES.user, c)
+              const active = cadence === c
+              return (
+                <button
+                  key={c}
+                  onClick={() => setCadence(c)}
+                  className={`relative z-10 flex-1 py-2 flex flex-col items-center gap-0.5 font-display font-bold transition-colors ${
+                    active ? 'text-bg' : 'text-muted hover:text-cream'
+                  }`}
+                  style={active ? { color: '#fff' } : undefined}
+                >
+                  <span className="text-[11px] tracking-[0.12em]">{c.toUpperCase()}</span>
+                  {pct > 0 && (
+                    <span
+                      className="font-mono text-[8px] tracking-wide leading-none px-1 py-0.5 rounded"
+                      style={active
+                        ? { background: 'rgba(255,255,255,0.22)', color: '#fff' }
+                        : { background: accentA(14), color: 'var(--color-accent)' }}
+                    >
+                      SAVE {pct}%
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* Price card */}
         <div className="glass-card border rounded-2xl p-6 card-dim mb-5"
           style={{ borderColor: accentA(35) }}>
           <div className="flex items-baseline gap-1.5 mb-1">
             <span className="font-display font-black text-5xl text-cream">${price}</span>
-            <span className="font-mono text-sm text-muted">/{SUFFIX[cadence]}</span>
+            <span className="font-mono text-sm text-muted">/{suffix}</span>
           </div>
-          {/* Savings vs the next-cheaper cadence */}
-          {savingsPct(PRICES[audience], cadence) > 0 ? (
+          {isCoach ? (
+            <p className="font-mono text-xs text-muted mb-5">
+              {selectedTier.range} · billed monthly · scale up or down anytime.
+            </p>
+          ) : savingsPct(PRICES.user, cadence) > 0 ? (
             <p className="font-mono text-xs mb-5" style={{ color: 'var(--color-accent)' }}>
-              ✦ Save {savingsPct(PRICES[audience], cadence)}% vs {PREV_CADENCE[cadence]}
+              ✦ Save {savingsPct(PRICES.user, cadence)}% vs {PREV_CADENCE[cadence]}
             </p>
           ) : (
             <p className="font-mono text-xs text-muted mb-5">
-              Switch to monthly and save {savingsPct(PRICES[audience], 'monthly')}%
+              Switch to monthly and save {savingsPct(PRICES.user, 'monthly')}%
             </p>
           )}
           <div className="space-y-3">
@@ -204,7 +273,7 @@ export default function UpgradePage() {
         >
           {loading
             ? <><Loader2 size={16} className="animate-spin" /> STARTING CHECKOUT…</>
-            : <>SUBSCRIBE — ${price}/{SUFFIX[cadence]}</>}
+            : <>SUBSCRIBE — ${price}/{suffix}</>}
         </button>
 
         <button

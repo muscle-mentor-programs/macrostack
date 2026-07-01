@@ -7,15 +7,22 @@ const cors = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Stripe Price IDs — create one Price per (audience, cadence) in the Stripe
-// dashboard and set these as function secrets.
-const PRICE_IDS: Record<string, string | undefined> = {
-  'coach:weekly':  Deno.env.get('STRIPE_PRICE_COACH_WEEKLY'),
-  'coach:monthly': Deno.env.get('STRIPE_PRICE_COACH_MONTHLY'),
-  'coach:annual':  Deno.env.get('STRIPE_PRICE_COACH_ANNUAL'),
-  'user:weekly':   Deno.env.get('STRIPE_PRICE_USER_WEEKLY'),
-  'user:monthly':  Deno.env.get('STRIPE_PRICE_USER_MONTHLY'),
-  'user:annual':   Deno.env.get('STRIPE_PRICE_USER_ANNUAL'),
+// ── User (client) Pro prices — cadence based. Set as function secrets. ──
+const USER_PRICE_IDS: Record<string, string | undefined> = {
+  weekly:  Deno.env.get('STRIPE_PRICE_USER_WEEKLY'),
+  monthly: Deno.env.get('STRIPE_PRICE_USER_MONTHLY'),
+  annual:  Deno.env.get('STRIPE_PRICE_USER_ANNUAL'),
+}
+
+// ── Coach prices — tiered by active client count (monthly). Price IDs are
+// not secrets, so they live here directly; an env var override wins if set
+// (handy for swapping test ↔ live). Keys must match the client's tier keys. ──
+const COACH_TIER_PRICE_IDS: Record<string, string> = {
+  t_2_10:     Deno.env.get('STRIPE_PRICE_COACH_2_10')     || 'price_1ToTcZ5UsTzAaeWaz692hsEW',
+  t_11_30:    Deno.env.get('STRIPE_PRICE_COACH_11_30')    || 'price_1ToTcm5UsTzAaeWaag49H3ol',
+  t_31_60:    Deno.env.get('STRIPE_PRICE_COACH_31_60')    || 'price_1ToTd25UsTzAaeWaggN7ekOk',
+  t_61_120:   Deno.env.get('STRIPE_PRICE_COACH_61_120')   || 'price_1ToTdM5UsTzAaeWagQysWfi9',
+  t_121_plus: Deno.env.get('STRIPE_PRICE_COACH_121_PLUS') || 'price_1ToTde5UsTzAaeWarmWtvri1',
 }
 
 serve(async (req) => {
@@ -43,8 +50,9 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await admin.auth.getUser(token)
     if (userError || !user) throw new Error('Unauthorized')
 
+    // `plan` is a cadence (weekly|monthly|annual) for users, or a coach tier
+    // key (t_2_10 … t_121_plus) for coaches.
     const { plan, returnUrl } = await req.json()
-    if (!['weekly', 'monthly', 'annual'].includes(plan)) throw new Error('Invalid plan')
 
     // Reuse an existing Stripe customer if we have one, else create + persist it.
     const { data: profile } = await admin
@@ -57,8 +65,15 @@ serve(async (req) => {
     // client — so a user can't check out at the wrong plan/price.
     const audience = profile?.role === 'client' ? 'user' : 'coach'
 
-    const priceId = PRICE_IDS[`${audience}:${plan}`]
-    if (!priceId) throw new Error(`No price configured for ${audience}:${plan}`)
+    let priceId: string | undefined
+    if (audience === 'coach') {
+      priceId = COACH_TIER_PRICE_IDS[plan]
+      if (!priceId) throw new Error(`Invalid coach tier: ${plan}`)
+    } else {
+      if (!['weekly', 'monthly', 'annual'].includes(plan)) throw new Error('Invalid plan')
+      priceId = USER_PRICE_IDS[plan]
+      if (!priceId) throw new Error(`No price configured for user:${plan}`)
+    }
 
     let customerId = profile?.stripe_customer_id
     if (!customerId) {
