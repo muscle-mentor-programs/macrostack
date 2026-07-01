@@ -582,6 +582,20 @@ export default function Landing({ onGetStarted }) {
                   {label}
                 </text>
               ))}
+
+              {/* Feed line — the guide line arrives at the vessel's bottom-left
+                  corner, as if it's what fills it up */}
+              <path
+                d="M 2 352 C 32 336, 56 326, 84 314"
+                fill="none"
+                style={{ stroke: 'var(--color-accent)', strokeOpacity: 0.7 }}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+              <circle cx="84" cy="314" r="9" style={{ fill: accentA(22) }} />
+              <circle cx="84" cy="314" r="4.5" style={{ fill: ACCENT_LIGHT }}>
+                <animate attributeName="opacity" values="1;0.55;1" dur="1.6s" repeatCount="indefinite" />
+              </circle>
             </svg>
           </div>
 
