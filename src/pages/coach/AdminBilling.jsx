@@ -23,7 +23,7 @@ const FILTERS = [
 ]
 
 export default function AdminBilling() {
-  const { adminAccounts, adminAccountsError, adminAccountsLoaded, loadAdminAccounts, setSubscriptionOverride, currentUser } = useStore()
+  const { adminAccounts, adminAccountsError, adminAccountsLoaded, loadAdminAccounts, setSubscriptionOverride, currentUser, clients } = useStore()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [busyId, setBusyId] = useState(null)
@@ -32,16 +32,29 @@ export default function AdminBilling() {
 
   const isSuperadmin = currentUser?.role === 'superadmin'
 
+  // Invited users who haven't created an account yet have no profile — and so no
+  // billing row. Surface them (read-only) so the full roster shows here; they
+  // become real, unlockable accounts the moment they accept the invite.
+  const pendingRows = useMemo(() => {
+    const accountEmails = new Set(adminAccounts.map((a) => (a.email || '').toLowerCase()))
+    return (clients || [])
+      .filter((c) => !c.profileId && c.email && !accountEmails.has(c.email.toLowerCase()))
+      .map((c) => ({
+        id: c.id, name: c.name, email: c.email, role: 'client',
+        pending: true, admin_override: null, subscription_status: 'pending',
+      }))
+  }, [clients, adminAccounts])
+
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase()
-    return adminAccounts.filter((a) => {
+    return [...adminAccounts, ...pendingRows].filter((a) => {
       if (q && !`${a.name} ${a.email || ''}`.toLowerCase().includes(q)) return false
       if (filter === 'coach')  return a.role === 'coach' || a.role === 'superadmin'
       if (filter === 'client') return a.role === 'client'
-      if (filter === 'locked') return !rowAccess(a)
+      if (filter === 'locked') return !a.pending && !rowAccess(a)
       return true
     })
-  }, [adminAccounts, search, filter])
+  }, [adminAccounts, pendingRows, search, filter])
 
   const handleSet = async (id, value) => {
     setBusyId(id)
@@ -128,6 +141,7 @@ export default function AdminBilling() {
           </div>
         ) : (
           visible.map((a, i) => {
+            const pending  = a.pending
             const access   = rowAccess(a)
             const override = a.admin_override
             const busy     = busyId === a.id
@@ -135,12 +149,12 @@ export default function AdminBilling() {
               <div
                 key={a.id}
                 style={{ animationDelay: `${i * 25}ms` }}
-                className="anim-fade-in-up glass-card border border-border rounded-2xl px-5 py-4 flex items-center gap-4 card-dim"
+                className={`anim-fade-in-up glass-card border rounded-2xl px-5 py-4 flex items-center gap-4 card-dim ${pending ? 'border-brown/25 opacity-80' : 'border-border'}`}
               >
                 {/* Access dot */}
                 <div className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{ background: access ? 'var(--color-accent)' : 'var(--color-dim)' }}
-                  title={access ? 'Has access' : 'No access'} />
+                  style={{ background: pending ? 'var(--color-brown)' : access ? 'var(--color-accent)' : 'var(--color-dim)' }}
+                  title={pending ? 'Invite pending' : access ? 'Has access' : 'No access'} />
 
                 {/* Identity */}
                 <div className="flex-1 min-w-0">
@@ -150,6 +164,11 @@ export default function AdminBilling() {
                       style={{ color: 'var(--color-accent)', background: accentA(10), border: `1px solid ${accentA(25)}` }}>
                       {a.role.toUpperCase()}
                     </span>
+                    {pending && (
+                      <span className="font-mono text-[8px] tracking-widest px-1.5 py-0.5 rounded flex-shrink-0 text-brown-light bg-brown/10 border border-brown/25">
+                        PENDING
+                      </span>
+                    )}
                   </div>
                   <p className="font-mono text-[11px] text-muted truncate">{a.email}</p>
                 </div>
@@ -157,15 +176,21 @@ export default function AdminBilling() {
                 {/* Status */}
                 <div className="text-right flex-shrink-0 hidden sm:block">
                   <p className="font-mono text-[11px] text-cream">
-                    {override ? (override === 'unlocked' ? 'Admin: unlocked' : 'Admin: locked')
-                              : a.subscription_status}
+                    {pending ? 'Invite pending'
+                      : override ? (override === 'unlocked' ? 'Admin: unlocked' : 'Admin: locked')
+                      : a.subscription_status}
                   </p>
                   <p className="font-mono text-[9px] text-dim tracking-widest">
-                    {a.subscription_plan ? a.subscription_plan.toUpperCase() : '—'}
+                    {pending ? 'NO ACCOUNT YET' : a.subscription_plan ? a.subscription_plan.toUpperCase() : '—'}
                   </p>
                 </div>
 
-                {/* Controls */}
+                {/* Controls — pending users have no account to override yet */}
+                {pending ? (
+                  <span className="flex-shrink-0 font-mono text-[9px] text-dim tracking-widest hidden sm:block">
+                    AWAITING SIGN-UP
+                  </span>
+                ) : (
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   <button
                     onClick={() => handleSet(a.id, 'unlocked')}
@@ -201,6 +226,7 @@ export default function AdminBilling() {
                     <RotateCcw size={12} />
                   </button>
                 </div>
+                )}
               </div>
             )
           })
