@@ -293,7 +293,7 @@ export default function ClientDashboard() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="relative flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
+      <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <div>
           <p className="font-mono text-xs text-muted tracking-widest">
             {(() => {

@@ -168,7 +168,7 @@ export default function ClientCoachProfile() {
   return (
     <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
-      <div className="glass-panel accent-line relative px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
+      <div className="glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
         <h2 className="font-display font-black text-3xl tracking-wider text-cream">
           <ScrambleText text="COACH" duration={700} />
         </h2>

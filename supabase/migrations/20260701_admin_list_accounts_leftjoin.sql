@@ -1,11 +1,13 @@
 -- ════════════════════════════════════════════════════════════════════════════
--- Harden admin_list_accounts so the superadmin billing panel never silently
--- drops accounts.
+-- Fix + harden admin_list_accounts (superadmin billing panel).
 --
--- The original used an INNER JOIN to auth.users, which removed any profile
--- whose auth.users row wasn't visible/matched. Switch to LEFT JOIN so every
--- profile (coach, superadmin, client/user) is returned; email falls back to
--- '—' when the auth row can't be read.
+-- Bug: the function RETURNS TABLE(... id uuid, ... role text ...). Those OUT
+-- params are in scope in the body, so the unqualified `id`/`role` in the
+-- superadmin guard were ambiguous → "column reference \"id\" is ambiguous",
+-- which made every call fail and the panel show no accounts.
+--
+-- Fixes: alias the guard's table so its columns are unambiguous, and LEFT JOIN
+-- auth.users so no profile is silently dropped when its auth row isn't matched.
 -- ════════════════════════════════════════════════════════════════════════════
 
 CREATE OR REPLACE FUNCTION admin_list_accounts()
@@ -18,8 +20,8 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'superadmin'
+    SELECT 1 FROM public.profiles AS me
+    WHERE me.id = auth.uid() AND me.role = 'superadmin'
   ) THEN
     RAISE EXCEPTION 'Only superadmins can list accounts';
   END IF;
