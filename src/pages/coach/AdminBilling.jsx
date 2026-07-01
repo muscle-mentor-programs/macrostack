@@ -63,7 +63,7 @@ export default function AdminBilling() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="relative px-8 pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="relative px-6 md:px-8 pt-mobile-header md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center gap-2 mb-1.5">
           <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
           <p className="font-mono text-[10px] tracking-[0.22em] text-muted">SUPERADMIN</p>

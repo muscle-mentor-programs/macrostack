@@ -1,16 +1,22 @@
-import { LayoutDashboard, Users, MessageCircle, Utensils, User } from 'lucide-react'
+import { LayoutDashboard, Users, MessageCircle, Utensils, User, CreditCard } from 'lucide-react'
 import useStore from '../store'
 
-const NAV = [
+const BASE_NAV = [
   { id: 'dashboard', label: 'HOME',    icon: LayoutDashboard },
   { id: 'clients',   label: 'USERS',   icon: Users           },
   { id: 'chat',      label: 'CHAT',    icon: MessageCircle   },
   { id: 'foods',     label: 'FOODS',   icon: Utensils        },
   { id: 'profile',   label: 'PROFILE', icon: User            },
 ]
+// Superadmins get a BILLING tab to grant/revoke premium access (mirrors the
+// desktop sidebar). Registered as COACH_PAGES_MOBILE.billing → AdminBilling.
+const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }
 
 export default function CoachBottomNav() {
-  const { activePage, setActivePage, clients, messages, navHidden } = useStore()
+  const { activePage, setActivePage, clients, messages, navHidden, currentUser } = useStore()
+
+  const isSuperadmin = currentUser?.role === 'superadmin'
+  const NAV = isSuperadmin ? [...BASE_NAV, BILLING_NAV] : BASE_NAV
 
   const totalUnread = clients.reduce(
     (n, c) =>
@@ -24,7 +30,7 @@ export default function CoachBottomNav() {
         navHidden ? 'translate-y-full' : ''
       }`}
     >
-      <div className="grid grid-cols-5">
+      <div className={`grid ${isSuperadmin ? 'grid-cols-6' : 'grid-cols-5'}`}>
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = activePage === id
           const badge  = id === 'chat' && totalUnread > 0 ? totalUnread : 0
