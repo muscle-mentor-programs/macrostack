@@ -205,15 +205,18 @@ export default function Landing({ onGetStarted }) {
           .to(pcts[i - 1],  { autoAlpha: 0, duration: 0.3 }, i)
           .to(pcts[i],      { autoAlpha: 1, duration: 0.3 }, i + 0.2)
           .to(layerLabels[i], { opacity: 1, duration: 0.4 }, i + 0.3)
-          /* fill level — attr y/height, NOT scaleY (SVG transform quirks) */
-          .to(fillRef.current, {
-            attr: {
-              y: VESSEL_BOTTOM - LAYER_H * (i + 1),
-              height: LAYER_H * (i + 1),
-            },
-            duration: 0.9, ease: 'power1.inOut',
-          }, i)
       }
+      /* Vessel fill — ONE continuous, silky rise across all steps instead of a
+         jump per step. Linear (attr y/height) so the level tracks the scroll at
+         a perfectly steady pace — no per-step easing pulse. */
+      storyTl.to(fillRef.current, {
+        attr: {
+          y: VESSEL_BOTTOM - LAYER_H * STORY_STEPS.length,
+          height: LAYER_H * STORY_STEPS.length,
+        },
+        ease: 'none',
+        duration: STORY_STEPS.length - 1,
+      }, 0)
       storyTl.to({}, { duration: 0.5 }) // hold the finished state briefly
 
       /* ── 6. Showcase — native horizontal scroll (no pin); cards reveal ── */
@@ -381,11 +384,13 @@ export default function Landing({ onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 3+4. GUIDE LINE over STATEMENT (inverted theme section) ══════════ */}
-      <div className="guide-wrap relative" style={{ background: INVERT_BG, color: INVERT_INK }}>
-        {/* Weaving SVG guide line — behind content */}
+      {/* ══ 3+4. GUIDE LINE — weaves behind content across the light statement
+             AND the dark "four steps" block (z-1 line, z-0 backdrops, z-2 content) ══ */}
+      <div className="guide-wrap relative" style={{ background: INVERT_BG, color: INVERT_INK, isolation: 'isolate' }}>
+        {/* Weaving SVG guide line — above the section backdrops, behind content */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
+          style={{ zIndex: 1 }}
           viewBox="0 0 1000 2000"
           preserveAspectRatio="none"
           fill="none"
@@ -402,7 +407,7 @@ export default function Landing({ onGetStarted }) {
         </svg>
 
         {/* Statement */}
-        <section className="relative min-h-[70vh] flex items-center justify-center px-6 py-24 md:py-28">
+        <section className="relative z-[2] min-h-[70vh] flex items-center justify-center px-6 py-24 md:py-28">
           <p className="stmt max-w-3xl text-center font-display font-black text-4xl md:text-6xl leading-[1.15] tracking-wide">
             {STATEMENT.split(' ').map((w, i) => (
               <span key={i} className="stmt-word inline-block mr-[0.28em]">
@@ -413,7 +418,7 @@ export default function Landing({ onGetStarted }) {
         </section>
 
         {/* Mobile web app — install steps (light section, below the statement) */}
-        <section className="relative px-6 pb-24 md:pb-28">
+        <section className="relative z-[2] px-6 pb-24 md:pb-28">
           <div className="relative max-w-4xl mx-auto">
             <div className="coach-reveal text-center mb-2">
               <div className="flex items-center gap-2 justify-center mb-4">
@@ -465,22 +470,24 @@ export default function Landing({ onGetStarted }) {
           </div>
         </section>
 
-      </div>
-
-      {/* ══ 4.5 HOW IT WORKS heading (theme dark) ════════════════════════════ */}
-      <section className="relative bg-bg px-6 pt-24 md:pt-28 pb-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-3 mb-5">
-            <span className="w-8 h-px" style={{ background: accentA(60) }} />
-            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">HOW IT WORKS</p>
+        {/* How-it-works heading — dark block INSIDE the guide-wrap so the line
+            weaves through it (dark backdrop behind the line, content above it) */}
+        <section className="relative px-6 pt-24 md:pt-28 pb-16 md:pb-20">
+          {/* dark backdrop sits behind the guide line */}
+          <div className="absolute inset-0" style={{ background: 'var(--color-bg)' }} />
+          <div className="relative z-[2] max-w-5xl mx-auto">
+            <div className="flex items-center gap-3 mb-5">
+              <span className="w-8 h-px" style={{ background: accentA(60) }} />
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">HOW IT WORKS</p>
+            </div>
+            <h2 className="font-display font-black text-5xl md:text-7xl tracking-wide leading-[1.02] text-cream">
+              FOUR STEPS TO
+              <br />
+              <span style={{ color: ACCENT }}>DIALED-IN</span> NUTRITION.
+            </h2>
           </div>
-          <h2 className="font-display font-black text-5xl md:text-7xl tracking-wide leading-[1.02] text-cream">
-            FOUR STEPS TO
-            <br />
-            <span style={{ color: ACCENT }}>DIALED-IN</span> NUTRITION.
-          </h2>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* ══ 5. PINNED STORY (theme dark) ═════════════════════════════════════ */}
       <section className="story relative h-screen overflow-hidden bg-bg">
