@@ -6,6 +6,7 @@ import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
 import MealPlanBuilder from './MealPlanBuilder'
+import ProgressPhotos from '../../components/ProgressPhotos'
 import { generateMealPlan } from '../../services/mealPlanAI'
 import { generateCheckinReview } from '../../services/checkinAI'
 import { reconcileGoals } from '../../utils/macros'
@@ -902,6 +903,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           { id: 'overview',   label: 'OVERVIEW'   },
           { id: 'checkin',    label: 'CHECK-IN'   },
           { id: 'mealplans',  label: 'MEAL PLANS' },
+          { id: 'photos',     label: 'PHOTOS'     },
         ].map((t) => (
           <button
             key={t.id}
@@ -1080,6 +1082,16 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
         {tab === 'mealplans' && (
           <div className="p-6">
             <MealPlansTab clientId={client.id} />
+          </div>
+        )}
+
+        {tab === 'photos' && (
+          <div className="p-6 max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROGRESS PHOTO TIMELINE</p>
+            </div>
+            <ProgressPhotos client={client} />
           </div>
         )}
       </div>

@@ -3,9 +3,10 @@ import { format, subDays } from 'date-fns'
 import {
   Mail, Edit2, MessageCircle, BookOpen,
   Users, TrendingUp, Target, X, Send, CheckSquare, Square, ChevronRight,
-  Copy, Check as CheckIcon, Bell,
+  Copy, Check as CheckIcon, Bell, Gauge,
 } from 'lucide-react'
 import useStore from '../../../store'
+import { computeRosterNudges } from '../../../lib/goalNudges'
 import ClientAvatar from '../../../components/ClientAvatar'
 import AnimatedNumber from '../../../components/AnimatedNumber'
 import ScrambleText from '../../../components/ScrambleText'
@@ -351,6 +352,14 @@ export default function MobileCoachDashboard() {
     setActivePage('clients')
   }
 
+  // Deep-link into the client's CHECK-IN tab, where Kay suggests new targets
+  const handleReview = (clientId) => {
+    setViewingClientId(clientId, 'checkin')
+    setActivePage('clients')
+  }
+
+  const nudges = computeRosterNudges(clients)
+
   const complianceColor =
     avgCompliance >= 70 ? 'text-olive-light' :
     avgCompliance >= 40 ? 'text-brown-light' :
@@ -441,6 +450,37 @@ export default function MobileCoachDashboard() {
                   </button>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Auto-adjust nudges — clients whose targets deserve a look */}
+      {nudges.length > 0 && (
+        <div className="glass-card border border-amber-400/25 rounded-xl p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <Gauge size={14} className="text-amber-300" />
+            <span className="font-display font-bold text-xs tracking-widest text-amber-300">
+              TARGET REVIEW SUGGESTED ({nudges.length})
+            </span>
+          </div>
+          <div className="space-y-2">
+            {nudges.map(({ client, nudge }) => (
+              <button
+                key={client.id}
+                onClick={() => handleReview(client.id)}
+                className="w-full flex items-center justify-between gap-2 bg-surface border border-border rounded-xl px-3 py-3 card-dim text-left"
+              >
+                <div className="min-w-0">
+                  <p className="font-mono text-sm text-cream truncate">
+                    {client.name} <span className="text-amber-300">· {nudge.title}</span>
+                  </p>
+                  <p className="font-mono text-xs text-muted truncate">{nudge.detail}</p>
+                </div>
+                <span className="flex-shrink-0 font-display font-bold text-[10px] tracking-widest px-2.5 py-1.5 rounded-lg bg-amber-400/15 text-amber-300 border border-amber-400/30">
+                  REVIEW
+                </span>
+              </button>
             ))}
           </div>
         </div>

@@ -144,6 +144,38 @@ export function newMessageTemplate({ recipientName, senderName, senderRole, prev
   `)
 }
 
+// ── Template: Automated reminder (log meals / submit check-in) ───────────────
+export function reminderTemplate({ recipientName, coachName, missedLog, missedCheckin }) {
+  const items = []
+  if (missedLog) items.push({
+    title: 'LOG TODAY’S MEALS',
+    body:  'You haven’t logged anything today. Even a quick estimate keeps your data — and your coaching — accurate.',
+  })
+  if (missedCheckin) items.push({
+    title: 'SUBMIT YOUR WEEKLY CHECK-IN',
+    body:  'It’s been over a week since your last check-in. It takes under a minute and helps your coach adjust your targets.',
+  })
+
+  const rows = items.map((it) => `
+    <div style="background:${BRAND.bg};border-left:3px solid ${BRAND.olive};border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:12px;">
+      <p style="margin:0 0 4px;font-size:12px;letter-spacing:2px;color:${BRAND.cream};font-family:Impact,'Arial Black',sans-serif;">${it.title}</p>
+      <p style="margin:0;font-size:13px;color:${BRAND.muted};line-height:1.6;">${it.body}</p>
+    </div>`).join('')
+
+  return shell(`
+    <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;color:${BRAND.olive};">FRIENDLY REMINDER</p>
+    <h1 style="margin:0 0 24px;font-family:Impact,'Arial Black',sans-serif;font-size:26px;letter-spacing:4px;color:${BRAND.cream};">STAY ON TRACK</h1>
+
+    <p style="margin:0 0 20px;font-size:13px;color:${BRAND.muted};">Hi ${recipientName || 'there'}, a quick nudge${coachName ? ` from ${coachName}'s MacroStack` : ''}:</p>
+
+    ${rows}
+
+    <a href="https://getmacrostack.com" style="display:block;background:${BRAND.olive};color:${BRAND.bg};text-align:center;text-decoration:none;font-family:Impact,'Arial Black',sans-serif;font-size:13px;letter-spacing:4px;padding:14px;border-radius:10px;margin-top:12px;">OPEN MACROSTACK →</a>
+
+    <p style="margin:20px 0 0;font-size:11px;color:${BRAND.dim};text-align:center;">You can turn reminder emails off anytime from your profile in the app.</p>
+  `)
+}
+
 // ── Template: Welcome / account created ──────────────────────────────────────
 export function welcomeTemplate({ name, role, loginUrl }) {
   const isCoach   = role !== 'client'

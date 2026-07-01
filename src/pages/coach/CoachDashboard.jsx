@@ -3,12 +3,13 @@ import { format, subDays } from 'date-fns'
 import {
   Mail, Edit2, Users, TrendingUp, Target, X, Send,
   CheckSquare, Square, MessageCircle, BookOpen,
-  Copy, Check as CheckIcon, Bell,
+  Copy, Check as CheckIcon, Bell, Gauge,
 } from 'lucide-react'
 import useStore from '../../store'
 import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
+import { computeRosterNudges, computeGoalNudge } from '../../lib/goalNudges'
 
 // ─── Quick-edit goals modal ───────────────────────────────────────────────────
 function QuickEditModal({ client, onClose }) {
@@ -227,10 +228,11 @@ function EmailModal({ clients, preselectedId, onClose }) {
 }
 
 // ─── Individual client card ───────────────────────────────────────────────────
-function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
+function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onReview }) {
   const { getClientTotalsForDate, messages } = useStore()
   const today  = format(new Date(), 'yyyy-MM-dd')
   const totals = getClientTotalsForDate(client.id, today)
+  const nudge  = computeGoalNudge(client)
 
   const days7 = Array.from({ length: 7 }, (_, i) => {
     const d = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd')
@@ -299,6 +301,18 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
           </button>
         </div>
       </div>
+
+      {/* Auto-adjust nudge — targets may need review */}
+      {nudge && (
+        <button
+          onClick={() => onReview(client.id)}
+          className="flex items-center gap-2 w-full text-left bg-amber-400/10 border border-amber-400/25 hover:border-amber-400/50 rounded-xl px-3 py-2 transition-colors"
+          title={nudge.detail}
+        >
+          <Gauge size={13} className="text-amber-300 flex-shrink-0" />
+          <span className="font-mono text-[10px] text-amber-300 truncate">{nudge.title} — review targets</span>
+        </button>
+      )}
 
       {/* Calorie bar */}
       <div>
@@ -431,6 +445,14 @@ export default function CoachDashboard() {
     setActivePage('clients')
   }
 
+  // Deep-link into the client's CHECK-IN tab, where Kay suggests new targets
+  const handleReview = (clientId) => {
+    setViewingClientId(clientId, 'checkin')
+    setActivePage('clients')
+  }
+
+  const nudges = computeRosterNudges(clients)
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
@@ -524,6 +546,44 @@ export default function CoachDashboard() {
         </div>
       )}
 
+      {/* Auto-adjust nudges — clients whose targets deserve a look */}
+      {nudges.length > 0 && (
+        <div className="px-8 pt-4 pb-0 flex-shrink-0">
+          <div className="bg-card border border-amber-400/25 rounded-xl p-4 space-y-3 card-dim">
+            <div className="flex items-center gap-2">
+              <Gauge size={14} className="text-amber-300" />
+              <span className="font-display font-bold text-xs tracking-widest text-amber-300">
+                TARGET REVIEW SUGGESTED ({nudges.length})
+              </span>
+            </div>
+            <div className="space-y-2">
+              {nudges.map(({ client, nudge }) => (
+                <div
+                  key={client.id}
+                  className="flex items-center justify-between gap-3 bg-surface border border-border rounded-lg px-3 py-2.5 card-dim"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-7 h-7 flex-shrink-0" textClassName="text-[10px]" />
+                    <div className="min-w-0">
+                      <p className="font-mono text-sm text-cream truncate">
+                        {client.name} <span className="text-amber-300">· {nudge.title}</span>
+                      </p>
+                      <p className="font-mono text-xs text-muted truncate">{nudge.detail}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleReview(client.id)}
+                    className="flex-shrink-0 font-display font-bold text-xs tracking-widest px-3 py-1.5 rounded-lg bg-amber-400/15 hover:bg-amber-400/30 text-amber-300 border border-amber-400/30 transition-colors"
+                  >
+                    REVIEW
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-4 px-8 py-5 border-b border-border flex-shrink-0 glass-panel">
         {[
@@ -566,6 +626,7 @@ export default function CoachDashboard() {
                 onEmail={(id) => { setEmailPreselect(id); setEmailModal(true) }}
                 onChat={handleChat}
                 onMealPlans={handleMealPlans}
+                onReview={handleReview}
               />
             ))}
           </div>

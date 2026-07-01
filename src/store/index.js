@@ -64,10 +64,12 @@ function dbToClient(row) {
     avatarUrl:        row.avatar_url || null,
     status:           row.status || 'active',
     createdAt:        row.created_at,
+    remindersEnabled: row.reminders_enabled ?? true,
     log:       {},
     weightLog: [],
     mealPlans: [],
     checkins:  [],
+    photos:    [],
   }
 }
 
@@ -80,6 +82,17 @@ function dbToCheckin(row) {
     hunger:    row.hunger,
     energy:    row.energy,
     notes:     row.notes || '',
+    createdAt: row.created_at,
+  }
+}
+
+function dbToPhoto(row) {
+  return {
+    id:        row.id,
+    url:       row.url,
+    path:      row.path,
+    note:      row.note || '',
+    takenAt:   row.taken_at,
     createdAt: row.created_at,
   }
 }
@@ -280,14 +293,22 @@ const useStore = create(
       loadAllData: async () => {
         // All four queries run in parallel — cuts login latency to the slowest
         // single query instead of the sum of all four
-        const [clientRes, msgRes, foodRes, reqRes] = await Promise.all([
+        let [clientRes, msgRes, foodRes, reqRes] = await Promise.all([
           supabase.from('clients')
-            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*)')
+            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*), progress_photos(*)')
             .order('created_at', { ascending: true }),
           supabase.from('messages').select('*').order('created_at', { ascending: true }),
           supabase.from('custom_foods').select('*').order('created_at', { ascending: true }),
           supabase.from('coach_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
         ])
+
+        // Graceful fallback if the progress_photos migration hasn't run yet —
+        // don't let one missing table take down all client data.
+        if (clientRes.error) {
+          clientRes = await supabase.from('clients')
+            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*)')
+            .order('created_at', { ascending: true })
+        }
 
         if (clientRes.error) console.error('loadAllData clients:', clientRes.error)
         if (msgRes.error)    console.error('loadAllData messages:', msgRes.error)
@@ -311,6 +332,11 @@ const useStore = create(
             checkins: (row.checkins || [])
               .map(dbToCheckin)
               .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')),
+            // Oldest → newest so the timeline reads left-to-right
+            photos: (row.progress_photos || [])
+              .map(dbToPhoto)
+              .sort((a, b) => (a.takenAt || '').localeCompare(b.takenAt || '') ||
+                              (a.createdAt || '').localeCompare(b.createdAt || '')),
           }
         })
 
@@ -603,6 +629,65 @@ const useStore = create(
           clients: s.clients.map((c) => c.id === clientId ? { ...c, avatarUrl } : c),
         }))
         return { avatarUrl }
+      },
+
+      // ── REMINDER EMAILS (client opt-in/out) ───────────────────────────────
+      setClientReminders: async (clientId, enabled) => {
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId ? { ...c, remindersEnabled: enabled } : c
+          ),
+        }))
+        await supabase.from('clients').update({ reminders_enabled: enabled }).eq('id', clientId)
+      },
+
+      // ── PROGRESS PHOTOS ───────────────────────────────────────────────────
+      addProgressPhoto: async (clientId, file, note = '') => {
+        if (!supabase) return { error: 'Supabase not configured' }
+        const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase()
+        const path = `clients/${clientId}/${Date.now()}.${ext}`
+
+        const { error } = await supabase.storage
+          .from('progress-photos')
+          .upload(path, file, { contentType: file.type })
+        if (error) { console.error('Progress photo upload:', error); return { error } }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('progress-photos')
+          .getPublicUrl(path)
+
+        const takenAt = today()
+        const { data: row, error: insErr } = await supabase
+          .from('progress_photos')
+          .insert({ client_id: clientId, url: publicUrl, path, note, taken_at: takenAt })
+          .select()
+          .single()
+        if (insErr) { console.error('Progress photo insert:', insErr); return { error: insErr } }
+
+        const photo = {
+          id: row.id, url: publicUrl, path, note,
+          takenAt: row.taken_at, createdAt: row.created_at,
+        }
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId ? { ...c, photos: [...(c.photos || []), photo] } : c
+          ),
+        }))
+        return { photo }
+      },
+
+      deleteProgressPhoto: async (clientId, photo) => {
+        // Optimistic removal
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId
+              ? { ...c, photos: (c.photos || []).filter((p) => p.id !== photo.id) }
+              : c
+          ),
+        }))
+        await supabase.from('progress_photos').delete().eq('id', photo.id)
+        // Storage cleanup is best-effort (returns {error}, never throws)
+        if (photo.path) await supabase.storage.from('progress-photos').remove([photo.path])
       },
 
       updateClientGoals: async (clientId, goals) => {

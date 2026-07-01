@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { format, subDays } from 'date-fns'
-import { Check, Link2, Camera } from 'lucide-react'
+import { Check, Link2, Camera, Bell } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis,
   ResponsiveContainer, Tooltip, ReferenceLine,
@@ -12,7 +12,7 @@ import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
 
 export default function ClientProfile() {
-  const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode } = useStore()
+  const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode, setClientReminders } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
 
   // Coach code linking
@@ -348,6 +348,38 @@ export default function ClientProfile() {
             placeholder="Anything your coach should know..."
             rows={3} className={`${inputCls} resize-none`} />
         </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '500ms' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">NOTIFICATIONS</p>
+        </div>
+        <button
+          onClick={() => setClientReminders(client.id, !(client?.remindersEnabled ?? true))}
+          className="w-full flex items-center justify-between gap-3"
+        >
+          <span className="flex items-center gap-2.5 text-left">
+            <Bell size={14} className="text-muted flex-shrink-0" />
+            <span>
+              <span className="block font-mono text-sm text-cream">Reminder emails</span>
+              <span className="block font-mono text-[10px] text-dim mt-0.5">
+                A daily nudge if you haven't logged, and when your weekly check-in is due
+              </span>
+            </span>
+          </span>
+          {/* Toggle */}
+          <span
+            className="relative flex-shrink-0 w-10 h-6 rounded-full transition-colors"
+            style={{ background: (client?.remindersEnabled ?? true) ? 'var(--color-accent)' : 'var(--color-dim)' }}
+          >
+            <span
+              className="absolute top-1 w-4 h-4 rounded-full bg-white transition-all"
+              style={{ left: (client?.remindersEnabled ?? true) ? '20px' : '4px' }}
+            />
+          </span>
+        </button>
       </div>
 
       {/* Save button */}

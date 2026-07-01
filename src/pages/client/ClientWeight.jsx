@@ -7,6 +7,7 @@ import ScrambleText from '../../components/ScrambleText'
 import { successHaptic } from '../../utils/haptics'
 import PremiumGate from '../../components/PremiumGate'
 import useSubscription from '../../hooks/useSubscription'
+import ProgressPhotos from '../../components/ProgressPhotos'
 
 // Compute 7-day moving average keyed by calendar date so backfilled entries
 // slot into the correct window automatically.
@@ -239,6 +240,15 @@ export default function ClientWeight() {
           </ResponsiveContainer>
         </div>
       )}
+
+      {/* Progress photos */}
+      <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '330ms' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROGRESS PHOTOS</p>
+        </div>
+        <ProgressPhotos client={client} canEdit />
+      </div>
 
       {/* History */}
       {sorted.length === 0 ? (

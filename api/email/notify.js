@@ -12,7 +12,7 @@
  *     { recipientEmail, name, role }
  */
 import { Resend } from 'resend'
-import { newMessageTemplate, welcomeTemplate } from '../../src/lib/emailTemplates.js'
+import { newMessageTemplate, welcomeTemplate, reminderTemplate } from '../../src/lib/emailTemplates.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM   = process.env.RESEND_FROM_EMAIL || 'MacroStack <onboarding@resend.dev>'
@@ -41,6 +41,13 @@ export default async function handler(req, res) {
       const { name, role } = payload
       subject = 'Welcome to MacroStack'
       html    = welcomeTemplate({ name, role })
+    } else if (type === 'reminder') {
+      // Automated nudge from the send-reminders scheduled function
+      const { recipientName, coachName, missedLog, missedCheckin } = payload
+      subject = missedCheckin && !missedLog
+        ? 'Your weekly check-in is due'
+        : 'Don’t forget to log today'
+      html = reminderTemplate({ recipientName, coachName, missedLog, missedCheckin })
     } else {
       return res.status(400).json({ error: `Unknown notification type: ${type}` })
     }
