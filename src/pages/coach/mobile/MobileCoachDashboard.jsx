@@ -3,7 +3,7 @@ import { format, subDays } from 'date-fns'
 import {
   Mail, Edit2, MessageCircle, BookOpen,
   Users, TrendingUp, Target, X, Send, CheckSquare, Square, ChevronRight,
-  Copy, Check as CheckIcon, Bell, Gauge,
+  Copy, Check as CheckIcon, Bell, Gauge, ClipboardCheck,
 } from 'lucide-react'
 import useStore from '../../../store'
 import { computeRosterNudges } from '../../../lib/goalNudges'
@@ -167,10 +167,11 @@ function EmailSheet({ clients, preselectedId, onClose }) {
 }
 
 // ── Compact client card ───────────────────────────────────────────────────────
-function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans }) {
+function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onReview }) {
   const { getClientTotalsForDate, messages, setActivePage } = useStore()
   const today  = format(new Date(), 'yyyy-MM-dd')
   const totals = getClientTotalsForDate(client.id, today)
+  const newCheckin = !!client.checkins?.[0] && !client.checkins[0].reviewed
 
   const days7 = Array.from({ length: 7 }, (_, i) => {
     const d = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd')
@@ -192,6 +193,20 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans 
       className="bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim"
       style={{ animationDelay: `${delay}ms` }}
     >
+      {/* New (unreviewed) weekly check-in */}
+      {newCheckin && onReview && (
+        <button
+          onClick={() => onReview(client.id)}
+          className="flex items-center gap-2 w-full text-left rounded-xl px-3 py-2 mb-3 border"
+          style={{ background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderColor: 'color-mix(in srgb, var(--color-accent) 30%, transparent)' }}
+        >
+          <ClipboardCheck size={13} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
+          <span className="font-mono text-[10px] truncate" style={{ color: 'var(--color-accent)' }}>
+            New check-in — tap to review
+          </span>
+        </button>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -535,6 +550,7 @@ export default function MobileCoachDashboard() {
               onEmail={(id) => { setEmailPreselect(id); setShowEmail(true) }}
               onChat={handleChat}
               onMealPlans={handleMealPlans}
+              onReview={handleReview}
             />
           ))}
         </div>

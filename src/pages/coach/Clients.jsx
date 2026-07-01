@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
-import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock } from 'lucide-react'
+import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronUp, ChevronDown } from 'lucide-react'
 import useStore from '../../store'
 import { coachClientLimit, coachTierLabel } from '../../lib/coachTiers'
 import ClientAvatar from '../../components/ClientAvatar'
@@ -10,6 +10,7 @@ import MealPlanBuilder from './MealPlanBuilder'
 import ProgressPhotos from '../../components/ProgressPhotos'
 import { generateMealPlan } from '../../services/mealPlanAI'
 import { generateCheckinReview } from '../../services/checkinAI'
+import { DEFAULT_QUESTIONS, QUESTION_TYPES } from '../../lib/checkinQuestions'
 import { reconcileGoals } from '../../utils/macros'
 
 // ─── Harris-Benedict (Mifflin-St Jeor revision) ──────────────────────────────
@@ -667,14 +668,219 @@ function MealPlansTab({ clientId }) {
 }
 
 // ── Coach weekly check-in review (latest submission + AI analysis) ───────────
+/* Renders a check-in's content — new answer snapshots when present, the
+   legacy adherence/hunger/energy fields for older submissions. */
+function CheckinAnswers({ checkin, compact = false }) {
+  const scaleLabel = (n) => (n ? `${n}/5` : '—')
+  const answers = checkin.answers || []
+
+  if (answers.length > 0) {
+    const scales = answers.filter((a) => a.type === 'scale')
+    const rest   = answers.filter((a) => a.type !== 'scale')
+    return (
+      <div className="space-y-3">
+        {scales.length > 0 && (
+          <div className={`grid gap-2 ${compact ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
+            {scales.map((a, i) => (
+              <div key={i} className="border border-border/50 rounded-lg p-2.5 card-inset">
+                <p className="font-display font-black text-lg text-cream">{a.value ? `${a.value}/5` : '—'}</p>
+                <p className="font-mono text-[9px] text-muted leading-snug mt-0.5">{a.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {rest.map((a, i) => (
+          <div key={i}>
+            <p className="font-mono text-[10px] tracking-widest text-muted mb-1">{a.label.toUpperCase()}</p>
+            {a.type === 'yesno' ? (
+              <p className="font-mono text-sm text-cream">{a.value === null || a.value === undefined ? '—' : a.value ? 'Yes' : 'No'}</p>
+            ) : (
+              <p className="font-mono text-sm text-cream leading-relaxed whitespace-pre-wrap">{a.value || '—'}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // Legacy check-ins (pre-custom-questions)
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-3">
+        {[['ADHERENCE', checkin.adherence], ['HUNGER', checkin.hunger], ['ENERGY', checkin.energy]].map(([l, v]) => (
+          <div key={l} className="border border-border/50 rounded-lg p-2.5 text-center card-inset">
+            <p className="font-display font-black text-lg text-cream">{scaleLabel(v)}</p>
+            <p className="font-mono text-[9px] text-muted tracking-widest mt-0.5">{l}</p>
+          </div>
+        ))}
+      </div>
+      {checkin.notes && (
+        <div>
+          <p className="font-mono text-[10px] tracking-widest text-muted mb-1">NOTES</p>
+          <p className="font-mono text-sm text-cream leading-relaxed">{checkin.notes}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* Coach's check-in form builder — add / remove / edit / reorder questions.
+   The set applies to all of this coach's clients. */
+function QuestionEditorModal({ onClose }) {
+  const { fetchCheckinQuestions, saveCheckinQuestions } = useStore()
+  const [list, setList]     = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [error, setError]   = useState('')
+
+  useEffect(() => {
+    fetchCheckinQuestions().then((qs) =>
+      setList(qs?.length ? qs.map((q) => ({ ...q })) : DEFAULT_QUESTIONS.map((q) => ({ ...q })))
+    )
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const update = (i, patch) => setList((l) => l.map((q, x) => (x === i ? { ...q, ...patch } : q)))
+  const remove = (i)        => setList((l) => l.filter((_, x) => x !== i))
+  const move   = (i, dir)   => setList((l) => {
+    const j = i + dir
+    if (j < 0 || j >= l.length) return l
+    const next = [...l]; [next[i], next[j]] = [next[j], next[i]]
+    return next
+  })
+  const add = (type) => setList((l) => [...l, {
+    id: `new-${Date.now()}`, slug: null, type, label: '',
+    low: type === 'scale' ? 'Low' : '', high: type === 'scale' ? 'High' : '',
+  }])
+
+  const handleSave = async () => {
+    if (list.some((q) => !q.label.trim())) { setError('Every question needs text.'); return }
+    if (list.length === 0) { setError('Keep at least one question.'); return }
+    setSaving(true); setError('')
+    const res = await saveCheckinQuestions(list)
+    setSaving(false)
+    if (!res.ok) setError(res.error || 'Could not save questions.')
+    else onClose()
+  }
+
+  const typeBadge = (t) => QUESTION_TYPES.find((x) => x.id === t)?.label || t
+
+  return (
+    <div className="fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-50 anim-fade-in p-4">
+      <div className="bg-card border border-border rounded-2xl w-[620px] max-w-full max-h-[88vh] overflow-y-auto shadow-2xl anim-fade-in-up">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border sticky top-0 bg-card z-10">
+          <div>
+            <h3 className="font-display font-black text-xl tracking-widest text-cream">CHECK-IN QUESTIONS</h3>
+            <p className="font-mono text-xs text-muted mt-0.5">What every client answers each week</p>
+          </div>
+          <button onClick={onClose} className="text-muted hover:text-cream p-1 transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-3">
+          {list === null ? (
+            <div className="py-8 flex justify-center">
+              <div className="w-6 h-6 border-2 border-brown border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <>
+              {list.map((q, i) => (
+                <div key={q.id} className="bg-surface border border-border rounded-xl p-3.5 space-y-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[8px] tracking-[0.18em] px-2 py-1 rounded flex-shrink-0"
+                      style={{ background: 'color-mix(in srgb, var(--color-accent) 14%, transparent)', color: 'var(--color-accent)' }}>
+                      {typeBadge(q.type)}
+                    </span>
+                    <div className="flex-1" />
+                    <button onClick={() => move(i, -1)} disabled={i === 0}
+                      className="p-1.5 rounded text-dim hover:text-cream disabled:opacity-25 transition-colors" title="Move up">
+                      <ChevronUp size={13} />
+                    </button>
+                    <button onClick={() => move(i, 1)} disabled={i === list.length - 1}
+                      className="p-1.5 rounded text-dim hover:text-cream disabled:opacity-25 transition-colors" title="Move down">
+                      <ChevronDown size={13} />
+                    </button>
+                    <button onClick={() => remove(i)}
+                      className="p-1.5 rounded text-dim hover:text-red-400 transition-colors" title="Remove question">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                  <input
+                    value={q.label}
+                    onChange={(e) => update(i, { label: e.target.value })}
+                    placeholder="Question text…"
+                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
+                  />
+                  {q.type === 'scale' && (
+                    <div className="flex gap-2">
+                      <input
+                        value={q.low} onChange={(e) => update(i, { low: e.target.value })}
+                        placeholder="1 = …"
+                        className="flex-1 min-w-0 bg-bg border border-border rounded-lg px-3 py-1.5 font-mono text-xs text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
+                      />
+                      <input
+                        value={q.high} onChange={(e) => update(i, { high: e.target.value })}
+                        placeholder="5 = …"
+                        className="flex-1 min-w-0 bg-bg border border-border rounded-lg px-3 py-1.5 font-mono text-xs text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Add buttons */}
+              <div className="flex gap-2 pt-1">
+                {QUESTION_TYPES.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => add(t.id)}
+                    className="flex-1 flex items-center justify-center gap-1.5 border border-dashed border-border hover:border-brown/60 text-muted hover:text-brown-light rounded-xl py-2.5 font-display font-bold text-[10px] tracking-widest transition-colors"
+                  >
+                    <Plus size={12} /> {t.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {error && <p className="font-mono text-xs text-red-400 anim-shake">{error}</p>}
+        </div>
+
+        <div className="flex gap-3 px-6 pb-6 pt-1 sticky bottom-0 bg-card">
+          <button
+            onClick={handleSave}
+            disabled={saving || list === null}
+            className="flex-1 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover disabled:opacity-50"
+          >
+            {saving ? 'SAVING…' : 'SAVE QUESTIONS'}
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-3 rounded-lg transition-colors"
+          >
+            CANCEL
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function CheckinTab({ client }) {
-  const { getClientTotalsForDate, updateClientGoals } = useStore()
+  const { getClientTotalsForDate, updateClientGoals, markCheckinReviewed } = useStore()
   const [loading, setLoading] = useState(false)
   const [review, setReview]   = useState(null)
   const [error, setError]     = useState('')
   const [applied, setApplied] = useState(false)
+  const [showEditor, setShowEditor]   = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
 
   const latest = client.checkins?.[0] || null
+  const history = (client.checkins || []).slice(1)
+
+  // Opening the tab clears the NEW badge on the latest check-in
+  useEffect(() => {
+    if (latest && !latest.reviewed) markCheckinReviewed(client.id, latest.id)
+  }, [latest?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Last 7 days of logged intake (oldest → newest)
   const week = Array.from({ length: 7 }, (_, i) => {
@@ -717,16 +923,24 @@ function CheckinTab({ client }) {
     setApplied(true)
   }
 
-  const scaleLabel = (n) => (n ? `${n}/5` : '—')
   const checkinDate = latest?.createdAt ? format(parseISO(latest.createdAt), 'MMM d, yyyy') : null
 
   return (
     <div className="max-w-3xl mx-auto space-y-5">
       {/* Latest submission */}
       <div className="anim-fade-in-up">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">LATEST CHECK-IN</p>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">LATEST CHECK-IN</p>
+          </div>
+          <button
+            onClick={() => setShowEditor(true)}
+            className="flex items-center gap-1.5 font-display font-bold text-[10px] tracking-widest text-muted hover:text-cream border border-border hover:border-muted rounded-lg px-2.5 py-1.5 transition-colors"
+          >
+            <Pencil size={11} />
+            EDIT QUESTIONS
+          </button>
         </div>
         {latest ? (
           <div className="glass-card border border-border rounded-2xl p-5 card-dim space-y-4">
@@ -736,20 +950,7 @@ function CheckinTab({ client }) {
                 <p className="font-mono text-sm text-cream">{latest.weight} {latest.weightUnit}</p>
               )}
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              {[['ADHERENCE', latest.adherence], ['HUNGER', latest.hunger], ['ENERGY', latest.energy]].map(([l, v]) => (
-                <div key={l} className="border border-border/50 rounded-lg p-2.5 text-center card-inset">
-                  <p className="font-display font-black text-lg text-cream">{scaleLabel(v)}</p>
-                  <p className="font-mono text-[9px] text-muted tracking-widest mt-0.5">{l}</p>
-                </div>
-              ))}
-            </div>
-            {latest.notes && (
-              <div>
-                <p className="font-mono text-[10px] tracking-widest text-muted mb-1">NOTES</p>
-                <p className="font-mono text-sm text-cream leading-relaxed">{latest.notes}</p>
-              </div>
-            )}
+            <CheckinAnswers checkin={latest} />
           </div>
         ) : (
           <div className="glass-card border border-border rounded-2xl p-8 text-center card-dim">
@@ -831,6 +1032,40 @@ function CheckinTab({ client }) {
           </div>
         </div>
       )}
+
+      {/* Past check-ins */}
+      {history.length > 0 && (
+        <div>
+          <button
+            onClick={() => setShowHistory((v) => !v)}
+            className="w-full flex items-center justify-between glass-card border border-border rounded-2xl px-5 py-3.5 card-dim text-left hover:border-muted transition-colors"
+          >
+            <span className="font-mono text-[10px] tracking-[0.22em] text-muted">
+              PAST CHECK-INS ({history.length})
+            </span>
+            <ChevronDown size={14} className={`text-muted transition-transform ${showHistory ? 'rotate-180' : ''}`} />
+          </button>
+          {showHistory && (
+            <div className="space-y-3 mt-3 anim-fade-in">
+              {history.map((k) => (
+                <div key={k.id} className="glass-card border border-border rounded-2xl p-5 card-dim space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="font-display font-bold text-sm text-cream">
+                      {k.createdAt ? format(parseISO(k.createdAt), 'MMM d, yyyy') : ''}
+                    </p>
+                    {k.weight != null && (
+                      <p className="font-mono text-sm text-muted">{k.weight} {k.weightUnit}</p>
+                    )}
+                  </div>
+                  <CheckinAnswers checkin={k} compact />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {showEditor && <QuestionEditorModal onClose={() => setShowEditor(false)} />}
     </div>
   )
 }

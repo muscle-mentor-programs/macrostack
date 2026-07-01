@@ -80,7 +80,20 @@ function dbToCheckin(row) {
     hunger:    row.hunger,
     energy:    row.energy,
     notes:     row.notes || '',
+    answers:   Array.isArray(row.answers) ? row.answers : [],
+    reviewed:  row.reviewed ?? true, // pre-migration rows count as seen
     createdAt: row.created_at,
+  }
+}
+
+function dbToQuestion(row) {
+  return {
+    id:    row.id,
+    label: row.label,
+    type:  row.type || 'scale',
+    low:   row.low_label  || '',
+    high:  row.high_label || '',
+    slug:  row.slug || null,
   }
 }
 
@@ -834,7 +847,7 @@ const useStore = create(
       // ── WEEKLY CHECK-INS ──────────────────────────────────────────────────
       // Client submits a weekly check-in. Newest first.
       addClientCheckin: async (clientId, data) => {
-        const { data: row, error } = await supabase.from('checkins').insert({
+        const base = {
           client_id:   clientId,
           weight:      data.weight ?? null,
           weight_unit: data.weightUnit || 'lbs',
@@ -842,8 +855,14 @@ const useStore = create(
           hunger:      data.hunger ?? null,
           energy:      data.energy ?? null,
           notes:       data.notes || '',
-        }).select().single()
-
+        }
+        // answers snapshot [{ id, label, type, value }] — retry without it if
+        // the checkin_questions migration hasn't run yet.
+        let { data: row, error } = await supabase.from('checkins')
+          .insert({ ...base, answers: data.answers || [] }).select().single()
+        if (error) {
+          ({ data: row, error } = await supabase.from('checkins').insert(base).select().single())
+        }
         if (error) { console.error('checkin insert:', error); return { ok: false } }
 
         const checkin = dbToCheckin(row)
@@ -852,6 +871,79 @@ const useStore = create(
             c.id === clientId ? { ...c, checkins: [checkin, ...(c.checkins || [])] } : c
           ),
         }))
+
+        // Check-in weight also feeds the weight log (skip if today already logged)
+        if (data.weight) {
+          const client = get().clients.find((c) => c.id === clientId)
+          const todayStr = today()
+          const alreadyLogged = (client?.weightLog || []).some((w) => w.date === todayStr)
+          if (!alreadyLogged) {
+            get().addClientWeight(clientId, { value: Number(data.weight), unit: data.weightUnit || 'lbs', date: todayStr })
+          }
+        }
+        return { ok: true }
+      },
+
+      // Coach opened the check-in → clear its NEW badge (best-effort).
+      markCheckinReviewed: async (clientId, checkinId) => {
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId
+              ? { ...c, checkins: (c.checkins || []).map((k) => k.id === checkinId ? { ...k, reviewed: true } : k) }
+              : c
+          ),
+        }))
+        await supabase.from('checkins').update({ reviewed: true }).eq('id', checkinId)
+      },
+
+      // ── CHECK-IN QUESTIONS (coach-customizable form) ──────────────────────
+      checkinQuestions: null,   // null = not fetched; [] = coach uses defaults
+
+      // Coach → own set. Client → their coach's set. Empty/missing → defaults.
+      fetchCheckinQuestions: async () => {
+        const me = get().currentUser
+        if (!me) return []
+        let coachId = me.id
+        if (me.role === 'client') {
+          const client = get().clients.find((c) => c.id === get().activeClientId)
+          coachId = client?.coachId
+          if (!coachId) { set({ checkinQuestions: [] }); return [] }
+        }
+        const { data, error } = await supabase
+          .from('checkin_questions')
+          .select('*')
+          .eq('coach_id', coachId)
+          .order('sort_order', { ascending: true })
+        if (error) { set({ checkinQuestions: [] }); return [] } // table missing → defaults
+        const qs = (data || []).map(dbToQuestion)
+        set({ checkinQuestions: qs })
+        return qs
+      },
+
+      // Replace the coach's whole question set (simplest add/remove/edit model).
+      saveCheckinQuestions: async (questions) => {
+        const me = get().currentUser
+        if (!me) return { ok: false, error: 'Not signed in.' }
+        const { error: delErr } = await supabase
+          .from('checkin_questions').delete().eq('coach_id', me.id)
+        if (delErr) { console.error('questions delete:', delErr); return { ok: false, error: delErr.message } }
+
+        const rows = questions.map((q, i) => ({
+          coach_id:   me.id,
+          label:      q.label,
+          type:       q.type,
+          low_label:  q.low  || '',
+          high_label: q.high || '',
+          slug:       q.slug || null,
+          sort_order: i,
+        }))
+        if (rows.length) {
+          const { data, error } = await supabase.from('checkin_questions').insert(rows).select()
+          if (error) { console.error('questions insert:', error); return { ok: false, error: error.message } }
+          set({ checkinQuestions: (data || []).map(dbToQuestion) })
+        } else {
+          set({ checkinQuestions: [] })
+        }
         return { ok: true }
       },
 

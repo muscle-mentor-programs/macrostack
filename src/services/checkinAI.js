@@ -23,6 +23,19 @@ export async function generateCheckinReview({ clientName = 'the client', goals, 
 
   const scale = (n) => (n ? `${n}/5` : 'not reported')
 
+  // Custom question answers (new check-ins) — falls back to the legacy
+  // structured fields for older submissions.
+  const answerBlock = (checkin?.answers || [])
+    .map((a) => {
+      const val = a.type === 'scale'
+        ? (a.value ? `${a.value}/5` : 'not answered')
+        : a.type === 'yesno'
+        ? (a.value === null || a.value === undefined ? 'not answered' : a.value ? 'Yes' : 'No')
+        : (a.value || 'not answered')
+      return `  ${a.label}: ${val}`
+    })
+    .join('\n')
+
   const systemPrompt = `You are an experienced nutrition coach reviewing a client's weekly check-in.
 Be concise, specific, and practical. Base everything on the data given.
 Respond with ONLY valid JSON, no markdown, no commentary.`
@@ -41,10 +54,10 @@ WEIGHT TREND: ${weightTrend
 
 CLIENT CHECK-IN FORM:
   Reported weight: ${checkin?.weight ? `${checkin.weight} ${checkin.weightUnit || 'lbs'}` : 'not reported'}
-  Adherence: ${scale(checkin?.adherence)}
+${answerBlock || `  Adherence: ${scale(checkin?.adherence)}
   Hunger: ${scale(checkin?.hunger)}
   Energy: ${scale(checkin?.energy)}
-  Notes: ${checkin?.notes || 'none'}
+  Notes: ${checkin?.notes || 'none'}`}
 
 Consider: if adherence is low, fix adherence before changing numbers. If weight isn't
 moving toward the goal and adherence is solid, adjust calories. Keep protein high.

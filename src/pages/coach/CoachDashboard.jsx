@@ -3,7 +3,7 @@ import { format, subDays } from 'date-fns'
 import {
   Mail, Edit2, Users, TrendingUp, Target, X, Send,
   CheckSquare, Square, MessageCircle, BookOpen,
-  Copy, Check as CheckIcon, Bell, Gauge,
+  Copy, Check as CheckIcon, Bell, Gauge, ClipboardCheck,
 } from 'lucide-react'
 import useStore from '../../store'
 import ClientAvatar from '../../components/ClientAvatar'
@@ -233,6 +233,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onRev
   const today  = format(new Date(), 'yyyy-MM-dd')
   const totals = getClientTotalsForDate(client.id, today)
   const nudge  = computeGoalNudge(client)
+  const newCheckin = !!client.checkins?.[0] && !client.checkins[0].reviewed
 
   const days7 = Array.from({ length: 7 }, (_, i) => {
     const d = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd')
@@ -301,6 +302,20 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onRev
           </button>
         </div>
       </div>
+
+      {/* New (unreviewed) weekly check-in */}
+      {newCheckin && (
+        <button
+          onClick={() => onReview(client.id)}
+          className="flex items-center gap-2 w-full text-left rounded-xl px-3 py-2 transition-colors border"
+          style={{ background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderColor: 'color-mix(in srgb, var(--color-accent) 30%, transparent)' }}
+        >
+          <ClipboardCheck size={13} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
+          <span className="font-mono text-[10px] truncate" style={{ color: 'var(--color-accent)' }}>
+            New check-in — tap to review
+          </span>
+        </button>
+      )}
 
       {/* Auto-adjust nudge — targets may need review */}
       {nudge && (

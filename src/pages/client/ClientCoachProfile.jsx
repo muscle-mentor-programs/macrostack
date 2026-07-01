@@ -3,23 +3,21 @@ import { Globe, Award, User, BookOpen, MessageCircle, Check, ClipboardCheck } fr
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 import { successHaptic } from '../../utils/haptics'
+import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
-// 1–5 selector used for adherence / hunger / energy
-function Scale({ label, low, high, value, onChange }) {
+// 1–5 selector with labeled endpoints
+function Scale({ low, high, value, onChange }) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-1.5">
-        <label className="font-display text-xs text-muted tracking-widest">{label}</label>
-      </div>
       <div className="flex gap-1.5">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n} type="button" onClick={() => onChange(n)}
-            className="flex-1 h-9 rounded-lg font-mono text-sm transition-colors border press"
+            className="flex-1 h-10 rounded-lg font-mono text-sm transition-all border press"
             style={value === n
-              ? { background: 'var(--color-accent)', color: '#fff', borderColor: 'transparent' }
+              ? { background: 'var(--color-accent)', color: '#fff', borderColor: 'transparent', transform: 'scale(1.04)' }
               : { borderColor: 'var(--color-border)', color: 'var(--color-muted)', background: 'var(--color-surface)' }}
           >
             {n}
@@ -34,28 +32,86 @@ function Scale({ label, low, high, value, onChange }) {
   )
 }
 
-// Weekly check-in form — own state so hooks stay above the parent's early returns
+function YesNo({ value, onChange }) {
+  return (
+    <div className="flex gap-1.5">
+      {[{ v: true, l: 'YES' }, { v: false, l: 'NO' }].map(({ v, l }) => (
+        <button
+          key={l} type="button" onClick={() => onChange(v)}
+          className="flex-1 h-10 rounded-lg font-display font-bold text-xs tracking-widest transition-all border press"
+          style={value === v
+            ? { background: 'var(--color-accent)', color: '#fff', borderColor: 'transparent' }
+            : { borderColor: 'var(--color-border)', color: 'var(--color-muted)', background: 'var(--color-surface)' }}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// Weekly check-in form — coach-customized questions, due tracking, and a
+// success summary. Own state so hooks stay above the parent's early returns.
 function WeeklyCheckinCard({ clientId, lastCheckin }) {
-  const addClientCheckin = useStore((s) => s.addClientCheckin)
-  const [weight, setWeight]       = useState('')
-  const [unit, setUnit]           = useState('lbs')
-  const [adherence, setAdherence] = useState(0)
-  const [hunger, setHunger]       = useState(0)
-  const [energy, setEnergy]       = useState(0)
-  const [notes, setNotes]         = useState('')
-  const [saving, setSaving]       = useState(false)
-  const [done, setDone]           = useState(false)
+  const { addClientCheckin, fetchCheckinQuestions, clients } = useStore()
+  const client = clients.find((c) => c.id === clientId)
+
+  const [questions, setQuestions] = useState(null) // null while loading
+  const [weight, setWeight]   = useState('')
+  const [unit, setUnit]       = useState(lastCheckin?.weightUnit || 'lbs')
+  const [answers, setAnswers] = useState({})       // { [questionId]: value }
+  const [saving, setSaving]   = useState(false)
+  const [done, setDone]       = useState(false)
+
+  useEffect(() => {
+    let alive = true
+    fetchCheckinQuestions().then((qs) => {
+      if (alive) setQuestions(qs?.length ? qs : DEFAULT_QUESTIONS)
+    })
+    return () => { alive = false }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Due status — weekly cadence from the last submission
+  const daysSince = lastCheckin?.createdAt
+    ? Math.floor((Date.now() - new Date(lastCheckin.createdAt).getTime()) / 86_400_000)
+    : null
+  const isDue = daysSince === null || daysSince >= 7
+
+  const lastWeight = (client?.weightLog || []).slice(-1)[0]
+
+  const setAnswer = (id, value) => setAnswers((p) => ({ ...p, [id]: value }))
+  const answeredCount = questions
+    ? questions.filter((q) => {
+        const v = answers[q.id]
+        return v !== undefined && v !== null && String(v).trim() !== ''
+      }).length
+    : 0
+  const canSubmit = !saving && (weight || answeredCount > 0)
 
   const submit = async () => {
-    if (saving) return
+    if (!canSubmit) return
     setSaving(true)
+
+    // Snapshot every question with its answer (unanswered → null)
+    const snapshot = questions.map((q) => ({
+      id: q.id, label: q.label, type: q.type,
+      value: answers[q.id] !== undefined && String(answers[q.id]).trim?.() !== '' ? answers[q.id] : answers[q.id] ?? null,
+    }))
+    // Slug-mapped questions also fill the legacy columns (trends + Kay)
+    const bySlug = (slug) => {
+      const q = questions.find((x) => x.slug === slug)
+      const v = q ? answers[q.id] : null
+      return typeof v === 'number' ? v : null
+    }
+
     const res = await addClientCheckin(clientId, {
       weight: weight ? Number(weight) : null,
       weightUnit: unit,
-      adherence: adherence || null,
-      hunger: hunger || null,
-      energy: energy || null,
-      notes: notes.trim(),
+      adherence: bySlug('adherence'),
+      hunger:    bySlug('hunger'),
+      energy:    bySlug('energy'),
+      notes: '',
+      answers: snapshot,
     })
     setSaving(false)
     if (res.ok) { successHaptic(); setDone(true) }
@@ -69,29 +125,45 @@ function WeeklyCheckinCard({ clientId, lastCheckin }) {
           <Check size={22} style={{ color: 'var(--color-accent)' }} />
         </div>
         <p className="font-display font-bold text-sm tracking-widest text-cream">CHECK-IN SENT</p>
-        <p className="font-mono text-xs text-muted mt-1.5">Your coach will review it and adjust if needed.</p>
+        <p className="font-mono text-xs text-muted mt-1.5">
+          {answeredCount} answer{answeredCount === 1 ? '' : 's'}{weight ? ` + weight (${weight} ${unit})` : ''} sent to your coach.
+        </p>
+        <p className="font-mono text-[10px] text-dim mt-2">Next check-in is due in 7 days — we'll remind you.</p>
       </div>
     )
   }
 
-  const lastDate = lastCheckin?.createdAt ? new Date(lastCheckin.createdAt).toLocaleDateString() : null
-
   return (
-    <div className="glass-card border border-border rounded-2xl p-5 space-y-4">
+    <div className="glass-card border rounded-2xl p-5 space-y-5"
+      style={{ borderColor: isDue ? accentA(40) : 'var(--color-border)' }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ClipboardCheck size={14} style={{ color: 'var(--color-accent)' }} />
           <p className="font-display text-xs text-muted tracking-widest">WEEKLY CHECK-IN</p>
         </div>
-        {lastDate && <span className="font-mono text-[10px] text-dim">Last: {lastDate}</span>}
+        {isDue ? (
+          <span className="font-mono text-[9px] tracking-[0.18em] px-2 py-1 rounded-full"
+            style={{ background: accentA(16), color: 'var(--color-accent)' }}>
+            {daysSince === null ? 'FIRST CHECK-IN' : 'DUE'}
+          </span>
+        ) : (
+          <span className="font-mono text-[10px] text-dim">Next due in {7 - daysSince}d</span>
+        )}
       </div>
+
+      {daysSince !== null && daysSince >= 7 && (
+        <p className="font-mono text-[10px] text-muted -mt-2">
+          Last check-in was {daysSince} days ago.
+        </p>
+      )}
 
       {/* Weight */}
       <div>
         <label className="font-display text-xs text-muted tracking-widest block mb-1.5">CURRENT WEIGHT</label>
         <div className="flex gap-2">
           <input
-            type="number" inputMode="decimal" placeholder="0.0"
+            type="number" inputMode="decimal"
+            placeholder={lastWeight ? `Last: ${lastWeight.value}` : '0.0'}
             value={weight} onChange={(e) => setWeight(e.target.value)}
             className="flex-1 min-w-0 bg-surface border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30"
           />
@@ -104,26 +176,53 @@ function WeeklyCheckinCard({ clientId, lastCheckin }) {
         </div>
       </div>
 
-      <Scale label="ADHERENCE" low="Off plan" high="Nailed it" value={adherence} onChange={setAdherence} />
-      <Scale label="HUNGER"    low="Starving"  high="Satisfied" value={hunger}    onChange={setHunger} />
-      <Scale label="ENERGY"    low="Drained"   high="Great"     value={energy}    onChange={setEnergy} />
+      {/* Coach's questions */}
+      {questions === null ? (
+        <div className="py-4 flex justify-center">
+          <div className="w-5 h-5 border-2 border-brown border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        questions.map((q) => (
+          <div key={q.id}>
+            <label className="font-display text-xs text-muted tracking-widest block mb-1.5 leading-relaxed">
+              {q.label.toUpperCase()}
+            </label>
+            {q.type === 'scale' && (
+              <Scale low={q.low} high={q.high} value={answers[q.id]} onChange={(v) => setAnswer(q.id, v)} />
+            )}
+            {q.type === 'yesno' && (
+              <YesNo value={answers[q.id]} onChange={(v) => setAnswer(q.id, v)} />
+            )}
+            {q.type === 'text' && (
+              <textarea
+                value={answers[q.id] || ''} onChange={(e) => setAnswer(q.id, e.target.value)} rows={2}
+                placeholder="Type your answer…"
+                className="w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 resize-none"
+              />
+            )}
+          </div>
+        ))
+      )}
 
-      <div>
-        <label className="font-display text-xs text-muted tracking-widest block mb-1.5">NOTES FOR YOUR COACH</label>
-        <textarea
-          value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
-          placeholder="How did the week go? Anything I should know…"
-          className="w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 resize-none"
-        />
-      </div>
-
-      <button
-        onClick={submit}
-        disabled={saving}
-        className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover press disabled:opacity-50"
-      >
-        {saving ? 'SENDING…' : 'SEND CHECK-IN'}
-      </button>
+      {/* Progress + submit */}
+      {questions !== null && (
+        <>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--color-dim)' }}>
+              <div className="h-1 rounded-full transition-all duration-300"
+                style={{ width: `${(answeredCount / Math.max(questions.length, 1)) * 100}%`, background: 'var(--color-accent)' }} />
+            </div>
+            <span className="font-mono text-[10px] text-dim whitespace-nowrap">{answeredCount}/{questions.length}</span>
+          </div>
+          <button
+            onClick={submit}
+            disabled={!canSubmit}
+            className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover press disabled:opacity-40"
+          >
+            {saving ? 'SENDING…' : 'SEND CHECK-IN'}
+          </button>
+        </>
+      )}
     </div>
   )
 }
