@@ -335,6 +335,8 @@ const useStore = create(
 
       // ── SUBSCRIPTIONS ─────────────────────────────────────────────────────
       adminAccounts: [],
+      adminAccountsError: null,
+      adminAccountsLoaded: false,
 
       // Refresh the signed-in user's subscription state (e.g. after returning
       // from Stripe Checkout). Recomputes hasAccess from the latest profile.
@@ -362,8 +364,12 @@ const useStore = create(
       // Superadmin: list every account with subscription state
       loadAdminAccounts: async () => {
         const { data, error } = await supabase.rpc('admin_list_accounts')
-        if (error) { console.error('admin_list_accounts:', error); return }
-        set({ adminAccounts: data || [] })
+        if (error) {
+          console.error('admin_list_accounts:', error)
+          set({ adminAccountsError: error.message || 'Could not load accounts.', adminAccountsLoaded: true })
+          return
+        }
+        set({ adminAccounts: data || [], adminAccountsError: null, adminAccountsLoaded: true })
       },
 
       // Superadmin: lock / unlock / clear an account's access.

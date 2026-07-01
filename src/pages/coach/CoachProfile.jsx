@@ -127,8 +127,8 @@ export default function CoachProfile() {
             ) : (
               <>
                 <p className="font-display font-black text-3xl text-cream">{currentUser?.name || '—'}</p>
-                <p className="font-mono text-sm text-muted mt-0.5">{currentUser?.email || ''}</p>
-                <p className="font-mono text-xs text-dim mt-0.5">
+                <p className="font-mono text-sm text-muted mt-1.5">{currentUser?.email || ''}</p>
+                <p className="font-mono text-xs text-dim mt-1">
                   {currentUser?.role === 'superadmin' ? 'SUPER ADMIN' : 'NUTRITION COACH'}
                 </p>
               </>

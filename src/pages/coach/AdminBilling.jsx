@@ -23,7 +23,7 @@ const FILTERS = [
 ]
 
 export default function AdminBilling() {
-  const { adminAccounts, loadAdminAccounts, setSubscriptionOverride, currentUser } = useStore()
+  const { adminAccounts, adminAccountsError, adminAccountsLoaded, loadAdminAccounts, setSubscriptionOverride, currentUser } = useStore()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [busyId, setBusyId] = useState(null)
@@ -103,10 +103,28 @@ export default function AdminBilling() {
 
       {/* Account rows */}
       <div className="flex-1 overflow-y-auto p-6 space-y-2.5">
-        {visible.length === 0 ? (
+        {adminAccountsError ? (
+          <div className="flex flex-col items-center justify-center h-48 anim-fade-in text-center px-6">
+            <p className="font-display font-bold text-lg text-red-400 tracking-widest">COULDN'T LOAD ACCOUNTS</p>
+            <p className="font-mono text-xs text-dim mt-2 max-w-sm break-words">{adminAccountsError}</p>
+            <button
+              onClick={loadAdminAccounts}
+              className="mt-5 px-4 py-2 rounded-lg border border-border text-cream font-display font-bold text-xs tracking-widest hover:border-muted transition-colors"
+            >
+              RETRY
+            </button>
+          </div>
+        ) : !adminAccountsLoaded ? (
+          <div className="flex flex-col items-center justify-center h-48 anim-fade-in">
+            <div className="w-8 h-8 border-2 border-brown border-t-transparent rounded-full animate-spin" />
+            <p className="font-mono text-xs text-dim mt-4 tracking-widest">LOADING ACCOUNTS…</p>
+          </div>
+        ) : visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 anim-fade-in">
             <p className="font-display font-bold text-lg text-muted tracking-widest">NO ACCOUNTS</p>
-            <p className="font-mono text-xs text-dim mt-2">Try a different search or filter</p>
+            <p className="font-mono text-xs text-dim mt-2">
+              {adminAccounts.length === 0 ? 'No accounts returned' : 'Try a different search or filter'}
+            </p>
           </div>
         ) : (
           visible.map((a, i) => {

@@ -159,14 +159,14 @@ export default function Sidebar({ width }) {
           <p className="font-display font-bold text-sm text-cream truncate leading-tight">
             {currentUser?.name ?? 'Coach'}
           </p>
-          <p className="font-mono text-[9px] text-dim truncate leading-tight tracking-[0.18em]">
+          <p className="font-mono text-[9px] text-dim truncate leading-tight tracking-[0.18em] mt-1">
             {currentUser?.role === 'superadmin' ? 'SUPER ADMIN' : 'COACH'}
           </p>
         </div>
       </div>
 
       {/* Controls — compact icon row */}
-      <div className="px-3 pb-4 flex items-center gap-1.5 relative">
+      <div className="px-3 pb-5 flex items-center gap-1.5 relative">
         <ThemeToggle compact />
         <button
           onClick={() => setActiveRole(null)}
