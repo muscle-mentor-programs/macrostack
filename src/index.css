@@ -774,6 +774,20 @@ input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
 }
 
+/* Kill the browser autofill yellow — tint the field with the theme accent
+   (light blue) and keep the text legible, so autofilled fields stay on-theme. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-cream) !important;
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in srgb, var(--color-accent) 16%, var(--color-surface)) inset !important;
+  caret-color: var(--color-accent);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 /* ─────────────────────────────────────────────
    ADDITIONAL KEYFRAMES
 ───────────────────────────────────────────── */
