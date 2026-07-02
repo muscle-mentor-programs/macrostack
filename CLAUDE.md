@@ -1,5 +1,10 @@
 # MacroStack — working notes for Claude
 
+## No in-Claude previews
+Do NOT start or use the in-Claude preview server (preview_* tools) for this
+project. Verify with `npm run build` and code reading, then commit, push, and
+deploy — Branden checks the live site himself.
+
 ## Database migrations
 Branden applies ALL migrations manually via the Supabase dashboard SQL editor
 (project `ryvsbidtwhxfmashwsqt`). Never run `supabase db push` — earlier
