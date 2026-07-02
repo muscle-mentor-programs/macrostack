@@ -129,6 +129,7 @@ const COACH_FEATURES = [
   { t: 'Macro targets & auto-adjust',d: 'Set each client’s calorie & macro goals; get nudges to adjust as progress dictates.' },
   { t: 'Progress & photos',          d: 'Weight trends, compliance streaks, and progress-photo timelines over time.' },
   { t: 'Automated reminders',        d: 'Auto-nudge clients to log meals and submit check-ins — hands-off.' },
+  { t: 'Pro included for every client', d: 'Everyone on your roster gets the full Pro app — barcode scanner, trends, analytics — at no extra cost to them.' },
   { t: 'Client mobile app',          d: 'Your clients get a fast, installable app to log meals and scan barcodes.' },
   { t: 'Your brand, front & center', d: 'A coach profile clients see — credentials, bio, specialties, and your links.' },
 ]
@@ -848,6 +849,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             <p className="font-mono text-xs md:text-sm text-muted mt-4 max-w-md mx-auto leading-relaxed">
               Start free, forever. Go Pro for the barcode scanner and full progress
               analytics — same features on every plan, cancel anytime.
+              {' '}<span style={{ color: ACCENT }}>Working with a coach? Pro is included free while you're connected.</span>
             </p>
           </div>
 
