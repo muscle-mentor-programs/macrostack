@@ -121,17 +121,14 @@ export default function App() {
     () => sessionStorage.getItem('macrostack-post-invite') === '1'
   )
 
-  // Apply theme class (ocean-dark / ocean-light).
-  // The marketing landing page is art-directed for the dark palette — its
-  // "light" sections invert the theme's cream/ink vars, which flip to
-  // dark-on-dark mush under ocean-light. Render the pre-auth landing in
-  // ocean-dark always; login/signup and the app honor the user's theme.
-  const onLanding = !isAuthenticated && authView === null
+  // Apply theme class (ocean-dark / ocean-light). The landing has its own
+  // art-directed palette per theme (--land-* vars) and a toggle in its nav,
+  // so it renders correctly in both modes.
   useEffect(() => {
     const html = document.documentElement
     html.classList.remove('ocean-dark', 'ocean-light')
-    html.classList.add(onLanding ? 'ocean-dark' : theme)
-  }, [theme, onLanding])
+    html.classList.add(theme)
+  }, [theme])
 
   // Check Supabase session on mount
   useEffect(() => {

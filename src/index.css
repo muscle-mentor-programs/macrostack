@@ -35,6 +35,30 @@ html.light {
 }
 
 /* ─────────────────────────────────────────────
+   LANDING "INVERTED SECTION" PALETTE
+   The marketing page alternates dark/inverted
+   sections. These are art-directed per theme so
+   both modes read premium (deriving them from
+   cream/bg turns to mush when the vars flip).
+───────────────────────────────────────────── */
+:root, html.ocean-dark {
+  --land-invert-bg:     #D8E6F4;             /* light blue section */
+  --land-invert-ink:    #08090F;
+  --land-invert-soft:   #4A6076;
+  --land-invert-card:   #E9F1FA;             /* cards on the section */
+  --land-invert-border: rgba(8, 9, 15, 0.12);
+  --land-invert-shadow: rgba(8, 9, 15, 0.10);
+}
+html.ocean-light {
+  --land-invert-bg:     #0D1830;             /* deep navy section */
+  --land-invert-ink:    #F2F6FB;
+  --land-invert-soft:   #93A9C4;
+  --land-invert-card:   #182644;             /* cards on the section */
+  --land-invert-border: rgba(242, 246, 251, 0.10);
+  --land-invert-shadow: rgba(0, 0, 0, 0.35);
+}
+
+/* ─────────────────────────────────────────────
    BASE RESET
 ───────────────────────────────────────────── */
 * {

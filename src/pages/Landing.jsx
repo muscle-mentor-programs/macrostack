@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
-import { Smartphone, Share, PlusSquare } from 'lucide-react'
+import { Smartphone, Share, PlusSquare, Sun, Moon } from 'lucide-react'
+import useStore from '../store'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
@@ -21,9 +22,12 @@ const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transp
 
 /* Inverted section: the theme's cream as background, its bg as ink — keeps
    the dark/light alternation alive in every theme. */
-const INVERT_BG   = 'var(--color-cream)'
-const INVERT_INK  = 'var(--color-bg)'
-const INVERT_SOFT = 'color-mix(in srgb, var(--color-bg) 62%, var(--color-cream))'
+const INVERT_BG     = 'var(--land-invert-bg)'
+const INVERT_INK    = 'var(--land-invert-ink)'
+const INVERT_SOFT   = 'var(--land-invert-soft)'
+const INVERT_CARD   = 'var(--land-invert-card)'
+const INVERT_BORDER = '1px solid var(--land-invert-border)'
+const INVERT_SHADOW = 'var(--land-invert-shadow)'
 
 const ON_ACCENT = '#FFFFFF' /* accent is mid-tone in every theme — white reads on all */
 
@@ -189,6 +193,8 @@ function FeatureRow({ src, eyebrow, title, body, flip, textColor, softColor }) {
 /* ── Component ────────────────────────────────────────────────────────────── */
 
 export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
+  const theme = useStore((s) => s.theme)
+  const toggleTheme = useStore((s) => s.toggleTheme)
   const rootRef      = useRef(null)
   const progressRef  = useRef(null)
   const guidePathRef = useRef(null)
@@ -428,6 +434,13 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={toggleTheme}
+            title={theme === 'ocean-dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-cream border border-border hover:border-muted transition-colors btn-lift"
+          >
+            {theme === 'ocean-dark' ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
+          <button
             onClick={onGetStarted}
             className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-3 py-2 btn-lift"
           >
@@ -591,7 +604,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
                 <div
                   key={n}
                   className="rounded-2xl p-6"
-                  style={{ background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.5))', border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)' }}
+                  style={{ background: INVERT_CARD, border: INVERT_BORDER }}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-display font-black text-3xl" style={{ color: accentA(45) }}>{n}</span>
@@ -608,7 +621,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               ))}
             </div>
 
-            <p className="coach-reveal text-center font-mono text-[10px] mt-8 tracking-[0.25em]" style={{ color: 'color-mix(in srgb, var(--color-bg) 45%, var(--color-cream))' }}>
+            <p className="coach-reveal text-center font-mono text-[10px] mt-8 tracking-[0.25em]" style={{ color: INVERT_SOFT }}>
               WORKS ON ANY PHONE · NO DOWNLOAD · INSTANT UPDATES
             </p>
           </div>
@@ -762,9 +775,9 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               key={c.title}
               className="w-[74vw] sm:w-[300px] md:w-[340px] aspect-square flex-shrink-0 snap-start rounded-3xl p-6 md:p-8 backdrop-blur-sm flex flex-col justify-between"
               style={{
-                background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.45))',
-                border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)',
-                boxShadow: '0 8px 40px color-mix(in srgb, var(--color-bg) 10%, transparent)',
+                background: INVERT_CARD,
+                border: INVERT_BORDER,
+                boxShadow: `0 8px 40px ${INVERT_SHADOW}`,
               }}
             >
               <div className="flex items-start justify-between">
@@ -951,7 +964,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               <div
                 key={t}
                 className="rounded-2xl p-5"
-                style={{ background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.5))', border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)' }}
+                style={{ background: INVERT_CARD, border: INVERT_BORDER }}
               >
                 <div className="flex items-center gap-2.5 mb-2">
                   <span
@@ -1002,7 +1015,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
                     className="btn-lift relative rounded-2xl p-5 pt-6 pb-4 text-center cursor-pointer"
                     style={highlight
                       ? { background: `linear-gradient(160deg, ${accentA(16)}, ${accentA(5)})`, border: `1px solid ${accentA(45)}`, boxShadow: `0 12px 40px ${accentA(15)}` }
-                      : { background: 'color-mix(in srgb, var(--color-cream) 40%, rgba(255,255,255,0.5))', border: '1px solid color-mix(in srgb, var(--color-bg) 12%, transparent)' }}
+                      : { background: INVERT_CARD, border: INVERT_BORDER }}
                   >
                     {tier.tag && (
                       <span
