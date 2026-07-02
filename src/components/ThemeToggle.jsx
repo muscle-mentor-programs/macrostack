@@ -1,5 +1,6 @@
 import useStore from '../store'
 import { Sun, Moon } from 'lucide-react'
+import { splatToggleTheme } from '../lib/themeSplat'
 
 const THEMES = [
   { id: 'ocean-dark',  label: 'DARK',  accent: '#4878B0' },
@@ -11,7 +12,7 @@ export default function ThemeToggle({ compact = false }) {
 
   const isDark  = theme === 'ocean-dark'
   const active  = THEMES.find((t) => t.id === theme) || THEMES[0]
-  const toggle  = () => setTheme(isDark ? 'ocean-light' : 'ocean-dark')
+  const toggle  = (e) => splatToggleTheme(e, () => setTheme(isDark ? 'ocean-light' : 'ocean-dark'))
 
   if (compact) {
     return (

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { Smartphone, Share, PlusSquare, Sun, Moon } from 'lucide-react'
 import useStore from '../store'
+import { splatToggleTheme } from '../lib/themeSplat'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
@@ -434,7 +435,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={toggleTheme}
+            onClick={(e) => splatToggleTheme(e, toggleTheme)}
             title={theme === 'ocean-dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-cream border border-border hover:border-muted transition-colors btn-lift"
           >

@@ -59,6 +59,20 @@ html.ocean-light {
 }
 
 /* ─────────────────────────────────────────────
+   THEME SPLATTER TRANSITION
+   The old theme holds still underneath while
+   the new one is revealed through an animated
+   ink-splat clip-path (see lib/themeSplat.js).
+───────────────────────────────────────────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+/* ─────────────────────────────────────────────
    BASE RESET
 ───────────────────────────────────────────── */
 * {
