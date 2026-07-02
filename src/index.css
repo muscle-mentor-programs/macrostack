@@ -357,45 +357,55 @@ html.ocean-dark .focus\:border-brown:focus    { border-color: #4878B0 !important
 /* ─────────────────────────────────────────────
    OCEAN LIGHT THEME
 ───────────────────────────────────────────── */
+/* Premium light: porcelain canvas, pure-white cards floating on soft diffused
+   shadows, whisper borders, deep navy ink. Saturation lives in the accent,
+   not the surfaces. */
 html.ocean-light {
-  --color-bg:      #FAFCFF;
-  --color-surface: #EDF4FB;
-  --color-card:    #E2EEF8;
-  --color-border:  #BDD0E4;
-  --color-cream:   #141E30;
-  --color-muted:   #3E607A;
-  --color-dim:     #D2E4F2;
+  --color-bg:      #F2F6FB;
+  --color-surface: #FAFCFE;
+  --color-card:    #FFFFFF;
+  --color-border:  #DFE8F2;
+  --color-cream:   #10203A;
+  --color-muted:   #4A6B88;
+  --color-dim:     #CBDCEC;
   --color-accent:  #4878B0;
   color-scheme: light;
 }
 
-html.ocean-light .bg-bg      { background-color: #FAFCFF !important; }
-html.ocean-light .bg-surface { background-color: #EDF4FB !important; }
-html.ocean-light .bg-card    { background-color: #E2EEF8 !important; box-shadow: 0 1px 4px rgba(0,20,50,0.06) !important; }
-html.ocean-light .bg-dim     { background-color: #D2E4F2 !important; }
-html.ocean-light .bg-bg\/80  { background-color: rgba(250,252,255,0.88) !important; }
-html.ocean-light .bg-bg\/90  { background-color: rgba(250,252,255,0.94) !important; }
+/* Cool light falling from above — the light-mode twin of the dark glow */
+html.ocean-light body {
+  background:
+    radial-gradient(ellipse 120% 42% at 50% 0%, rgba(72, 120, 176, 0.07) 0%, transparent 62%),
+    var(--color-bg) !important;
+}
 
-html.ocean-light .hover\:bg-bg:hover      { background-color: #FAFCFF !important; }
-html.ocean-light .hover\:bg-surface:hover { background-color: #EDF4FB !important; }
-html.ocean-light .hover\:bg-card:hover    { background-color: #D6E7F4 !important; box-shadow: 0 2px 6px rgba(0,20,50,0.07) !important; }
+html.ocean-light .bg-bg      { background-color: #F2F6FB !important; }
+html.ocean-light .bg-surface { background-color: #FAFCFE !important; }
+html.ocean-light .bg-card    { background-color: #FFFFFF !important; box-shadow: 0 1px 2px rgba(16,32,64,0.04), 0 6px 20px rgba(16,32,64,0.06) !important; }
+html.ocean-light .bg-dim     { background-color: #CBDCEC !important; }
+html.ocean-light .bg-bg\/80  { background-color: rgba(242,246,251,0.88) !important; }
+html.ocean-light .bg-bg\/90  { background-color: rgba(242,246,251,0.94) !important; }
 
-html.ocean-light .text-cream { color: #141E30 !important; }
-html.ocean-light .text-muted { color: #3E607A !important; }
-html.ocean-light .text-dim   { color: #7A9AB8 !important; }
-html.ocean-light .hover\:text-cream:hover { color: #141E30 !important; }
-html.ocean-light .hover\:text-muted:hover { color: #3E607A !important; }
-html.ocean-light .group:hover .group-hover\:text-cream { color: #141E30 !important; }
+html.ocean-light .hover\:bg-bg:hover      { background-color: #F2F6FB !important; }
+html.ocean-light .hover\:bg-surface:hover { background-color: #F4F8FC !important; }
+html.ocean-light .hover\:bg-card:hover    { background-color: #FDFEFF !important; box-shadow: 0 2px 4px rgba(16,32,64,0.05), 0 10px 28px rgba(16,32,64,0.08) !important; }
 
-html.ocean-light .border-border        { border-color: #BDD0E4 !important; }
-html.ocean-light .border-border\/50    { border-color: rgba(189,208,228,0.5) !important; }
-html.ocean-light .border-l-border      { border-left-color:   #BDD0E4 !important; }
-html.ocean-light .border-t-border      { border-top-color:    #BDD0E4 !important; }
-html.ocean-light .border-b-border      { border-bottom-color: #BDD0E4 !important; }
-html.ocean-light .border-r-border      { border-right-color:  #BDD0E4 !important; }
-html.ocean-light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #BDD0E4 !important; }
-html.ocean-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(189,208,228,0.5) !important; }
-html.ocean-light .placeholder-muted::placeholder { color: #6090AE !important; }
+html.ocean-light .text-cream { color: #10203A !important; }
+html.ocean-light .text-muted { color: #4A6B88 !important; }
+html.ocean-light .text-dim   { color: #8FACC8 !important; }
+html.ocean-light .hover\:text-cream:hover { color: #10203A !important; }
+html.ocean-light .hover\:text-muted:hover { color: #4A6B88 !important; }
+html.ocean-light .group:hover .group-hover\:text-cream { color: #10203A !important; }
+
+html.ocean-light .border-border        { border-color: #DFE8F2 !important; }
+html.ocean-light .border-border\/50    { border-color: rgba(223,232,242,0.55) !important; }
+html.ocean-light .border-l-border      { border-left-color:   #DFE8F2 !important; }
+html.ocean-light .border-t-border      { border-top-color:    #DFE8F2 !important; }
+html.ocean-light .border-b-border      { border-bottom-color: #DFE8F2 !important; }
+html.ocean-light .border-r-border      { border-right-color:  #DFE8F2 !important; }
+html.ocean-light .divide-border > :not([hidden]) ~ :not([hidden])     { border-color: #DFE8F2 !important; }
+html.ocean-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(223,232,242,0.55) !important; }
+html.ocean-light .placeholder-muted::placeholder { color: #7C9CBA !important; }
 
 /* Ocean accent (same blue as dark) */
 html.ocean-light .bg-brown         { background-color: #4878B0 !important; }
@@ -959,7 +969,7 @@ html.light        .glass-sidebar { background: rgba(248, 244, 240, 0.92) !import
 html.forest-dark  .glass-sidebar { background: rgba(8, 14, 8, 0.88) !important; }
 html.forest-light .glass-sidebar { background: rgba(243, 251, 243, 0.92) !important; border-right-color: rgba(0,30,0,0.07) !important; }
 html.ocean-dark   .glass-sidebar { background: rgba(7, 9, 18, 0.88) !important; }
-html.ocean-light  .glass-sidebar { background: rgba(242, 248, 254, 0.92) !important; border-right-color: rgba(0,10,30,0.07) !important; }
+html.ocean-light  .glass-sidebar { background: rgba(255, 255, 255, 0.86) !important; border-right-color: rgba(16,48,96,0.06) !important; box-shadow: 0 8px 32px rgba(16,40,80,0.06) !important; }
 
 /* Glass bottom nav — deep frosted floating platform */
 .glass-bottom-nav {
@@ -975,7 +985,7 @@ html.light        .glass-bottom-nav { background: linear-gradient(180deg, rgba(2
 html.forest-dark  .glass-bottom-nav { background: rgba(10, 16, 10, 0.96) !important; }
 html.forest-light .glass-bottom-nav { background: rgba(248, 254, 248, 0.96) !important; box-shadow: 0 -8px 32px rgba(0,20,0,0.10), 0 -1px 0 rgba(0,20,0,0.06) !important; }
 html.ocean-dark   .glass-bottom-nav { background: rgba(8, 11, 22, 0.96) !important; }
-html.ocean-light  .glass-bottom-nav { background: rgba(248, 252, 255, 0.96) !important; box-shadow: 0 -8px 32px rgba(0,10,30,0.10), 0 -1px 0 rgba(0,10,30,0.06) !important; }
+html.ocean-light  .glass-bottom-nav { background: rgba(255, 255, 255, 0.96) !important; box-shadow: 0 -8px 32px rgba(16,40,80,0.08), 0 -1px 0 rgba(16,40,80,0.05) !important; }
 
 /* Glass panel — for sticky page headers */
 .glass-panel {
@@ -989,7 +999,7 @@ html.light        .glass-panel { background: rgba(252, 250, 248, 0.94) !importan
 html.forest-dark  .glass-panel { background: rgba(8, 14, 8, 0.88) !important; }
 html.forest-light .glass-panel { background: rgba(247, 253, 247, 0.94) !important; box-shadow: 0 1px 0 rgba(0,20,0,0.06), 0 4px 20px rgba(0,20,0,0.07) !important; }
 html.ocean-dark   .glass-panel { background: rgba(7, 9, 18, 0.88) !important; }
-html.ocean-light  .glass-panel { background: rgba(248, 252, 255, 0.94) !important; box-shadow: 0 1px 0 rgba(0,10,30,0.06), 0 4px 20px rgba(0,10,30,0.07) !important; }
+html.ocean-light  .glass-panel { background: rgba(255, 255, 255, 0.92) !important; box-shadow: 0 1px 0 rgba(16,40,80,0.05), 0 4px 20px rgba(16,40,80,0.05) !important; }
 
 /* Glass card — premium layered depth for major content panels */
 .glass-card {
@@ -1010,7 +1020,7 @@ html.light        .glass-card { background: linear-gradient(160deg, rgba(248,244
 html.forest-dark  .glass-card { background: linear-gradient(160deg, rgba(22, 34, 22, 0.88) 0%, rgba(12, 20, 12, 0.74) 100%) !important; }
 html.forest-light .glass-card { background: linear-gradient(160deg, rgba(232,248,230,0.95) 0%, rgba(214,238,212,0.88) 100%) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 2px 8px rgba(0,20,0,0.07), 0 6px 24px rgba(0,20,0,0.06), 0 0 0 1px rgba(0,20,0,0.05) !important; }
 html.ocean-dark   .glass-card { background: linear-gradient(160deg, rgba(20, 28, 50, 0.88) 0%, rgba(10, 15, 30, 0.74) 100%) !important; }
-html.ocean-light  .glass-card { background: linear-gradient(160deg, rgba(230,242,254,0.95) 0%, rgba(212,230,248,0.88) 100%) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 2px 8px rgba(0,10,30,0.07), 0 6px 24px rgba(0,10,30,0.06), 0 0 0 1px rgba(0,10,30,0.05) !important; }
+html.ocean-light  .glass-card { background: linear-gradient(160deg, rgba(255,255,255,0.97) 0%, rgba(245,249,254,0.92) 100%) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 3px rgba(16,32,64,0.04), 0 8px 28px rgba(16,32,64,0.07), 0 0 0 1px rgba(16,48,96,0.04) !important; }
 
 /* Accent gradient line — decorative top-of-section separator */
 .accent-line::before {
