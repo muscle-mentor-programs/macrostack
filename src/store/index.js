@@ -716,6 +716,18 @@ const useStore = create(
         set((s) => ({
           clients: s.clients.map((c) => c.id === clientId ? { ...c, ...fields } : c),
         }))
+
+        // Editing your own name also renames the ACCOUNT (profiles.name) so
+        // the superadmin billing list and every account surface match.
+        const name = fields.name?.trim()
+        if (name) {
+          const me = get().currentUser
+          const client = get().clients.find((c) => c.id === clientId)
+          if (me && client?.profileId === me.id) {
+            await supabase.from('profiles').update({ name }).eq('id', me.id)
+            set((s) => ({ currentUser: { ...s.currentUser, name } }))
+          }
+        }
       },
 
       uploadClientAvatar: async (clientId, file) => {
