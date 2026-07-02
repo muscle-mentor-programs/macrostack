@@ -461,6 +461,31 @@ const useStore = create(
         set({ adminAccounts: data || [], adminAccountsError: null, adminAccountsLoaded: true })
       },
 
+      // Superadmin: delete a user's LOGIN while keeping their data. Client
+      // rows survive (profile_id nulls, status → pending) and re-link if the
+      // person signs up again with the same email.
+      adminDeleteUser: async (profileId) => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return { ok: false, error: 'Not signed in.' }
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-delete-user`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+              body: JSON.stringify({ profileId }),
+            }
+          )
+          const json = await res.json().catch(() => ({}))
+          if (!res.ok || !json.ok) return { ok: false, error: json.error || 'Could not delete the user.' }
+          set((s) => ({ adminAccounts: s.adminAccounts.filter((a) => a.id !== profileId) }))
+          get().loadAllData() // refresh rosters (client rows now pending/unlinked)
+          return { ok: true }
+        } catch {
+          return { ok: false, error: 'Could not reach the admin service.' }
+        }
+      },
+
       // Superadmin: lock / unlock / clear an account's access.
       // value: 'locked' | 'unlocked' | null (null = follow Stripe status)
       setSubscriptionOverride: async (targetId, value) => {

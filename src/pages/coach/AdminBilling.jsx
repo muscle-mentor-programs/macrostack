@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import {
   Lock, Unlock, RotateCcw, Search, Shield, ChevronDown,
-  Mail, Phone, CalendarClock, CreditCard, Users,
+  Mail, Phone, CalendarClock, CreditCard, Users, Trash2,
 } from 'lucide-react'
 import useStore from '../../store'
 import useIsSuperadmin from '../../hooks/useIsSuperadmin'
@@ -84,6 +84,63 @@ function InfoRow({ icon: Icon, label, value }) {
       <Icon size={13} className="text-dim flex-shrink-0" />
       <span className="font-mono text-[10px] tracking-widest text-dim w-24 flex-shrink-0">{label}</span>
       <span className="font-mono text-xs text-cream truncate">{value || '—'}</span>
+    </div>
+  )
+}
+
+/* Delete a user's LOGIN (data survives; they must recreate the account).
+   Two-step confirm so it can't be fat-fingered. */
+function DeleteLoginControl({ account }) {
+  const { adminDeleteUser, currentUser } = useStore()
+  const [confirming, setConfirming] = useState(false)
+  const [busy, setBusy]             = useState(false)
+  const [error, setError]           = useState('')
+
+  if (account.id === currentUser?.id) return null // never your own login
+
+  const handleDelete = async () => {
+    setBusy(true); setError('')
+    const res = await adminDeleteUser(account.id)
+    setBusy(false)
+    if (!res.ok) setError(res.error)
+    // success → the account disappears from the list via the store
+  }
+
+  return (
+    <div className="pt-3 mt-1 border-t border-border/50 space-y-2">
+      {!confirming ? (
+        <button
+          onClick={() => setConfirming(true)}
+          className="flex items-center gap-2 font-display font-bold text-[10px] tracking-widest text-dim hover:text-red-400 transition-colors"
+        >
+          <Trash2 size={11} />
+          DELETE LOGIN
+        </button>
+      ) : (
+        <div className="rounded-xl border border-red-400/30 bg-red-400/5 p-3 space-y-2.5">
+          <p className="font-mono text-[10px] text-red-400 leading-relaxed">
+            Removes {account.name || 'this user'}'s login — they'll need to create a new account.
+            All their data (logs, check-ins, photos) is kept and re-links automatically if they
+            sign up again with the same email.
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={handleDelete}
+              disabled={busy}
+              className="flex-1 bg-red-400/15 border border-red-400/40 text-red-400 font-display font-bold text-[10px] tracking-widest py-2 rounded-lg hover:bg-red-400/25 transition-colors disabled:opacity-50"
+            >
+              {busy ? 'DELETING…' : 'YES, DELETE LOGIN'}
+            </button>
+            <button
+              onClick={() => { setConfirming(false); setError('') }}
+              className="flex-1 border border-border text-muted hover:text-cream font-display font-bold text-[10px] tracking-widest py-2 rounded-lg transition-colors"
+            >
+              CANCEL
+            </button>
+          </div>
+          {error && <p className="font-mono text-[10px] text-red-400">{error}</p>}
+        </div>
+      )}
     </div>
   )
 }
@@ -304,6 +361,7 @@ export default function AdminBilling() {
                       <div className="space-y-2">
                         <p className="font-mono text-[9px] tracking-[0.22em]" style={{ color: accentA(70) }}>MANAGE ACCESS</p>
                         <AccessControls a={a} busy={busy} onSet={handleSet} />
+                        <DeleteLoginControl account={a} />
                       </div>
                     )}
 
