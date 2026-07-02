@@ -713,6 +713,7 @@ export default function MobileClients() {
   const selectedClient = clients.find((c) => c.id === selectedId)
 
   const filteredClients = clients.filter((c) => {
+    if (c.status === 'archived') return false // manage archived from desktop
     const q = search.toLowerCase()
     return c.name.toLowerCase().includes(q) || (c.email && c.email.toLowerCase().includes(q))
   })

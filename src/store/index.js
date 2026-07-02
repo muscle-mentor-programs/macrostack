@@ -63,6 +63,7 @@ function dbToClient(row) {
     status:           row.status || 'active',
     createdAt:        row.created_at,
     remindersEnabled: row.reminders_enabled ?? true,
+    tags:      Array.isArray(row.tags) ? row.tags : [],
     log:       {},
     weightLog: [],
     mealPlans: [],
@@ -164,12 +165,14 @@ function dbToPlan(row) {
 
 function dbToMessage(row) {
   return {
-    id:            row.id,
-    from:          row.from_role,
-    text:          row.text,
-    timestamp:     row.created_at,
-    readByCoach:   row.read_by_coach,
-    readByClient:  row.read_by_client,
+    id:             row.id,
+    from:           row.from_role,
+    text:           row.text,
+    attachmentUrl:  row.attachment_url  || null,
+    attachmentType: row.attachment_type || null,
+    timestamp:      row.created_at,
+    readByCoach:    row.read_by_coach,
+    readByClient:   row.read_by_client,
   }
 }
 
@@ -606,7 +609,8 @@ const useStore = create(
         // enforces the same limit server-side for every other path.
         const me = get().currentUser
         const limit = coachClientLimit(me)
-        if (me && limit !== null && get().clients.length >= limit) {
+        const activeCount = get().clients.filter((c) => c.status !== 'archived').length
+        if (me && limit !== null && activeCount >= limit) {
           return { id: null, inviteSent: false, capReached: true }
         }
 
@@ -1081,6 +1085,258 @@ const useStore = create(
         await supabase.from('form_submissions').update({ reviewed: true }).eq('id', submissionId)
       },
 
+      // ── PRIVATE CLIENT NOTES (coach-only) ─────────────────────────────────
+      clientNotes: {},   // { [clientId]: body }
+
+      fetchClientNote: async (clientId) => {
+        const { data } = await supabase.from('client_notes').select('body').eq('client_id', clientId).maybeSingle()
+        set((s) => ({ clientNotes: { ...s.clientNotes, [clientId]: data?.body || '' } }))
+        return data?.body || ''
+      },
+
+      saveClientNote: async (clientId, body) => {
+        const me = get().currentUser
+        set((s) => ({ clientNotes: { ...s.clientNotes, [clientId]: body } }))
+        const { error } = await supabase.from('client_notes').upsert({
+          client_id: clientId, coach_id: me.id, body, updated_at: new Date().toISOString(),
+        })
+        if (error) console.error('saveClientNote:', error)
+      },
+
+      // ── MEAL PLAN TEMPLATES ───────────────────────────────────────────────
+      mealPlanTemplates: null,
+
+      fetchMealPlanTemplates: async () => {
+        const me = get().currentUser
+        if (!me) return []
+        const { data, error } = await supabase.from('meal_plan_templates')
+          .select('*').eq('coach_id', me.id).order('created_at', { ascending: false })
+        if (error) { set({ mealPlanTemplates: [] }); return [] }
+        const list = (data || []).map((r) => ({ id: r.id, name: r.name, days: r.days || [], createdAt: r.created_at }))
+        set({ mealPlanTemplates: list })
+        return list
+      },
+
+      saveMealPlanTemplate: async (name, days) => {
+        const me = get().currentUser
+        const { data, error } = await supabase.from('meal_plan_templates')
+          .insert({ coach_id: me.id, name, days }).select().single()
+        if (error) return { ok: false, error: error.message }
+        const t = { id: data.id, name: data.name, days: data.days || [], createdAt: data.created_at }
+        set((s) => ({ mealPlanTemplates: [t, ...(s.mealPlanTemplates || [])] }))
+        return { ok: true }
+      },
+
+      deleteMealPlanTemplate: async (id) => {
+        set((s) => ({ mealPlanTemplates: (s.mealPlanTemplates || []).filter((t) => t.id !== id) }))
+        await supabase.from('meal_plan_templates').delete().eq('id', id)
+      },
+
+      // ── SCHEDULED TARGET CHANGES ──────────────────────────────────────────
+      targetSchedules: {},   // { [clientId]: [{id, applyOn, calories, protein, carbs, fat, note, applied}] }
+
+      fetchTargetSchedules: async (clientId) => {
+        const { data, error } = await supabase.from('target_schedules')
+          .select('*').eq('client_id', clientId).order('apply_on', { ascending: true })
+        if (error) { set((s) => ({ targetSchedules: { ...s.targetSchedules, [clientId]: [] } })); return [] }
+        const list = (data || []).map((r) => ({
+          id: r.id, applyOn: r.apply_on, calories: r.calories, protein: r.protein,
+          carbs: r.carbs, fat: r.fat, note: r.note || '', applied: r.applied,
+        }))
+        set((s) => ({ targetSchedules: { ...s.targetSchedules, [clientId]: list } }))
+        return list
+      },
+
+      addTargetSchedule: async (clientId, sched) => {
+        const { data, error } = await supabase.from('target_schedules').insert({
+          client_id: clientId, apply_on: sched.applyOn,
+          calories: sched.calories, protein: sched.protein, carbs: sched.carbs, fat: sched.fat,
+          note: sched.note || '',
+        }).select().single()
+        if (error) return { ok: false, error: error.message }
+        await get().fetchTargetSchedules(clientId)
+        return { ok: true, id: data.id }
+      },
+
+      deleteTargetSchedule: async (clientId, id) => {
+        set((s) => ({
+          targetSchedules: {
+            ...s.targetSchedules,
+            [clientId]: (s.targetSchedules[clientId] || []).filter((x) => x.id !== id),
+          },
+        }))
+        await supabase.from('target_schedules').delete().eq('id', id)
+      },
+
+      // ── CLIENT TAGS + ARCHIVE ─────────────────────────────────────────────
+      updateClientTags: async (clientId, tags) => {
+        set((s) => ({ clients: s.clients.map((c) => c.id === clientId ? { ...c, tags } : c) }))
+        await supabase.from('clients').update({ tags }).eq('id', clientId)
+      },
+
+      setClientArchived: async (clientId, archived) => {
+        const status = archived ? 'archived' : 'active'
+        const { error } = await supabase.from('clients').update({ status }).eq('id', clientId)
+        if (error) {
+          const cap = /CLIENT_LIMIT_REACHED/.test(error.message)
+          return { ok: false, capReached: cap, error: cap
+            ? 'Your tier is full — upgrade or archive another client before restoring this one.'
+            : error.message }
+        }
+        set((s) => ({ clients: s.clients.map((c) => c.id === clientId ? { ...c, status } : c) }))
+        return { ok: true }
+      },
+
+      // ── MESSAGE TEMPLATES + BROADCAST ─────────────────────────────────────
+      messageTemplates: null,
+
+      fetchMessageTemplates: async () => {
+        const me = get().currentUser
+        if (!me) return []
+        const { data, error } = await supabase.from('message_templates')
+          .select('*').eq('coach_id', me.id).order('created_at', { ascending: false })
+        if (error) { set({ messageTemplates: [] }); return [] }
+        const list = (data || []).map((r) => ({ id: r.id, title: r.title, body: r.body }))
+        set({ messageTemplates: list })
+        return list
+      },
+
+      saveMessageTemplate: async (title, body) => {
+        const me = get().currentUser
+        const { data, error } = await supabase.from('message_templates')
+          .insert({ coach_id: me.id, title, body }).select().single()
+        if (error) return { ok: false }
+        set((s) => ({ messageTemplates: [{ id: data.id, title, body }, ...(s.messageTemplates || [])] }))
+        return { ok: true }
+      },
+
+      deleteMessageTemplate: async (id) => {
+        set((s) => ({ messageTemplates: (s.messageTemplates || []).filter((t) => t.id !== id) }))
+        await supabase.from('message_templates').delete().eq('id', id)
+      },
+
+      // Send an in-app message to many clients at once.
+      broadcastMessage: async (clientIds, text) => {
+        for (const id of clientIds) {
+          // sequential keeps ordering stable and avoids hammering the socket
+          // eslint-disable-next-line no-await-in-loop
+          await get().sendMessage(id, 'coach', text)
+        }
+        return { ok: true, sent: clientIds.length }
+      },
+
+      // ── CHAT ATTACHMENTS ──────────────────────────────────────────────────
+      uploadChatAttachment: async (clientId, file, type) => {
+        const ext  = (file.name?.split('.').pop() || (type === 'audio' ? 'webm' : 'jpg')).toLowerCase()
+        const path = `${clientId}/${Date.now()}.${ext}`
+        const { error } = await supabase.storage.from('chat-attachments')
+          .upload(path, file, { contentType: file.type || undefined })
+        if (error) { console.error('attachment upload:', error); return { error } }
+        const { data: { publicUrl } } = supabase.storage.from('chat-attachments').getPublicUrl(path)
+        return { url: publicUrl, type }
+      },
+
+      // ── WEB PUSH ──────────────────────────────────────────────────────────
+      registerPushSubscription: async (subscription) => {
+        const me = get().currentUser
+        if (!me || !subscription) return
+        await supabase.from('push_subscriptions').upsert({
+          profile_id: me.id,
+          endpoint:   subscription.endpoint,
+          subscription,
+        }, { onConflict: 'profile_id,endpoint' })
+      },
+
+      // Notify the other side of a chat thread (coach ↔ client), best-effort.
+      sendPushToCounterpart: async (clientId, from, preview) => {
+        try {
+          const client = get().clients.find((c) => c.id === clientId)
+          const me = get().currentUser
+          // coach → client's profile; client → coach's profile
+          const targetProfileId = from === 'coach' ? client?.profileId : client?.coachId
+          if (!targetProfileId) return
+          const { data: { session } } = await supabase.auth.getSession()
+          if (!session) return
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({
+              profileId: targetProfileId,
+              title: from === 'coach' ? `${me?.name || 'Your coach'}` : `${client?.name || 'Client'}`,
+              body:  preview.slice(0, 140),
+            }),
+          }).catch(() => {})
+        } catch { /* best-effort */ }
+      },
+
+      // ── COACH CLIENT BILLING (Stripe Connect) ─────────────────────────────
+      coachBilling: null,   // { price, connectReady } for coach; client sees coach's
+
+      fetchCoachBilling: async () => {
+        const me = get().currentUser
+        if (!me) return null
+        let coachId = me.id
+        if (me.role === 'client') {
+          const client = get().clients.find((c) => c.id === get().activeClientId)
+          coachId = client?.coachId
+          if (!coachId) { set({ coachBilling: null }); return null }
+        }
+        const { data, error } = await supabase.from('coach_billing')
+          .select('*').eq('coach_id', coachId).maybeSingle()
+        if (error) { set({ coachBilling: null }); return null }
+        const cb = data ? { price: Number(data.price) || 0, connectReady: data.connect_ready } : { price: 0, connectReady: false }
+        set({ coachBilling: cb })
+        return cb
+      },
+
+      saveCoachBillingPrice: async (price) => {
+        const me = get().currentUser
+        const { error } = await supabase.from('coach_billing').upsert({
+          coach_id: me.id, price, updated_at: new Date().toISOString(),
+        })
+        if (error) return { ok: false, error: error.message }
+        set((s) => ({ coachBilling: { ...(s.coachBilling || { connectReady: false }), price } }))
+        return { ok: true }
+      },
+
+      // Start / continue Stripe Connect onboarding → returns a URL to open.
+      startConnectOnboarding: async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return { ok: false, error: 'Not signed in.' }
+        try {
+          const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/connect-onboard`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ returnUrl: window.location.origin }),
+          })
+          const json = await res.json().catch(() => ({}))
+          if (!res.ok || !json.url) return { ok: false, error: json.error || 'Could not start Stripe onboarding.' }
+          window.location.href = json.url
+          return { ok: true }
+        } catch {
+          return { ok: false, error: 'Could not reach the billing service.' }
+        }
+      },
+
+      // Client pays their coach — creates a Stripe checkout for the coach's price.
+      startCoachPayment: async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return { ok: false, error: 'Not signed in.' }
+        try {
+          const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pay-coach`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ returnUrl: window.location.origin }),
+          })
+          const json = await res.json().catch(() => ({}))
+          if (!res.ok || !json.url) return { ok: false, error: json.error || 'Payment is not available right now.' }
+          window.location.href = json.url
+          return { ok: true }
+        } catch {
+          return { ok: false, error: 'Could not reach the payment service.' }
+        }
+      },
+
       // ── MEAL PLANS ────────────────────────────────────────────────────────
       addMealPlan: async (clientId, plan) => {
         const { data: row, error } = await supabase
@@ -1259,10 +1515,12 @@ Rules:
         }
       },
 
-      sendMessage: async (clientId, from, text) => {
+      sendMessage: async (clientId, from, text, attachment = null) => {
         const id  = crypto.randomUUID()
         const msg = {
           id, from, text,
+          attachmentUrl:  attachment?.url  || null,
+          attachmentType: attachment?.type || null,
           timestamp:     new Date().toISOString(),
           readByCoach:   from === 'coach',
           readByClient:  from === 'client',
@@ -1272,12 +1530,20 @@ Rules:
           messages: { ...s.messages, [clientId]: [...(s.messages[clientId] || []), msg] },
         }))
 
-        const { error } = await supabase.from('messages').insert({
+        const row = {
           id, client_id: clientId, from_role: from, text,
           read_by_coach:  from === 'coach',
           read_by_client: from === 'client',
-        })
+        }
+        let { error } = await supabase.from('messages').insert(
+          attachment ? { ...row, attachment_url: attachment.url, attachment_type: attachment.type } : row
+        )
+        // Retry without attachment columns if that migration hasn't run yet
+        if (error && attachment) ({ error } = await supabase.from('messages').insert(row))
         if (error) console.error('message insert:', error)
+
+        // Fire-and-forget push notification to the other party
+        get().sendPushToCounterpart(clientId, from, text || (attachment?.type === 'image' ? '📷 Photo' : '🎤 Voice note'))
 
         // Fire-and-forget email notification
         try {
@@ -1430,9 +1696,10 @@ Rules:
         if (!request) return { ok: false }
 
         if (accept) {
-          // Tier cap — same limit the DB trigger enforces
+          // Tier cap — same limit the DB trigger enforces (archived don't count)
           const limit = coachClientLimit(currentUser)
-          if (limit !== null && get().clients.length >= limit) {
+          const activeCount = get().clients.filter((c) => c.status !== 'archived').length
+          if (limit !== null && activeCount >= limit) {
             return { ok: false, capReached: true, error: `Your plan allows up to ${limit} client${limit === 1 ? '' : 's'}. Upgrade your tier to accept this request.` }
           }
         }

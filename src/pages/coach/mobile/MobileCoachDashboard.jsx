@@ -401,7 +401,10 @@ export default function MobileCoachDashboard() {
     setActivePage('clients')
   }
 
-  const nudges = computeRosterNudges(clients)
+  // Archived clients stay out of the day-to-day dashboard
+  const activeClients = clients.filter((c) => c.status !== 'archived')
+
+  const nudges = computeRosterNudges(activeClients)
 
   const complianceColor =
     avgCompliance >= 70 ? 'text-olive-light' :
@@ -562,7 +565,7 @@ export default function MobileCoachDashboard() {
         </div>
       ) : (
         <div className="space-y-4">
-          {clients.map((client, i) => (
+          {activeClients.map((client, i) => (
             <MobileClientCard
               key={client.id}
               client={client}

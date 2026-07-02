@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { format, subDays } from 'date-fns'
-import { Check, Link2, Camera, Bell } from 'lucide-react'
+import { Check, Link2, Camera, Bell, BellRing } from 'lucide-react'
+import { enablePush, pushPermission } from '../../lib/push'
 import {
   AreaChart, Area, XAxis, YAxis,
   ResponsiveContainer, Tooltip, ReferenceLine,
@@ -10,6 +11,41 @@ import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
+
+/* Enable browser push — new messages from the coach ping the home screen. */
+function PushToggle() {
+  const registerPushSubscription = useStore((s) => s.registerPushSubscription)
+  const [state, setState] = useState(pushPermission())
+  if (state === 'unsupported') return null
+
+  const enable = async () => {
+    const res = await enablePush(registerPushSubscription)
+    setState(res.ok ? 'granted' : pushPermission())
+  }
+
+  return (
+    <button
+      onClick={state === 'granted' ? undefined : enable}
+      className="w-full flex items-center justify-between gap-3 mt-4 pt-4 border-t border-border/50"
+    >
+      <span className="flex items-center gap-2.5 text-left">
+        <BellRing size={14} className="text-muted flex-shrink-0" />
+        <span>
+          <span className="block font-mono text-sm text-cream">Push notifications</span>
+          <span className="block font-mono text-[10px] text-dim mt-0.5">
+            Get pinged when your coach messages you
+          </span>
+        </span>
+      </span>
+      <span className="font-mono text-[9px] tracking-[0.18em] px-2 py-1 rounded-full flex-shrink-0"
+        style={state === 'granted'
+          ? { background: 'rgba(107,122,82,0.15)', color: '#849663' }
+          : { background: 'color-mix(in srgb, var(--color-accent) 14%, transparent)', color: 'var(--color-accent)' }}>
+        {state === 'granted' ? 'ON' : 'ENABLE'}
+      </span>
+    </button>
+  )
+}
 
 export default function ClientProfile() {
   const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode, setClientReminders } = useStore()
@@ -380,6 +416,9 @@ export default function ClientProfile() {
             />
           </span>
         </button>
+
+        {/* Push notifications */}
+        <PushToggle />
       </div>
 
       {/* Save button */}

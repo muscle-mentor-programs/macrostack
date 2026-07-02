@@ -4,6 +4,7 @@ import { MessageCircle, Send, UserCircle2, Lock } from 'lucide-react'
 import useStore from '../../store'
 import useSubscription from '../../hooks/useSubscription'
 import { tapHaptic } from '../../utils/haptics'
+import { AttachmentButtons, MessageAttachment } from '../../components/ChatAttachments'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
@@ -189,6 +190,7 @@ export default function ClientMessages() {
                       : 'bg-card border border-border text-cream rounded-2xl rounded-bl-sm'
                   }`}>
                     {msg.text}
+                    <MessageAttachment url={msg.attachmentUrl} type={msg.attachmentType} />
                   </div>
                   <p className="font-mono text-[10px] text-dim px-1">{msgTime(msg.timestamp)}</p>
                 </div>
@@ -203,6 +205,10 @@ export default function ClientMessages() {
         className="flex-shrink-0 flex items-center gap-2 px-4 glass-panel border-t border-border"
         style={{ paddingTop: '12px', paddingBottom: inputPaddingBottom }}
       >
+        <AttachmentButtons
+          clientId={activeClientId}
+          onSend={(att) => sendMessage(activeClientId, 'client', '', att)}
+        />
         <input
           ref={inputRef}
           type="text"

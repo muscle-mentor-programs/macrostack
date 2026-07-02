@@ -9,7 +9,11 @@ import useStore from '../../store'
 import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
+import NotificationBell from '../../components/NotificationBell'
+import KayCoachChat from '../../components/KayCoachChat'
 import { computeRosterNudges, computeGoalNudge } from '../../lib/goalNudges'
+import { resyncPush } from '../../lib/push'
+import { Sparkles, UserPlus2, AlertTriangle } from 'lucide-react'
 
 // ─── Quick-edit goals modal ───────────────────────────────────────────────────
 function QuickEditModal({ client, onClose }) {
@@ -67,9 +71,10 @@ function QuickEditModal({ client, onClose }) {
   )
 }
 
-// ─── Email compose modal ──────────────────────────────────────────────────────
+// ─── Compose modal — email OR in-app broadcast, with saved templates ─────────
 function EmailModal({ clients, preselectedId, onClose }) {
-  const { currentUser } = useStore()
+  const { currentUser, broadcastMessage, messageTemplates, fetchMessageTemplates, saveMessageTemplate, deleteMessageTemplate } = useStore()
+  const [mode, setMode]         = useState('inapp') // 'inapp' | 'email'
   const [selected, setSelected] = useState(
     preselectedId ? [preselectedId] : []
   )
@@ -77,6 +82,9 @@ function EmailModal({ clients, preselectedId, onClose }) {
   const [body, setBody]         = useState('')
   const [status, setStatus]     = useState(null) // null | 'sending' | 'sent' | 'error'
   const [errMsg, setErrMsg]     = useState('')
+  const [tplSaved, setTplSaved] = useState(false)
+
+  useEffect(() => { if (messageTemplates === null) fetchMessageTemplates() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = (id) =>
     setSelected((prev) =>
@@ -84,50 +92,79 @@ function EmailModal({ clients, preselectedId, onClose }) {
     )
 
   const handleSend = async () => {
-    const recipients = clients.filter((c) => selected.includes(c.id) && c.email)
-    if (!recipients.length) return
-
     setStatus('sending')
     setErrMsg('')
 
-    const clientNames = {}
-    recipients.forEach((c) => { clientNames[c.email] = c.name })
-
     try {
-      const res = await fetch('/api/email/send', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          to:          recipients.map((c) => c.email),
-          subject,
-          body,
-          coachName:   currentUser?.name || 'Your Coach',
-          clientNames,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Send failed')
+      if (mode === 'inapp') {
+        const ids = clients.filter((c) => selected.includes(c.id)).map((c) => c.id)
+        if (!ids.length) throw new Error('Pick at least one user.')
+        await broadcastMessage(ids, body.trim())
+      } else {
+        const recipients = clients.filter((c) => selected.includes(c.id) && c.email)
+        if (!recipients.length) throw new Error('No selected users have an email on file.')
+        const clientNames = {}
+        recipients.forEach((c) => { clientNames[c.email] = c.name })
+        const res = await fetch('/api/email/send', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            to:          recipients.map((c) => c.email),
+            subject,
+            body,
+            coachName:   currentUser?.name || 'Your Coach',
+            clientNames,
+          }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Send failed')
+      }
       setStatus('sent')
-      setTimeout(onClose, 1800)
+      setTimeout(onClose, 1600)
     } catch (e) {
       setErrMsg(e.message)
       setStatus('error')
     }
   }
 
+  const handleSaveTemplate = async () => {
+    if (!body.trim()) return
+    await saveMessageTemplate(subject.trim() || body.trim().slice(0, 40), body.trim())
+    setTplSaved(true)
+    setTimeout(() => setTplSaved(false), 2000)
+  }
+
   const hasEmails = clients.some((c) => selected.includes(c.id) && c.email)
+  const canSend = mode === 'inapp'
+    ? selected.length > 0 && body.trim()
+    : selected.length > 0 && hasEmails && subject.trim() && body.trim()
 
   return (
     <div className="fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-50 anim-fade-in">
       <div className="bg-card border border-border rounded-2xl w-[560px] max-h-[85vh] overflow-y-auto shadow-2xl anim-fade-in-up">
         <div className="flex items-center justify-between px-6 py-5 border-b border-border sticky top-0 bg-card z-10">
-          <h3 className="font-display font-black text-xl tracking-widest text-cream">COMPOSE EMAIL</h3>
+          <h3 className="font-display font-black text-xl tracking-widest text-cream">MESSAGE USERS</h3>
           <button onClick={onClose} className="text-muted hover:text-cream p-1 transition-colors">
             <X size={18} />
           </button>
         </div>
 
         <div className="px-6 py-5 space-y-5">
+          {/* Delivery mode */}
+          <div className="flex bg-surface border border-border rounded-xl p-1">
+            {[{ id: 'inapp', label: 'IN-APP CHAT' }, { id: 'email', label: 'EMAIL' }].map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setMode(m.id)}
+                className="flex-1 py-2 font-display font-bold text-[11px] tracking-widest rounded-lg transition-all"
+                style={mode === m.id
+                  ? { background: 'linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, white))', color: '#fff' }
+                  : { color: 'var(--color-muted)' }}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
           {/* Recipients */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
@@ -176,23 +213,53 @@ function EmailModal({ clients, preselectedId, onClose }) {
             </div>
           </div>
 
-          {/* Subject */}
-          <div>
-            <label className="font-display text-xs text-muted tracking-widest block mb-1.5">SUBJECT</label>
-            <input
-              type="text"
-              placeholder="Weekly check-in…"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
-            />
-          </div>
+          {/* Subject — email only */}
+          {mode === 'email' && (
+            <div>
+              <label className="font-display text-xs text-muted tracking-widest block mb-1.5">SUBJECT</label>
+              <input
+                type="text"
+                placeholder="Weekly check-in…"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
+              />
+            </div>
+          )}
+
+          {/* Saved templates */}
+          {(messageTemplates || []).length > 0 && (
+            <div>
+              <label className="font-display text-xs text-muted tracking-widest block mb-1.5">TEMPLATES</label>
+              <div className="flex flex-wrap gap-1.5">
+                {messageTemplates.map((t) => (
+                  <span key={t.id} className="group/tpl flex items-center gap-1 font-mono text-[10px] px-2.5 py-1 rounded-full border border-border bg-surface">
+                    <button onClick={() => setBody(t.body)} className="text-muted hover:text-cream transition-colors" title={t.body.slice(0, 120)}>
+                      {t.title}
+                    </button>
+                    <button onClick={() => deleteMessageTemplate(t.id)} className="text-dim opacity-40 group-hover/tpl:opacity-100 hover:text-red-400">
+                      <X size={9} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Body */}
           <div>
-            <label className="font-display text-xs text-muted tracking-widest block mb-1.5">MESSAGE</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="font-display text-xs text-muted tracking-widest">MESSAGE</label>
+              <button
+                onClick={handleSaveTemplate}
+                disabled={!body.trim()}
+                className="font-mono text-[10px] text-dim hover:text-muted transition-colors disabled:opacity-40"
+              >
+                {tplSaved ? 'SAVED ✓' : '+ SAVE AS TEMPLATE'}
+              </button>
+            </div>
             <textarea
-              placeholder="Type your message…"
+              placeholder={mode === 'inapp' ? 'Lands in each user’s chat, from you…' : 'Type your message…'}
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={6}
@@ -207,13 +274,13 @@ function EmailModal({ clients, preselectedId, onClose }) {
         <div className="flex gap-3 px-6 pb-6 pt-1">
           <button
             onClick={handleSend}
-            disabled={selected.length === 0 || !hasEmails || !subject.trim() || !body.trim() || status === 'sending'}
+            disabled={!canSend || status === 'sending'}
             className={`flex-1 flex items-center justify-center gap-2 disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover ${
               status === 'sent' ? 'bg-olive' : 'btn-accent'
             }`}
           >
             <Send size={14} />
-            {status === 'sending' ? 'SENDING…' : status === 'sent' ? 'SENT ✓' : 'SEND EMAIL'}
+            {status === 'sending' ? 'SENDING…' : status === 'sent' ? 'SENT ✓' : mode === 'inapp' ? `SEND TO ${selected.length || 0} USER${selected.length === 1 ? '' : 'S'}` : 'SEND EMAIL'}
           </button>
           <button
             onClick={onClose}
@@ -442,6 +509,10 @@ export default function CoachDashboard() {
   const [emailPreselect,  setEmailPreselect]  = useState(null)
   const [copied,          setCopied]          = useState(false)
   const [reqError,        setReqError]        = useState('')
+  const [showKay,         setShowKay]         = useState(false)
+  const [checklistHidden, setChecklistHidden] = useState(
+    () => localStorage.getItem('ms-onboarding-dismissed') === '1'
+  )
 
   const handleAccept = async (reqId) => {
     setReqError('')
@@ -449,21 +520,44 @@ export default function CoachDashboard() {
     if (res?.capReached) setReqError(res.error)
   }
 
-  useEffect(() => { fetchCoachRequests() }, [])
+  useEffect(() => {
+    fetchCoachRequests()
+    // Keep this browser's push subscription fresh (no-op unless granted)
+    resyncPush(useStore.getState().registerPushSubscription)
+    // Onboarding checklist needs forms + questions state
+    useStore.getState().fetchCoachForms?.()
+    useStore.getState().fetchCheckinQuestions?.()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const avgCompliance = clients.length
+  // Archived clients stay out of the day-to-day dashboard entirely
+  const active = clients.filter((c) => c.status !== 'archived')
+
+  const avgCompliance = active.length
     ? Math.round(
-        clients.reduce((acc, c) => {
+        active.reduce((acc, c) => {
           const logged = Array.from({ length: 7 }, (_, i) => {
             const d = format(subDays(new Date(), i), 'yyyy-MM-dd')
             return (c.log?.[d] || []).length > 0
           }).filter(Boolean).length
           return acc + (logged / 7) * 100
-        }, 0) / clients.length
+        }, 0) / active.length
       )
     : 0
 
-  const activePlans = clients.filter((c) => c.activeMealPlanId).length
+  const activePlans = active.filter((c) => c.activeMealPlanId).length
+
+  // Business signals
+  const newLast30 = active.filter((c) =>
+    c.createdAt && (Date.now() - new Date(c.createdAt).getTime()) < 30 * 86_400_000
+  ).length
+  const atRisk = active.filter((c) => {
+    if (c.status === 'pending') return false
+    for (let i = 0; i < 5; i++) {
+      const d = format(subDays(new Date(), i), 'yyyy-MM-dd')
+      if ((c.log?.[d] || []).length > 0) return false
+    }
+    return true
+  }).length
 
   const handleCopyCode = () => {
     if (!currentUser?.coachCode) return
@@ -494,7 +588,17 @@ export default function CoachDashboard() {
     setActivePage('clients')
   }
 
-  const nudges = computeRosterNudges(clients)
+  const nudges = computeRosterNudges(active)
+
+  // Onboarding checklist — derived live; disappears once everything's done
+  const { coachForms, checkinQuestions } = useStore()
+  const checklist = [
+    { done: !!currentUser?.bio, label: 'Fill in your coach profile', go: () => setActivePage('profile') },
+    { done: !!(coachForms || []).find((f) => f.kind === 'intro'), label: 'Set up your intro questionnaire', go: () => setActivePage('forms') },
+    { done: (checkinQuestions || []).length > 0, label: 'Review your weekly check-in questions', go: () => setActivePage('forms') },
+    { done: clients.length > 0, label: 'Add or invite your first client', go: () => setActivePage('clients') },
+  ]
+  const checklistOpen = !checklistHidden && checklist.some((c) => !c.done)
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -508,14 +612,70 @@ export default function CoachDashboard() {
             {format(new Date(), 'EEEE, MMMM d, yyyy')}
           </p>
         </div>
-        <button
-          onClick={() => { setEmailPreselect(null); setEmailModal(true) }}
-          className="flex items-center gap-2 bg-surface border border-border hover:border-brown/50 text-muted hover:text-cream font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded-xl transition-all"
-        >
-          <Mail size={14} />
-          COMPOSE EMAIL
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setShowKay(true)}
+            className="flex items-center gap-2 font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded-xl transition-all btn-lift"
+            style={{
+              background: 'color-mix(in srgb, var(--color-accent) 14%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-accent) 40%, transparent)',
+              color: 'var(--color-accent)',
+            }}
+          >
+            <Sparkles size={14} />
+            ASK KAY
+          </button>
+          <button
+            onClick={() => { setEmailPreselect(null); setEmailModal(true) }}
+            className="flex items-center gap-2 bg-surface border border-border hover:border-brown/50 text-muted hover:text-cream font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded-xl transition-all"
+          >
+            <Mail size={14} />
+            MESSAGE USERS
+          </button>
+          <NotificationBell />
+        </div>
       </div>
+
+      {/* Onboarding checklist — new-coach guide, dismissible */}
+      {checklistOpen && (
+        <div className="px-8 pt-4 pb-0 flex-shrink-0">
+          <div className="glass-card border rounded-2xl p-4 card-dim"
+            style={{ borderColor: 'color-mix(in srgb, var(--color-accent) 35%, transparent)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-display font-bold text-xs tracking-widest" style={{ color: 'var(--color-accent)' }}>
+                GET SET UP ({checklist.filter((c) => c.done).length}/{checklist.length})
+              </p>
+              <button
+                onClick={() => { localStorage.setItem('ms-onboarding-dismissed', '1'); setChecklistHidden(true) }}
+                className="font-mono text-[10px] text-dim hover:text-muted transition-colors"
+              >
+                DISMISS
+              </button>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {checklist.map((c) => (
+                <button
+                  key={c.label}
+                  onClick={c.go}
+                  disabled={c.done}
+                  className="flex items-center gap-2.5 text-left px-3 py-2.5 rounded-xl border transition-colors disabled:cursor-default"
+                  style={c.done
+                    ? { borderColor: 'transparent', background: 'rgba(107,122,82,0.10)' }
+                    : { borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}
+                >
+                  <span className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 border"
+                    style={c.done
+                      ? { background: 'var(--color-olive, #6B7A52)', borderColor: 'transparent' }
+                      : { borderColor: 'var(--color-border)' }}>
+                    {c.done && <CheckIcon size={10} className="text-white" />}
+                  </span>
+                  <span className={`font-mono text-xs ${c.done ? 'text-muted line-through' : 'text-cream'}`}>{c.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Coach Code widget */}
       {currentUser?.coachCode && (
@@ -635,24 +795,30 @@ export default function CoachDashboard() {
         </div>
       )}
 
-      {/* Summary stats */}
-      <div className="grid grid-cols-3 gap-4 px-8 py-5 border-b border-border flex-shrink-0 glass-panel">
+      {/* Summary stats + business signals */}
+      <div className="grid grid-cols-5 gap-3 px-8 py-5 border-b border-border flex-shrink-0 glass-panel">
         {[
-          { label: 'ACTIVE USERS',      val: clients.length, color: 'text-cream',       Icon: Users      },
-          { label: 'AVG 7-DAY LOG',     val: `${avgCompliance}%`,
+          { label: 'ACTIVE USERS', val: active.length, color: 'text-cream',       Icon: Users      },
+          { label: 'AVG 7-DAY LOG', val: `${avgCompliance}%`,
             color: avgCompliance >= 70 ? 'text-olive-light' : avgCompliance >= 40 ? 'text-brown-light' : 'text-red-400',
             Icon: TrendingUp },
-          { label: 'ACTIVE MEAL PLANS', val: activePlans,    color: 'text-brown-light', Icon: Target     },
-        ].map(({ label, val, color, Icon }, i) => (
+          { label: 'MEAL PLANS',   val: activePlans,   color: 'text-brown-light', Icon: Target     },
+          { label: 'NEW (30D)',    val: newLast30,     color: 'text-olive-light', Icon: UserPlus2  },
+          { label: 'AT RISK',      val: atRisk,
+            color: atRisk > 0 ? 'text-red-400' : 'text-dim',
+            Icon: AlertTriangle,
+            title: 'Active clients with nothing logged in 5+ days' },
+        ].map(({ label, val, color, Icon, title }, i) => (
           <div
             key={label}
-            className="bg-card border border-border rounded-2xl px-5 py-4 flex items-center gap-4 anim-fade-in-up card-hover card-dim"
+            title={title}
+            className="bg-card border border-border rounded-2xl px-4 py-4 flex items-center gap-3 anim-fade-in-up card-hover card-dim"
             style={{ animationDelay: `${i * 60}ms` }}
           >
-            <Icon size={20} className={`${color} opacity-50 flex-shrink-0`} />
-            <div>
-              <p className={`font-display font-black text-3xl ${color} data-flicker`}>{val}</p>
-              <p className="font-mono text-xs text-muted">{label}</p>
+            <Icon size={18} className={`${color} opacity-50 flex-shrink-0`} />
+            <div className="min-w-0">
+              <p className={`font-display font-black text-2xl ${color} data-flicker`}>{val}</p>
+              <p className="font-mono text-[10px] text-muted truncate">{label}</p>
             </div>
           </div>
         ))}
@@ -660,7 +826,7 @@ export default function CoachDashboard() {
 
       {/* Client cards */}
       <div className="flex-1 overflow-y-auto px-8 py-6">
-        {clients.length === 0 ? (
+        {active.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <Users size={40} className="text-dim mb-4" />
             <p className="font-display font-bold text-2xl text-muted tracking-widest">NO USERS YET</p>
@@ -668,7 +834,7 @@ export default function CoachDashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-2 xl:grid-cols-3 gap-5">
-            {clients.map((client, i) => (
+            {active.map((client, i) => (
               <ClientCard
                 key={client.id}
                 client={client}
@@ -690,11 +856,12 @@ export default function CoachDashboard() {
       )}
       {emailModal && (
         <EmailModal
-          clients={clients}
+          clients={active}
           preselectedId={emailPreselect}
           onClose={() => { setEmailModal(false); setEmailPreselect(null) }}
         />
       )}
+      {showKay && <KayCoachChat onClose={() => setShowKay(false)} />}
     </div>
   )
 }

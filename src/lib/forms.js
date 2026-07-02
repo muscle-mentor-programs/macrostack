@@ -8,6 +8,7 @@
 
 export const DEFAULT_INTRO_QUESTIONS = [
   { id: 'intro-age',      type: 'number', label: 'How old are you?' },
+  { id: 'intro-sex',      type: 'text',   label: 'Biological sex (used for calorie math)' },
   { id: 'intro-height',   type: 'text',   label: 'How tall are you?' },
   { id: 'intro-weight',   type: 'number', label: 'Current weight (lbs)' },
   { id: 'intro-goal',     type: 'text',   label: "What's your #1 goal — and why now?" },

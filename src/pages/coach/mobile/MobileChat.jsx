@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, MessageCircle, Send } from 'lucide-react'
 import useStore from '../../../store'
 import ClientAvatar from '../../../components/ClientAvatar'
 import ScrambleText from '../../../components/ScrambleText'
+import { AttachmentButtons, MessageAttachment } from '../../../components/ChatAttachments'
 
 
 
@@ -109,6 +110,7 @@ function ThreadScreen({ client, onBack }) {
                     }`}
                   >
                     {msg.text}
+                    <MessageAttachment url={msg.attachmentUrl} type={msg.attachmentType} />
                   </div>
                   <p className="font-mono text-[10px] text-dim px-1">{msgTime(msg.timestamp)}</p>
                 </div>
@@ -126,6 +128,10 @@ function ThreadScreen({ client, onBack }) {
           paddingBottom: kbHeight > 0 ? '12px' : 'env(safe-area-inset-bottom, 12px)',
         }}
       >
+        <AttachmentButtons
+          clientId={client.id}
+          onSend={(att) => sendMessage(client.id, 'coach', '', att)}
+        />
         <input
           ref={inputRef}
           type="text"

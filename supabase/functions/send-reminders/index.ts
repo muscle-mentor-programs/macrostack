@@ -30,6 +30,17 @@ serve(async (req) => {
     const siteUrl = Deno.env.get('SITE_URL') || 'https://www.getmacrostack.com'
     const today = new Date().toISOString().slice(0, 10)
 
+    // ── Apply any due scheduled target changes first ──────────────────────
+    const { data: dueSchedules } = await admin.from('target_schedules')
+      .select('*').eq('applied', false).lte('apply_on', today)
+    for (const s of dueSchedules || []) {
+      await admin.from('clients').update({
+        goal_calories: s.calories, goal_protein: s.protein,
+        goal_carbs: s.carbs, goal_fat: s.fat,
+      }).eq('id', s.client_id)
+      await admin.from('target_schedules').update({ applied: true }).eq('id', s.id)
+    }
+
     // Active clients with an email who haven't opted out and weren't already
     // reminded today.
     const { data: clients, error: cErr } = await admin

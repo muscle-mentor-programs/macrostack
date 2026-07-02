@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
-import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronDown } from 'lucide-react'
+import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronDown, Send, Download, Archive, ArchiveRestore, Wand2 } from 'lucide-react'
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
 import useStore from '../../store'
 import { coachClientLimit, coachTierLabel } from '../../lib/coachTiers'
 import ClientAvatar from '../../components/ClientAvatar'
@@ -12,6 +13,8 @@ import { generateMealPlan } from '../../services/mealPlanAI'
 import { generateCheckinReview } from '../../services/checkinAI'
 import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
 import FormEditor from '../../components/FormEditor'
+import { suggestTargetsFromIntake } from '../../lib/intake'
+import { generateClientReportPDF } from '../../lib/clientReportPDF'
 import { reconcileGoals } from '../../utils/macros'
 
 // ─── Harris-Benedict (Mifflin-St Jeor revision) ──────────────────────────────
@@ -406,8 +409,10 @@ function AddClientModal({ onClose }) {
 }
 
 function MealPlansTab({ clientId }) {
+  /* Template plumbing lives at the top so hooks stay unconditional */
   // Read directly from the store so the list always reflects the latest saved state
-  const { clients, addMealPlan, updateMealPlan, removeMealPlan, setActiveMealPlan, customFoods } = useStore()
+  const { clients, addMealPlan, updateMealPlan, removeMealPlan, setActiveMealPlan, customFoods,
+    mealPlanTemplates, fetchMealPlanTemplates, saveMealPlanTemplate, deleteMealPlanTemplate } = useStore()
   const client = clients.find((c) => c.id === clientId) || {}
 
   const [showBuilder, setShowBuilder]   = useState(false)
@@ -417,6 +422,14 @@ function MealPlansTab({ clientId }) {
   const [aiLoading, setAiLoading]       = useState(false)
   const [aiError, setAiError]           = useState('')
   const [expandedPlanId, setExpandedPlanId] = useState(null)
+  const [templateSaved, setTemplateSaved]   = useState(false)
+
+  useEffect(() => { if (mealPlanTemplates === null) fetchMealPlanTemplates() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSaveTemplate = async (plan) => {
+    const res = await saveMealPlanTemplate(plan.planName, plan.days || [])
+    if (res.ok) { setTemplateSaved(true); setTimeout(() => setTemplateSaved(false), 2500) }
+  }
 
   const plans = client.mealPlans || []
   const activePlanId = client.activeMealPlanId
@@ -533,6 +546,13 @@ function MealPlansTab({ clientId }) {
                       <Pencil size={12} />
                     </button>
                     <button
+                      onClick={() => handleSaveTemplate(plan)}
+                      title="Save as template (reuse for any client)"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-dim hover:text-olive-light transition-colors"
+                    >
+                      <Download size={12} />
+                    </button>
+                    <button
                       onClick={() => removeMealPlan(client.id, plan.id)}
                       className="w-7 h-7 flex items-center justify-center rounded-lg text-dim hover:text-red-400 transition-colors"
                     >
@@ -594,6 +614,41 @@ function MealPlansTab({ clientId }) {
         <Plus size={13} />
         CREATE PLAN MANUALLY
       </button>
+
+      {/* Templates — reuse plans across the whole roster */}
+      {(mealPlanTemplates || []).length > 0 && (
+        <div className="bg-card border border-border rounded-xl p-4 space-y-2 anim-fade-in-up card-dim" style={{ animationDelay: '120ms' }}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">FROM TEMPLATE</p>
+          </div>
+          {mealPlanTemplates.map((t) => (
+            <div key={t.id} className="flex items-center justify-between gap-2 bg-surface border border-border rounded-lg px-3 py-2 card-dim">
+              <div className="min-w-0">
+                <p className="font-mono text-xs text-cream truncate">{t.name}</p>
+                <p className="font-mono text-[10px] text-dim">{t.days?.length || 0} days</p>
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={() => addMealPlan(client.id, { planName: t.name, days: t.days })}
+                  className="font-display font-bold text-[9px] tracking-widest px-2.5 py-1.5 rounded-lg border border-border text-muted hover:text-cream hover:border-muted transition-colors"
+                >
+                  ASSIGN
+                </button>
+                <button
+                  onClick={() => deleteMealPlanTemplate(t.id)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg text-dim hover:text-red-400 transition-colors"
+                >
+                  <Trash2 size={11} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {templateSaved && (
+        <p className="font-mono text-[10px] text-olive-light text-center">Saved as template ✓ — assign it to any client from here.</p>
+      )}
 
       {/* Auto-AI section */}
       <div className="bg-card border border-brown/20 rounded-xl p-4 space-y-3 anim-fade-in-up card-dim" style={{ animationDelay: '150ms' }}>
@@ -669,6 +724,263 @@ function MealPlansTab({ clientId }) {
 }
 
 // ── Coach weekly check-in review (latest submission + AI analysis) ───────────
+/* ── Archive / restore — pause a client without losing their data ──────────── */
+function ArchiveButton({ client, onArchived }) {
+  const setClientArchived = useStore((s) => s.setClientArchived)
+  const [error, setError] = useState('')
+  const archived = client.status === 'archived'
+
+  const toggle = async () => {
+    setError('')
+    const res = await setClientArchived(client.id, !archived)
+    if (!res.ok) setError(res.error)
+    else if (!archived) onArchived?.()
+  }
+
+  return (
+    <div>
+      <button
+        onClick={toggle}
+        className="flex items-center gap-2 text-muted hover:text-cream font-display font-bold text-xs tracking-widest transition-colors"
+        title={archived ? 'Restore to active roster' : "Pause this client — keeps all data, doesn't count toward your tier"}
+      >
+        {archived ? <ArchiveRestore size={13} /> : <Archive size={13} />}
+        {archived ? 'RESTORE USER' : 'ARCHIVE USER'}
+      </button>
+      {error && <p className="font-mono text-[10px] text-red-400 mt-1.5 leading-relaxed">{error}</p>}
+    </div>
+  )
+}
+
+/* ── Private coach notes — autosaving doc, never visible to the client ─────── */
+function PrivateNotes({ clientId }) {
+  const { clientNotes, fetchClientNote, saveClientNote } = useStore()
+  const [body, setBody]   = useState(clientNotes[clientId] ?? null)
+  const [saved, setSaved] = useState(false)
+  const timer = useRef(null)
+
+  useEffect(() => {
+    if (body === null) fetchClientNote(clientId).then(setBody)
+  }, [clientId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onChange = (v) => {
+    setBody(v); setSaved(false)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(async () => {
+      await saveClientNote(clientId, v)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 1500)
+    }, 700)
+  }
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-4 card-dim">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PRIVATE NOTES</p>
+        </div>
+        {saved && <span className="font-mono text-[9px] text-olive-light">SAVED ✓</span>}
+      </div>
+      <textarea
+        value={body ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+        rows={5}
+        placeholder="Injuries, preferences, context — only you can see this…"
+        className="w-full bg-surface border border-border rounded-xl px-3 py-2.5 font-mono text-xs text-cream placeholder-dim focus:outline-none focus:border-brown resize-y leading-relaxed"
+      />
+    </div>
+  )
+}
+
+/* ── Scheduled target changes — set-and-forget macro periodization ─────────── */
+function TargetScheduler({ client }) {
+  const { targetSchedules, fetchTargetSchedules, addTargetSchedule, deleteTargetSchedule } = useStore()
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState({
+    applyOn: format(addDays(new Date(), 7), 'yyyy-MM-dd'),
+    calories: client.goals.calories, protein: client.goals.protein,
+    carbs: client.goals.carbs, fat: client.goals.fat, note: '',
+  })
+  const [error, setError] = useState('')
+
+  useEffect(() => { fetchTargetSchedules(client.id) }, [client.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const schedules = (targetSchedules[client.id] || []).filter((s) => !s.applied)
+
+  const save = async () => {
+    setError('')
+    const res = await addTargetSchedule(client.id, {
+      applyOn: form.applyOn,
+      calories: Number(form.calories), protein: Number(form.protein),
+      carbs: Number(form.carbs), fat: Number(form.fat), note: form.note,
+    })
+    if (!res.ok) setError(res.error || 'Could not schedule.')
+    else setAdding(false)
+  }
+
+  const numCls = 'w-full bg-surface border border-border rounded-lg px-2 py-1.5 font-mono text-xs text-cream focus:outline-none focus:border-brown'
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-4 card-dim">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">SCHEDULED CHANGES</p>
+        </div>
+        <button
+          onClick={() => setAdding((v) => !v)}
+          className="font-display font-bold text-[9px] tracking-widest text-muted hover:text-cream border border-border rounded-lg px-2 py-1 transition-colors"
+        >
+          {adding ? 'CANCEL' : '+ SCHEDULE'}
+        </button>
+      </div>
+
+      {schedules.length === 0 && !adding && (
+        <p className="font-mono text-[10px] text-dim leading-relaxed">
+          Plan a diet break, refeed, or calorie ramp — targets change automatically on the date you pick.
+        </p>
+      )}
+
+      {schedules.map((s) => (
+        <div key={s.id} className="flex items-center justify-between gap-2 border border-border/50 rounded-lg px-2.5 py-2 mb-1.5 card-inset">
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] text-cream">
+              {format(parseISO(s.applyOn), 'MMM d')} → {s.calories} kcal · {s.protein}p/{s.carbs}c/{s.fat}f
+            </p>
+            {s.note && <p className="font-mono text-[9px] text-dim truncate">{s.note}</p>}
+          </div>
+          <button onClick={() => deleteTargetSchedule(client.id, s.id)}
+            className="text-dim hover:text-red-400 transition-colors p-1 flex-shrink-0">
+            <Trash2 size={11} />
+          </button>
+        </div>
+      ))}
+
+      {adding && (
+        <div className="space-y-2 mt-2">
+          <input type="date" value={form.applyOn} min={format(new Date(), 'yyyy-MM-dd')}
+            onChange={(e) => setForm((p) => ({ ...p, applyOn: e.target.value }))}
+            className={`${numCls}`} style={{ colorScheme: 'dark' }} />
+          <div className="grid grid-cols-4 gap-1.5">
+            {['calories', 'protein', 'carbs', 'fat'].map((k) => (
+              <div key={k}>
+                <label className="font-mono text-[8px] text-dim tracking-widest block mb-0.5">{k.slice(0, 4).toUpperCase()}</label>
+                <input type="number" value={form[k]}
+                  onChange={(e) => setForm((p) => ({ ...p, [k]: e.target.value }))} className={numCls} />
+              </div>
+            ))}
+          </div>
+          <input value={form.note} placeholder="Note (e.g. diet break)"
+            onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))} className={numCls} />
+          {error && <p className="font-mono text-[10px] text-red-400">{error}</p>}
+          <button onClick={save}
+            className="w-full btn-accent text-bg font-display font-bold text-[10px] tracking-widest py-2 rounded-lg transition-colors">
+            SCHEDULE CHANGE
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Check-in trends — scale answers charted across weeks ──────────────────── */
+const TREND_COLORS = ['#4878B0', '#6B7A52', '#9A7B55', '#8A6FA8', '#B06848']
+function CheckinTrends({ client }) {
+  const checkins = [...(client.checkins || [])].reverse() // oldest → newest
+  if (checkins.length < 2) return null
+
+  // Collect scale series by label across check-ins (answers + legacy fields)
+  const labels = new Map()
+  const data = checkins.map((k) => {
+    const point = { date: k.createdAt ? format(parseISO(k.createdAt), 'M/d') : '' }
+    const put = (label, value) => {
+      if (value == null) return
+      labels.set(label, true)
+      point[label] = value
+    }
+    if (k.answers?.length) {
+      k.answers.filter((a) => a.type === 'scale' && a.value).forEach((a) => put(a.label, a.value))
+    } else {
+      put('Adherence', k.adherence); put('Hunger', k.hunger); put('Energy', k.energy)
+    }
+    return point
+  })
+  const keys = [...labels.keys()].slice(0, 5)
+  if (!keys.length) return null
+
+  return (
+    <div className="glass-card border border-border rounded-2xl p-5 card-dim">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+        <p className="font-mono text-[10px] tracking-[0.22em] text-muted">CHECK-IN TRENDS</p>
+      </div>
+      <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
+        {keys.map((k, i) => (
+          <span key={k} className="flex items-center gap-1.5">
+            <span className="w-3 h-0.5 rounded-full" style={{ background: TREND_COLORS[i % TREND_COLORS.length] }} />
+            <span className="font-mono text-[9px] text-muted">{k.length > 34 ? k.slice(0, 32) + '…' : k}</span>
+          </span>
+        ))}
+      </div>
+      <ResponsiveContainer width="100%" height={160}>
+        <LineChart data={data} margin={{ top: 4, right: 8, left: -26, bottom: 0 }}>
+          <XAxis dataKey="date" tick={{ fontSize: 9, fill: 'var(--color-muted)', fontFamily: 'Space Mono' }} axisLine={false} tickLine={false} />
+          <YAxis domain={[0, 5]} ticks={[1, 3, 5]} tick={{ fontSize: 9, fill: 'var(--color-dim)', fontFamily: 'Space Mono' }} axisLine={false} tickLine={false} />
+          <Tooltip contentStyle={{ background: 'var(--color-card)', border: '1px solid var(--color-border)', borderRadius: 8, fontFamily: 'Space Mono', fontSize: 11 }} />
+          {keys.map((k, i) => (
+            <Line key={k} type="monotone" dataKey={k} stroke={TREND_COLORS[i % TREND_COLORS.length]}
+              strokeWidth={2} dot={{ r: 2.5 }} connectNulls />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+/* ── Client tags — quick labels with inline add/remove ─────────────────────── */
+function TagEditor({ client }) {
+  const updateClientTags = useStore((s) => s.updateClientTags)
+  const [adding, setAdding] = useState(false)
+  const [input, setInput]   = useState('')
+  const tags = client.tags || []
+
+  const add = () => {
+    const t = input.trim().toLowerCase()
+    if (t && !tags.includes(t)) updateClientTags(client.id, [...tags, t])
+    setInput(''); setAdding(false)
+  }
+  const remove = (t) => updateClientTags(client.id, tags.filter((x) => x !== t))
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {tags.map((t) => (
+        <span key={t} className="group/tag flex items-center gap-1 font-mono text-[9px] tracking-wide px-2 py-0.5 rounded-full border"
+          style={{ borderColor: 'color-mix(in srgb, var(--color-accent) 30%, transparent)', color: 'var(--color-accent)', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)' }}>
+          {t}
+          <button onClick={() => remove(t)} className="opacity-40 group-hover/tag:opacity-100 hover:text-red-400 transition-opacity">
+            <X size={8} />
+          </button>
+        </span>
+      ))}
+      {adding ? (
+        <input
+          autoFocus value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') add(); if (e.key === 'Escape') setAdding(false) }}
+          onBlur={add}
+          placeholder="tag…"
+          className="w-20 bg-surface border border-border rounded-full px-2 py-0.5 font-mono text-[9px] text-cream focus:outline-none focus:border-brown"
+        />
+      ) : (
+        <button onClick={() => setAdding(true)}
+          className="font-mono text-[9px] text-dim hover:text-muted px-1.5 py-0.5 rounded-full border border-dashed border-border transition-colors">
+          + tag
+        </button>
+      )}
+    </div>
+  )
+}
+
 /* Renders a check-in's content — new answer snapshots when present, the
    legacy adherence/hunger/energy fields for older submissions.
    (Exported for the mobile client detail screen.) */
@@ -780,6 +1092,52 @@ function QuestionEditorModal({ onClose }) {
 
 /* Intro questionnaire + custom form responses for one client. Viewing marks
    them reviewed (clears the dashboard badge). */
+/* Intake answers → Mifflin-based starting targets, one tap to apply. */
+function IntakeSuggestion({ client, submission }) {
+  const updateClientGoals = useStore((s) => s.updateClientGoals)
+  const [applied, setApplied] = useState(false)
+  const suggestion = suggestTargetsFromIntake(submission.answers)
+  if (!suggestion) return null
+
+  const { calories, protein, carbs, fat, basis } = suggestion
+  return (
+    <div className="rounded-xl p-4 space-y-3"
+      style={{ background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
+      <div className="flex items-center gap-2">
+        <Wand2 size={12} style={{ color: 'var(--color-accent)' }} />
+        <p className="font-mono text-[10px] tracking-[0.22em]" style={{ color: 'var(--color-accent)' }}>
+          SUGGESTED STARTING TARGETS
+        </p>
+      </div>
+      <p className="font-mono text-[10px] text-muted leading-relaxed">
+        Mifflin-St Jeor from their intake — {basis.age}y {basis.sex}, {basis.weightLb} lbs,{' '}
+        {Math.floor(basis.heightIn / 12)}'{basis.heightIn % 12}", activity ×{basis.activity} → {basis.tdee} TDEE (maintenance start).
+      </p>
+      <div className="grid grid-cols-4 gap-2">
+        {[['KCAL', calories], ['PRO', protein], ['CARB', carbs], ['FAT', fat]].map(([l, v]) => (
+          <div key={l} className="border border-border/50 rounded-lg p-2 text-center card-inset">
+            <p className="font-display font-black text-base text-cream">{v}</p>
+            <p className="font-mono text-[9px] text-muted tracking-widest mt-0.5">{l}</p>
+          </div>
+        ))}
+      </div>
+      {applied ? (
+        <div className="flex items-center justify-center gap-2 text-olive-light">
+          <Check size={13} />
+          <span className="font-display font-bold text-[10px] tracking-widest">TARGETS APPLIED</span>
+        </div>
+      ) : (
+        <button
+          onClick={() => { updateClientGoals(client.id, { calories, protein, carbs, fat }); setApplied(true) }}
+          className="w-full btn-accent text-bg font-display font-bold text-[10px] tracking-widest py-2.5 rounded-lg transition-colors"
+        >
+          APPLY AS {client.name.split(' ')[0].toUpperCase()}'S TARGETS
+        </button>
+      )}
+    </div>
+  )
+}
+
 export function ClientFormsTab({ client }) {
   const { markSubmissionReviewed, setActivePage } = useStore()
   const subs = client.submissions || []
@@ -822,6 +1180,7 @@ export function ClientFormsTab({ client }) {
               {s.createdAt ? format(parseISO(s.createdAt), 'MMM d, yyyy') : ''}
             </p>
           </div>
+          {s.formKind === 'intro' && <IntakeSuggestion client={client} submission={s} />}
           <CheckinAnswers checkin={{ answers: s.answers, photoUrls: s.photoUrls }} compact />
         </div>
       ))}
@@ -830,13 +1189,16 @@ export function ClientFormsTab({ client }) {
 }
 
 export function CheckinTab({ client }) {
-  const { getClientTotalsForDate, updateClientGoals, markCheckinReviewed } = useStore()
+  const { getClientTotalsForDate, updateClientGoals, markCheckinReviewed, sendMessage } = useStore()
   const [loading, setLoading] = useState(false)
   const [review, setReview]   = useState(null)
   const [error, setError]     = useState('')
   const [applied, setApplied] = useState(false)
   const [showEditor, setShowEditor]   = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [reply, setReply]         = useState('')
+  const [replySent, setReplySent] = useState(false)
+  const [sending, setSending]     = useState(false)
 
   const latest = client.checkins?.[0] || null
   const history = (client.checkins || []).slice(1)
@@ -996,6 +1358,59 @@ export function CheckinTab({ client }) {
           </div>
         </div>
       )}
+
+      {/* Respond to the client — closes the check-in loop */}
+      {latest && (
+        <div className="glass-card border border-border rounded-2xl p-5 card-dim space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">RESPOND TO {client.name.split(' ')[0].toUpperCase()}</p>
+            </div>
+            {review && !replySent && (
+              <button
+                onClick={() => setReply(`${review.summary}\n\n${review.recommendation}`)}
+                className="flex items-center gap-1.5 font-display font-bold text-[9px] tracking-widest px-2.5 py-1.5 rounded-lg border transition-colors"
+                style={{ borderColor: 'color-mix(in srgb, var(--color-accent) 35%, transparent)', color: 'var(--color-accent)', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)' }}
+              >
+                <Wand2 size={10} /> USE KAY'S DRAFT
+              </button>
+            )}
+          </div>
+          {replySent ? (
+            <div className="flex items-center gap-2 text-olive-light py-1">
+              <Check size={14} />
+              <span className="font-display font-bold text-xs tracking-widest">SENT TO CHAT</span>
+            </div>
+          ) : (
+            <>
+              <textarea
+                value={reply}
+                onChange={(e) => setReply(e.target.value)}
+                rows={4}
+                placeholder={`Nice work this week… (goes straight to ${client.name.split(' ')[0]}'s chat)`}
+                className="w-full bg-surface border border-border rounded-xl px-3.5 py-3 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown resize-y leading-relaxed"
+              />
+              <button
+                onClick={async () => {
+                  if (!reply.trim() || sending) return
+                  setSending(true)
+                  await sendMessage(client.id, 'coach', reply.trim())
+                  setSending(false); setReplySent(true)
+                }}
+                disabled={!reply.trim() || sending}
+                className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-xs tracking-widest py-3 rounded-xl transition-colors disabled:opacity-40"
+              >
+                <Send size={13} />
+                {sending ? 'SENDING…' : 'SEND RESPONSE'}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Trends across check-ins */}
+      <CheckinTrends client={client} />
 
       {/* Past check-ins */}
       {history.length > 0 && (
@@ -1249,8 +1664,18 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                   )}
                 </div>
 
+                {/* Scheduled target changes */}
+                <div className="anim-fade-in-up" style={{ animationDelay: '190ms' }}>
+                  <TargetScheduler client={client} />
+                </div>
+
+                {/* Private coach notes */}
+                <div className="anim-fade-in-up" style={{ animationDelay: '210ms' }}>
+                  <PrivateNotes clientId={client.id} />
+                </div>
+
                 {/* Client meta */}
-                <div className="bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '200ms' }}>
+                <div className="bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '230ms' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
                     <p className="font-mono text-[10px] tracking-[0.22em] text-muted">USER INFO</p>
@@ -1261,11 +1686,22 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                   {client.email && (
                     <p className="font-mono text-xs text-muted mt-1 truncate">{client.email}</p>
                   )}
+                  <div className="mt-3">
+                    <TagEditor client={client} />
+                  </div>
+                  <button
+                    onClick={() => generateClientReportPDF(client, useStore.getState().currentUser?.name).save(`${client.name.replace(/\s+/g, '-')}-report.pdf`)}
+                    className="mt-3 flex items-center gap-1.5 font-display font-bold text-[10px] tracking-widest text-muted hover:text-cream border border-border hover:border-muted rounded-lg px-2.5 py-1.5 transition-colors"
+                  >
+                    <Download size={11} />
+                    EXPORT CLIENT PDF
+                  </button>
                 </div>
 
-                {/* Danger zone */}
-                <div className="border border-red-900/30 rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '250ms' }}>
-                  <p className="font-display text-xs text-red-400/70 tracking-widest mb-3">DANGER ZONE</p>
+                {/* Archive + danger zone */}
+                <div className="border border-red-900/30 rounded-2xl p-4 anim-fade-in-up space-y-3" style={{ animationDelay: '250ms' }}>
+                  <p className="font-display text-xs text-red-400/70 tracking-widest">DANGER ZONE</p>
+                  <ArchiveButton client={client} onArchived={onClose} />
                   <button
                     onClick={() => { removeClient(client.id); onClose() }}
                     className="flex items-center gap-2 text-red-400 hover:text-red-300 font-display font-bold text-xs tracking-widest transition-colors"
@@ -1336,10 +1772,11 @@ function TileRing({ pct }) {
 }
 
 const FILTERS = [
-  { id: 'all',     label: 'ALL'          },
-  { id: 'logged',  label: 'LOGGED TODAY' },
-  { id: 'quiet',   label: 'NOT LOGGED'   },
-  { id: 'pending', label: 'PENDING'      },
+  { id: 'all',      label: 'ALL'          },
+  { id: 'logged',   label: 'LOGGED TODAY' },
+  { id: 'quiet',    label: 'NOT LOGGED'   },
+  { id: 'pending',  label: 'PENDING'      },
+  { id: 'archived', label: 'ARCHIVED'     },
 ]
 
 export default function Clients() {
@@ -1407,7 +1844,9 @@ export default function Clients() {
 
   const visible = annotated.filter(({ client, loggedToday }) => {
     const q = search.trim().toLowerCase()
-    if (q && !(client.name + ' ' + (client.email || '')).toLowerCase().includes(q)) return false
+    if (q && !(client.name + ' ' + (client.email || '') + ' ' + (client.tags || []).join(' ')).toLowerCase().includes(q)) return false
+    if (filter === 'archived') return client.status === 'archived'
+    if (client.status === 'archived') return false   // hidden everywhere else
     if (filter === 'logged')  return loggedToday
     if (filter === 'quiet')   return !loggedToday && client.status !== 'pending'
     if (filter === 'pending') return client.status === 'pending'

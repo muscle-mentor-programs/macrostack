@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Globe, Award, User, BookOpen, MessageCircle, Check, ClipboardCheck, ClipboardList, ImagePlus, X, ChevronDown } from 'lucide-react'
+import { Globe, Award, User, BookOpen, MessageCircle, Check, ClipboardCheck, ClipboardList, ImagePlus, X, ChevronDown, Banknote, Loader2 } from 'lucide-react'
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 import { successHaptic } from '../../utils/haptics'
@@ -7,6 +7,60 @@ import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
 import { QuestionField, countAnswered, ScaleField as Scale, YesNoField as YesNo } from '../../components/FormFields'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
+
+/* Pay-your-coach card — shows when the coach has Stripe connected + a price. */
+function PayCoachCard({ coachName, billing }) {
+  const startCoachPayment = useStore((s) => s.startCoachPayment)
+  const [busy, setBusy]   = useState(false)
+  const [error, setError] = useState('')
+  const [paid, setPaid]   = useState(
+    () => new URLSearchParams(window.location.search).get('coachpay') === 'success'
+  )
+
+  useEffect(() => {
+    if (paid) window.history.replaceState({}, '', window.location.pathname)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!billing?.connectReady || !(Number(billing.price) > 0)) return null
+
+  const pay = async () => {
+    setBusy(true); setError('')
+    const res = await startCoachPayment()
+    if (!res.ok) { setError(res.error); setBusy(false) }
+  }
+
+  return (
+    <div className="glass-card border rounded-2xl p-5" style={{ borderColor: accentA(35) }}>
+      <div className="flex items-center gap-2 mb-2">
+        <Banknote size={14} style={{ color: 'var(--color-accent)' }} />
+        <p className="font-display text-xs text-muted tracking-widest">COACHING PAYMENT</p>
+      </div>
+      {paid ? (
+        <div className="flex items-center gap-2 text-olive-light py-1">
+          <Check size={15} />
+          <span className="font-display font-bold text-xs tracking-widest">SUBSCRIPTION ACTIVE — THANK YOU</span>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-baseline gap-1.5 mb-3">
+            <span className="font-display font-black text-3xl text-cream">${billing.price}</span>
+            <span className="font-mono text-xs text-muted">/mo · coaching with {coachName?.split(' ')[0] || 'your coach'}</span>
+          </div>
+          <button
+            onClick={pay}
+            disabled={busy}
+            className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover press disabled:opacity-50"
+          >
+            {busy ? <Loader2 size={14} className="animate-spin" /> : null}
+            {busy ? 'OPENING CHECKOUT…' : `SUBSCRIBE — $${billing.price}/MO`}
+          </button>
+          <p className="font-mono text-[10px] text-dim mt-2.5 text-center">Secure payment via Stripe · paid directly to your coach</p>
+          {error && <p className="font-mono text-xs text-red-400 mt-2 anim-shake">{error}</p>}
+        </>
+      )}
+    </div>
+  )
+}
 
 /* A form from the coach (intro questionnaire / custom) awaiting completion —
    collapsed card that expands into the full form. */
@@ -319,7 +373,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
 }
 
 export default function ClientCoachProfile() {
-  const { coachProfile, activeClientId, clients, setActivePage, loadCoachProfile, coachForms, fetchCoachForms } = useStore()
+  const { coachProfile, activeClientId, clients, setActivePage, loadCoachProfile, coachForms, fetchCoachForms, coachBilling, fetchCoachBilling } = useStore()
 
   const client = clients.find((c) => c.id === activeClientId)
 
@@ -331,8 +385,9 @@ export default function ClientCoachProfile() {
   }, [client?.coachId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Forms this coach auto-sends (intro / custom) + weekly check-in settings
+  // + the coach's billing setup (for the payment card)
   useEffect(() => {
-    if (client?.coachId) fetchCoachForms()
+    if (client?.coachId) { fetchCoachForms(); fetchCoachBilling() }
   }, [client?.coachId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const forms = coachForms || []
@@ -418,6 +473,9 @@ export default function ClientCoachProfile() {
             <MessageCircle size={16} />
             MESSAGE {profile.name.split(' ')[0].toUpperCase()}
           </button>
+
+          {/* Coaching payment (when the coach has billing set up) */}
+          <PayCoachCard coachName={profile.name} billing={coachBilling} />
 
           {/* Forms from the coach — shown until completed */}
           {pendingForms.map((f) => (

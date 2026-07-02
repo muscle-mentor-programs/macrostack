@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Check, Loader2, Settings, Users, ArrowUpRight, ArrowDownRight, Lock } from 'lucide-react'
+import { Check, Loader2, Settings, Users, ArrowUpRight, ArrowDownRight, Lock, Banknote, ExternalLink } from 'lucide-react'
 import useStore from '../store'
 import useSubscription from '../hooks/useSubscription'
 // Coach tiers — shared with the landing page, client-limit gates, and edge functions
@@ -293,7 +293,116 @@ export default function UpgradePage() {
         <p className="font-mono text-[10px] text-dim text-center mt-3 leading-relaxed">
           Secure checkout via Stripe. Cancel anytime.
         </p>
+
+        {/* Coaches can set up client billing regardless of their own plan */}
+        {isCoach && <ClientBillingCard />}
       </div>
+    </div>
+  )
+}
+
+/* ── Client billing — coaches charge their clients through MacroStack ─────────
+   Stripe Connect Express: connect once, set a monthly price, clients get a
+   PAY COACH button on their coach tab. Money goes straight to the coach. */
+export function ClientBillingCard() {
+  const { coachBilling, fetchCoachBilling, saveCoachBillingPrice, startConnectOnboarding } = useStore()
+  const [price, setPrice]   = useState('')
+  const [saved, setSaved]   = useState(false)
+  const [busy, setBusy]     = useState(false)
+  const [error, setError]   = useState('')
+
+  useEffect(() => {
+    fetchCoachBilling().then((cb) => { if (cb?.price) setPrice(String(cb.price)) })
+    // Returning from Stripe onboarding → re-sync readiness
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('connect')) {
+      window.history.replaceState({}, '', window.location.pathname)
+      // connect-onboard syncs charges_enabled; refetch after a beat
+      setTimeout(() => fetchCoachBilling(), 1200)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const ready = !!coachBilling?.connectReady
+
+  const handleConnect = async () => {
+    setBusy(true); setError('')
+    const res = await startConnectOnboarding()
+    if (!res.ok) { setError(res.error); setBusy(false) }
+    else if (!res.url) {
+      // Already ready — refresh state
+      await fetchCoachBilling()
+      setBusy(false)
+    }
+    // otherwise the browser is redirecting to Stripe
+  }
+
+  const handleSavePrice = async () => {
+    const p = Number(price)
+    if (!p || p < 1) { setError('Enter a monthly price of at least $1.'); return }
+    setBusy(true); setError('')
+    const res = await saveCoachBillingPrice(p)
+    setBusy(false)
+    if (!res.ok) setError(res.error)
+    else { setSaved(true); setTimeout(() => setSaved(false), 2000) }
+  }
+
+  return (
+    <div className="glass-card border border-border rounded-2xl p-5 card-dim mt-6">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-2">
+          <Banknote size={15} style={{ color: 'var(--color-accent)' }} />
+          <p className="font-display font-bold text-sm tracking-widest text-cream">CLIENT BILLING</p>
+        </div>
+        <span className="font-mono text-[9px] tracking-[0.18em] px-2 py-1 rounded-full"
+          style={ready
+            ? { background: 'rgba(107,122,82,0.15)', color: 'var(--color-olive-light, #849663)' }
+            : { background: 'var(--color-dim)', color: 'var(--color-muted)' }}>
+          {ready ? 'STRIPE CONNECTED' : 'NOT CONNECTED'}
+        </span>
+      </div>
+      <p className="font-mono text-xs text-muted leading-relaxed mb-4">
+        Charge your clients monthly, right inside MacroStack. Payments go straight to your own Stripe account.
+      </p>
+
+      {!ready ? (
+        <button
+          onClick={handleConnect}
+          disabled={busy}
+          className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-xs tracking-widest py-3 rounded-xl transition-colors disabled:opacity-50"
+        >
+          {busy ? <Loader2 size={13} className="animate-spin" /> : <ExternalLink size={13} />}
+          {coachBilling === null ? 'LOADING…' : 'CONNECT STRIPE — 2 MINUTES'}
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <div>
+            <label className="font-display text-xs text-muted tracking-widest block mb-1.5">MONTHLY COACHING PRICE (USD)</label>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-sm text-muted">$</span>
+                <input
+                  type="number" inputMode="decimal" min="1" placeholder="150"
+                  value={price} onChange={(e) => setPrice(e.target.value)}
+                  className="w-full bg-surface border border-border rounded-xl pl-8 pr-4 py-3 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown"
+                />
+              </div>
+              <button
+                onClick={handleSavePrice}
+                disabled={busy}
+                className="btn-accent text-bg font-display font-bold text-xs tracking-widest px-5 rounded-xl transition-colors disabled:opacity-50"
+              >
+                {saved ? 'SAVED ✓' : 'SAVE'}
+              </button>
+            </div>
+          </div>
+          <p className="font-mono text-[10px] text-dim leading-relaxed">
+            {Number(coachBilling?.price) > 0
+              ? `Clients see a PAY $${coachBilling.price}/mo button on their coach tab and subscribe in one tap.`
+              : 'Set a price and every client gets a payment button on their coach tab.'}
+          </p>
+        </div>
+      )}
+      {error && <p className="font-mono text-xs text-red-400 mt-3 anim-shake leading-relaxed">{error}</p>}
     </div>
   )
 }
@@ -430,6 +539,9 @@ function CoachTierManager({ clients, plan, status, currentUser, changeSubscripti
           <Settings size={14} />
           MANAGE BILLING
         </button>
+
+        {/* Charge your own clients through the platform */}
+        <ClientBillingCard />
       </div>
     </div>
   )

@@ -4,6 +4,7 @@ import { MessageCircle, Send, Search, ChevronRight } from 'lucide-react'
 import useStore from '../../store'
 import ClientAvatar from '../../components/ClientAvatar'
 import ScrambleText from '../../components/ScrambleText'
+import { AttachmentButtons, MessageAttachment } from '../../components/ChatAttachments'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
@@ -286,6 +287,7 @@ export default function CoachChat() {
                         } : undefined}
                       >
                         {msg.text}
+                        <MessageAttachment url={msg.attachmentUrl} type={msg.attachmentType} />
                       </div>
                       <p className="font-mono text-[10px] text-dim px-1">{msgTime(msg.timestamp)}</p>
                     </div>
@@ -296,7 +298,11 @@ export default function CoachChat() {
           </div>
 
           {/* Composer */}
-          <div className="px-6 py-4 border-t border-border flex gap-3 flex-shrink-0 glass-panel">
+          <div className="px-6 py-4 border-t border-border flex items-center gap-2 flex-shrink-0 glass-panel">
+            <AttachmentButtons
+              clientId={selectedClient.id}
+              onSend={(att) => sendMessage(selectedClient.id, 'coach', '', att)}
+            />
             <input
               type="text"
               placeholder={`Message ${selectedClient.name.split(' ')[0]}…`}
