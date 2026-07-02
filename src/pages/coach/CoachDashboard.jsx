@@ -608,9 +608,26 @@ export default function CoachDashboard() {
           <h2 className="font-display font-black text-4xl tracking-[0.15em] text-cream">
             <ScrambleText text="DASHBOARD" duration={900} />
           </h2>
-          <p className="font-mono text-sm text-muted mt-1">
-            {format(new Date(), 'EEEE, MMMM d, yyyy')}
-          </p>
+          <div className="flex items-center gap-3 mt-1.5">
+            <p className="font-mono text-sm text-muted">
+              {format(new Date(), 'EEEE, MMMM d, yyyy')}
+            </p>
+            {currentUser?.coachCode && (
+              <button
+                onClick={handleCopyCode}
+                title="Copy your coach code"
+                className="flex items-center gap-2 border border-border hover:border-muted rounded-lg px-2.5 py-1 transition-colors"
+              >
+                <span className="font-mono text-[9px] tracking-[0.2em] text-muted">CODE</span>
+                <span className="font-display font-black text-sm tracking-widest" style={{ color: 'var(--color-accent)' }}>
+                  {currentUser.coachCode}
+                </span>
+                {copied
+                  ? <CheckIcon size={11} className="text-olive-light" />
+                  : <Copy size={11} className="text-dim" />}
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2.5">
           <button
@@ -673,37 +690,6 @@ export default function CoachDashboard() {
                 </button>
               ))}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Coach Code widget */}
-      {currentUser?.coachCode && (
-        <div className="px-8 pt-4 pb-0 flex-shrink-0">
-          <div className="glass-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between card-hover card-dim">
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
-              <span className="font-display font-black text-lg text-brown tracking-widest">
-                {currentUser.coachCode}
-              </span>
-            </div>
-            <button
-              onClick={handleCopyCode}
-              className="flex items-center gap-1.5 font-mono text-xs text-muted hover:text-cream transition-colors px-2 py-1 rounded-lg hover:bg-surface"
-              title="Copy coach code"
-            >
-              {copied ? (
-                <>
-                  <CheckIcon size={13} className="text-olive-light" />
-                  <span className="text-olive-light">COPIED</span>
-                </>
-              ) : (
-                <>
-                  <Copy size={13} />
-                  COPY
-                </>
-              )}
-            </button>
           </div>
         </div>
       )}
