@@ -752,7 +752,10 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             needs room for the cards' soft drop-shadows (largest ≈ 60px + the
             scrollbar) — otherwise they get chopped into a visible line +
             shading band across the section. */}
-        <div ref={trackRef} className="premium-scroll flex items-start gap-5 md:gap-6 mt-10 md:mt-12 px-6 md:px-10 overflow-x-auto pb-20 -mb-14 snap-x snap-mandatory">
+        <div ref={trackRef} className="premium-scroll mt-10 md:mt-12 px-6 md:px-10 overflow-x-auto pb-20 -mb-14 snap-x snap-mandatory">
+          {/* w-max + mx-auto: centered under the heading when the cards fit
+              the viewport, normal left-anchored scrolling when they overflow */}
+          <div className="flex items-start gap-5 md:gap-6 w-max mx-auto">
           {CARDS.map((c) => (
             <div
               key={c.title}
@@ -802,6 +805,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               </p>
             </div>
           </button>
+          </div>
         </div>
       </section>
 
