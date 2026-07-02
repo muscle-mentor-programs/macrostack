@@ -13,6 +13,7 @@ import ScannedFoodModal from '../../components/ScannedFoodModal'
 import { rankFoods, getRecentFoodIds } from '../../utils/foodSearch'
 import { successHaptic, deleteHaptic } from '../../utils/haptics'
 import AnimatedNumber from '../../components/AnimatedNumber'
+import useSubscription from '../../hooks/useSubscription'
 
 // Meals always shown even when empty
 const PRIMARY_MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
@@ -33,7 +34,8 @@ function entryServingLabel(entry) {
 // ─── Full-screen food selector (replaces modal) ──────────────────────────────
 function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const { addClientEntry, customFoods, scannedFoods, overrideFoods, hiddenFoodIds, clients, currentUser, setActivePage } = useStore()
-  const canScan = !!currentUser?.hasAccess
+  // Effective access via the hook — includes Pro-included-with-a-coach
+  const { hasAccess: canScan } = useSubscription()
 
   const [query,       setQuery]       = useState('')
   const [selected,    setSelected]    = useState(null)

@@ -58,7 +58,7 @@ function savingsPct(prices, cadence) {
 
 export default function UpgradePage() {
   const { startCheckout, refreshSubscription, openBillingPortal, setActivePage, clients, changeSubscriptionTier, currentUser } = useStore()
-  const { hasAccess, isSubscribed, audience, plan, status } = useSubscription()
+  const { hasAccess, viaCoach, isSubscribed, audience, plan, status } = useSubscription()
 
   const isCoach = audience === 'coach'
 
@@ -102,6 +102,30 @@ export default function UpgradePage() {
     const res = await startCheckout(audience, selection)
     if (!res.ok) { setError(res.error || 'Could not start checkout.'); setLoading(false) }
     // on success the browser redirects to Stripe
+  }
+
+  // ── Pro included via coach link (no personal sub needed) ──
+  if (viaCoach && !isSubscribed) {
+    return (
+      <div className="min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 anim-pop"
+          style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}>
+          <Users size={28} style={{ color: 'var(--color-accent)' }} />
+        </div>
+        <p className="font-mono text-[10px] tracking-[0.22em] text-muted mb-2">YOUR PLAN</p>
+        <h1 className="font-display font-black text-3xl tracking-widest text-cream text-center">PRO INCLUDED</h1>
+        <p className="font-mono text-xs text-muted mt-3 max-w-xs text-center leading-relaxed">
+          You're connected to a coach, so every Pro feature — barcode scanner, weight trends,
+          full analytics — is unlocked for as long as you're linked. Nothing to pay here.
+        </p>
+        <button
+          onClick={() => setActivePage('dashboard')}
+          className="mt-6 border border-border text-cream font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:border-muted transition-colors press"
+        >
+          BACK TO DASHBOARD
+        </button>
+      </div>
+    )
   }
 
   // ── Already subscribed: management view ──
