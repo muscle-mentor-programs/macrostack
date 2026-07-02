@@ -748,7 +748,11 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           </h2>
         </div>
 
-        <div ref={trackRef} className="premium-scroll flex items-start gap-5 md:gap-6 mt-10 md:mt-12 px-6 md:px-10 overflow-x-auto pb-5 snap-x snap-mandatory">
+        {/* pb-20/-mb-14: overflow-x clips vertical overflow too, so the strip
+            needs room for the cards' soft drop-shadows (largest ≈ 60px + the
+            scrollbar) — otherwise they get chopped into a visible line +
+            shading band across the section. */}
+        <div ref={trackRef} className="premium-scroll flex items-start gap-5 md:gap-6 mt-10 md:mt-12 px-6 md:px-10 overflow-x-auto pb-20 -mb-14 snap-x snap-mandatory">
           {CARDS.map((c) => (
             <div
               key={c.title}
