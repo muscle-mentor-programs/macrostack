@@ -1,58 +1,106 @@
-import { useEffect, useState } from 'react'
-import { Globe, Award, User, BookOpen, MessageCircle, Check, ClipboardCheck } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Globe, Award, User, BookOpen, MessageCircle, Check, ClipboardCheck, ClipboardList, ImagePlus, X, ChevronDown } from 'lucide-react'
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 import { successHaptic } from '../../utils/haptics'
 import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
+import { QuestionField, countAnswered, ScaleField as Scale, YesNoField as YesNo } from '../../components/FormFields'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
-// 1–5 selector with labeled endpoints
-function Scale({ low, high, value, onChange }) {
+/* A form from the coach (intro questionnaire / custom) awaiting completion —
+   collapsed card that expands into the full form. */
+function PendingFormCard({ form, clientId }) {
+  const submitClientForm = useStore((s) => s.submitClientForm)
+  const [open, setOpen]       = useState(form.kind === 'intro') // intro starts open
+  const [answers, setAnswers] = useState({})
+  const [saving, setSaving]   = useState(false)
+  const [done, setDone]       = useState(false)
+
+  const answered = countAnswered(form.questions, answers)
+  const canSubmit = !saving && answered > 0
+
+  const submit = async () => {
+    if (!canSubmit) return
+    setSaving(true)
+    const snapshot = form.questions.map((q) => ({
+      id: q.id, label: q.label, type: q.type,
+      value: answers[q.id] ?? null,
+    }))
+    const res = await submitClientForm(form, clientId, snapshot)
+    setSaving(false)
+    if (res.ok) { successHaptic(); setDone(true) }
+  }
+
+  if (done) {
+    return (
+      <div className="glass-card border rounded-2xl p-5 text-center" style={{ borderColor: accentA(35) }}>
+        <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 anim-pop" style={{ background: accentA(18) }}>
+          <Check size={18} style={{ color: 'var(--color-accent)' }} />
+        </div>
+        <p className="font-display font-bold text-sm tracking-widest text-cream">{form.title.toUpperCase()} SENT</p>
+        <p className="font-mono text-xs text-muted mt-1">Your coach has your answers.</p>
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <div className="flex gap-1.5">
-        {[1, 2, 3, 4, 5].map((n) => (
+    <div className="glass-card border rounded-2xl p-5 space-y-4" style={{ borderColor: accentA(40) }}>
+      <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between gap-3 text-left">
+        <div className="flex items-center gap-2 min-w-0">
+          <ClipboardList size={14} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="font-display text-xs text-cream tracking-widest truncate">{form.title.toUpperCase()}</p>
+            {form.description && !open && (
+              <p className="font-mono text-[10px] text-muted mt-0.5 truncate">{form.description}</p>
+            )}
+          </div>
+        </div>
+        <span className="flex items-center gap-2 flex-shrink-0">
+          <span className="font-mono text-[9px] tracking-[0.18em] px-2 py-1 rounded-full"
+            style={{ background: accentA(16), color: 'var(--color-accent)' }}>
+            {form.kind === 'intro' ? 'NEW' : 'TO DO'}
+          </span>
+          <ChevronDown size={14} className={`text-muted transition-transform ${open ? 'rotate-180' : ''}`} />
+        </span>
+      </button>
+
+      {open && (
+        <>
+          {form.description && (
+            <p className="font-mono text-xs text-muted leading-relaxed -mt-1">{form.description}</p>
+          )}
+          {form.questions.map((q) => (
+            <QuestionField
+              key={q.id} question={q}
+              value={answers[q.id]}
+              onChange={(v) => setAnswers((p) => ({ ...p, [q.id]: v }))}
+            />
+          ))}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--color-dim)' }}>
+              <div className="h-1 rounded-full transition-all duration-300"
+                style={{ width: `${(answered / Math.max(form.questions.length, 1)) * 100}%`, background: 'var(--color-accent)' }} />
+            </div>
+            <span className="font-mono text-[10px] text-dim whitespace-nowrap">{answered}/{form.questions.length}</span>
+          </div>
           <button
-            key={n} type="button" onClick={() => onChange(n)}
-            className="flex-1 h-10 rounded-lg font-mono text-sm transition-all border press"
-            style={value === n
-              ? { background: 'var(--color-accent)', color: '#fff', borderColor: 'transparent', transform: 'scale(1.04)' }
-              : { borderColor: 'var(--color-border)', color: 'var(--color-muted)', background: 'var(--color-surface)' }}
+            onClick={submit}
+            disabled={!canSubmit}
+            className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover press disabled:opacity-40"
           >
-            {n}
+            {saving ? 'SENDING…' : `SEND ${form.kind === 'intro' ? 'ANSWERS' : 'FORM'}`}
           </button>
-        ))}
-      </div>
-      <div className="flex justify-between mt-1">
-        <span className="font-mono text-[9px] text-dim">{low}</span>
-        <span className="font-mono text-[9px] text-dim">{high}</span>
-      </div>
+        </>
+      )}
     </div>
   )
 }
 
-function YesNo({ value, onChange }) {
-  return (
-    <div className="flex gap-1.5">
-      {[{ v: true, l: 'YES' }, { v: false, l: 'NO' }].map(({ v, l }) => (
-        <button
-          key={l} type="button" onClick={() => onChange(v)}
-          className="flex-1 h-10 rounded-lg font-display font-bold text-xs tracking-widest transition-all border press"
-          style={value === v
-            ? { background: 'var(--color-accent)', color: '#fff', borderColor: 'transparent' }
-            : { borderColor: 'var(--color-border)', color: 'var(--color-muted)', background: 'var(--color-surface)' }}
-        >
-          {l}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-// Weekly check-in form — coach-customized questions, due tracking, and a
-// success summary. Own state so hooks stay above the parent's early returns.
-function WeeklyCheckinCard({ clientId, lastCheckin }) {
+// Weekly check-in form — coach-customized questions, due tracking, optional
+// photo uploads, and a success summary. Own state so hooks stay above the
+// parent's early returns.
+function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
   const { addClientCheckin, fetchCheckinQuestions, clients } = useStore()
   const client = clients.find((c) => c.id === clientId)
 
@@ -60,8 +108,17 @@ function WeeklyCheckinCard({ clientId, lastCheckin }) {
   const [weight, setWeight]   = useState('')
   const [unit, setUnit]       = useState(lastCheckin?.weightUnit || 'lbs')
   const [answers, setAnswers] = useState({})       // { [questionId]: value }
+  const [photos, setPhotos]   = useState([])       // File[] (max 4)
   const [saving, setSaving]   = useState(false)
   const [done, setDone]       = useState(false)
+  const photoInputRef = useRef(null)
+
+  const addPhotos = (e) => {
+    const files = [...(e.target.files || [])]
+    e.target.value = ''
+    setPhotos((p) => [...p, ...files].slice(0, 4))
+  }
+  const removePhoto = (i) => setPhotos((p) => p.filter((_, x) => x !== i))
 
   useEffect(() => {
     let alive = true
@@ -112,7 +169,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin }) {
       energy:    bySlug('energy'),
       notes: '',
       answers: snapshot,
-    })
+    }, photos)
     setSaving(false)
     if (res.ok) { successHaptic(); setDone(true) }
   }
@@ -204,6 +261,40 @@ function WeeklyCheckinCard({ clientId, lastCheckin }) {
         ))
       )}
 
+      {/* Progress photos (coach-enabled) */}
+      {allowPhotos && questions !== null && (
+        <div>
+          <label className="font-display text-xs text-muted tracking-widest block mb-1.5">
+            PROGRESS PHOTOS <span className="text-dim normal-case tracking-normal">(optional)</span>
+          </label>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {photos.map((f, i) => (
+              <div key={i} className="relative flex-shrink-0">
+                <img src={URL.createObjectURL(f)} alt={`Photo ${i + 1}`}
+                  className="w-16 aspect-[3/4] object-cover rounded-lg border border-border" />
+                <button
+                  type="button" onClick={() => removePhoto(i)}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-bg border border-border flex items-center justify-center text-muted hover:text-red-400 transition-colors"
+                >
+                  <X size={10} />
+                </button>
+              </div>
+            ))}
+            {photos.length < 4 && (
+              <button
+                type="button" onClick={() => photoInputRef.current?.click()}
+                className="flex-shrink-0 w-16 aspect-[3/4] rounded-lg border border-dashed border-border hover:border-brown/60 flex flex-col items-center justify-center gap-1 text-dim hover:text-brown-light transition-colors"
+              >
+                <ImagePlus size={14} />
+                <span className="font-mono text-[8px] tracking-widest">ADD</span>
+              </button>
+            )}
+          </div>
+          <p className="font-mono text-[9px] text-dim mt-1">Saved to your progress timeline for your coach.</p>
+          <input ref={photoInputRef} type="file" accept="image/*" multiple className="hidden" onChange={addPhotos} />
+        </div>
+      )}
+
       {/* Progress + submit */}
       {questions !== null && (
         <>
@@ -228,7 +319,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin }) {
 }
 
 export default function ClientCoachProfile() {
-  const { coachProfile, activeClientId, clients, setActivePage, loadCoachProfile } = useStore()
+  const { coachProfile, activeClientId, clients, setActivePage, loadCoachProfile, coachForms, fetchCoachForms } = useStore()
 
   const client = clients.find((c) => c.id === activeClientId)
 
@@ -238,6 +329,19 @@ export default function ClientCoachProfile() {
       loadCoachProfile(client.coachId)
     }
   }, [client?.coachId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Forms this coach auto-sends (intro / custom) + weekly check-in settings
+  useEffect(() => {
+    if (client?.coachId) fetchCoachForms()
+  }, [client?.coachId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const forms = coachForms || []
+  const weeklyCfg = forms.find((f) => f.kind === 'weekly')
+  // Pending = active intro/custom forms this client hasn't submitted yet
+  const pendingForms = forms.filter((f) =>
+    f.kind !== 'weekly' && f.active && f.questions.length > 0 &&
+    !(client?.submissions || []).some((s) => s.formId === f.id)
+  )
 
   if (!coachProfile && !client?.coachId) {
     return (
@@ -315,8 +419,17 @@ export default function ClientCoachProfile() {
             MESSAGE {profile.name.split(' ')[0].toUpperCase()}
           </button>
 
+          {/* Forms from the coach — shown until completed */}
+          {pendingForms.map((f) => (
+            <PendingFormCard key={f.id} form={f} clientId={activeClientId} />
+          ))}
+
           {/* Weekly check-in */}
-          <WeeklyCheckinCard clientId={activeClientId} lastCheckin={client?.checkins?.[0]} />
+          <WeeklyCheckinCard
+            clientId={activeClientId}
+            lastCheckin={client?.checkins?.[0]}
+            allowPhotos={!!weeklyCfg?.allowPhotos}
+          />
 
           {/* Bio */}
           {profile.bio && (

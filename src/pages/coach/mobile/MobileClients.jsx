@@ -12,6 +12,8 @@ import ScrambleText from '../../../components/ScrambleText'
 import MealPlanBuilder from '../MealPlanBuilder'
 import { reconcileGoals } from '../../../utils/macros'
 import { generateMealPlan } from '../../../services/mealPlanAI'
+import { CheckinTab, ClientFormsTab } from '../Clients'
+import ProgressPhotos from '../../../components/ProgressPhotos'
 
 // ─── Harris-Benedict (Mifflin-St Jeor) ───────────────────────────────────────
 const ACTIVITY = [
@@ -515,10 +517,16 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-border flex-shrink-0 bg-surface">
-        {[{ id: 'overview', label: 'OVERVIEW' }, { id: 'mealplans', label: 'MEAL PLANS' }].map((t) => (
+      <div className="flex border-b border-border flex-shrink-0 bg-surface overflow-x-auto">
+        {[
+          { id: 'overview',  label: 'OVERVIEW' },
+          { id: 'checkin',   label: 'CHECK-IN' },
+          { id: 'mealplans', label: 'PLANS'    },
+          { id: 'photos',    label: 'PHOTOS'   },
+          { id: 'forms',     label: 'FORMS'    },
+        ].map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 py-3.5 font-display font-bold text-xs tracking-widest transition-colors ${
+            className={`flex-1 min-w-[72px] py-3.5 font-display font-bold text-[10px] tracking-widest transition-colors whitespace-nowrap ${
               tab === t.id ? 'text-cream border-b-2 border-brown' : 'text-muted'
             }`}>
             {t.label}
@@ -653,6 +661,32 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
         {tab === 'mealplans' && (
           <div className="p-5">
             <MealPlansTab clientId={client.id} />
+          </div>
+        )}
+
+        {tab === 'checkin' && (
+          <div className="p-5">
+            <CheckinTab client={client} />
+          </div>
+        )}
+
+        {tab === 'photos' && (
+          <div className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROGRESS PHOTO TIMELINE</p>
+            </div>
+            <ProgressPhotos client={client} />
+          </div>
+        )}
+
+        {tab === 'forms' && (
+          <div className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">FORM RESPONSES</p>
+            </div>
+            <ClientFormsTab client={client} />
           </div>
         )}
       </div>

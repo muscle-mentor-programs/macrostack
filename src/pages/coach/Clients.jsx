@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
-import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronUp, ChevronDown } from 'lucide-react'
+import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronDown } from 'lucide-react'
 import useStore from '../../store'
 import { coachClientLimit, coachTierLabel } from '../../lib/coachTiers'
 import ClientAvatar from '../../components/ClientAvatar'
@@ -10,7 +10,8 @@ import MealPlanBuilder from './MealPlanBuilder'
 import ProgressPhotos from '../../components/ProgressPhotos'
 import { generateMealPlan } from '../../services/mealPlanAI'
 import { generateCheckinReview } from '../../services/checkinAI'
-import { DEFAULT_QUESTIONS, QUESTION_TYPES } from '../../lib/checkinQuestions'
+import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
+import FormEditor from '../../components/FormEditor'
 import { reconcileGoals } from '../../utils/macros'
 
 // ─── Harris-Benedict (Mifflin-St Jeor revision) ──────────────────────────────
@@ -669,8 +670,9 @@ function MealPlansTab({ clientId }) {
 
 // ── Coach weekly check-in review (latest submission + AI analysis) ───────────
 /* Renders a check-in's content — new answer snapshots when present, the
-   legacy adherence/hunger/energy fields for older submissions. */
-function CheckinAnswers({ checkin, compact = false }) {
+   legacy adherence/hunger/energy fields for older submissions.
+   (Exported for the mobile client detail screen.) */
+export function CheckinAnswers({ checkin, compact = false }) {
   const scaleLabel = (n) => (n ? `${n}/5` : '—')
   const answers = checkin.answers || []
 
@@ -695,10 +697,11 @@ function CheckinAnswers({ checkin, compact = false }) {
             {a.type === 'yesno' ? (
               <p className="font-mono text-sm text-cream">{a.value === null || a.value === undefined ? '—' : a.value ? 'Yes' : 'No'}</p>
             ) : (
-              <p className="font-mono text-sm text-cream leading-relaxed whitespace-pre-wrap">{a.value || '—'}</p>
+              <p className="font-mono text-sm text-cream leading-relaxed whitespace-pre-wrap">{a.value === null || a.value === undefined || a.value === '' ? '—' : String(a.value)}</p>
             )}
           </div>
         ))}
+        <CheckinPhotos urls={checkin.photoUrls} />
       </div>
     )
   }
@@ -720,17 +723,41 @@ function CheckinAnswers({ checkin, compact = false }) {
           <p className="font-mono text-sm text-cream leading-relaxed">{checkin.notes}</p>
         </div>
       )}
+      <CheckinPhotos urls={checkin.photoUrls} />
     </div>
   )
 }
 
-/* Coach's check-in form builder — add / remove / edit / reorder questions.
-   The set applies to all of this coach's clients. */
+/* Photo attachments on a check-in (also saved to the client's PHOTOS tab). */
+function CheckinPhotos({ urls }) {
+  const [viewer, setViewer] = useState(null)
+  if (!urls?.length) return null
+  return (
+    <div>
+      <p className="font-mono text-[10px] tracking-widest text-muted mb-1.5">ATTACHED PHOTOS</p>
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {urls.map((u, i) => (
+          <button key={i} onClick={() => setViewer(u)} className="flex-shrink-0">
+            <img src={u} alt={`Check-in photo ${i + 1}`} loading="lazy"
+              className="w-16 aspect-[3/4] object-cover rounded-lg border border-border hover:border-brown/50 transition-colors" />
+          </button>
+        ))}
+      </div>
+      {viewer && (
+        <div className="fixed inset-0 z-50 bg-bg/95 backdrop-blur-sm flex items-center justify-center p-5 anim-fade-in"
+          onClick={() => setViewer(null)}>
+          <img src={viewer} alt="Check-in photo" className="max-w-full max-h-[80vh] rounded-2xl border border-border object-contain" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* Weekly check-in question editor — thin wrapper over the shared FormEditor
+   that loads the coach's set (or defaults) and saves via saveCheckinQuestions. */
 function QuestionEditorModal({ onClose }) {
   const { fetchCheckinQuestions, saveCheckinQuestions } = useStore()
-  const [list, setList]     = useState(null)
-  const [saving, setSaving] = useState(false)
-  const [error, setError]   = useState('')
+  const [list, setList] = useState(null)
 
   useEffect(() => {
     fetchCheckinQuestions().then((qs) =>
@@ -738,134 +765,71 @@ function QuestionEditorModal({ onClose }) {
     )
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const update = (i, patch) => setList((l) => l.map((q, x) => (x === i ? { ...q, ...patch } : q)))
-  const remove = (i)        => setList((l) => l.filter((_, x) => x !== i))
-  const move   = (i, dir)   => setList((l) => {
-    const j = i + dir
-    if (j < 0 || j >= l.length) return l
-    const next = [...l]; [next[i], next[j]] = [next[j], next[i]]
-    return next
-  })
-  const add = (type) => setList((l) => [...l, {
-    id: `new-${Date.now()}`, slug: null, type, label: '',
-    low: type === 'scale' ? 'Low' : '', high: type === 'scale' ? 'High' : '',
-  }])
+  if (list === null) return null
+  return (
+    <FormEditor
+      heading="CHECK-IN QUESTIONS"
+      subtitle="What every client answers each week"
+      initialQuestions={list}
+      saveLabel="SAVE QUESTIONS"
+      onSave={({ questions }) => saveCheckinQuestions(questions)}
+      onClose={onClose}
+    />
+  )
+}
 
-  const handleSave = async () => {
-    if (list.some((q) => !q.label.trim())) { setError('Every question needs text.'); return }
-    if (list.length === 0) { setError('Keep at least one question.'); return }
-    setSaving(true); setError('')
-    const res = await saveCheckinQuestions(list)
-    setSaving(false)
-    if (!res.ok) setError(res.error || 'Could not save questions.')
-    else onClose()
+/* Intro questionnaire + custom form responses for one client. Viewing marks
+   them reviewed (clears the dashboard badge). */
+export function ClientFormsTab({ client }) {
+  const { markSubmissionReviewed, setActivePage } = useStore()
+  const subs = client.submissions || []
+
+  useEffect(() => {
+    subs.filter((s) => !s.reviewed).forEach((s) => markSubmissionReviewed(client.id, s.id))
+  }, [client.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (subs.length === 0) {
+    return (
+      <div className="glass-card border border-border rounded-2xl p-8 text-center card-dim">
+        <p className="font-display font-bold text-sm text-muted tracking-widest">NO FORM RESPONSES YET</p>
+        <p className="font-mono text-xs text-dim mt-1.5 leading-relaxed">
+          {client.name.split(' ')[0]}'s intro questionnaire and custom form answers will appear here.
+          Manage what gets sent from the FORMS tab.
+        </p>
+        <button
+          onClick={() => setActivePage('forms')}
+          className="mt-4 font-display font-bold text-[10px] tracking-widest text-muted hover:text-cream border border-border hover:border-muted rounded-lg px-3 py-2 transition-colors"
+        >
+          OPEN FORMS
+        </button>
+      </div>
+    )
   }
 
-  const typeBadge = (t) => QUESTION_TYPES.find((x) => x.id === t)?.label || t
-
   return (
-    <div className="fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-50 anim-fade-in p-4">
-      <div className="bg-card border border-border rounded-2xl w-[620px] max-w-full max-h-[88vh] overflow-y-auto shadow-2xl anim-fade-in-up">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-border sticky top-0 bg-card z-10">
-          <div>
-            <h3 className="font-display font-black text-xl tracking-widest text-cream">CHECK-IN QUESTIONS</h3>
-            <p className="font-mono text-xs text-muted mt-0.5">What every client answers each week</p>
-          </div>
-          <button onClick={onClose} className="text-muted hover:text-cream p-1 transition-colors">
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="px-6 py-5 space-y-3">
-          {list === null ? (
-            <div className="py-8 flex justify-center">
-              <div className="w-6 h-6 border-2 border-brown border-t-transparent rounded-full animate-spin" />
+    <div className="space-y-4">
+      {subs.map((s) => (
+        <div key={s.id} className="glass-card border border-border rounded-2xl p-5 card-dim space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="font-display font-bold text-sm text-cream truncate">{s.formTitle || 'Form'}</p>
+              <span className="font-mono text-[8px] tracking-[0.18em] px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: 'color-mix(in srgb, var(--color-accent) 14%, transparent)', color: 'var(--color-accent)' }}>
+                {s.formKind === 'intro' ? 'INTRO' : 'CUSTOM'}
+              </span>
             </div>
-          ) : (
-            <>
-              {list.map((q, i) => (
-                <div key={q.id} className="bg-surface border border-border rounded-xl p-3.5 space-y-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[8px] tracking-[0.18em] px-2 py-1 rounded flex-shrink-0"
-                      style={{ background: 'color-mix(in srgb, var(--color-accent) 14%, transparent)', color: 'var(--color-accent)' }}>
-                      {typeBadge(q.type)}
-                    </span>
-                    <div className="flex-1" />
-                    <button onClick={() => move(i, -1)} disabled={i === 0}
-                      className="p-1.5 rounded text-dim hover:text-cream disabled:opacity-25 transition-colors" title="Move up">
-                      <ChevronUp size={13} />
-                    </button>
-                    <button onClick={() => move(i, 1)} disabled={i === list.length - 1}
-                      className="p-1.5 rounded text-dim hover:text-cream disabled:opacity-25 transition-colors" title="Move down">
-                      <ChevronDown size={13} />
-                    </button>
-                    <button onClick={() => remove(i)}
-                      className="p-1.5 rounded text-dim hover:text-red-400 transition-colors" title="Remove question">
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                  <input
-                    value={q.label}
-                    onChange={(e) => update(i, { label: e.target.value })}
-                    placeholder="Question text…"
-                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
-                  />
-                  {q.type === 'scale' && (
-                    <div className="flex gap-2">
-                      <input
-                        value={q.low} onChange={(e) => update(i, { low: e.target.value })}
-                        placeholder="1 = …"
-                        className="flex-1 min-w-0 bg-bg border border-border rounded-lg px-3 py-1.5 font-mono text-xs text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
-                      />
-                      <input
-                        value={q.high} onChange={(e) => update(i, { high: e.target.value })}
-                        placeholder="5 = …"
-                        className="flex-1 min-w-0 bg-bg border border-border rounded-lg px-3 py-1.5 font-mono text-xs text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Add buttons */}
-              <div className="flex gap-2 pt-1">
-                {QUESTION_TYPES.map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => add(t.id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 border border-dashed border-border hover:border-brown/60 text-muted hover:text-brown-light rounded-xl py-2.5 font-display font-bold text-[10px] tracking-widest transition-colors"
-                  >
-                    <Plus size={12} /> {t.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {error && <p className="font-mono text-xs text-red-400 anim-shake">{error}</p>}
+            <p className="font-mono text-xs text-muted flex-shrink-0">
+              {s.createdAt ? format(parseISO(s.createdAt), 'MMM d, yyyy') : ''}
+            </p>
+          </div>
+          <CheckinAnswers checkin={{ answers: s.answers, photoUrls: s.photoUrls }} compact />
         </div>
-
-        <div className="flex gap-3 px-6 pb-6 pt-1 sticky bottom-0 bg-card">
-          <button
-            onClick={handleSave}
-            disabled={saving || list === null}
-            className="flex-1 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-lg transition-colors glow-hover disabled:opacity-50"
-          >
-            {saving ? 'SAVING…' : 'SAVE QUESTIONS'}
-          </button>
-          <button
-            onClick={onClose}
-            className="bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-5 py-3 rounded-lg transition-colors"
-          >
-            CANCEL
-          </button>
-        </div>
-      </div>
+      ))}
     </div>
   )
 }
 
-function CheckinTab({ client }) {
+export function CheckinTab({ client }) {
   const { getClientTotalsForDate, updateClientGoals, markCheckinReviewed } = useStore()
   const [loading, setLoading] = useState(false)
   const [review, setReview]   = useState(null)
@@ -1146,6 +1110,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           { id: 'checkin',    label: 'CHECK-IN'   },
           { id: 'mealplans',  label: 'MEAL PLANS' },
           { id: 'photos',     label: 'PHOTOS'     },
+          { id: 'forms',      label: 'FORMS'      },
         ].map((t) => (
           <button
             key={t.id}
@@ -1334,6 +1299,16 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
               <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROGRESS PHOTO TIMELINE</p>
             </div>
             <ProgressPhotos client={client} />
+          </div>
+        )}
+
+        {tab === 'forms' && (
+          <div className="p-6 max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">FORM RESPONSES</p>
+            </div>
+            <ClientFormsTab client={client} />
           </div>
         )}
       </div>

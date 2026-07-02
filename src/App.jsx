@@ -24,6 +24,7 @@ const CoachChat      = lazy(() => import('./pages/coach/CoachChat'))
 const CoachProfile   = lazy(() => import('./pages/coach/CoachProfile'))
 const MyFoods        = lazy(() => import('./pages/MyFoods'))
 const Clients        = lazy(() => import('./pages/coach/Clients'))
+const CoachForms     = lazy(() => import('./pages/coach/CoachForms'))
 
 // Coach pages — mobile (auto-selected when viewport < 768 px)
 const MobileCoachDashboard = lazy(() => import('./pages/coach/mobile/MobileCoachDashboard'))
@@ -67,6 +68,7 @@ const COACH_PAGES_DESKTOP = {
   clients:   Clients,
   chat:      CoachChat,
   foods:     MyFoods,
+  forms:     CoachForms,
   profile:   CoachProfile,
   upgrade:   UpgradePage,
   coaches:   AdminCoaches,
@@ -78,6 +80,7 @@ const COACH_PAGES_MOBILE = {
   clients:   MobileClients,
   chat:      MobileChat,
   foods:     MobileMyFoods,
+  forms:     CoachForms,
   profile:   CoachProfile,
   upgrade:   UpgradePage,
   coaches:   AdminCoaches,

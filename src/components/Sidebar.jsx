@@ -2,13 +2,14 @@ import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
 import ScrambleText from './ScrambleText'
 import ThemeToggle from './ThemeToggle'
-import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap } from 'lucide-react'
+import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap, ClipboardList } from 'lucide-react'
 
 const BASE_NAV = [
   { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
   { id: 'clients',   label: 'USERS',     icon: Users           },
   { id: 'chat',      label: 'CHAT',      icon: MessageCircle   },
   { id: 'foods',     label: 'MY FOODS',  icon: Utensils        },
+  { id: 'forms',     label: 'FORMS',     icon: ClipboardList   },
   { id: 'profile',   label: 'PROFILE',   icon: User            },
 ]
 // Coach plan management (superadmins have override access — they get the

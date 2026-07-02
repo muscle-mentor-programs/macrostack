@@ -68,6 +68,7 @@ function dbToClient(row) {
     mealPlans: [],
     checkins:  [],
     photos:    [],
+    submissions: [],
   }
 }
 
@@ -81,7 +82,34 @@ function dbToCheckin(row) {
     energy:    row.energy,
     notes:     row.notes || '',
     answers:   Array.isArray(row.answers) ? row.answers : [],
+    photoUrls: Array.isArray(row.photo_urls) ? row.photo_urls : [],
     reviewed:  row.reviewed ?? true, // pre-migration rows count as seen
+    createdAt: row.created_at,
+  }
+}
+
+function dbToForm(row) {
+  return {
+    id:          row.id,
+    kind:        row.kind || 'custom',
+    title:       row.title || '',
+    description: row.description || '',
+    questions:   Array.isArray(row.questions) ? row.questions : [],
+    allowPhotos: row.allow_photos ?? false,
+    active:      row.active ?? true,
+    createdAt:   row.created_at,
+  }
+}
+
+function dbToSubmission(row) {
+  return {
+    id:        row.id,
+    formId:    row.form_id,
+    formKind:  row.form_kind || 'custom',
+    formTitle: row.form_title || '',
+    answers:   Array.isArray(row.answers) ? row.answers : [],
+    photoUrls: Array.isArray(row.photo_urls) ? row.photo_urls : [],
+    reviewed:  row.reviewed ?? false,
     createdAt: row.created_at,
   }
 }
@@ -306,15 +334,20 @@ const useStore = create(
         // single query instead of the sum of all four
         let [clientRes, msgRes, foodRes, reqRes] = await Promise.all([
           supabase.from('clients')
-            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*), progress_photos(*)')
+            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*), progress_photos(*), form_submissions(*)')
             .order('created_at', { ascending: true }),
           supabase.from('messages').select('*').order('created_at', { ascending: true }),
           supabase.from('custom_foods').select('*').order('created_at', { ascending: true }),
           supabase.from('coach_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
         ])
 
-        // Graceful fallback if the progress_photos migration hasn't run yet —
-        // don't let one missing table take down all client data.
+        // Graceful fallbacks while newer migrations haven't run yet — don't
+        // let a missing table take down all client data.
+        if (clientRes.error) {
+          clientRes = await supabase.from('clients')
+            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*), progress_photos(*)')
+            .order('created_at', { ascending: true })
+        }
         if (clientRes.error) {
           clientRes = await supabase.from('clients')
             .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*)')
@@ -348,6 +381,9 @@ const useStore = create(
               .map(dbToPhoto)
               .sort((a, b) => (a.takenAt || '').localeCompare(b.takenAt || '') ||
                               (a.createdAt || '').localeCompare(b.createdAt || '')),
+            submissions: (row.form_submissions || [])
+              .map(dbToSubmission)
+              .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')),
           }
         })
 
@@ -845,8 +881,16 @@ const useStore = create(
       },
 
       // ── WEEKLY CHECK-INS ──────────────────────────────────────────────────
-      // Client submits a weekly check-in. Newest first.
-      addClientCheckin: async (clientId, data) => {
+      // Client submits a weekly check-in. Newest first. Attached photos also
+      // land in the client's progress-photo timeline (their "file").
+      addClientCheckin: async (clientId, data, photoFiles = []) => {
+        // Upload photos first so their URLs ride on the check-in row
+        const photoUrls = []
+        for (const file of photoFiles) {
+          const res = await get().addProgressPhoto(clientId, file, 'Weekly check-in')
+          if (res?.photo?.url) photoUrls.push(res.photo.url)
+        }
+
         const base = {
           client_id:   clientId,
           weight:      data.weight ?? null,
@@ -856,10 +900,13 @@ const useStore = create(
           energy:      data.energy ?? null,
           notes:       data.notes || '',
         }
-        // answers snapshot [{ id, label, type, value }] — retry without it if
-        // the checkin_questions migration hasn't run yet.
+        // answers/photos — retry progressively if newer migrations haven't run.
         let { data: row, error } = await supabase.from('checkins')
-          .insert({ ...base, answers: data.answers || [] }).select().single()
+          .insert({ ...base, answers: data.answers || [], photo_urls: photoUrls }).select().single()
+        if (error) {
+          ({ data: row, error } = await supabase.from('checkins')
+            .insert({ ...base, answers: data.answers || [] }).select().single())
+        }
         if (error) {
           ({ data: row, error } = await supabase.from('checkins').insert(base).select().single())
         }
@@ -945,6 +992,93 @@ const useStore = create(
           set({ checkinQuestions: [] })
         }
         return { ok: true }
+      },
+
+      // ── COACH FORMS (intro questionnaire / custom / weekly settings) ──────
+      coachForms: null,   // null = not fetched
+
+      // Coach → all own forms. Client → their coach's ACTIVE forms.
+      fetchCoachForms: async () => {
+        const me = get().currentUser
+        if (!me) return []
+        let q = supabase.from('coach_forms').select('*').order('created_at', { ascending: true })
+        if (me.role === 'client') {
+          const client = get().clients.find((c) => c.id === get().activeClientId)
+          if (!client?.coachId) { set({ coachForms: [] }); return [] }
+          q = q.eq('coach_id', client.coachId).eq('active', true)
+        } else {
+          q = q.eq('coach_id', me.id)
+        }
+        const { data, error } = await q
+        if (error) { set({ coachForms: [] }); return [] } // table missing → none
+        const forms = (data || []).map(dbToForm)
+        set({ coachForms: forms })
+        return forms
+      },
+
+      // Create or update a form. `form.id` present → update, else insert.
+      saveCoachForm: async (form) => {
+        const me = get().currentUser
+        if (!me) return { ok: false, error: 'Not signed in.' }
+        const fields = {
+          kind:         form.kind || 'custom',
+          title:        form.title || '',
+          description:  form.description || '',
+          questions:    form.questions || [],
+          allow_photos: form.allowPhotos ?? false,
+          active:       form.active ?? true,
+          updated_at:   new Date().toISOString(),
+        }
+        let res
+        if (form.id) {
+          res = await supabase.from('coach_forms').update(fields).eq('id', form.id).select().single()
+        } else {
+          res = await supabase.from('coach_forms').insert({ ...fields, coach_id: me.id }).select().single()
+        }
+        if (res.error) { console.error('saveCoachForm:', res.error); return { ok: false, error: res.error.message } }
+        const saved = dbToForm(res.data)
+        set((s) => {
+          const list = s.coachForms || []
+          const exists = list.some((f) => f.id === saved.id)
+          return { coachForms: exists ? list.map((f) => (f.id === saved.id ? saved : f)) : [...list, saved] }
+        })
+        return { ok: true, form: saved }
+      },
+
+      deleteCoachForm: async (formId) => {
+        set((s) => ({ coachForms: (s.coachForms || []).filter((f) => f.id !== formId) }))
+        await supabase.from('coach_forms').delete().eq('id', formId)
+      },
+
+      // Client submits an intro/custom form (once per form).
+      submitClientForm: async (form, clientId, answers) => {
+        const { data: row, error } = await supabase.from('form_submissions').insert({
+          form_id:    form.id,
+          client_id:  clientId,
+          form_kind:  form.kind,
+          form_title: form.title,
+          answers,
+        }).select().single()
+        if (error) { console.error('form submit:', error); return { ok: false } }
+        const sub = dbToSubmission(row)
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId ? { ...c, submissions: [sub, ...(c.submissions || [])] } : c
+          ),
+        }))
+        return { ok: true }
+      },
+
+      // Coach viewed a submission → clear its NEW badge.
+      markSubmissionReviewed: async (clientId, submissionId) => {
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId
+              ? { ...c, submissions: (c.submissions || []).map((x) => x.id === submissionId ? { ...x, reviewed: true } : x) }
+              : c
+          ),
+        }))
+        await supabase.from('form_submissions').update({ reviewed: true }).eq('id', submissionId)
       },
 
       // ── MEAL PLANS ────────────────────────────────────────────────────────

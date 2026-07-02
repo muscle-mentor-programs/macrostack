@@ -3,7 +3,7 @@ import { format, subDays } from 'date-fns'
 import {
   Mail, Edit2, MessageCircle, BookOpen,
   Users, TrendingUp, Target, X, Send, CheckSquare, Square, ChevronRight,
-  Copy, Check as CheckIcon, Bell, Gauge, ClipboardCheck,
+  Copy, Check as CheckIcon, Bell, Gauge, ClipboardCheck, ClipboardList,
 } from 'lucide-react'
 import useStore from '../../../store'
 import { computeRosterNudges } from '../../../lib/goalNudges'
@@ -167,11 +167,12 @@ function EmailSheet({ clients, preselectedId, onClose }) {
 }
 
 // ── Compact client card ───────────────────────────────────────────────────────
-function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onReview }) {
+function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onReview, onFormsReview }) {
   const { getClientTotalsForDate, messages, setActivePage } = useStore()
   const today  = format(new Date(), 'yyyy-MM-dd')
   const totals = getClientTotalsForDate(client.id, today)
   const newCheckin = !!client.checkins?.[0] && !client.checkins[0].reviewed
+  const newForms   = (client.submissions || []).filter((s) => !s.reviewed).length
 
   const days7 = Array.from({ length: 7 }, (_, i) => {
     const d = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd')
@@ -203,6 +204,20 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
           <ClipboardCheck size={13} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
           <span className="font-mono text-[10px] truncate" style={{ color: 'var(--color-accent)' }}>
             New check-in — tap to review
+          </span>
+        </button>
+      )}
+
+      {/* New (unreviewed) form responses */}
+      {newForms > 0 && onFormsReview && (
+        <button
+          onClick={() => onFormsReview(client.id)}
+          className="flex items-center gap-2 w-full text-left rounded-xl px-3 py-2 mb-3 border"
+          style={{ background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderColor: 'color-mix(in srgb, var(--color-accent) 30%, transparent)' }}
+        >
+          <ClipboardList size={13} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
+          <span className="font-mono text-[10px] truncate" style={{ color: 'var(--color-accent)' }}>
+            {newForms === 1 ? 'New form response' : `${newForms} new form responses`} — tap to view
           </span>
         </button>
       )}
@@ -380,6 +395,12 @@ export default function MobileCoachDashboard() {
     setActivePage('clients')
   }
 
+  // Deep-link into the client's FORMS tab (intro questionnaire / custom forms)
+  const handleFormsReview = (clientId) => {
+    setViewingClientId(clientId, 'forms')
+    setActivePage('clients')
+  }
+
   const nudges = computeRosterNudges(clients)
 
   const complianceColor =
@@ -551,6 +572,7 @@ export default function MobileCoachDashboard() {
               onChat={handleChat}
               onMealPlans={handleMealPlans}
               onReview={handleReview}
+              onFormsReview={handleFormsReview}
             />
           ))}
         </div>

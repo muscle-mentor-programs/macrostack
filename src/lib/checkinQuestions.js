@@ -9,9 +9,10 @@
    default and customized sets. Custom questions have slug = null. */
 
 export const QUESTION_TYPES = [
-  { id: 'scale', label: '1–5 SCALE' },
-  { id: 'yesno', label: 'YES / NO' },
-  { id: 'text',  label: 'FREE TEXT' },
+  { id: 'scale',  label: '1–5 SCALE' },
+  { id: 'yesno',  label: 'YES / NO' },
+  { id: 'number', label: 'NUMBER' },
+  { id: 'text',   label: 'FREE TEXT' },
 ]
 
 export const DEFAULT_QUESTIONS = [
