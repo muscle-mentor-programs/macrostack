@@ -1,33 +1,22 @@
-import { useState, useEffect, useRef } from 'react'
-import { format, parseISO, isToday, isYesterday } from 'date-fns'
-import { ChevronLeft, ChevronRight, MessageCircle, Send } from 'lucide-react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react'
 import useStore from '../../../store'
 import ClientAvatar from '../../../components/ClientAvatar'
 import ScrambleText from '../../../components/ScrambleText'
-import { AttachmentButtons, MessageAttachment } from '../../../components/ChatAttachments'
-
-
-
-function msgTime(ts) {
-  if (!ts) return ''
-  try {
-    const d = parseISO(ts)
-    if (isNaN(d.getTime())) return ''
-    if (isToday(d))     return format(d, 'h:mm a')
-    if (isYesterday(d)) return `Yesterday ${format(d, 'h:mm a')}`
-    return format(d, 'MMM d, h:mm a')
-  } catch {
-    return ''
-  }
-}
+import {
+  msgTime, msgPreview, buildThread, lastSeenSelfId,
+  DaySep, Bubble, Composer,
+} from '../../../components/ChatKit'
 
 // ── Thread screen ─────────────────────────────────────────────────────────────
 function ThreadScreen({ client, onBack }) {
   const { messages, sendMessage, markMessagesRead, setNavHidden } = useStore()
-  const [input,    setInput]    = useState('')
   const [kbHeight, setKbHeight] = useState(0)
   const inputRef = useRef(null)
   const thread = messages[client.id] || []
+
+  const threadItems = useMemo(() => buildThread(thread).reverse(), [thread])
+  const seenId      = useMemo(() => lastSeenSelfId(thread, 'coach'), [thread])
 
   useEffect(() => {
     markMessagesRead(client.id, 'coach')
@@ -58,14 +47,6 @@ function ThreadScreen({ client, onBack }) {
     return () => setNavHidden(false) // restore on unmount
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSend = () => {
-    if (!input.trim()) return
-    sendMessage(client.id, 'coach', input.trim())
-    setInput('')
-    // Keep focus so the keyboard stays up for the next message
-    inputRef.current?.focus()
-  }
-
   return (
     <div
       className="fixed inset-x-0 top-0 bg-surface z-40 flex flex-col overflow-hidden anim-slide-right"
@@ -87,8 +68,8 @@ function ThreadScreen({ client, onBack }) {
       </div>
 
       {/* Messages — flex-col-reverse anchors newest at bottom */}
-      <div className="flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse gap-3">
-        {thread.length === 0 ? (
+      <div className="flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse">
+        {threadItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <MessageCircle size={36} className="text-dim mb-3" />
             <p className="font-display font-bold text-lg text-muted tracking-widest">NO MESSAGES</p>
@@ -97,61 +78,41 @@ function ThreadScreen({ client, onBack }) {
             </p>
           </div>
         ) : (
-          [...thread].reverse().map((msg) => {
-            const isCoach = msg.from === 'coach'
-            return (
-              <div key={msg.id} className={`flex anim-fade-in ${isCoach ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[78%] flex flex-col gap-1 ${isCoach ? 'items-end' : 'items-start'}`}>
-                  <div
-                    className={`px-4 py-1.5 font-mono text-sm leading-relaxed tracking-tight ${
-                      isCoach
-                        ? 'bg-brown text-bg rounded-2xl rounded-br-sm'
-                        : 'bg-card border border-border text-cream rounded-2xl rounded-bl-sm'
-                    }`}
-                  >
-                    {msg.text}
-                    <MessageAttachment url={msg.attachmentUrl} type={msg.attachmentType} />
-                  </div>
-                  <p className="font-mono text-[10px] text-dim px-1">{msgTime(msg.timestamp)}</p>
-                </div>
-              </div>
+          threadItems.map((item) =>
+            item.type === 'sep' ? (
+              <DaySep key={item.id} label={item.label} />
+            ) : (
+              <Bubble
+                key={item.id}
+                msg={item.msg}
+                isSelf={item.msg.from === 'coach'}
+                first={item.first}
+                last={item.last}
+                seen={item.msg.id === seenId}
+                maxW="max-w-[78%]"
+              />
             )
-          })
+          )
         )}
       </div>
 
       {/* Input bar — padding-bottom clears home indicator when keyboard is down */}
       <div
-        className="px-4 border-t border-border bg-surface flex gap-2 flex-shrink-0"
+        className="px-4 border-t border-border bg-surface flex-shrink-0"
         style={{
           paddingTop:    '12px',
           paddingBottom: kbHeight > 0 ? '12px' : 'env(safe-area-inset-bottom, 12px)',
         }}
       >
-        <AttachmentButtons
+        <Composer
           clientId={client.id}
-          onSend={(att) => sendMessage(client.id, 'coach', '', att)}
-        />
-        <input
-          ref={inputRef}
-          type="text"
           placeholder={`Message ${client.name.split(' ')[0]}…`}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          // Reset keyboard height on blur so the bottom nav never sticks hidden
-          onBlur={() => setKbHeight(0)}
-          className="flex-1 bg-bg border border-border rounded-2xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown transition-colors"
+          templates
+          inputRef={inputRef}
+          onInputBlur={() => setKbHeight(0)}
+          onSendText={(text) => sendMessage(client.id, 'coach', text)}
+          onSendAttachment={(att) => sendMessage(client.id, 'coach', '', att)}
         />
-        <button
-          onClick={handleSend}
-          // preventDefault keeps input focus so Send doesn't dismiss the keyboard
-          onMouseDown={(e) => e.preventDefault()}
-          disabled={!input.trim()}
-          className="w-11 h-11 self-end bg-brown hover:bg-brown-light disabled:opacity-40 text-bg rounded-2xl flex items-center justify-center transition-colors flex-shrink-0"
-        >
-          <Send size={16} />
-        </button>
       </div>
     </div>
   )
@@ -236,7 +197,7 @@ export default function MobileChat() {
                   {/* Message preview */}
                   <p className={`font-mono text-xs truncate ${unread > 0 ? 'text-cream' : 'text-muted'}`}>
                     {lastMsg
-                      ? `${lastMsg.from === 'coach' ? 'You: ' : ''}${lastMsg.text}`
+                      ? `${lastMsg.from === 'coach' ? 'You: ' : ''}${msgPreview(lastMsg)}`
                       : 'No messages yet — tap to start'}
                   </p>
 

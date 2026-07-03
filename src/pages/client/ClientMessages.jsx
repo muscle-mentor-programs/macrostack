@@ -1,42 +1,37 @@
-import { useState, useEffect, useRef } from 'react'
-import { format, parseISO, isToday, isYesterday } from 'date-fns'
-import { MessageCircle, Send, UserCircle2, Lock } from 'lucide-react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { MessageCircle, UserCircle2, Lock } from 'lucide-react'
 import useStore from '../../store'
 import useSubscription from '../../hooks/useSubscription'
 import { tapHaptic } from '../../utils/haptics'
-import { AttachmentButtons, MessageAttachment } from '../../components/ChatAttachments'
-
-const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
-
-function msgTime(ts) {
-  if (!ts) return ''
-  try {
-    const d = parseISO(ts)
-    if (isNaN(d.getTime())) return ''
-    if (isToday(d))     return format(d, 'h:mm a')
-    if (isYesterday(d)) return `Yesterday ${format(d, 'h:mm a')}`
-    return format(d, 'MMM d, h:mm a')
-  } catch {
-    return ''
-  }
-}
+import {
+  accentA, buildThread, lastSeenSelfId, DaySep, Bubble, Composer,
+} from '../../components/ChatKit'
 
 export default function ClientMessages() {
   const {
     activeClientId, clients, messages, sendMessage, markMessagesRead,
-    setNavHidden, setActivePage,
+    setNavHidden, setActivePage, coachProfile, loadCoachProfile,
   } = useStore()
   const { hasAccess } = useSubscription()
   // Messaging your coach is a premium feature: it requires a linked coach AND
   // an active subscription (or a superadmin unlock).
-  const hasCoach = !!clients.find((c) => c.id === activeClientId)?.coachId
+  const myCoachId = clients.find((c) => c.id === activeClientId)?.coachId
+  const hasCoach  = !!myCoachId
 
-  const [input,    setInput]    = useState('')
+  // Show the coach's real name in the header once their profile is loaded
+  useEffect(() => {
+    if (myCoachId && !coachProfile) loadCoachProfile(myCoachId)
+  }, [myCoachId]) // eslint-disable-line react-hooks/exhaustive-deps
+  const coachName  = coachProfile?.name || 'Coach'
+  const coachFirst = coachName.split(' ')[0]
+
   const [kbHeight, setKbHeight] = useState(0)
   const [navH,     setNavH]     = useState(57)
   const inputRef = useRef(null)
 
   const thread = messages[activeClientId] || []
+  const threadItems = useMemo(() => buildThread(thread).reverse(), [thread])
+  const seenId      = useMemo(() => lastSeenSelfId(thread, 'client'), [thread])
 
   // Drive keyboard-dependent layout off the measured keyboard height only.
   // Using focus as a fallback made the nav stay hidden after the keyboard was
@@ -76,15 +71,6 @@ export default function ClientMessages() {
     setNavHidden(kbActive)
     return () => setNavHidden(false)
   }, [kbActive])
-
-  const handleSend = () => {
-    if (!input.trim()) return
-    sendMessage(activeClientId, 'client', input.trim())
-    tapHaptic()
-    setInput('')
-    // Keep focus so the keyboard stays up for the next message (no dismiss/re-open)
-    inputRef.current?.focus()
-  }
 
   const overlayBottom      = kbHeight > 0 ? `${kbHeight}px` : '0px'
   const inputPaddingBottom = kbActive ? '12px' : `${navH + 8}px`
@@ -154,82 +140,66 @@ export default function ClientMessages() {
       className="fixed inset-x-0 top-0 flex flex-col bg-bg z-10"
       style={{ bottom: overlayBottom }}
     >
-      {/* Header */}
+      {/* Header — the coach's real identity */}
       <div className="flex items-center gap-3 px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
-        <div className="w-10 h-10 rounded-full bg-brown/20 border border-brown/30 flex items-center justify-center flex-shrink-0">
-          <UserCircle2 size={20} className="text-brown-light" />
+        <div
+          className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 font-display font-black text-base"
+          style={{ background: accentA(14), border: `1px solid ${accentA(32)}`, color: 'var(--color-accent)' }}
+        >
+          {coachProfile?.name ? coachName.charAt(0).toUpperCase() : <UserCircle2 size={20} />}
         </div>
-        <div>
-          <h1 className="font-display font-black text-2xl tracking-[0.15em] text-cream leading-none">COACH</h1>
-          <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
+        <div className="min-w-0">
+          <h1 className="font-display font-black text-2xl tracking-[0.12em] text-cream leading-none truncate uppercase">
+            {coachName}
+          </h1>
+          <p className="font-mono text-xs text-muted mt-1">Your coach · direct line</p>
         </div>
       </div>
 
       {/* Messages — flex-col-reverse anchors newest at bottom */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 flex flex-col-reverse gap-4">
-        {thread.length === 0 ? (
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 flex flex-col-reverse">
+        {threadItems.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             <MessageCircle size={36} className="text-dim mb-3 anim-pop" />
             <p className="font-display font-bold text-xl text-muted tracking-widest">NO MESSAGES YET</p>
-            <p className="font-mono text-xs text-dim mt-1.5">Your coach will reach out here</p>
+            <p className="font-mono text-xs text-dim mt-1.5">
+              Say hi to {coachFirst} — they'll get a notification
+            </p>
           </div>
         ) : (
-          [...thread].reverse().map((msg) => {
-            const isSelf = msg.from === 'client'
-            return (
-              <div key={msg.id} className={`flex ${isSelf ? 'justify-end' : 'justify-start'} anim-fade-in`}>
-                <div className={`max-w-[80%] flex flex-col gap-1 ${isSelf ? 'items-end' : 'items-start'}`}>
-                  {!isSelf && (
-                    <p className="font-display font-bold text-[10px] tracking-widest px-1 mb-0.5 text-brown-light">
-                      COACH
-                    </p>
-                  )}
-                  <div className={`px-4 py-1.5 font-mono text-sm leading-relaxed tracking-tight ${
-                    isSelf
-                      ? 'bg-brown text-bg rounded-2xl rounded-br-sm'
-                      : 'bg-card border border-border text-cream rounded-2xl rounded-bl-sm'
-                  }`}>
-                    {msg.text}
-                    <MessageAttachment url={msg.attachmentUrl} type={msg.attachmentType} />
-                  </div>
-                  <p className="font-mono text-[10px] text-dim px-1">{msgTime(msg.timestamp)}</p>
-                </div>
-              </div>
+          threadItems.map((item) =>
+            item.type === 'sep' ? (
+              <DaySep key={item.id} label={item.label} />
+            ) : (
+              <Bubble
+                key={item.id}
+                msg={item.msg}
+                isSelf={item.msg.from === 'client'}
+                first={item.first}
+                last={item.last}
+                seen={item.msg.id === seenId}
+                senderLabel={coachFirst.toUpperCase()}
+                maxW="max-w-[80%]"
+              />
             )
-          })
+          )
         )}
       </div>
 
-      {/* Input bar */}
+      {/* Composer */}
       <div
-        className="flex-shrink-0 flex items-center gap-2 px-4 glass-panel border-t border-border"
+        className="flex-shrink-0 px-4 glass-panel border-t border-border"
         style={{ paddingTop: '12px', paddingBottom: inputPaddingBottom }}
       >
-        <AttachmentButtons
+        <Composer
           clientId={activeClientId}
-          onSend={(att) => sendMessage(activeClientId, 'client', '', att)}
+          placeholder={`Message ${coachFirst}…`}
+          textSize="text-base"
+          inputRef={inputRef}
+          onInputBlur={() => setKbHeight(0)}
+          onSendText={(text) => { sendMessage(activeClientId, 'client', text); tapHaptic() }}
+          onSendAttachment={(att) => sendMessage(activeClientId, 'client', '', att)}
         />
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Message your coach…"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          // Reset keyboard height on blur so nav visibility never sticks hidden
-          onBlur={() => setKbHeight(0)}
-          className="flex-1 min-w-0 bg-bg border border-border rounded-xl px-4 py-3 font-mono text-base text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
-        />
-        <button
-          onClick={handleSend}
-          // preventDefault on press keeps focus on the input, so tapping Send
-          // does NOT dismiss the keyboard — it sends on the first tap.
-          onMouseDown={(e) => e.preventDefault()}
-          disabled={!input.trim()}
-          className="flex-shrink-0 flex items-center justify-center px-4 py-3 rounded-xl transition-colors bg-brown hover:bg-brown-light disabled:opacity-40 text-bg"
-        >
-          <Send size={18} />
-        </button>
       </div>
     </div>
   )

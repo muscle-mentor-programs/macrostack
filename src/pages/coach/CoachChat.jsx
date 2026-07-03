@@ -1,37 +1,13 @@
 import { useState, useEffect, useMemo } from 'react'
-import { format, parseISO, isToday, isYesterday } from 'date-fns'
-import { MessageCircle, Send, Search, ChevronRight } from 'lucide-react'
+import { format } from 'date-fns'
+import { MessageCircle, Search, ChevronRight } from 'lucide-react'
 import useStore from '../../store'
 import ClientAvatar from '../../components/ClientAvatar'
 import ScrambleText from '../../components/ScrambleText'
-import { AttachmentButtons, MessageAttachment } from '../../components/ChatAttachments'
-
-const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
-
-function msgTime(ts) {
-  if (!ts) return ''
-  try {
-    const d = parseISO(ts)
-    if (isNaN(d.getTime())) return ''
-    if (isToday(d))     return format(d, 'h:mm a')
-    if (isYesterday(d)) return `Yesterday ${format(d, 'h:mm a')}`
-    return format(d, 'MMM d, h:mm a')
-  } catch {
-    return ''
-  }
-}
-
-function dayLabel(ts) {
-  try {
-    const d = parseISO(ts)
-    if (isNaN(d.getTime())) return null
-    if (isToday(d))     return 'TODAY'
-    if (isYesterday(d)) return 'YESTERDAY'
-    return format(d, 'MMM d, yyyy').toUpperCase()
-  } catch {
-    return null
-  }
-}
+import {
+  accentA, msgTime, msgPreview, buildThread, lastSeenSelfId,
+  DaySep, Bubble, Composer,
+} from '../../components/ChatKit'
 
 export default function CoachChat() {
   const {
@@ -40,7 +16,6 @@ export default function CoachChat() {
     getClientTotalsForDate, setViewingClientId, setActivePage,
   } = useStore()
   const [selectedId, setSelectedId] = useState(null)
-  const [input, setInput]           = useState('')
   const [search, setSearch]         = useState('')
 
   // Auto-open thread when arriving from coach dashboard message icon
@@ -63,12 +38,6 @@ export default function CoachChat() {
   useEffect(() => {
     if (selectedId) markMessagesRead(selectedId, 'coach')
   }, [selectedId, thread.length])
-
-  const handleSend = () => {
-    if (!input.trim() || !selectedId) return
-    sendMessage(selectedId, 'coach', input.trim())
-    setInput('')
-  }
 
   const handleViewProfile = () => {
     if (!selectedClient) return
@@ -94,21 +63,10 @@ export default function CoachChat() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clients, messages, search])
 
-  /* Thread with day separators, built forward then reversed for
-     flex-col-reverse rendering (newest anchored at the bottom) */
-  const threadItems = useMemo(() => {
-    const items = []
-    let lastDay = null
-    for (const msg of thread) {
-      const label = dayLabel(msg.timestamp)
-      if (label && label !== lastDay) {
-        items.push({ type: 'sep', id: `sep-${label}-${msg.id}`, label })
-        lastDay = label
-      }
-      items.push({ type: 'msg', id: msg.id, msg })
-    }
-    return items.reverse()
-  }, [thread])
+  /* Thread with day separators + sender grouping, built forward then reversed
+     for flex-col-reverse rendering (newest anchored at the bottom) */
+  const threadItems = useMemo(() => buildThread(thread).reverse(), [thread])
+  const seenId      = useMemo(() => lastSeenSelfId(thread, 'coach'), [thread])
 
   /* Selected client context for the thread header */
   const todayStr  = format(new Date(), 'yyyy-MM-dd')
@@ -197,7 +155,7 @@ export default function CoachChat() {
                     </div>
                     {lastMsg ? (
                       <p className={`font-mono text-xs truncate mt-0.5 ${unread > 0 ? 'text-cream' : 'text-muted'}`}>
-                        {lastMsg.from === 'coach' ? 'You: ' : ''}{lastMsg.text}
+                        {lastMsg.from === 'coach' ? 'You: ' : ''}{msgPreview(lastMsg)}
                       </p>
                     ) : (
                       <p className="font-mono text-xs text-dim mt-0.5">No messages yet</p>
@@ -244,7 +202,7 @@ export default function CoachChat() {
           </div>
 
           {/* Messages — flex-col-reverse anchors newest at bottom */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse gap-3.5">
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse">
             {threadItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
                 <div
@@ -259,66 +217,41 @@ export default function CoachChat() {
                 </p>
               </div>
             ) : (
-              threadItems.map((item) => {
-                if (item.type === 'sep') {
-                  return (
-                    <div key={item.id} className="flex items-center gap-3 py-1">
-                      <span className="flex-1 h-px bg-border" />
-                      <span className="font-mono text-[9px] tracking-[0.25em] text-dim">{item.label}</span>
-                      <span className="flex-1 h-px bg-border" />
-                    </div>
-                  )
-                }
-                const { msg } = item
-                const isCoach = msg.from === 'coach'
-                return (
-                  <div key={msg.id} className={`flex anim-fade-in ${isCoach ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[68%] flex flex-col gap-1 ${isCoach ? 'items-end' : 'items-start'}`}>
-                      <div
-                        className={`px-4 py-2 font-mono text-sm leading-relaxed tracking-tight ${
-                          isCoach
-                            ? 'rounded-2xl rounded-br-sm'
-                            : 'glass-card border border-border text-cream rounded-2xl rounded-bl-sm'
-                        }`}
-                        style={isCoach ? {
-                          background: 'linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, white))',
-                          color: '#fff',
-                          boxShadow: `0 4px 16px ${accentA(22)}`,
-                        } : undefined}
-                      >
-                        {msg.text}
-                        <MessageAttachment url={msg.attachmentUrl} type={msg.attachmentType} />
-                      </div>
-                      <p className="font-mono text-[10px] text-dim px-1">{msgTime(msg.timestamp)}</p>
-                    </div>
-                  </div>
+              threadItems.map((item) =>
+                item.type === 'sep' ? (
+                  <DaySep key={item.id} label={item.label} />
+                ) : (
+                  <Bubble
+                    key={item.id}
+                    msg={item.msg}
+                    isSelf={item.msg.from === 'coach'}
+                    first={item.first}
+                    last={item.last}
+                    seen={item.msg.id === seenId}
+                    maxW="max-w-[64%]"
+                    avatar={
+                      <ClientAvatar
+                        name={selectedClient.name}
+                        avatarUrl={selectedClient.avatarUrl}
+                        className="w-7 h-7"
+                        textClassName="text-[11px]"
+                      />
+                    }
+                  />
                 )
-              })
+              )
             )}
           </div>
 
-          {/* Composer */}
-          <div className="px-6 py-4 border-t border-border flex items-center gap-2 flex-shrink-0 glass-panel">
-            <AttachmentButtons
+          {/* Composer — attachments, quick replies, auto-growing input */}
+          <div className="px-6 py-4 border-t border-border flex-shrink-0 glass-panel">
+            <Composer
               clientId={selectedClient.id}
-              onSend={(att) => sendMessage(selectedClient.id, 'coach', '', att)}
-            />
-            <input
-              type="text"
               placeholder={`Message ${selectedClient.name.split(' ')[0]}…`}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="flex-1 bg-bg border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors"
+              templates
+              onSendText={(text) => sendMessage(selectedClient.id, 'coach', text)}
+              onSendAttachment={(att) => sendMessage(selectedClient.id, 'coach', '', att)}
             />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim()}
-              className="btn-accent disabled:opacity-40 px-5 py-3 rounded-xl transition-colors"
-              style={{ color: '#fff' }}
-            >
-              <Send size={16} />
-            </button>
           </div>
         </div>
       ) : (
