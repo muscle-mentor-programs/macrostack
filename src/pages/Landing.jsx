@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react'
 import { Smartphone, Share, PlusSquare, Sun, Moon } from 'lucide-react'
 import useStore from '../store'
 import { splatToggleTheme } from '../lib/themeSplat'
+import { FOOD_COUNT } from '../data/foodCount'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
@@ -82,9 +83,11 @@ const CARDS = [
 ]
 
 const STATS = [
-  { value: 1924, suffix: '+',  label: 'VERIFIED FOODS' },
-  { value: 100,  suffix: '%',  label: 'FREE TO START'  },
-  { value: 24,   suffix: '/7', label: 'COACH ACCESS'   },
+  // FOOD_COUNT is auto-generated at build time (scripts/gen-food-count.mjs),
+  // so this stat always matches the real database size.
+  { value: FOOD_COUNT, suffix: '+',  label: 'VERIFIED FOODS' },
+  { value: 100,        suffix: '%',  label: 'FREE TO START'  },
+  { value: 24,         suffix: '/7', label: 'COACH ACCESS'   },
 ]
 
 /* MacroStack Pro billing options — same Pro features, three cadences.

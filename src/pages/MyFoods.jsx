@@ -413,6 +413,18 @@ export default function MyFoods() {
 
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
   const hiddenIds   = useMemo(() => new Set(hiddenFoodIds || []), [hiddenFoodIds])
+  const customIds   = useMemo(() => new Set(customFoods.map((f) => f.id)), [customFoods])
+  const scannedIds  = useMemo(() => new Set(scannedFoods.map((f) => f.id)), [scannedFoods])
+
+  // Community provenance — who contributed each shared food (superadmin view)
+  const fromUsers   = useMemo(
+    () => [...customFoods, ...scannedFoods].filter((f) => f.addedByRole === 'user').length,
+    [customFoods, scannedFoods]
+  )
+  const fromCoaches = useMemo(
+    () => [...customFoods, ...scannedFoods].filter((f) => f.addedByRole === 'coach').length,
+    [customFoods, scannedFoods]
+  )
 
   // Ordered newest-added first: the coach's own scanned + custom foods (store
   // arrays are created_at ascending, so reversed), then edited built-ins, then
@@ -438,15 +450,17 @@ export default function MyFoods() {
     // Browsing (no search): keep recently-added-first order; searching: relevance-rank
     if (filter === 'deleted') return hasQuery ? rankFoods(deletedFoods, query) : deletedFoods
     const base = allFoods.filter((f) => {
-      const isCustom  = f.id.startsWith('custom_')
-      const isScanned = f.id.startsWith('scanned_')
-      return filter === 'all'     ? true      :
-             filter === 'custom'  ? isCustom  :
-             filter === 'scanned' ? isScanned :
-             /* builtin */         (!isCustom && !isScanned)
+      const isCustom  = customIds.has(f.id)  || f.id.startsWith('custom_')
+      const isScanned = scannedIds.has(f.id) || f.id.startsWith('scanned_')
+      return filter === 'all'       ? true      :
+             filter === 'custom'    ? isCustom  :
+             filter === 'scanned'   ? isScanned :
+             filter === 'byusers'   ? f.addedByRole === 'user'  :
+             filter === 'bycoaches' ? f.addedByRole === 'coach' :
+             /* builtin */           (!isCustom && !isScanned)
     })
     return hasQuery ? rankFoods(base, query) : base
-  }, [allFoods, deletedFoods, query, filter])
+  }, [allFoods, deletedFoods, query, filter, customIds, scannedIds])
 
   // Render incrementally — dumping all 15k+ rows into the DOM at once
   // freezes the tab. Reset the window whenever the query/filter changes.
@@ -490,7 +504,10 @@ export default function MyFoods() {
             <ScrambleText text="FOOD DATABASE" duration={950} />
           </h2>
           <p className="font-mono text-sm text-muted mt-1">
-            {allFoods.length} total · {FOODS.length} built-in · {customFoods.length} custom · {scannedFoods.length} scanned
+            {allFoods.length.toLocaleString()} total · {FOODS.length.toLocaleString()} built-in · {customFoods.length} custom · {scannedFoods.length} scanned
+            {isSuperadmin && (fromUsers > 0 || fromCoaches > 0) && (
+              <span> · {fromUsers} user-added · {fromCoaches} coach-added</span>
+            )}
           </p>
         </div>
 
@@ -553,7 +570,11 @@ export default function MyFoods() {
             { id: 'builtin', label: 'BUILT-IN' },
             { id: 'custom',  label: 'CUSTOM'   },
             { id: 'scanned', label: 'SCANNED'  },
-            ...(isSuperadmin ? [{ id: 'deleted', label: `DELETED${deletedFoods.length ? ` (${deletedFoods.length})` : ''}` }] : []),
+            ...(isSuperadmin ? [
+              { id: 'byusers',   label: `FROM USERS${fromUsers ? ` (${fromUsers})` : ''}` },
+              { id: 'bycoaches', label: `FROM COACHES${fromCoaches ? ` (${fromCoaches})` : ''}` },
+              { id: 'deleted',   label: `DELETED${deletedFoods.length ? ` (${deletedFoods.length})` : ''}` },
+            ] : []),
           ].map(({ id, label }) => (
             <button
               key={id}

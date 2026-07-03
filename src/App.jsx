@@ -154,6 +154,23 @@ export default function App() {
     if (params.get('checkout') === 'success') setActivePage('upgrade')
   }, [isAuthenticated])
 
+  // Chat self-heal: when the tab comes back to the foreground, re-pull the
+  // messages table in case the realtime websocket dropped while backgrounded
+  // (mobile Safari/Chrome suspend sockets aggressively). Realtime handles the
+  // instant delivery; this catches anything missed while asleep.
+  useEffect(() => {
+    if (!isAuthenticated) return
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        const s = useStore.getState()
+        s.refreshMessages?.()
+        s.subscribeToMessages?.()   // re-arm the channel if it was torn down
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [isAuthenticated])
+
   // A plan was picked on the landing page before auth → open the Upgrade page
   // right after sign-in/sign-up with it preselected (UpgradePage reads the
   // same key for the selection, then clears it).

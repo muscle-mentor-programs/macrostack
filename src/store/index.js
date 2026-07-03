@@ -189,6 +189,8 @@ function dbToFood(row) {
     fat:         row.fat          ?? 0,
     upc:         row.upc          || null,
     source:      row.source       || 'custom',
+    addedBy:     row.added_by     || null,
+    addedByRole: row.added_by_role || null,   // 'user' | 'coach'
   }
 }
 
@@ -322,12 +324,14 @@ const useStore = create(
       },
 
       logout: async () => {
+        const ch = get()._msgChannel
+        if (ch && supabase) { supabase.removeChannel(ch) }
         if (supabase) await supabase.auth.signOut()
         set({
           isAuthenticated: false, currentUser: null,
           activeRole: null, activeClientId: null,
           clients: [], messages: {}, customFoods: [], scannedFoods: [], overrideFoods: [], hiddenFoodIds: [],
-          coachProfile: null,
+          coachProfile: null, _msgChannel: null,
         })
       },
 
@@ -415,6 +419,86 @@ const useStore = create(
           .map(dbToFood)
 
         set({ clients, messages, customFoods, scannedFoods, overrideFoods, hiddenFoodIds, coachRequests: reqRes.data || [] })
+
+        // Live chat: stream message INSERTs/UPDATEs the moment they land
+        get().subscribeToMessages()
+      },
+
+      // ── REALTIME MESSAGES ─────────────────────────────────────────────────
+      // Supabase Realtime on the messages table (RLS-scoped, so each side only
+      // receives rows it can read). INSERT = new message appears instantly;
+      // UPDATE = read receipts ("Seen") flip live on the sender's screen.
+      _msgChannel: null,
+
+      subscribeToMessages: () => {
+        if (!supabase) return
+        const prev = get()._msgChannel
+        if (prev) supabase.removeChannel(prev)
+
+        const channel = supabase
+          .channel('messages-live')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+            const row = payload.new
+            const msg = dbToMessage(row)
+            set((s) => {
+              const thread = s.messages[row.client_id] || []
+              // Our own optimistic sends share the same id — skip duplicates
+              if (thread.some((m) => m.id === msg.id)) return {}
+              return { messages: { ...s.messages, [row.client_id]: [...thread, msg] } }
+            })
+          })
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
+            const row = payload.new
+            const msg = dbToMessage(row)
+            set((s) => {
+              const thread = s.messages[row.client_id]
+              if (!thread) return {}
+              return {
+                messages: {
+                  ...s.messages,
+                  [row.client_id]: thread.map((m) => (m.id === msg.id ? { ...m, ...msg } : m)),
+                },
+              }
+            })
+          })
+          // Shared food catalog: a barcode scanned by ANY user/coach appears
+          // for everyone the moment it lands in the database
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'custom_foods' }, (payload) => {
+            const row = payload.new
+            if (row.source === 'override' || row.source === 'deleted') return
+            const food = dbToFood(row)
+            set((s) => {
+              const listKey = row.source === 'custom' ? 'customFoods' : 'scannedFoods'
+              const list = s[listKey]
+              if (list.some((f) => f.id === food.id)) return {}
+              return { [listKey]: [...list, food] }
+            })
+          })
+          .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'custom_foods' }, (payload) => {
+            const id = payload.old?.id
+            if (!id) return
+            set((s) => ({
+              customFoods:  s.customFoods.filter((f) => f.id !== id),
+              scannedFoods: s.scannedFoods.filter((f) => f.id !== id),
+            }))
+          })
+          .subscribe()
+
+        set({ _msgChannel: channel })
+      },
+
+      // Cheap self-heal: re-pull just the messages table (used on tab refocus
+      // in case the websocket dropped while the app was backgrounded).
+      refreshMessages: async () => {
+        if (!supabase || !get().isAuthenticated) return
+        const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: true })
+        if (error || !data) return
+        const messages = {}
+        data.forEach((row) => {
+          if (!messages[row.client_id]) messages[row.client_id] = []
+          messages[row.client_id].push(dbToMessage(row))
+        })
+        set({ messages })
       },
 
       // ── SUBSCRIPTIONS ─────────────────────────────────────────────────────
@@ -1782,15 +1866,20 @@ Rules:
       customFoods: [],
 
       addCustomFood: async (food) => {
+        const me = get().currentUser
+        const roleTag = me?.role === 'coach' || me?.role === 'superadmin' ? 'coach' : 'user'
         const id = crypto.randomUUID()
-        set((s) => ({ customFoods: [...s.customFoods, { ...food, id }] }))
-        const { error } = await supabase.from('custom_foods').insert({
+        set((s) => ({ customFoods: [...s.customFoods, { ...food, id, addedByRole: roleTag }] }))
+        const row = {
           id, name: food.name, brand: food.brand || '',
           serving_size: food.servingSize || null, serving_unit: food.servingUnit || null,
           calories: food.calories ?? 0, protein: food.protein ?? 0,
           carbs: food.carbs ?? 0, fat: food.fat ?? 0,
           upc: food.upc || null, source: 'custom',
-        })
+        }
+        let { error } = await supabase.from('custom_foods').insert({ ...row, added_by: me?.id || null, added_by_role: roleTag })
+        // Retry without provenance columns if that migration hasn't run yet
+        if (error) ({ error } = await supabase.from('custom_foods').insert(row))
         if (error) console.error('custom_food insert:', error)
       },
 
@@ -1819,33 +1908,44 @@ Rules:
       hiddenFoodIds: [],   // built-in food ids hidden from the shared DB (superadmin)
 
       addScannedFood: (food) => {
-        const { scannedFoods } = get()
+        const { scannedFoods, customFoods, currentUser } = get()
+        // Scans join the SHARED catalog — dedupe against the whole community pool
+        const pool = [...scannedFoods, ...customFoods]
 
         // Dedup by UPC
         if (food.upc) {
-          const dup = scannedFoods.find((f) => f.upc === food.upc)
+          const dup = pool.find((f) => f.upc === food.upc)
           if (dup) return { ok: false, reason: 'duplicate_upc', existing: dup }
         }
         // Dedup by name + brand
         const nl = food.name.toLowerCase().trim()
         const bl = (food.brand || '').toLowerCase().trim()
-        const dupName = scannedFoods.find(
+        const dupName = pool.find(
           (f) => f.name.toLowerCase().trim() === nl && (f.brand || '').toLowerCase().trim() === bl
         )
         if (dupName) return { ok: false, reason: 'duplicate_name', existing: dupName }
 
+        const roleTag = currentUser?.role === 'coach' || currentUser?.role === 'superadmin' ? 'coach' : 'user'
         const id      = crypto.randomUUID()
-        const newFood = { ...food, id }
+        const newFood = { ...food, id, addedByRole: roleTag }
         set((s) => ({ scannedFoods: [...s.scannedFoods, newFood] }))
 
         // Fire-and-forget write (caller can't await — it uses the sync return value)
-        supabase.from('custom_foods').insert({
+        const row = {
           id, name: food.name, brand: food.brand || '',
           serving_size: food.servingSize || null, serving_unit: food.servingUnit || null,
           calories: food.calories ?? 0, protein: food.protein ?? 0,
           carbs: food.carbs ?? 0, fat: food.fat ?? 0,
           upc: food.upc || null, source: 'scanned',
-        }).then(({ error }) => { if (error) console.error('scanned_food insert:', error) })
+        }
+        supabase.from('custom_foods').insert({ ...row, added_by: currentUser?.id || null, added_by_role: roleTag })
+          .then(({ error }) => {
+            // Retry without provenance columns if that migration hasn't run yet
+            if (error) {
+              supabase.from('custom_foods').insert(row)
+                .then(({ error: e2 }) => { if (e2) console.error('scanned_food insert:', e2) })
+            }
+          })
 
         return { ok: true, food: newFood }
       },
@@ -1931,11 +2031,12 @@ Rules:
 
       // Add an AI-sourced food to the shared database (superadmin only)
       addAIFood: async (food) => {
+        const me = get().currentUser
         const id = crypto.randomUUID()
-        const newFood = { ...food, id, source: 'ai' }
+        const newFood = { ...food, id, source: 'ai', addedByRole: 'coach' }
         // AI foods end up in scannedFoods (loadAllData puts source!='custom'&&!='override' there)
         set((s) => ({ scannedFoods: [...s.scannedFoods, { ...newFood }] }))
-        const { error } = await supabase.from('custom_foods').insert({
+        const row = {
           id,
           name:         food.name,
           brand:        food.brand        || '',
@@ -1946,7 +2047,10 @@ Rules:
           carbs:        food.carbs        ?? 0,
           fat:          food.fat          ?? 0,
           source:       'ai',
-        })
+        }
+        let { error } = await supabase.from('custom_foods').insert({ ...row, added_by: me?.id || null, added_by_role: 'coach' })
+        // Retry without provenance columns if that migration hasn't run yet
+        if (error) ({ error } = await supabase.from('custom_foods').insert(row))
         if (error) {
           console.error('addAIFood insert:', error)
           set((s) => ({ scannedFoods: s.scannedFoods.filter((f) => f.id !== id) }))
