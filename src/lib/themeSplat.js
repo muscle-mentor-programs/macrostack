@@ -75,19 +75,28 @@ export function splatToggleTheme(_event, toggleTheme) {
     webkitMaskImage: maskImage, webkitMaskRepeat: 'no-repeat',
   }
 
+  const html = document.documentElement
+  // Keeps the new snapshot hidden (CSS opacity:0) until our animation owns it,
+  // so it can't flash unmasked on the first frame.
+  html.classList.add('theme-splat')
+
   const transition = document.startViewTransition(() => toggleTheme())
+  transition.finished.finally(() => html.classList.remove('theme-splat'))
 
   transition.ready.then(() => {
-    document.documentElement.animate(
+    html.animate(
       [
-        { ...statics, ...frame(0), offset: 0 },      // impact
-        { ...statics, ...frame(1), offset: 0.26 },   // droplets land, body lobes visible
-        { ...statics, ...frame(2), offset: 0.58 },   // body swells smoothly
-        { ...statics, ...frame(3), offset: 1 },      // body floods the screen
+        { ...statics, ...frame(0), opacity: 1, offset: 0 },      // impact
+        { ...statics, ...frame(1), opacity: 1, offset: 0.26 },   // droplets land, body lobes visible
+        { ...statics, ...frame(2), opacity: 1, offset: 0.58 },   // body swells smoothly
+        { ...statics, ...frame(3), opacity: 1, offset: 1 },      // body floods the screen
       ],
       {
         duration: 1600,
         easing: 'cubic-bezier(0.38, 0.1, 0.22, 1)',
+        // Hold the final (fully-covered) frame until the transition tears
+        // down, so there's no end-of-animation flash back to hidden.
+        fill: 'forwards',
         pseudoElement: '::view-transition-new(root)',
       }
     )

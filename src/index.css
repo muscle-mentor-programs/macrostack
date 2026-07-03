@@ -70,9 +70,20 @@ html.ocean-light {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+  display: block;
 }
 ::view-transition-old(root) { z-index: 1; }
 ::view-transition-new(root) { z-index: 2; }
+
+/* Composite the pair directly against the page — the default isolated group
+   gets re-blended with partial alpha while the mask animates, which reads as
+   the whole screen dimming until the transition ends. */
+::view-transition-image-pair(root) { isolation: auto; }
+
+/* Hide the new snapshot until the splat animation takes over (the WAAPI
+   keyframes hold opacity 1 with fill:forwards) — otherwise it paints unmasked
+   for the first frame and flashes. */
+html.theme-splat::view-transition-new(root) { opacity: 0; }
 
 /* ─────────────────────────────────────────────
    BASE RESET
