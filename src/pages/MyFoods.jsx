@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Plus, Trash2, Search, X, Pencil, Check, Database, Scan, Sparkles, Loader2 } from 'lucide-react'
 import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
@@ -448,6 +448,13 @@ export default function MyFoods() {
     return hasQuery ? rankFoods(base, query) : base
   }, [allFoods, deletedFoods, query, filter])
 
+  // Render incrementally — dumping all 15k+ rows into the DOM at once
+  // freezes the tab. Reset the window whenever the query/filter changes.
+  const PAGE = 200
+  const [visibleCount, setVisibleCount] = useState(PAGE)
+  useEffect(() => { setVisibleCount(PAGE) }, [query, filter])
+  const visibleFoods = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount])
+
   const openAdd   = () => { setEditTarget(null); setShowModal(true) }
   const openEdit  = (food) => { setEditTarget(food); setShowModal(true) }
   const closeModal = () => { setShowModal(false); setEditTarget(null) }
@@ -578,7 +585,7 @@ export default function MyFoods() {
         </div>
 
         <div className="divide-y divide-border/50 anim-fade-in">
-          {filtered.map((food, foodIdx) => {
+          {visibleFoods.map((food, foodIdx) => {
             const isCustom  = food.id.startsWith('custom_')
             const isScanned = food.id.startsWith('scanned_')
             const isOverride = overrideIds.has(food.id)
@@ -672,6 +679,20 @@ export default function MyFoods() {
               </div>
             )
           })}
+
+          {filtered.length > visibleCount && (
+            <div className="flex flex-col items-center gap-1.5 py-6">
+              <button
+                onClick={() => setVisibleCount((c) => c + 500)}
+                className="font-display text-xs tracking-widest text-cream bg-card border border-border rounded-lg px-6 py-2.5 hover:border-brown transition-colors"
+              >
+                SHOW 500 MORE
+              </button>
+              <p className="font-mono text-xs text-dim">
+                Showing {visibleCount.toLocaleString()} of {filtered.length.toLocaleString()} — search to narrow results
+              </p>
+            </div>
+          )}
 
           {filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center anim-fade-in">
