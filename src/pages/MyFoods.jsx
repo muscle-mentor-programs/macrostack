@@ -414,25 +414,29 @@ export default function MyFoods() {
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
   const hiddenIds   = useMemo(() => new Set(hiddenFoodIds || []), [hiddenFoodIds])
 
+  // Ordered newest-added first: the coach's own scanned + custom foods (store
+  // arrays are created_at ascending, so reversed), then edited built-ins, then
+  // the built-in catalog in reverse (later catalog batches = newer additions).
   const allFoods = useMemo(
     () => [
-      ...FOODS.filter((f) => !overrideIds.has(f.id) && !hiddenIds.has(f.id)),
-      ...overrideFoods.filter((f) => !hiddenIds.has(f.id)),
-      ...customFoods,
-      ...scannedFoods,
+      ...[...scannedFoods].reverse(),
+      ...[...customFoods].reverse(),
+      ...[...overrideFoods].reverse().filter((f) => !hiddenIds.has(f.id)),
+      ...[...FOODS].reverse().filter((f) => !overrideIds.has(f.id) && !hiddenIds.has(f.id)),
     ],
     [customFoods, scannedFoods, overrideFoods, overrideIds, hiddenIds]
   )
 
   // Deleted built-ins — only shown under the DELETED filter so they can be restored
   const deletedFoods = useMemo(
-    () => FOODS.filter((f) => hiddenIds.has(f.id)),
+    () => [...FOODS].reverse().filter((f) => hiddenIds.has(f.id)),
     [hiddenIds]
   )
 
   const filtered = useMemo(() => {
-    if (filter === 'deleted') return rankFoods(deletedFoods, query)
-    // Apply type filter first, then relevance-rank the subset
+    const hasQuery = Boolean(query.trim())
+    // Browsing (no search): keep recently-added-first order; searching: relevance-rank
+    if (filter === 'deleted') return hasQuery ? rankFoods(deletedFoods, query) : deletedFoods
     const base = allFoods.filter((f) => {
       const isCustom  = f.id.startsWith('custom_')
       const isScanned = f.id.startsWith('scanned_')
@@ -441,7 +445,7 @@ export default function MyFoods() {
              filter === 'scanned' ? isScanned :
              /* builtin */         (!isCustom && !isScanned)
     })
-    return rankFoods(base, query)
+    return hasQuery ? rankFoods(base, query) : base
   }, [allFoods, deletedFoods, query, filter])
 
   const openAdd   = () => { setEditTarget(null); setShowModal(true) }

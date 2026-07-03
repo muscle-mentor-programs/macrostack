@@ -252,12 +252,15 @@ export default function MobileMyFoods() {
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
   const hiddenIds   = useMemo(() => new Set(hiddenFoodIds || []), [hiddenFoodIds])
 
+  // Ordered newest-added first: the coach's own scanned + custom foods (store
+  // arrays are created_at ascending, so reversed), then edited built-ins, then
+  // the built-in catalog in reverse (later catalog batches = newer additions).
   const allFoods = useMemo(
     () => [
-      ...FOODS.filter((f) => !overrideIds.has(f.id) && !hiddenIds.has(f.id)),
-      ...overrideFoods.filter((f) => !hiddenIds.has(f.id)),
-      ...customFoods,
-      ...scannedFoods,
+      ...[...scannedFoods].reverse(),
+      ...[...customFoods].reverse(),
+      ...[...overrideFoods].reverse().filter((f) => !hiddenIds.has(f.id)),
+      ...[...FOODS].reverse().filter((f) => !overrideIds.has(f.id) && !hiddenIds.has(f.id)),
     ],
     [customFoods, scannedFoods, overrideFoods, overrideIds, hiddenIds]
   )
@@ -271,7 +274,8 @@ export default function MobileMyFoods() {
              filter === 'scanned' ? isScanned :
              /* builtin */         (!isCustom && !isScanned)
     })
-    return rankFoods(base, query)
+    // Browsing (no search): keep recently-added-first order; searching: relevance-rank
+    return query.trim() ? rankFoods(base, query) : base
   }, [allFoods, query, filter])
 
   const openAdd  = () => { setEditTarget(null); setShowForm(true) }
