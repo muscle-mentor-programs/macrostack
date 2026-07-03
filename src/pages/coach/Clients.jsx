@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronDown, Send, Download, Archive, ArchiveRestore, Wand2 } from 'lucide-react'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
@@ -1487,17 +1487,17 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden anim-fade-in">
-      {/* Focus header — back to grid + identity */}
-      <div className="relative flex items-center gap-4 px-6 py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
+      {/* Focus header — back to grid + identity + live pulse */}
+      <div className="relative flex items-center gap-3 md:gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
         <button
           onClick={onClose}
           className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-border text-muted hover:text-cream hover:border-muted transition-colors flex-shrink-0"
         >
           <ChevronLeft size={14} />
-          <span className="font-display font-bold text-[10px] tracking-widest">USERS</span>
+          <span className="font-display font-bold text-[10px] tracking-widest hidden sm:inline">USERS</span>
         </button>
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
+          <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-11 h-11" textClassName="text-base" />
           <div className="min-w-0">
             {editName ? (
               <div className="flex items-center gap-2">
@@ -1509,17 +1509,47 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
               </div>
             ) : (
               <button onClick={() => setEditName(true)} className="flex items-center gap-1.5 group">
-                <p className="font-display font-bold text-base text-cream">{client.name}</p>
-                <Edit2 size={12} className="text-dim group-hover:text-muted" />
+                <p className="font-display font-bold text-base md:text-lg text-cream truncate">{client.name}</p>
+                <Edit2 size={12} className="text-dim group-hover:text-muted flex-shrink-0" />
               </button>
             )}
             <p className="font-mono text-xs text-muted truncate">{client.email || 'No email'}</p>
           </div>
         </div>
+
+        {/* Pulse chips — glanceable context without leaving the header */}
+        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+          {[
+            {
+              label: 'TODAY',
+              value: `${Math.round((todayTotals.calories / (client.goals.calories || 1)) * 100)}%`,
+              accent: true,
+            },
+            { label: '7-DAY', value: `${compliance}%`, accent: false },
+            {
+              label: 'TARGET',
+              value: `${client.goals.calories} kcal`,
+              accent: false,
+            },
+          ].map(({ label, value, accent }) => (
+            <div
+              key={label}
+              className="px-3.5 py-2 rounded-xl border text-right"
+              style={accent
+                ? { borderColor: 'color-mix(in srgb, var(--color-accent) 30%, transparent)', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)' }
+                : { borderColor: 'var(--color-border)' }}
+            >
+              <p className="font-display font-black text-sm leading-none" style={{ color: accent ? 'var(--color-accent)' : 'var(--color-cream)' }}>
+                {value}
+              </p>
+              <p className="font-mono text-[8px] tracking-[0.2em] text-muted mt-1">{label}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-border flex-shrink-0">
+      {/* Tabs — scrollable on narrow screens */}
+      <div className="flex border-b border-border flex-shrink-0 overflow-x-auto">
         {[
           { id: 'overview',   label: 'OVERVIEW'   },
           { id: 'checkin',    label: 'CHECK-IN'   },
@@ -1530,7 +1560,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 py-3 font-display font-bold text-xs tracking-widest transition-colors ${
+            className={`flex-1 min-w-[104px] whitespace-nowrap px-4 py-3 font-display font-bold text-xs tracking-widest transition-colors ${
               tab === t.id
                 ? 'text-cream border-b-2 border-brown'
                 : 'text-muted hover:text-cream'
@@ -1543,8 +1573,8 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
 
       <div className="flex-1 overflow-y-auto">
         {tab === 'overview' && (
-          <div className="p-6 max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 gap-6">
+          <div className="p-4 md:p-6 xl:p-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 xl:gap-6">
 
               {/* ── Left column: today's intake + 7-day compliance ── */}
               <div className="space-y-5">
@@ -1717,19 +1747,19 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
         )}
 
         {tab === 'checkin' && (
-          <div className="p-6">
+          <div className="p-4 md:p-6 max-w-6xl mx-auto">
             <CheckinTab client={client} />
           </div>
         )}
 
         {tab === 'mealplans' && (
-          <div className="p-6">
+          <div className="p-4 md:p-6 max-w-6xl mx-auto">
             <MealPlansTab clientId={client.id} />
           </div>
         )}
 
         {tab === 'photos' && (
-          <div className="p-6 max-w-3xl mx-auto">
+          <div className="p-4 md:p-6 max-w-3xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
               <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROGRESS PHOTO TIMELINE</p>
@@ -1739,7 +1769,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
         )}
 
         {tab === 'forms' && (
-          <div className="p-6 max-w-3xl mx-auto">
+          <div className="p-4 md:p-6 max-w-3xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
               <p className="font-mono text-[10px] tracking-[0.22em] text-muted">FORM RESPONSES</p>
@@ -1797,23 +1827,9 @@ export default function Clients() {
 
   const selectedClient = clients.find((c) => c.id === selectedId)
 
-  /* ── FOCUS VIEW — full-page client detail, no split pane ── */
-  if (selectedClient) {
-    return (
-      <>
-        <ClientDetail
-          key={selectedClient.id}
-          client={selectedClient}
-          initialTab={initialTab}
-          onClose={() => { setSelectedId(null); setInitialTab('overview') }}
-        />
-        {showAddModal && <AddClientModal onClose={() => setShowAddModal(false)} />}
-      </>
-    )
-  }
-
-  /* ── GRID VIEW — every client as a glanceable mini-dashboard ── */
-  const annotated = clients.map((client) => {
+  /* ── Roster annotation — memoized: streaks/dots recompute only when data
+     changes, not on every keystroke of unrelated state ── */
+  const annotated = useMemo(() => clients.map((client) => {
     const totals      = getClientTotalsForDate(client.id, today)
     const calPct      = Math.round((totals.calories / (client.goals.calories || 1)) * 100)
     const loggedToday = (client.log?.[today] || []).length > 0
@@ -1838,11 +1854,12 @@ export default function Clients() {
     ).length
 
     return { client, totals, calPct, loggedToday, days7, streak, unread }
-  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [clients, messages, today])
 
-  const loggedCount = annotated.filter((a) => a.loggedToday).length
+  const loggedCount = useMemo(() => annotated.filter((a) => a.loggedToday).length, [annotated])
 
-  const visible = annotated.filter(({ client, loggedToday }) => {
+  const visible = useMemo(() => annotated.filter(({ client, loggedToday }) => {
     const q = search.trim().toLowerCase()
     if (q && !(client.name + ' ' + (client.email || '') + ' ' + (client.tags || []).join(' ')).toLowerCase().includes(q)) return false
     if (filter === 'archived') return client.status === 'archived'
@@ -1851,13 +1868,28 @@ export default function Clients() {
     if (filter === 'quiet')   return !loggedToday && client.status !== 'pending'
     if (filter === 'pending') return client.status === 'pending'
     return true
-  })
+  }), [annotated, search, filter])
+
+  /* ── FOCUS VIEW — full-page client detail, no split pane ── */
+  if (selectedClient) {
+    return (
+      <>
+        <ClientDetail
+          key={selectedClient.id}
+          client={selectedClient}
+          initialTab={initialTab}
+          onClose={() => { setSelectedId(null); setInitialTab('overview') }}
+        />
+        {showAddModal && <AddClientModal onClose={() => setShowAddModal(false)} />}
+      </>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="relative px-8 pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
-        <div className="flex items-end justify-between gap-6">
+      <div className="relative px-5 md:px-8 pt-6 md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-5 h-px flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--color-accent) 50%, transparent)' }} />
@@ -1888,8 +1920,8 @@ export default function Clients() {
         </div>
 
         {/* Search + filters */}
-        <div className="flex items-center gap-3 mt-5">
-          <div className="relative flex-1 max-w-xs">
+        <div className="flex flex-wrap items-center gap-3 mt-5">
+          <div className="relative flex-1 min-w-[200px] max-w-xs">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
             <input
               type="text"
@@ -1899,7 +1931,7 @@ export default function Clients() {
               className="w-full bg-surface border border-border rounded-xl pl-8 pr-3 py-2 font-mono text-xs text-cream placeholder:text-dim focus:outline-none focus:border-brown transition-colors"
             />
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 overflow-x-auto max-w-full pb-0.5">
             {FILTERS.map((f) => (
               <button
                 key={f.id}
@@ -1919,7 +1951,7 @@ export default function Clients() {
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-5 md:p-6 xl:p-8">
         {clients.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 anim-fade-in">
             <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">
@@ -1940,7 +1972,7 @@ export default function Clients() {
             <p className="font-mono text-xs text-dim mt-2">Try a different search or filter</p>
           </div>
         ) : (
-          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))' }}>
+          <div className="grid gap-4 max-w-[1800px] mx-auto" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))' }}>
             {visible.map(({ client, totals, calPct, loggedToday, days7, streak, unread }, i) => (
               <button
                 key={client.id}

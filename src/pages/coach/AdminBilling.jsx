@@ -258,7 +258,8 @@ export default function AdminBilling() {
       </div>
 
       {/* Account cards */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-2.5">
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-5 md:p-6 max-w-4xl mx-auto w-full space-y-2.5">
         {adminAccountsError ? (
           <div className="flex flex-col items-center justify-center h-48 anim-fade-in text-center px-6">
             <p className="font-display font-bold text-lg text-red-400 tracking-widest">COULDN'T LOAD ACCOUNTS</p>
@@ -418,6 +419,7 @@ export default function AdminBilling() {
             )
           })
         )}
+        </div>
       </div>
     </div>
   )

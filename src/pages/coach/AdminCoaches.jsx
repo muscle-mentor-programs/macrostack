@@ -110,14 +110,34 @@ export default function AdminCoaches() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header — locked */}
-      <div className="relative px-6 md:px-8 pt-mobile-header md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">SUPERADMIN</p>
+      <div className="relative px-5 md:px-8 pt-mobile-header md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
+              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">SUPERADMIN</p>
+            </div>
+            <h2 className="font-display font-black text-4xl tracking-wider text-cream leading-none">
+              <ScrambleText text="COACHES" duration={700} />
+            </h2>
+          </div>
+          {/* Pulse stats */}
+          <div className="flex items-center gap-6">
+            <div className="text-right">
+              <p className="font-display font-black text-2xl leading-none" style={{ color: 'var(--color-accent)' }}>
+                {coaches.filter(acctAccess).length}
+                <span className="text-muted text-lg">/{coaches.length}</span>
+              </p>
+              <p className="font-mono text-[9px] tracking-[0.2em] text-muted mt-1">ACTIVE ACCESS</p>
+            </div>
+            <div className="text-right">
+              <p className="font-display font-black text-2xl leading-none text-cream">
+                {(clients || []).filter((c) => c.status !== 'archived').length}
+              </p>
+              <p className="font-mono text-[9px] tracking-[0.2em] text-muted mt-1">TOTAL USERS</p>
+            </div>
+          </div>
         </div>
-        <h2 className="font-display font-black text-4xl tracking-wider text-cream leading-none">
-          <ScrambleText text="COACHES" duration={700} />
-        </h2>
         <div className="relative mt-5 max-w-xs">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
           <input type="text" placeholder="Search coaches…" value={search} onChange={(e) => setSearch(e.target.value)}
@@ -126,7 +146,8 @@ export default function AdminCoaches() {
       </div>
 
       {/* Coach cards */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-2.5">
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-5 md:p-6 max-w-4xl mx-auto w-full space-y-2.5">
         {adminAccountsError ? (
           <div className="flex flex-col items-center justify-center h-48 anim-fade-in text-center px-6">
             <p className="font-display font-bold text-lg text-red-400 tracking-widest">COULDN'T LOAD COACHES</p>
@@ -236,6 +257,7 @@ export default function AdminCoaches() {
             )
           })
         )}
+        </div>
       </div>
     </div>
   )

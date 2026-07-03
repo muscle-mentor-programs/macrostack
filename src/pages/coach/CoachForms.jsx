@@ -95,7 +95,10 @@ export default function CoachForms() {
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 space-y-5 max-w-3xl w-full mx-auto">
+      <div className="flex-1 overflow-y-auto px-5 md:px-8 py-6 space-y-6 max-w-6xl w-full mx-auto">
+
+        {/* ── Core forms — intro + weekly side by side on wide screens ── */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
 
         {/* ── Intro questionnaire ── */}
         <div className={cardCls}>
@@ -201,6 +204,8 @@ export default function CoachForms() {
           </div>
         </div>
 
+        </div>
+
         {/* ── Custom forms ── */}
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -223,7 +228,7 @@ export default function CoachForms() {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
               {customs.map((f) => (
                 <div key={f.id} className={cardCls}>
                   <div className="flex items-start justify-between gap-3">
