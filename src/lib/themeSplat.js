@@ -2,13 +2,14 @@
    The new theme is revealed through a mask built from many circles:
    • 7 overlapping lobes form the organic splat body (round edges, no spikes)
    • 14 satellite droplets spray outward and land ahead of the body
-   Every layer's size/position is randomized per toggle, then the body
-   balloons past the far corner and swallows everything. Browsers without the
-   View Transitions API (and reduced-motion users) switch instantly. */
+   The splat bursts from the CENTER of the screen; every layer's size and
+   position is randomized per toggle, then the body balloons past the corners
+   and swallows everything. Browsers without the View Transitions API (and
+   reduced-motion users) switch instantly. */
 
 const rnd = (a, b) => a + Math.random() * (b - a)
 
-export function splatToggleTheme(event, toggleTheme) {
+export function splatToggleTheme(_event, toggleTheme) {
   if (
     typeof document.startViewTransition !== 'function' ||
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -17,27 +18,26 @@ export function splatToggleTheme(event, toggleTheme) {
     return
   }
 
-  const x = event?.clientX ?? window.innerWidth - 48
-  const y = event?.clientY ?? 48
-  const maxR = 1.25 * Math.hypot(
-    Math.max(x, window.innerWidth - x),
-    Math.max(y, window.innerHeight - y)
-  )
+  // Always burst from the middle of the screen
+  const x = window.innerWidth / 2
+  const y = window.innerHeight / 2
+  const maxR = 1.25 * Math.hypot(x, y)
 
   const layers = []
 
-  // Splat body — overlapping lobes clustered on the click point
+  // Splat body — overlapping lobes clustered on the center
   for (let i = 0; i < 7; i++) {
     const a = rnd(0, Math.PI * 2)
     const off = rnd(0, maxR * 0.1)
+    const mid = maxR * rnd(0.09, 0.2)
     layers.push({
       cx: x + Math.cos(a) * off,
       cy: y + Math.sin(a) * off,
-      r: [0, maxR * rnd(0.09, 0.2), maxR * rnd(1.1, 1.35)],
+      r: [0, mid, maxR * rnd(0.42, 0.58), maxR * rnd(1.1, 1.35)],
     })
   }
 
-  // Droplets — fly outward from the click and land as spatter dots
+  // Droplets — fly outward from the center and land as spatter dots
   for (let j = 0; j < 14; j++) {
     const a = rnd(0, Math.PI * 2)
     const dist = maxR * rnd(0.16, 0.5)
@@ -47,7 +47,7 @@ export function splatToggleTheme(event, toggleTheme) {
       cy: y + Math.sin(a) * dist,
       startCx: x + Math.cos(a) * dist * 0.35,
       startCy: y + Math.sin(a) * dist * 0.35,
-      r: [0, r, r],
+      r: [0, r, r, r],
     })
   }
 
@@ -80,13 +80,14 @@ export function splatToggleTheme(event, toggleTheme) {
   transition.ready.then(() => {
     document.documentElement.animate(
       [
-        { ...statics, ...frame(0), offset: 0 },     // impact
-        { ...statics, ...frame(1), offset: 0.3 },   // droplets land, body lobes visible
-        { ...statics, ...frame(2), offset: 1 },     // body floods the screen
+        { ...statics, ...frame(0), offset: 0 },      // impact
+        { ...statics, ...frame(1), offset: 0.26 },   // droplets land, body lobes visible
+        { ...statics, ...frame(2), offset: 0.58 },   // body swells smoothly
+        { ...statics, ...frame(3), offset: 1 },      // body floods the screen
       ],
       {
-        duration: 1150,
-        easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)',
+        duration: 1600,
+        easing: 'cubic-bezier(0.38, 0.1, 0.22, 1)',
         pseudoElement: '::view-transition-new(root)',
       }
     )
