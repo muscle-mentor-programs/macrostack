@@ -187,7 +187,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         </div>
       </div>
 
-      {/* ── Food list — capped to avoid freezing on 1900+ items ── */}
+      {/* ── Food list — capped to avoid freezing on 15,000+ items ── */}
       {(() => {
         const limit    = query.trim() ? 100 : 40
         const visible  = filtered.slice(0, limit)

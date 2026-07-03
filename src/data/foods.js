@@ -10,6 +10,13 @@ import { FOODS_RESTAURANT5 } from './foods_restaurant5'
 import { FOODS_RESTAURANT6 } from './foods_restaurant6'
 import { FOODS_SUPPLEMENTS2 } from './foods_supplements2'
 import { FOODS_BARS2 } from './foods_bars2'
+import { FOODS_USDA1 } from './foods_usda1'
+import { FOODS_USDA2 } from './foods_usda2'
+import { FOODS_USDA3 } from './foods_usda3'
+import { FOODS_USDA4 } from './foods_usda4'
+import { FOODS_USDA5 } from './foods_usda5'
+import { FOODS_USDA6 } from './foods_usda6'
+import { FOODS_USDA7 } from './foods_usda7'
 
 // All macros are PER ONE SERVING (servingSize / servingUnit)
 export const FOODS = [
@@ -597,6 +604,19 @@ export const FOODS = [
   //   Detour · Power Crunch · Atlas · Rise · IQ Bar · Combat Crunch)
   // ============================================================
   ...FOODS_BARS2,
+
+  // ============================================================
+  // USDA FOODDATA CENTRAL — generic whole foods, lab-analyzed
+  //   (Foundation Foods · SR Legacy · FNDDS survey foods)
+  //   13,321 foods · macros per one serving · imported 2026-07
+  // ============================================================
+  ...FOODS_USDA1,
+  ...FOODS_USDA2,
+  ...FOODS_USDA3,
+  ...FOODS_USDA4,
+  ...FOODS_USDA5,
+  ...FOODS_USDA6,
+  ...FOODS_USDA7,
 ]
 
 /** Total number of foods in the database — used by Landing page stats. */
@@ -616,7 +636,10 @@ export const CATEGORIES = [
   'Pre-Workout',
   // Whole foods
   'Meat & Fish',
+  'Meat',
+  'Seafood',
   'Eggs & Dairy',
+  'Dairy',
   'Fruits',
   'Vegetables',
   'Legumes',
@@ -630,8 +653,13 @@ export const CATEGORIES = [
   // Packaged / convenience
   'Canned Goods',
   'Frozen Meals',
+  'Meals & Sides',
+  'Soups & Sauces',
   'Snacks',
   'Beverages',
+  'Baby Food',
+  'Plant-Based',
+  'Supplements',
   // Restaurant
   'Restaurant',
   // Catch-all

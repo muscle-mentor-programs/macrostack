@@ -58,7 +58,7 @@ const STORY_STEPS = [
   },
   {
     n: '02', tag: 'SCAN', title: 'SCAN ANY BARCODE',
-    body: 'Point your camera at a label and get instant, verified macros from a database of 1,900+ foods.',
+    body: 'Point your camera at a label and get instant, verified macros from a database of 15,000+ foods.',
   },
   {
     n: '03', tag: 'COACH', title: 'YOUR COACH SEES EVERYTHING',
@@ -100,7 +100,7 @@ const PRO_FEATURES = [
   'Barcode scanner — instant macros from any label',
   'Weight trends & 7-day moving averages',
   'Calorie history & consistency insights',
-  'Everything in Free — unlimited logging, 1,900+ foods, custom foods',
+  'Everything in Free — unlimited logging, 15,000+ foods, custom foods',
 ]
 
 /* MacroStack Coach — tiered by active client count. `plan` matches the tier
@@ -143,7 +143,7 @@ const COACH_FEATURES = [
    you scroll. Files live in public/mockups/. */
 const APP_SHOWCASE = [
   { src: '/mockups/app-home.png',   eyebrow: 'YOUR DAY',  title: 'EVERY GRAM, AT A GLANCE',  body: 'Calories, macros, and your streak the second you open the app — no digging required.' },
-  { src: '/mockups/app-search.png', eyebrow: 'LOG FAST',  title: '1,900+ FOODS, ONE TAP',    body: 'Search the database or scan any barcode for verified macros. Your go-to foods surface first.' },
+  { src: '/mockups/app-search.png', eyebrow: 'LOG FAST',  title: '15,000+ FOODS, ONE TAP',    body: 'Search the database or scan any barcode for verified macros. Your go-to foods surface first.' },
   { src: '/mockups/app-weight.png', eyebrow: 'PROGRESS',  title: 'WATCH THE REAL TREND',     body: '7-day moving averages cut the daily scale noise so you see actual change, not water weight.' },
   { src: '/mockups/app-chat.png',   eyebrow: 'COACHING',  title: 'YOUR COACH, ONE TAP AWAY', body: 'Message your coach and submit weekly check-ins right inside the app.' },
 ]
