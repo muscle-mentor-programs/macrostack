@@ -59,12 +59,12 @@ html.ocean-light {
 }
 
 /* ─────────────────────────────────────────────
-   RETRO-TECH GLITCH THEME TRANSITION
-   The new theme sweeps across in jagged
-   horizontal slice-bands that race each other,
-   while the old signal jitters with hue and
-   contrast interference underneath. Triggered
-   via html.theme-glitch (see lib/themeSplat.js).
+   PAINT-SPLATTER THEME TRANSITION
+   The new theme is revealed through a randomized
+   multi-circle mask (splat body + droplets),
+   animated from lib/themeSplat.js. These base
+   rules disable the UA crossfade so the mask
+   does the reveal.
 ───────────────────────────────────────────── */
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -73,49 +73,6 @@ html.ocean-light {
 }
 ::view-transition-old(root) { z-index: 1; }
 ::view-transition-new(root) { z-index: 2; }
-
-/* Direction: → light sweeps right (ltr), → dark sweeps left (rtl).
-   The old theme holds perfectly still; the new one slides over it in
-   10 layered bands that lead and lag each other. */
-html.theme-glitch-ltr::view-transition-new(root) {
-  animation: sweep-in-ltr 950ms cubic-bezier(0.3, 0.75, 0.25, 1) forwards;
-}
-html.theme-glitch-rtl::view-transition-new(root) {
-  animation: sweep-in-rtl 950ms cubic-bezier(0.3, 0.75, 0.25, 1) forwards;
-}
-
-/* Layered band sweep, left → right (switching to light).
-   Same point count per frame = smooth interpolation. */
-@keyframes sweep-in-ltr {
-  0% {
-    clip-path: polygon(-20vw 0%, -2vw 0%, -2vw 10%, -8vw 10%, -8vw 20%, -1vw 20%, -1vw 30%, -6vw 30%, -6vw 40%, -3vw 40%, -3vw 50%, -9vw 50%, -9vw 60%, -2vw 60%, -2vw 70%, -7vw 70%, -7vw 80%, -4vw 80%, -4vw 90%, -8vw 90%, -8vw 100%, -20vw 100%);
-  }
-  35% {
-    clip-path: polygon(-20vw 0%, 38vw 0%, 38vw 10%, 12vw 10%, 12vw 20%, 44vw 20%, 44vw 30%, 18vw 30%, 18vw 40%, 30vw 40%, 30vw 50%, 8vw 50%, 8vw 60%, 48vw 60%, 48vw 70%, 22vw 70%, 22vw 80%, 35vw 80%, 35vw 90%, 10vw 90%, 10vw 100%, -20vw 100%);
-  }
-  65% {
-    clip-path: polygon(-20vw 0%, 70vw 0%, 70vw 10%, 42vw 10%, 42vw 20%, 78vw 20%, 78vw 30%, 50vw 30%, 50vw 40%, 64vw 40%, 64vw 50%, 36vw 50%, 36vw 60%, 82vw 60%, 82vw 70%, 55vw 70%, 55vw 80%, 68vw 80%, 68vw 90%, 40vw 90%, 40vw 100%, -20vw 100%);
-  }
-  100% {
-    clip-path: polygon(-20vw 0%, 115vw 0%, 115vw 10%, 115vw 10%, 115vw 20%, 115vw 20%, 115vw 30%, 115vw 30%, 115vw 40%, 115vw 40%, 115vw 50%, 115vw 50%, 115vw 60%, 115vw 60%, 115vw 70%, 115vw 70%, 115vw 80%, 115vw 80%, 115vw 90%, 115vw 90%, 115vw 100%, -20vw 100%);
-  }
-}
-
-/* Mirror image — bands sweeping right → left (switching to dark) */
-@keyframes sweep-in-rtl {
-  0% {
-    clip-path: polygon(120vw 0%, 102vw 0%, 102vw 10%, 108vw 10%, 108vw 20%, 101vw 20%, 101vw 30%, 106vw 30%, 106vw 40%, 103vw 40%, 103vw 50%, 109vw 50%, 109vw 60%, 102vw 60%, 102vw 70%, 107vw 70%, 107vw 80%, 104vw 80%, 104vw 90%, 108vw 90%, 108vw 100%, 120vw 100%);
-  }
-  35% {
-    clip-path: polygon(120vw 0%, 62vw 0%, 62vw 10%, 88vw 10%, 88vw 20%, 56vw 20%, 56vw 30%, 82vw 30%, 82vw 40%, 70vw 40%, 70vw 50%, 92vw 50%, 92vw 60%, 52vw 60%, 52vw 70%, 78vw 70%, 78vw 80%, 65vw 80%, 65vw 90%, 90vw 90%, 90vw 100%, 120vw 100%);
-  }
-  65% {
-    clip-path: polygon(120vw 0%, 30vw 0%, 30vw 10%, 58vw 10%, 58vw 20%, 22vw 20%, 22vw 30%, 50vw 30%, 50vw 40%, 36vw 40%, 36vw 50%, 64vw 50%, 64vw 60%, 18vw 60%, 18vw 70%, 45vw 70%, 45vw 80%, 32vw 80%, 32vw 90%, 60vw 90%, 60vw 100%, 120vw 100%);
-  }
-  100% {
-    clip-path: polygon(120vw 0%, -15vw 0%, -15vw 10%, -15vw 10%, -15vw 20%, -15vw 20%, -15vw 30%, -15vw 30%, -15vw 40%, -15vw 40%, -15vw 50%, -15vw 50%, -15vw 60%, -15vw 60%, -15vw 70%, -15vw 70%, -15vw 80%, -15vw 80%, -15vw 90%, -15vw 90%, -15vw 100%, 120vw 100%);
-  }
-}
 
 /* ─────────────────────────────────────────────
    BASE RESET
