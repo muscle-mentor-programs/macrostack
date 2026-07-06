@@ -2,7 +2,7 @@ import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
 import ScrambleText from './ScrambleText'
 import ThemeToggle from './ThemeToggle'
-import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap, ClipboardList, Radar } from 'lucide-react'
 
 const BASE_NAV = [
   { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
@@ -18,7 +18,8 @@ const UPGRADE_NAV = { id: 'upgrade', label: 'UPGRADE', icon: Zap }
 // Superadmin-only panels appended after profile
 const COACHES_NAV = { id: 'coaches', label: 'COACHES', icon: UserCog }
 const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }
-const ADMIN_NAV   = [COACHES_NAV, BILLING_NAV]
+const LEADS_NAV   = { id: 'leads',   label: 'LEAD FINDER', icon: Radar }
+const ADMIN_NAV   = [COACHES_NAV, BILLING_NAV, LEADS_NAV]
 
 /* Nav geometry — items are fixed-height so the active pill can slide
    between them with spring physics (same easing as the login toggle). */

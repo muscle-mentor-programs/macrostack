@@ -5,6 +5,9 @@
     },
     "api/ai/[...path].js": {
       "maxDuration": 60
+    },
+    "api/leads.js": {
+      "maxDuration": 60
     }
   }
 }
