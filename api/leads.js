@@ -64,7 +64,11 @@ export default async function handler(req, res) {
   try {
     const messages = [{ role: 'user', content: PROMPTS[kind] }]
     const body = {
-      model: 'claude-opus-4-8',
+      // Sonnet 5: near-Opus quality on search/agentic work with much higher
+      // rate limits — this org's Opus tier (10k input tokens/min) can't absorb
+      // the token volume web search generates. Override via LEADS_MODEL after
+      // a rate-tier upgrade to run on claude-opus-4-8.
+      model: process.env.LEADS_MODEL || 'claude-sonnet-5',
       max_tokens: 8000,
       thinking: { type: 'adaptive' },
       // medium effort: the task is search + summarize — keeps the scan well
@@ -78,7 +82,8 @@ export default async function handler(req, res) {
     // Server-side web search runs a sampling loop that can return
     // stop_reason "pause_turn" — resume by re-sending with the assistant turn.
     let data = null
-    for (let i = 0; i < 4; i++) {
+    let retriedRateLimit = false
+    for (let i = 0; i < 5; i++) {
       const upstream = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -88,6 +93,12 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({ ...body, messages }),
       })
+      // Per-minute token limits recover quickly — wait out one window and retry
+      if (upstream.status === 429 && !retriedRateLimit) {
+        retriedRateLimit = true
+        await new Promise((r) => setTimeout(r, 45000))
+        continue
+      }
       if (!upstream.ok) {
         const errText = await upstream.text()
         return res.status(upstream.status).json({ error: errText })
