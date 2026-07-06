@@ -67,8 +67,11 @@ export default async function handler(req, res) {
       model: 'claude-opus-4-8',
       max_tokens: 8000,
       thinking: { type: 'adaptive' },
+      // medium effort: the task is search + summarize — keeps the scan well
+      // inside the serverless time budget without hurting lead quality
+      output_config: { effort: 'medium' },
       system: SYSTEM,
-      tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 6 }],
+      tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 5 }],
       messages,
     }
 

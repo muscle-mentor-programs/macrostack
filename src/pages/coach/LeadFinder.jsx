@@ -82,7 +82,7 @@ function LeadPanel({ kind, icon: Icon, eyebrow, title, blurb }) {
             </div>
             <p className="font-display font-bold text-sm text-muted tracking-widest">SEARCHING THE WEB</p>
             <p className="font-mono text-xs text-dim mt-2 max-w-[260px] leading-relaxed">
-              Claude is running live searches across Reddit, X, and forums — this takes 30–60 seconds.
+              Claude is running live searches across Reddit, X, and forums — this can take a minute or two.
             </p>
           </div>
         ) : error ? (
