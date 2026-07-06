@@ -461,7 +461,10 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
       </nav>
 
       {/* ══ 2. HERO ══════════════════════════════════════════════════════════ */}
-      <section className="hero relative h-screen overflow-hidden flex items-center justify-center">
+      {/* min-h-screen (not h-screen): on phones the stacked hero content is
+          taller than the viewport — a fixed height + overflow-hidden clips it.
+          Mobile padding clears the fixed nav (top) and scroll cue (bottom). */}
+      <section className="hero relative min-h-screen overflow-hidden flex items-center justify-center pt-24 pb-24 md:pt-0 md:pb-0">
         {/* Radial brand glows */}
         <div
           className="absolute inset-0 pointer-events-none"
