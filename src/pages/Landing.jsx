@@ -481,6 +481,18 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         <div className="hero-inner relative w-full max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 md:gap-10 items-center">
           {/* Left — copy */}
           <div className="text-center md:text-left">
+            {/* App icon — signals this is an installable app at first glance */}
+            <img
+              src="/apple-touch-icon.png"
+              alt="MacroStack app icon"
+              width="64"
+              height="64"
+              className="w-14 h-14 md:w-16 md:h-16 rounded-[22%] mx-auto md:mx-0 mb-5 border"
+              style={{
+                borderColor: 'color-mix(in srgb, var(--color-accent) 28%, transparent)',
+                boxShadow: `0 8px 28px color-mix(in srgb, var(--color-accent) 22%, transparent)`,
+              }}
+            />
             <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-muted mb-6">
               PRECISION NUTRITION PLATFORM
             </p>
