@@ -29,8 +29,9 @@ Search across Reddit (r/personaltraining, r/fitnesscareers, r/OnlineCoaching, r/
 const SYSTEM = `You are a lead-generation researcher for MacroStack, a nutrition-tracking and coaching platform. You find real, recent, public posts by people who match the target profile, with DIRECT links to each post.
 
 Rules for your FINAL answer:
-- Return ONLY a valid JSON array — no markdown fences, no commentary before or after.
-- 6 to 12 items, best leads first.
+- You have a limited search budget. After at most 4-5 searches, STOP searching and write the final answer from the results you have — NEVER end the turn without producing it, even if coverage feels incomplete.
+- The final answer is a valid JSON array wrapped in sentinel tags, exactly like: <leads>[ {...}, {...} ]</leads> — no markdown fences, nothing else after the closing tag.
+- 4 to 12 items, best leads first.
 - Each item has exactly these fields:
   {
     "title":   string,  // short title of the post or a 5-10 word summary of it
@@ -75,7 +76,10 @@ export default async function handler(req, res) {
       // inside the serverless time budget without hurting lead quality
       output_config: { effort: 'medium' },
       system: SYSTEM,
-      tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 5 }],
+      // Basic web search variant: the _20260209 dynamic-filtering variant runs
+      // code execution internally, which exhausted the tool budget mid-scan
+      // and left the model unable to write its final answer
+      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
       messages,
     }
 
@@ -114,16 +118,34 @@ export default async function handler(req, res) {
       .map((b) => b.text)
       .join('')
 
-    // Extract the JSON array from the response text
-    const start = rawText.indexOf('[')
-    const end = rawText.lastIndexOf(']')
+    // Extract the JSON array: prefer the <leads> sentinel; otherwise bracket-
+    // match backwards from the last ']' (intermediate text blocks can contain
+    // stray brackets, so first-[ to last-] is not safe)
+    let jsonText = null
+    const sentinel = rawText.match(/<leads>([\s\S]*?)<\/leads>/)
+    if (sentinel) {
+      jsonText = sentinel[1]
+    } else {
+      const end = rawText.lastIndexOf(']')
+      if (end !== -1) {
+        let depth = 0
+        for (let i = end; i >= 0; i--) {
+          if (rawText[i] === ']') depth++
+          else if (rawText[i] === '[') {
+            depth--
+            if (depth === 0) { jsonText = rawText.slice(i, end + 1); break }
+          }
+        }
+      }
+    }
+
     let leads = []
-    if (start !== -1 && end > start) {
+    if (jsonText) {
       try {
-        leads = JSON.parse(rawText.slice(start, end + 1))
+        leads = JSON.parse(jsonText)
         if (!Array.isArray(leads)) leads = []
       } catch {
-        console.error('[leads] JSON parse failed:', rawText.slice(0, 300))
+        console.error('[leads] JSON parse failed:', jsonText.slice(0, 300))
       }
     }
 
