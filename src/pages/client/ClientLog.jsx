@@ -399,12 +399,21 @@ export default function ClientLog() {
   const allSections = [...PRIMARY_MEALS, ...extraMeals]
 
   // ── Edit handlers ──────────────────────────────────────────────────────────
+  // Keep qty/grams as RAW STRINGS while editing so the field can be cleared
+  // to blank and intermediate decimals ("1.", "0.7") survive typing. Numbers
+  // are only parsed for the preview/save.
+  const cleanDecimal = (v) => {
+    const s = String(v).replace(/[^0-9.]/g, '')
+    const i = s.indexOf('.')
+    return i === -1 ? s : s.slice(0, i + 1) + s.slice(i + 1).replace(/\./g, '')
+  }
+
   const openEdit = (entry) => {
     if (editState?.id === entry.id) { setEditState(null); return }
     const q = entry.quantity || 1
     setEditState({
       id:          entry.id,
-      qty:         q,
+      qty:         String(q),
       grams:       entry.servingSize ? String(Math.round(q * entry.servingSize)) : '',
       servingSize: entry.servingSize || null,
       perQty: {
@@ -417,26 +426,31 @@ export default function ClientLog() {
   }
 
   const editQtyChange = (val) => {
-    const q = Math.max(0, Number(val) || 0)
+    const str = cleanDecimal(val)
+    const q   = parseFloat(str)
     setEditState((s) => ({
       ...s,
-      qty:   q,
-      grams: s.servingSize ? String(Math.round(q * s.servingSize)) : s.grams,
+      qty:   str,
+      grams: s.servingSize ? (q > 0 ? String(Math.round(q * s.servingSize)) : '') : s.grams,
     }))
   }
 
   const editGramsChange = (val) => {
-    const g = Math.max(0, Number(val) || 0)
+    const str = cleanDecimal(val)
+    const g   = parseFloat(str)
     setEditState((s) => ({
       ...s,
-      grams: String(g),
-      qty:   s.servingSize ? +(g / s.servingSize).toFixed(3) : s.qty,
+      grams: str,
+      qty:   s.servingSize ? (g > 0 ? String(+(g / s.servingSize).toFixed(3)) : '') : s.qty,
     }))
   }
 
+  const editQtyNum = editState ? parseFloat(editState.qty) || 0 : 0
+
   const saveEdit = () => {
-    if (!editState) return
-    const { id, qty, perQty } = editState
+    if (!editState || editQtyNum <= 0) return
+    const { id, perQty } = editState
+    const qty = editQtyNum
     updateClientEntry(activeClientId, logDate, id, {
       quantity: qty,
       calories: Math.round(perQty.cal  * qty * 10) / 10,
@@ -449,10 +463,10 @@ export default function ClientLog() {
   }
 
   const editPreview = editState ? {
-    cal:  Math.round(editState.perQty.cal  * editState.qty),
-    pro:  Math.round(editState.perQty.pro  * editState.qty),
-    carb: Math.round(editState.perQty.carb * editState.qty),
-    fat:  Math.round(editState.perQty.fat  * editState.qty),
+    cal:  Math.round(editState.perQty.cal  * editQtyNum),
+    pro:  Math.round(editState.perQty.pro  * editQtyNum),
+    carb: Math.round(editState.perQty.carb * editQtyNum),
+    fat:  Math.round(editState.perQty.fat  * editQtyNum),
   } : null
 
   const inpCls = 'w-full bg-bg border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30'
@@ -637,7 +651,8 @@ export default function ClientLog() {
                             <div className="flex gap-2">
                               <button
                                 onClick={saveEdit}
-                                className="flex-1 flex items-center justify-center gap-1.5 btn-accent text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors"
+                                disabled={editQtyNum <= 0}
+                                className="flex-1 flex items-center justify-center gap-1.5 btn-accent text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors disabled:opacity-40"
                               >
                                 <Check size={13} />
                                 SAVE
