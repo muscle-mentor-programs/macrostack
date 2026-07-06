@@ -79,7 +79,7 @@ export default function ClientWeight() {
     <div className="flex flex-col min-h-full">
       {/* Header */}
       <div className="sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
-        <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream">
+        <h1 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="WEIGHT" duration={750} />
         </h1>
         <p className="font-mono text-xs text-muted mt-1">7-day moving average</p>
@@ -88,7 +88,7 @@ export default function ClientWeight() {
       {/* Log input */}
       <div className="mx-5 mt-5 mb-5 bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '60ms' }}>
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.22em] text-muted">LOG WEIGHT</p></div>
+          <div className="flex items-center gap-2"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.3em] text-muted">LOG WEIGHT</p></div>
           {/* Date toggle */}
           <button
             onClick={() => setShowDate((v) => !v)}
@@ -183,7 +183,7 @@ export default function ClientWeight() {
       )}
       {hasAccess && chartData.length > 1 && (
         <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '300ms' }}>
-          <div className="flex items-center gap-2 mb-2"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.22em] text-muted">WEIGHT TREND</p></div>
+          <div className="flex items-center gap-2 mb-2"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.3em] text-muted">WEIGHT TREND</p></div>
           <div className="flex items-center gap-5 mb-3">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-olive" />
@@ -245,7 +245,7 @@ export default function ClientWeight() {
       <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '330ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROGRESS PHOTOS</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROGRESS PHOTOS</p>
         </div>
         <ProgressPhotos client={client} canEdit />
       </div>
@@ -259,7 +259,7 @@ export default function ClientWeight() {
         </div>
       ) : (
         <div className="mx-5 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
-          <p className="font-display font-bold text-xs text-muted tracking-[0.15em] mb-3">HISTORY</p>
+          <p className="font-display font-bold text-xs text-muted tracking-widest mb-3">HISTORY</p>
           <div className="glass-card border border-border rounded-2xl overflow-hidden card-hover card-dim">
             {[...sorted].reverse().map((entry, reversedIdx) => {
               const originalIdx = sorted.length - 1 - reversedIdx

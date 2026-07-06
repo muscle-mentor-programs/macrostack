@@ -80,7 +80,7 @@ export default function ClientMessages() {
     return (
       <div className="fixed inset-x-0 top-0 bottom-0 flex flex-col bg-bg z-10">
         <div className="px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
-          <h1 className="font-display font-black text-2xl tracking-[0.15em] text-cream leading-none">COACH</h1>
+          <h1 className="font-display font-black text-2xl tracking-wide text-cream leading-none">COACH</h1>
           <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center px-8 anim-fade-in">
@@ -105,7 +105,7 @@ export default function ClientMessages() {
     return (
       <div className="fixed inset-x-0 top-0 bottom-0 flex flex-col bg-bg z-10">
         <div className="px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
-          <h1 className="font-display font-black text-2xl tracking-[0.15em] text-cream leading-none">COACH</h1>
+          <h1 className="font-display font-black text-2xl tracking-wide text-cream leading-none">COACH</h1>
           <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center px-8 anim-fade-in">
@@ -117,7 +117,7 @@ export default function ClientMessages() {
           </div>
           <div className="flex items-center gap-2 mb-2">
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PREMIUM</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PREMIUM</p>
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
           </div>
           <p className="font-display font-black text-xl text-cream tracking-widest">MESSAGE YOUR COACH</p>
@@ -149,7 +149,7 @@ export default function ClientMessages() {
           {coachProfile?.name ? coachName.charAt(0).toUpperCase() : <UserCircle2 size={20} />}
         </div>
         <div className="min-w-0">
-          <h1 className="font-display font-black text-2xl tracking-[0.12em] text-cream leading-none truncate uppercase">
+          <h1 className="font-display font-black text-2xl tracking-wide text-cream leading-none truncate uppercase">
             {coachName}
           </h1>
           <p className="font-mono text-xs text-muted mt-1">Your coach · direct line</p>

@@ -58,7 +58,7 @@ export default function Sidebar({ width }) {
 
       {/* Brand */}
       <div className="px-6 pt-7 pb-6 border-b border-border relative scanline-parent">
-        <h1 className="font-display font-black text-2xl tracking-[0.12em] text-cream uppercase leading-none">
+        <h1 className="font-display font-black text-2xl tracking-widest text-cream uppercase leading-none">
           <ScrambleText text="MACRO" duration={900} delay={0} />
           <span style={{ color: 'var(--color-accent)' }}>
             <ScrambleText text="STACK" duration={900} delay={150} />
@@ -66,7 +66,7 @@ export default function Sidebar({ width }) {
         </h1>
         <div className="flex items-center gap-2 mt-3">
           <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
-          <p className="font-mono text-[10px] text-muted tracking-[0.22em]">COACH PORTAL</p>
+          <p className="font-mono text-[10px] text-muted tracking-[0.3em]">COACH PORTAL</p>
         </div>
       </div>
 

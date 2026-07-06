@@ -174,7 +174,7 @@ function AddClientModal({ onClose }) {
             style={{ background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 28%, transparent)' }}>
             <Lock size={22} style={{ color: 'var(--color-accent)' }} />
           </div>
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted mb-2">CLIENT LIMIT REACHED</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted mb-2">CLIENT LIMIT REACHED</p>
           <h3 className="font-display font-black text-xl tracking-widest text-cream">
             {onFreeTier ? 'GO PREMIUM' : 'UPGRADE YOUR TIER'}
           </h3>
@@ -620,7 +620,7 @@ function MealPlansTab({ clientId }) {
         <div className="bg-card border border-border rounded-xl p-4 space-y-2 anim-fade-in-up card-dim" style={{ animationDelay: '120ms' }}>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">FROM TEMPLATE</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">FROM TEMPLATE</p>
           </div>
           {mealPlanTemplates.map((t) => (
             <div key={t.id} className="flex items-center justify-between gap-2 bg-surface border border-border rounded-lg px-3 py-2 card-dim">
@@ -778,7 +778,7 @@ function PrivateNotes({ clientId }) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PRIVATE NOTES</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PRIVATE NOTES</p>
         </div>
         {saved && <span className="font-mono text-[9px] text-olive-light">SAVED ✓</span>}
       </div>
@@ -825,7 +825,7 @@ function TargetScheduler({ client }) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">SCHEDULED CHANGES</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SCHEDULED CHANGES</p>
         </div>
         <button
           onClick={() => setAdding((v) => !v)}
@@ -912,7 +912,7 @@ function CheckinTrends({ client }) {
     <div className="glass-card border border-border rounded-2xl p-5 card-dim">
       <div className="flex items-center gap-2 mb-3">
         <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-        <p className="font-mono text-[10px] tracking-[0.22em] text-muted">CHECK-IN TRENDS</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] text-muted">CHECK-IN TRENDS</p>
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
         {keys.map((k, i) => (
@@ -1105,7 +1105,7 @@ function IntakeSuggestion({ client, submission }) {
       style={{ background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
       <div className="flex items-center gap-2">
         <Wand2 size={12} style={{ color: 'var(--color-accent)' }} />
-        <p className="font-mono text-[10px] tracking-[0.22em]" style={{ color: 'var(--color-accent)' }}>
+        <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: 'var(--color-accent)' }}>
           SUGGESTED STARTING TARGETS
         </p>
       </div>
@@ -1258,7 +1258,7 @@ export function CheckinTab({ client }) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">LATEST CHECK-IN</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">LATEST CHECK-IN</p>
           </div>
           <button
             onClick={() => setShowEditor(true)}
@@ -1365,7 +1365,7 @@ export function CheckinTab({ client }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">RESPOND TO {client.name.split(' ')[0].toUpperCase()}</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">RESPOND TO {client.name.split(' ')[0].toUpperCase()}</p>
             </div>
             {review && !replySent && (
               <button
@@ -1419,7 +1419,7 @@ export function CheckinTab({ client }) {
             onClick={() => setShowHistory((v) => !v)}
             className="w-full flex items-center justify-between glass-card border border-border rounded-2xl px-5 py-3.5 card-dim text-left hover:border-muted transition-colors"
           >
-            <span className="font-mono text-[10px] tracking-[0.22em] text-muted">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-muted">
               PAST CHECK-INS ({history.length})
             </span>
             <ChevronDown size={14} className={`text-muted transition-transform ${showHistory ? 'rotate-180' : ''}`} />
@@ -1582,7 +1582,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                 <div className="anim-fade-in-up">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-                    <p className="font-mono text-[10px] tracking-[0.22em] text-muted">TODAY'S INTAKE</p>
+                    <p className="font-mono text-[10px] tracking-[0.3em] text-muted">TODAY'S INTAKE</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2.5">
                     {[
@@ -1618,7 +1618,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-                      <p className="font-mono text-[10px] tracking-[0.22em] text-muted">7-DAY COMPLIANCE</p>
+                      <p className="font-mono text-[10px] tracking-[0.3em] text-muted">7-DAY COMPLIANCE</p>
                     </div>
                     <span className="font-display font-bold text-sm text-olive-light">
                       <AnimatedNumber value={compliance} duration={800} />%
@@ -1646,7 +1646,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-                      <p className="font-mono text-[10px] tracking-[0.22em] text-muted">NUTRITION TARGETS</p>
+                      <p className="font-mono text-[10px] tracking-[0.3em] text-muted">NUTRITION TARGETS</p>
                     </div>
                     <button onClick={() => setEditGoals(!editGoals)}
                       className="font-display text-xs text-brown hover:text-brown-light tracking-widest transition-colors">
@@ -1708,7 +1708,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                 <div className="bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '230ms' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-                    <p className="font-mono text-[10px] tracking-[0.22em] text-muted">USER INFO</p>
+                    <p className="font-mono text-[10px] tracking-[0.3em] text-muted">USER INFO</p>
                   </div>
                   <p className="font-mono text-xs text-dim">
                     Member since {format(parseISO(client.createdAt), 'MMM d, yyyy')}
@@ -1762,7 +1762,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           <div className="p-4 md:p-6 max-w-3xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROGRESS PHOTO TIMELINE</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROGRESS PHOTO TIMELINE</p>
             </div>
             <ProgressPhotos client={client} />
           </div>
@@ -1772,7 +1772,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           <div className="p-4 md:p-6 max-w-3xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">FORM RESPONSES</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">FORM RESPONSES</p>
             </div>
             <ClientFormsTab client={client} />
           </div>
@@ -1893,9 +1893,9 @@ export default function Clients() {
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-5 h-px flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--color-accent) 50%, transparent)' }} />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">YOUR ROSTER</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">YOUR ROSTER</p>
             </div>
-            <h2 className="font-display font-black text-4xl tracking-wider text-cream leading-none">
+            <h2 className="font-display font-black text-4xl tracking-wide text-cream leading-none">
               <ScrambleText text="USERS" duration={700} />
             </h2>
           </div>

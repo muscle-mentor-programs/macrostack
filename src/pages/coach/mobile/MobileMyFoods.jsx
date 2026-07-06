@@ -310,7 +310,7 @@ export default function MobileMyFoods() {
       <div className="glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="font-display font-black text-3xl tracking-wider text-cream">
+            <h2 className="font-display font-black text-3xl tracking-wide text-cream">
               <ScrambleText text="FOOD DATABASE" duration={900} />
             </h2>
             <p className="font-mono text-xs text-muted mt-1">

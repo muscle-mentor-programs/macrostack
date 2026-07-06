@@ -83,10 +83,10 @@ export default function CoachChat() {
         <div className="relative px-6 pt-7 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">INBOX</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">INBOX</p>
           </div>
           <div className="flex items-end justify-between">
-            <h2 className="font-display font-black text-3xl tracking-wider text-cream leading-none">
+            <h2 className="font-display font-black text-3xl tracking-wide text-cream leading-none">
               <ScrambleText text="CHAT" duration={700} />
             </h2>
             {totalUnread > 0 && (
@@ -269,10 +269,10 @@ export default function CoachChat() {
           </div>
           <div className="flex items-center gap-2 mb-2 justify-center">
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">MESSAGES</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MESSAGES</p>
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
           </div>
-          <p className="font-display font-black text-3xl text-cream tracking-widest">SELECT A USER</p>
+          <p className="font-display font-black text-3xl text-cream tracking-wide">SELECT A USER</p>
           <p className="font-mono text-sm text-dim mt-2">Choose a conversation from the left to start chatting</p>
         </div>
       )}

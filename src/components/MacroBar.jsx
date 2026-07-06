@@ -33,7 +33,7 @@ export default function MacroBar({ label, current, goal, color, unit = 'g' }) {
       className={`rounded-xl border ${c.border} ${c.bg} p-4 anim-fade-in-up card-dim`}
     >
       <div className="flex justify-between items-baseline mb-3">
-        <span className="font-display font-bold text-xs tracking-[0.15em] text-muted uppercase">{label}</span>
+        <span className="font-display font-bold text-xs tracking-widest text-muted uppercase">{label}</span>
         <div className="flex items-baseline gap-1">
           <span className={`font-display font-black text-3xl leading-none ${over ? 'text-red-400' : c.text}`}>
             <AnimatedNumber value={current} duration={800} />

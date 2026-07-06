@@ -500,7 +500,7 @@ export default function MyFoods() {
       {/* Header */}
       <div className="relative flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 md:px-8 py-5 md:py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
-          <h2 className="font-display font-black text-3xl md:text-4xl tracking-wider text-cream">
+          <h2 className="font-display font-black text-3xl md:text-4xl tracking-wide text-cream">
             <ScrambleText text="FOOD DATABASE" duration={950} />
           </h2>
           <p className="font-mono text-sm text-muted mt-1">

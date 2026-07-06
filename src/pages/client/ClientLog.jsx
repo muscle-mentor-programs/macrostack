@@ -152,7 +152,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
-          <h2 className="font-display font-black text-xl tracking-[0.15em] text-cream">ADD FOOD</h2>
+          <h2 className="font-display font-black text-xl tracking-wide text-cream">ADD FOOD</h2>
           <p className="font-mono text-xs text-muted">{meal.toUpperCase()}</p>
         </div>
         <button
@@ -197,7 +197,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         {/* Quick-add chips — most-logged foods, one tap to open serving popup */}
         {!query.trim() && recentChips.length > 0 && (
           <div className="px-4 pt-3 pb-1 anim-fade-in">
-            <p className="font-mono text-[9px] tracking-[0.22em] text-dim mb-2">FREQUENT</p>
+            <p className="font-mono text-[9px] tracking-[0.3em] text-dim mb-2">FREQUENT</p>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
               {recentChips.map((food) => (
                 <button
@@ -480,7 +480,7 @@ export default function ClientLog() {
           <ChevronLeft size={22} />
         </button>
         <div className="text-center">
-          <h2 className="font-display font-black text-2xl tracking-[0.15em] text-cream">
+          <h2 className="font-display font-black text-2xl tracking-wide text-cream">
             <ScrambleText key={logDate} text={format(parsedDate, 'EEEE').toUpperCase()} duration={600} />
           </h2>
           <p className="font-mono text-xs text-muted">{format(parsedDate, 'MMMM d, yyyy')}</p>

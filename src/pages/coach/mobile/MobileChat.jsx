@@ -143,7 +143,7 @@ export default function MobileChat() {
       {/* Header */}
       <div className="glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-3 border-b border-border anim-fade-in-down">
         <div className="flex items-center gap-3">
-          <h2 className="font-display font-black text-3xl tracking-wider text-cream">
+          <h2 className="font-display font-black text-3xl tracking-wide text-cream">
             <ScrambleText text="CHAT" duration={700} />
           </h2>
           {totalUnread > 0 && (

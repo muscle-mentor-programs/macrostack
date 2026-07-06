@@ -144,7 +144,7 @@ function MealPlanSection({ client, onLogMeal }) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">MEAL PLAN</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MEAL PLAN</p>
         </div>
         <span className="font-mono text-[10px] text-brown-light truncate max-w-[160px]">{activePlan.planName}</span>
       </div>
@@ -302,7 +302,7 @@ export default function ClientDashboard() {
               return `${greet} · ${format(new Date(), 'EEE, MMM d').toUpperCase()}`
             })()}
           </p>
-          <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream mt-0.5">
+          <h1 className="font-display font-black text-3xl tracking-wide text-cream mt-0.5">
             <ScrambleText text={client?.name?.split(' ')[0]?.toUpperCase() || 'ATHLETE'} duration={700} delay={50} />
           </h1>
         </div>
@@ -351,7 +351,7 @@ export default function ClientDashboard() {
       <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '330ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">YOUR COACH</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">YOUR COACH</p>
         </div>
         {client?.coachId ? (
           <button

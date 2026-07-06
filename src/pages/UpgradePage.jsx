@@ -112,7 +112,7 @@ export default function UpgradePage() {
           style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}>
           <Users size={28} style={{ color: 'var(--color-accent)' }} />
         </div>
-        <p className="font-mono text-[10px] tracking-[0.22em] text-muted mb-2">YOUR PLAN</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] text-muted mb-2">YOUR PLAN</p>
         <h1 className="font-display font-black text-3xl tracking-widest text-cream text-center">PRO INCLUDED</h1>
         <p className="font-mono text-xs text-muted mt-3 max-w-xs text-center leading-relaxed">
           You're connected to a coach, so every Pro feature — barcode scanner, weight trends,
@@ -141,7 +141,7 @@ export default function UpgradePage() {
           style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}>
           <Check size={28} style={{ color: 'var(--color-accent)' }} />
         </div>
-        <p className="font-mono text-[10px] tracking-[0.22em] text-muted mb-2">YOUR PLAN</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] text-muted mb-2">YOUR PLAN</p>
         <h1 className="font-display font-black text-3xl tracking-widest text-cream">PREMIUM ACTIVE</h1>
         <p className="font-mono text-xs text-muted mt-2">
           {planLabel(plan)} · {status}
@@ -164,7 +164,7 @@ export default function UpgradePage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">MACROSTACK {label}</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MACROSTACK {label}</p>
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
           </div>
           <h1 className="font-display font-black text-4xl tracking-widest text-cream leading-none">
@@ -458,7 +458,7 @@ function CoachTierManager({ clients, plan, status, currentUser, changeSubscripti
         <div className="text-center mb-7">
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">MACROSTACK COACH</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MACROSTACK COACH</p>
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
           </div>
           <h1 className="font-display font-black text-4xl tracking-widest text-cream leading-none">YOUR TIER</h1>

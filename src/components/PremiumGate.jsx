@@ -35,7 +35,7 @@ export default function PremiumGate({ title, blurb, children, inline = false }) 
       </div>
       <div className="flex items-center justify-center gap-2 mb-2">
         <span className="w-5 h-px" style={{ background: accentA(50) }} />
-        <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PREMIUM</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PREMIUM</p>
         <span className="w-5 h-px" style={{ background: accentA(50) }} />
       </div>
       <p className="font-display font-black text-xl tracking-widest text-cream">{title}</p>

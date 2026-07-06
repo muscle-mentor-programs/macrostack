@@ -427,7 +427,7 @@ export default function ClientCoachProfile() {
     <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
       <div className="glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
-        <h2 className="font-display font-black text-3xl tracking-wider text-cream">
+        <h2 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="COACH" duration={700} />
         </h2>
         <p className="font-mono text-xs text-muted mt-0.5">Your nutrition coach</p>

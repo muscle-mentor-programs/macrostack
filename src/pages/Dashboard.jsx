@@ -88,7 +88,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
-          <h2 className="font-display font-black text-4xl tracking-wider text-cream uppercase">
+          <h2 className="font-display font-black text-4xl tracking-wide text-cream uppercase">
             <ScrambleText text={format(new Date(), 'EEEE').toUpperCase()} duration={800} delay={0} />
           </h2>
           <p className="font-mono text-sm text-muted">{format(new Date(), 'MMMM d, yyyy')}</p>
@@ -137,7 +137,7 @@ export default function Dashboard() {
         {/* Meal breakdown */}
         <div className="anim-fade-in-up" style={{ animationDelay: '200ms' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-black text-lg tracking-[0.15em] text-muted uppercase">Today's Meals</h3>
+            <h3 className="font-display font-black text-lg tracking-wide text-muted uppercase">Today's Meals</h3>
             <button
               onClick={() => setActivePage('log')}
               className="font-display text-sm text-brown hover:text-brown-light tracking-widest transition-colors"

@@ -674,7 +674,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
           <div className="p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROGRESS PHOTO TIMELINE</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROGRESS PHOTO TIMELINE</p>
             </div>
             <ProgressPhotos client={client} />
           </div>
@@ -684,7 +684,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
           <div className="p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">FORM RESPONSES</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">FORM RESPONSES</p>
             </div>
             <ClientFormsTab client={client} />
           </div>
@@ -723,7 +723,7 @@ export default function MobileClients() {
       {/* Header — starts at y=0, background covers status bar */}
       <div className="glass-panel accent-line sticky top-0 z-20 flex items-center justify-between px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down flex-shrink-0">
         <div>
-          <h2 className="font-display font-black text-3xl tracking-wider text-cream">
+          <h2 className="font-display font-black text-3xl tracking-wide text-cream">
             <ScrambleText text="USERS" duration={700} />
           </h2>
           <p className="font-mono text-xs text-muted mt-0.5">

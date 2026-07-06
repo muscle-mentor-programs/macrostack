@@ -69,7 +69,7 @@ export default function CoachBottomNav() {
               </div>
 
               <span
-                className={`relative z-10 font-display font-bold tracking-wider transition-all duration-200 ${
+                className={`relative z-10 font-display font-bold tracking-widest transition-all duration-200 ${
                   active ? 'text-[9px] text-brown-light' : 'text-[8px]'
                 }`}
               >

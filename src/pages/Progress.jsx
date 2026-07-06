@@ -77,7 +77,7 @@ export default function Progress() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
-        <h2 className="font-display font-black text-4xl tracking-[0.15em] text-cream">
+        <h2 className="font-display font-black text-4xl tracking-wide text-cream">
           <ScrambleText text="PROGRESS" duration={800} />
         </h2>
         <p className="font-mono text-sm text-muted mt-1">Weight trends and macro consistency</p>
@@ -123,7 +123,7 @@ export default function Progress() {
           <div className="col-span-2 glass-card border border-border rounded-2xl p-6 card-dim">
             <div className="flex items-center gap-2 mb-5">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">WEIGHT OVER TIME</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">WEIGHT OVER TIME</p>
             </div>
             {weightData.length < 2 ? (
               <div className="flex items-center justify-center h-40">
@@ -152,7 +152,7 @@ export default function Progress() {
           <div className="glass-card border border-border rounded-2xl p-5 flex flex-col card-dim">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">LOG WEIGHT</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">LOG WEIGHT</p>
             </div>
             <div className="space-y-2 mb-4">
               <input
@@ -210,7 +210,7 @@ export default function Progress() {
           <div className="flex justify-between items-center mb-5">
             <div className="flex items-center gap-2">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">30-DAY CALORIE TREND</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">30-DAY CALORIE TREND</p>
             </div>
             <div className="flex gap-4 font-mono text-xs text-muted">
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-cream inline-block" /> Calories</span>
@@ -234,7 +234,7 @@ export default function Progress() {
         <div className="glass-card border border-border rounded-2xl p-6 anim-fade-in-up card-dim" style={{ animationDelay: '460ms' }}>
           <div className="flex items-center gap-2 mb-4">
             <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-            <p className="font-mono text-[10px] tracking-[0.22em] text-muted">30-DAY LOG CONSISTENCY</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">30-DAY LOG CONSISTENCY</p>
           </div>
           <div className="flex gap-1.5 flex-wrap">
             {last30.map((d, i) => {

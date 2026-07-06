@@ -154,7 +154,7 @@ export default function ClientProfile() {
     <div className="flex flex-col min-h-full">
       {/* Header */}
       <div className="sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
-        <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream">
+        <h1 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="PROFILE" duration={750} />
         </h1>
         <p className="font-mono text-xs text-muted mt-1">Your info & 30-day progress</p>
@@ -198,7 +198,7 @@ export default function ClientProfile() {
       <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 size={14} className="text-olive-light" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">LINK TO COACH</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">LINK TO COACH</p>
         </div>
 
         {hasCoach ? (
@@ -247,7 +247,7 @@ export default function ClientProfile() {
       <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">COACH-ASSIGNED TARGETS</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">COACH-ASSIGNED TARGETS</p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {[
@@ -271,9 +271,9 @@ export default function ClientProfile() {
       <div className="px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '250ms' }}>
         <div className="flex items-center gap-2 mb-1">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">30-DAY PROGRESS</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">30-DAY PROGRESS</p>
         </div>
-        <p className="font-display font-black text-2xl tracking-[0.15em] text-cream">LAST 30 DAYS</p>
+        <p className="font-display font-black text-2xl tracking-wide text-cream">LAST 30 DAYS</p>
       </div>
 
       {/* Stat cards */}
@@ -295,7 +295,7 @@ export default function ClientProfile() {
       <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">CALORIE TREND</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">CALORIE TREND</p>
         </div>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
@@ -322,7 +322,7 @@ export default function ClientProfile() {
       <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROTEIN TREND</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROTEIN TREND</p>
         </div>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>
@@ -350,7 +350,7 @@ export default function ClientProfile() {
       <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '480ms' }}>
         <div className="flex items-center gap-2">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PERSONAL INFO</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PERSONAL INFO</p>
         </div>
 
         <div>
@@ -390,7 +390,7 @@ export default function ClientProfile() {
       <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '500ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">NOTIFICATIONS</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">NOTIFICATIONS</p>
         </div>
         <button
           onClick={() => setClientReminders(client.id, !(client?.remindersEnabled ?? true))}

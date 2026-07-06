@@ -31,7 +31,7 @@ export default function ClientProgress() {
     <div className="flex flex-col min-h-full">
       {/* Header */}
       <div className="sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
-        <h1 className="font-display font-black text-3xl tracking-[0.15em] text-cream">
+        <h1 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="PROGRESS" duration={750} />
         </h1>
         <p className="font-mono text-xs text-muted mt-1">Last 30 days</p>
@@ -54,7 +54,7 @@ export default function ClientProgress() {
 
       {/* Calorie trend chart */}
       <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '300ms' }}>
-        <div className="flex items-center gap-2 mb-4"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.22em] text-muted">CALORIE TREND</p></div>
+        <div className="flex items-center gap-2 mb-4"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.3em] text-muted">CALORIE TREND</p></div>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
             <defs>
@@ -102,7 +102,7 @@ export default function ClientProgress() {
 
       {/* Protein trend chart */}
       <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '400ms' }}>
-        <div className="flex items-center gap-2 mb-4"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROTEIN TREND</p></div>
+        <div className="flex items-center gap-2 mb-4"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROTEIN TREND</p></div>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>
             <defs>

@@ -25,7 +25,7 @@ export default function RoleSelector() {
       <div className="w-full max-w-md px-6">
         {/* Brand */}
         <div className="text-center mb-12 anim-fade-in-down">
-          <h1 className="font-display font-black text-5xl tracking-[0.12em] leading-[0.95] text-cream">
+          <h1 className="font-display font-black text-5xl tracking-wide leading-[0.95] text-cream">
             <ScrambleText text="MACRO" duration={1000} delay={100} />
             <br />
             <ScrambleText text="STACK" className="text-brown" duration={1000} delay={300} />
@@ -48,7 +48,7 @@ export default function RoleSelector() {
                 <ShieldAlert size={24} className="text-red-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="font-display font-black text-lg tracking-wider text-cream">
+                <h2 className="font-display font-black text-lg tracking-wide text-cream">
                   SUPERADMIN PORTAL
                 </h2>
                 <p className="font-mono text-xs text-muted leading-relaxed mt-0.5">
@@ -70,7 +70,7 @@ export default function RoleSelector() {
               <Monitor size={24} className="text-green-light" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="font-display font-black text-lg tracking-wider text-cream">
+              <h2 className="font-display font-black text-lg tracking-wide text-cream">
                 COACH PORTAL
               </h2>
               <p className="font-mono text-xs text-muted leading-relaxed mt-0.5">
@@ -92,7 +92,7 @@ export default function RoleSelector() {
               <Smartphone size={24} className="text-blue-light" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="font-display font-black text-lg tracking-wider text-cream">
+              <h2 className="font-display font-black text-lg tracking-wide text-cream">
                 USER APP
               </h2>
               <p className="font-mono text-xs text-muted leading-relaxed mt-0.5">

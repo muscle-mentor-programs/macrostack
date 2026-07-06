@@ -222,9 +222,9 @@ export default function AdminBilling() {
       <div className="relative px-6 md:px-8 pt-mobile-header md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center gap-2 mb-1.5">
           <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
-          <p className="font-mono text-[10px] tracking-[0.22em] text-muted">SUPERADMIN</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SUPERADMIN</p>
         </div>
-        <h2 className="font-display font-black text-4xl tracking-wider text-cream leading-none">
+        <h2 className="font-display font-black text-4xl tracking-wide text-cream leading-none">
           <ScrambleText text="BILLING" duration={700} />
         </h2>
 
@@ -339,14 +339,14 @@ export default function AdminBilling() {
                   <div className="px-5 pb-5 border-t border-border/50 pt-4 space-y-5 anim-fade-in">
                     {/* Contact */}
                     <div className="space-y-2">
-                      <p className="font-mono text-[9px] tracking-[0.22em]" style={{ color: accentA(70) }}>CONTACT</p>
+                      <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>CONTACT</p>
                       <InfoRow icon={Mail}  label="EMAIL" value={a.email} />
                       {clientRec?.phone && <InfoRow icon={Phone} label="PHONE" value={clientRec.phone} />}
                     </div>
 
                     {/* Billing */}
                     <div className="space-y-2">
-                      <p className="font-mono text-[9px] tracking-[0.22em]" style={{ color: accentA(70) }}>BILLING</p>
+                      <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>BILLING</p>
                       <InfoRow icon={CreditCard}   label="STATUS" value={statusLabel(a)} />
                       {!pending && <InfoRow icon={CreditCard} label="PLAN" value={a.subscription_plan ? a.subscription_plan.toUpperCase() : 'None'} />}
                       {!pending && fmtDate(a.current_period_end) && (
@@ -360,7 +360,7 @@ export default function AdminBilling() {
                       <p className="font-mono text-[10px] text-dim tracking-widest">AWAITING SIGN-UP — nothing to manage until they create an account.</p>
                     ) : (
                       <div className="space-y-2">
-                        <p className="font-mono text-[9px] tracking-[0.22em]" style={{ color: accentA(70) }}>MANAGE ACCESS</p>
+                        <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>MANAGE ACCESS</p>
                         <AccessControls a={a} busy={busy} onSet={handleSet} />
                         <DeleteLoginControl account={a} />
                       </div>
@@ -371,7 +371,7 @@ export default function AdminBilling() {
                       <div className="space-y-2.5">
                         <div className="flex items-center gap-2">
                           <Users size={12} style={{ color: 'var(--color-accent)' }} />
-                          <p className="font-mono text-[9px] tracking-[0.22em]" style={{ color: accentA(70) }}>
+                          <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>
                             CLIENTELE ({roster.length})
                           </p>
                         </div>

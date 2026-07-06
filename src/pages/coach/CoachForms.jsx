@@ -87,7 +87,7 @@ export default function CoachForms() {
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="relative px-6 md:px-8 pt-mobile-header md:pt-6 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
-        <h2 className="font-display font-black text-3xl md:text-4xl tracking-[0.15em] text-cream">
+        <h2 className="font-display font-black text-3xl md:text-4xl tracking-wide text-cream">
           <ScrambleText text="FORMS" duration={800} />
         </h2>
         <p className="font-mono text-xs md:text-sm text-muted mt-1">
@@ -211,7 +211,7 @@ export default function CoachForms() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">CUSTOM FORMS</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">CUSTOM FORMS</p>
             </div>
             <button
               onClick={() => setEditing({ mode: 'custom' })}

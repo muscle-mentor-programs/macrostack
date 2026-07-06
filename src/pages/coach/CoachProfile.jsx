@@ -77,9 +77,9 @@ export default function CoachProfile() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">COACH PORTAL</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">COACH PORTAL</p>
             </div>
-            <h2 className="font-display font-black text-4xl tracking-[0.12em] text-cream leading-none">
+            <h2 className="font-display font-black text-4xl tracking-wide text-cream leading-none">
               <ScrambleText text="PROFILE" duration={850} />
             </h2>
           </div>
@@ -244,7 +244,7 @@ export default function CoachProfile() {
             className="rounded-2xl border p-5"
             style={{ borderColor: accentA(28), background: `linear-gradient(160deg, ${accentA(12)}, ${accentA(3)})` }}
           >
-            <p className="font-mono text-[10px] tracking-[0.22em] mb-2" style={{ color: accentA(75) }}>COACH CODE</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] mb-2" style={{ color: accentA(75) }}>COACH CODE</p>
             <div className="flex items-center gap-3">
               <span className="font-display font-black text-2xl tracking-[0.28em] flex-1 min-w-0 truncate" style={{ color: ACCENT }}>
                 {currentUser?.coachCode || '—'}
@@ -269,7 +269,7 @@ export default function CoachProfile() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">PROFILE PREVIEW</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROFILE PREVIEW</p>
             </div>
             <p className="font-mono text-xs text-dim mb-3">
               What users see when they view your coach profile in the app.

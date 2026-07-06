@@ -230,7 +230,7 @@ export default function FoodLog() {
             <ChevronLeft size={20} />
           </button>
           <div className="text-center">
-            <h2 className="font-display font-black text-3xl tracking-wider text-cream">
+            <h2 className="font-display font-black text-3xl tracking-wide text-cream">
               <ScrambleText
                 key={logDate}
                 text={format(parsedDate, 'EEEE').toUpperCase()}

@@ -605,7 +605,7 @@ export default function CoachDashboard() {
       {/* Header */}
       <div className="relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
-          <h2 className="font-display font-black text-4xl tracking-[0.15em] text-cream">
+          <h2 className="font-display font-black text-4xl tracking-wide text-cream">
             <ScrambleText text="DASHBOARD" duration={900} />
           </h2>
           <div className="flex items-center gap-3 mt-1.5">

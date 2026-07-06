@@ -115,9 +115,9 @@ export default function AdminCoaches() {
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">SUPERADMIN</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">SUPERADMIN</p>
             </div>
-            <h2 className="font-display font-black text-4xl tracking-wider text-cream leading-none">
+            <h2 className="font-display font-black text-4xl tracking-wide text-cream leading-none">
               <ScrambleText text="COACHES" duration={700} />
             </h2>
           </div>
@@ -201,7 +201,7 @@ export default function AdminCoaches() {
                   <div className="px-5 pb-5 border-t border-border/50 pt-4 space-y-5 anim-fade-in">
                     {/* Coach contact + billing */}
                     <div className="space-y-2">
-                      <p className="font-mono text-[9px] tracking-[0.22em]" style={{ color: accentA(70) }}>COACH INFO</p>
+                      <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>COACH INFO</p>
                       <InfoRow icon={Mail} label="EMAIL" value={coach.email} />
                       <InfoRow icon={CreditCard} label="STATUS" value={statusLabel(coach)} />
                       {coach.subscription_plan && <InfoRow icon={CreditCard} label="PLAN" value={coach.subscription_plan.toUpperCase()} />}
@@ -209,7 +209,7 @@ export default function AdminCoaches() {
                       <InfoRow icon={Shield} label="ACCESS" value={access ? 'Active' : 'No access'} />
                     </div>
                     <div className="space-y-2">
-                      <p className="font-mono text-[9px] tracking-[0.22em]" style={{ color: accentA(70) }}>MANAGE ACCESS</p>
+                      <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>MANAGE ACCESS</p>
                       <AccessControls a={coach} busy={busy} onSet={handleSet} />
                     </div>
 
@@ -217,7 +217,7 @@ export default function AdminCoaches() {
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-2">
                         <Users size={12} style={{ color: 'var(--color-accent)' }} />
-                        <p className="font-mono text-[9px] tracking-[0.22em]" style={{ color: accentA(70) }}>CLIENTELE ({roster.length})</p>
+                        <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>CLIENTELE ({roster.length})</p>
                       </div>
                       {roster.length === 0 ? (
                         <p className="font-mono text-xs text-dim">No users linked to this coach.</p>

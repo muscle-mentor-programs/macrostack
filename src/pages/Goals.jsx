@@ -64,7 +64,7 @@ export default function Goals() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
-        <h2 className="font-display font-black text-4xl tracking-[0.15em] text-cream">
+        <h2 className="font-display font-black text-4xl tracking-wide text-cream">
           <ScrambleText text="MACRO GOALS" duration={900} />
         </h2>
         <p className="font-mono text-sm text-muted mt-1">Set your daily targets or use the calculator</p>
@@ -76,7 +76,7 @@ export default function Goals() {
           <div className="glass-card border border-border rounded-2xl p-6 card-dim">
             <div className="flex items-center gap-2 mb-5">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">CURRENT TARGETS</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">CURRENT TARGETS</p>
             </div>
             <div className="space-y-5">
               {[
@@ -113,7 +113,7 @@ export default function Goals() {
           <div className="glass-card border border-border rounded-2xl p-6 card-dim">
             <div className="flex items-center gap-2 mb-5">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] text-muted">TDEE CALCULATOR</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">TDEE CALCULATOR</p>
             </div>
 
             {/* Unit toggle */}
@@ -252,7 +252,7 @@ export default function Goals() {
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                   <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-                  <p className="font-mono text-[10px] tracking-[0.22em] text-muted">CALCULATED TARGETS</p>
+                  <p className="font-mono text-[10px] tracking-[0.3em] text-muted">CALCULATED TARGETS</p>
                 </div>
                 <span className="font-mono text-xs text-muted">TDEE: {calculated.tdee} kcal</span>
               </div>
