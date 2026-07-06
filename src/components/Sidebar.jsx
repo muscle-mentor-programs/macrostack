@@ -18,8 +18,10 @@ const UPGRADE_NAV = { id: 'upgrade', label: 'UPGRADE', icon: Zap }
 // Superadmin-only panels appended after profile
 const COACHES_NAV = { id: 'coaches', label: 'COACHES', icon: UserCog }
 const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }
+// TEMPORARILY DISABLED — re-add LEADS_NAV to ADMIN_NAV to re-enable Lead Finder
+// eslint-disable-next-line no-unused-vars
 const LEADS_NAV   = { id: 'leads',   label: 'LEAD FINDER', icon: Radar }
-const ADMIN_NAV   = [COACHES_NAV, BILLING_NAV, LEADS_NAV]
+const ADMIN_NAV   = [COACHES_NAV, BILLING_NAV]
 
 /* Nav geometry — items are fixed-height so the active pill can slide
    between them with spring physics (same easing as the login toggle). */

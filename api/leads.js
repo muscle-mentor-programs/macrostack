@@ -64,7 +64,13 @@ function friendlyAnthropicError(errText, status) {
   return msg || `Anthropic API error (${status})`
 }
 
+// TEMPORARILY DISABLED — flip to false (or delete this block) to re-enable
+const DISABLED = true
+
 export default async function handler(req, res) {
+  if (DISABLED) {
+    return res.status(503).json({ error: 'Lead Finder is temporarily disabled.' })
+  }
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
