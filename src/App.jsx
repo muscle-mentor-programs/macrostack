@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from 'react'
+import { useEffect, useState, useRef, lazy, Suspense } from 'react'
 import useStore from './store'
 import useIsMobile from './hooks/useIsMobile'
 
@@ -100,6 +100,13 @@ const CLIENT_PAGES = {
   upgrade:   UpgradePage,
 }
 
+// Every page id that gets a real URL path (/chat, /foods, /billing, …).
+// Union of coach + client page maps — the active role renders its own page.
+const ROUTABLE = new Set([
+  ...Object.keys(COACH_PAGES_DESKTOP),
+  ...Object.keys(CLIENT_PAGES),
+])
+
 // True when running as an installed PWA (homescreen shortcut).
 // Checked once at module load — doesn't change during a session.
 const IS_PWA =
@@ -156,6 +163,52 @@ export default function App() {
     const params = new URLSearchParams(window.location.search)
     if (params.get('checkout') === 'success') setActivePage('upgrade')
   }, [isAuthenticated])
+
+  // ── URL routing ─────────────────────────────────────────────────────────
+  // The app is state-driven (activePage in the store), but every page gets a
+  // real path so it can be visited, refreshed, and bookmarked directly:
+  //   /login /signup pre-auth · /dashboard /chat /foods /billing … in-app
+  const initialPathRef = useRef(window.location.pathname)
+
+  // 1. Adopt the address-bar path: pre-auth for /login + /signup, and once
+  //    auth resolves, land on the page the user originally asked for.
+  useEffect(() => {
+    const seg = (initialPathRef.current || '/').replace(/^\/+|\/+$/g, '')
+    if (!isAuthenticated) {
+      if (seg === 'login')  setAuthView('login')
+      if (seg === 'signup') setAuthView('signup')
+      return
+    }
+    if (ROUTABLE.has(seg)) setActivePage(seg)
+    initialPathRef.current = '/'   // consumed — don't re-apply on later auth flips
+  }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 2. Keep the address bar in sync with in-app navigation
+  useEffect(() => {
+    if (authLoading) return
+    const path = isAuthenticated
+      ? `/${activePage || 'dashboard'}`
+      : authView === 'login' ? '/login'
+      : authView === 'signup' ? '/signup'
+      : '/'
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path + window.location.search)
+    }
+  }, [isAuthenticated, authLoading, authView, activePage])
+
+  // 3. Browser back/forward buttons drive the app
+  useEffect(() => {
+    const onPop = () => {
+      const seg = window.location.pathname.replace(/^\/+|\/+$/g, '')
+      if (!isAuthenticated) {
+        setAuthView(seg === 'login' ? 'login' : seg === 'signup' ? 'signup' : (IS_PWA ? 'login' : null))
+      } else if (ROUTABLE.has(seg)) {
+        setActivePage(seg)
+      }
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Chat self-heal: when the tab comes back to the foreground, re-pull the
   // messages table in case the realtime websocket dropped while backgrounded
