@@ -45,6 +45,25 @@ Rules for your FINAL answer:
 - Only include posts by genuine prospects (not news articles, listicles, or competitor marketing).
 - Never fabricate URLs. If a result has no direct post link, skip it.`
 
+/* Translate raw Anthropic API errors into actionable, human-readable text */
+function friendlyAnthropicError(errText, status) {
+  let msg = ''
+  try { msg = JSON.parse(errText)?.error?.message || '' } catch { msg = errText }
+  if (/credit balance is too low/i.test(msg)) {
+    return 'The Anthropic account is out of API credits. Top up at console.anthropic.com → Plans & Billing, then retry.'
+  }
+  if (status === 429 || /rate limit/i.test(msg)) {
+    return 'Anthropic rate limit hit — wait a minute and retry.'
+  }
+  if (status === 401) {
+    return 'Anthropic API key is invalid — check ANTHROPIC_API_KEY in Vercel env settings.'
+  }
+  if (status === 529 || /overloaded/i.test(msg)) {
+    return 'Anthropic API is temporarily overloaded — retry in a moment.'
+  }
+  return msg || `Anthropic API error (${status})`
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -105,7 +124,8 @@ export default async function handler(req, res) {
       }
       if (!upstream.ok) {
         const errText = await upstream.text()
-        return res.status(upstream.status).json({ error: errText })
+        console.error('[leads] anthropic error:', errText.slice(0, 500))
+        return res.status(upstream.status).json({ error: friendlyAnthropicError(errText, upstream.status) })
       }
       data = await upstream.json()
       if (data.stop_reason !== 'pause_turn') break

@@ -67,7 +67,18 @@ Return a JSON array of matching foods with complete nutritional information.`
 
     if (!upstream.ok) {
       const errText = await upstream.text()
-      return res.status(upstream.status).json({ error: errText })
+      console.error('[food-search] anthropic error:', errText.slice(0, 500))
+      // Translate raw Anthropic errors into actionable, human-readable text
+      let msg = ''
+      try { msg = JSON.parse(errText)?.error?.message || '' } catch { msg = errText }
+      if (/credit balance is too low/i.test(msg)) {
+        msg = 'The Anthropic account is out of API credits. Top up at console.anthropic.com → Plans & Billing, then retry.'
+      } else if (upstream.status === 429 || /rate limit/i.test(msg)) {
+        msg = 'Anthropic rate limit hit — wait a minute and retry.'
+      } else if (upstream.status === 529 || /overloaded/i.test(msg)) {
+        msg = 'Anthropic API is temporarily overloaded — retry in a moment.'
+      }
+      return res.status(upstream.status).json({ error: msg || `Anthropic API error (${upstream.status})` })
     }
 
     const data    = await upstream.json()
