@@ -216,7 +216,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
           <button
             key={food.id}
             onClick={() => handleSelectFood(food)}
-            className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-white/[0.04] press"
+            className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-white/[0.04] press-row"
             style={{
               borderBottom: '1px solid rgba(255,255,255,0.05)',
               borderLeft: selected?.id === food.id ? '2px solid #9A7B55' : '2px solid transparent',

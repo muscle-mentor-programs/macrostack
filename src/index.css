@@ -707,6 +707,31 @@ input[type="number"]::-webkit-outer-spin-button {
     transform: scale(0.965);
     box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.55);
   }
+
+  /* Edge-to-edge list rows (.press-row below) — the inset-shadow rectangle
+     looks squared-off on unrounded rows; use the soft tint press instead */
+  button.press-row:not(:disabled):active {
+    transform: scale(0.985);
+    box-shadow: none;
+  }
+}
+
+/* ── Soft press for full-width list rows ───────────────────────────────────────
+   Rows that span edge to edge (food search results, roster lists) aren't
+   rounded like cards, so the standard inset-shadow press reads as a hard
+   rectangle. This variant presses with a gentle scale + rounded tint that
+   stays aligned inside the surrounding card. */
+.press-row {
+  border-radius: 14px;
+  transform-origin: center;
+  transition: transform 110ms cubic-bezier(0.2, 0, 0.38, 0.9),
+              background-color 110ms ease;
+  will-change: transform;
+}
+.press-row:active {
+  transform: scale(0.985);
+  background-color: rgba(127, 127, 127, 0.10);
+  box-shadow: none;
 }
 
 /* ── Landing CTA animations ────────────────────────────────────────────────────
