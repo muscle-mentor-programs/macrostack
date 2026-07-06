@@ -129,7 +129,13 @@ export default async function handler(req, res) {
       }))
       .filter((l) => l.title && /^https?:\/\//.test(l.url))
 
-    return res.status(200).json({ leads })
+    // Surface diagnostics on empty results — this endpoint is superadmin-only
+    // and empty scans are otherwise impossible to debug from the client
+    const debug = leads.length === 0
+      ? { stop_reason: data?.stop_reason, blocks: (data?.content || []).map((b) => b.type), sample: rawText.slice(0, 600) }
+      : undefined
+
+    return res.status(200).json({ leads, debug })
   } catch (e) {
     console.error('[leads] error:', e)
     return res.status(500).json({ error: e.message })
