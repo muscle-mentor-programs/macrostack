@@ -25,6 +25,8 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
         pointerEvents: fading ? 'none' : 'auto',
       }}
     >
+      {/* Intro (pre-landing) renders at half size; the looping loading
+          splash keeps the full-screen treatment. */}
       <video
         src="/intro.mp4"
         autoPlay
@@ -32,7 +34,7 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
         playsInline
         loop={loop}
         onEnded={loop ? undefined : onDone}
-        className="w-full h-full object-contain"
+        className={loop ? 'w-full h-full object-contain' : 'w-1/2 h-1/2 object-contain'}
       />
     </div>
   )
