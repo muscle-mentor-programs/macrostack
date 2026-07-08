@@ -26,7 +26,8 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
       }}
     >
       {/* Intro (pre-landing) renders at half size; the looping loading
-          splash keeps the full-screen treatment. */}
+          splash keeps the full-screen treatment. Playback runs 1.5x
+          (the source 7s animation lands in ~4.7s). */}
       <video
         src="/intro.mp4"
         autoPlay
@@ -34,6 +35,7 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
         playsInline
         loop={loop}
         onEnded={loop ? undefined : onDone}
+        ref={(el) => { if (el) el.playbackRate = 1.5 }}
         className={loop ? 'w-full h-full object-contain' : 'w-1/2 h-1/2 object-contain'}
       />
     </div>
