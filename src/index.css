@@ -59,31 +59,17 @@ html.ocean-light {
 }
 
 /* ─────────────────────────────────────────────
-   PAINT-SPLATTER THEME TRANSITION
-   The new theme is revealed through a randomized
-   multi-circle mask (splat body + droplets),
-   animated from lib/themeSplat.js. These base
-   rules disable the UA crossfade so the mask
-   does the reveal.
+   THEME TRANSITION — premium cross-fade
+   The View Transitions API snapshots the old
+   theme and cross-fades to the new one. We just
+   slow the UA's default fade down and give it a
+   silky ease (triggered from lib/themeSplat.js).
 ───────────────────────────────────────────── */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-  display: block;
+html.theme-fade::view-transition-old(root),
+html.theme-fade::view-transition-new(root) {
+  animation-duration: 650ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
-::view-transition-old(root) { z-index: 1; }
-::view-transition-new(root) { z-index: 2; }
-
-/* Composite the pair directly against the page — the default isolated group
-   gets re-blended with partial alpha while the mask animates, which reads as
-   the whole screen dimming until the transition ends. */
-::view-transition-image-pair(root) { isolation: auto; }
-
-/* Hide the new snapshot until the splat animation takes over (the WAAPI
-   keyframes hold opacity 1 with fill:forwards) — otherwise it paints unmasked
-   for the first frame and flashes. */
-html.theme-splat::view-transition-new(root) { opacity: 0; }
 
 /* ─────────────────────────────────────────────
    BASE RESET
