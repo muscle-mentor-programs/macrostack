@@ -6,6 +6,7 @@ import useIsMobile from './hooks/useIsMobile'
 import CoachLayout from './layouts/CoachLayout'
 import ClientLayout from './layouts/ClientLayout'
 import MotionPage from './components/MotionPage'
+import LogoSplash from './components/LogoSplash'
 
 // ── Code-split pages — each loads on demand, keeping the initial bundle
 //    small (Landing, the 1900-item food DB, and recharts are the heavy ones)
@@ -253,16 +254,10 @@ export default function App() {
     )
   }
 
-  // Show nothing while the session check is in flight (avoids login-screen flash)
+  // Branded splash while the session check is in flight (also what PWA users
+  // see on every cold launch) — the logo animation loops until auth resolves.
   if (authLoading) {
-    return (
-      <div className="flex h-full w-full bg-bg items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-2 border-brown border-t-transparent rounded-full animate-spin" />
-          <p className="font-mono text-xs text-muted tracking-widest">LOADING…</p>
-        </div>
-      </div>
-    )
+    return <LogoSplash loop />
   }
 
   if (!isAuthenticated) {
