@@ -1,7 +1,27 @@
-import { StrictMode } from 'react'
+import { StrictMode, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import LogoSplash from './components/LogoSplash.jsx'
+
+/* ── Boot splash — the logo animation plays IN FULL over the entire app on
+   every new browser session (landing, deep links, PWA launches), then fades
+   out to reveal whatever rendered underneath while it played. No skip. */
+function BootSplash() {
+  const [phase, setPhase] = useState(() =>
+    sessionStorage.getItem('ms-intro-seen') ? 'done' : 'playing'
+  )
+  const finish = () => {
+    setPhase((p) => {
+      if (p !== 'playing') return p   // idempotent — ended + safety timer
+      sessionStorage.setItem('ms-intro-seen', '1')
+      setTimeout(() => setPhase('done'), 750)
+      return 'fading'
+    })
+  }
+  if (phase === 'done') return null
+  return <LogoSplash onDone={finish} fading={phase === 'fading'} />
+}
 
 // window.screen.height is the physical screen height in CSS pixels.
 // Unlike window.innerHeight, it includes the iOS home-indicator zone (~34pt)
@@ -23,5 +43,6 @@ if (window.location.hash.includes('type=invite')) {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
+    <BootSplash />
   </StrictMode>,
 )

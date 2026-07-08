@@ -1,9 +1,8 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { Smartphone, Share, PlusSquare, Sun, Moon } from 'lucide-react'
 import useStore from '../store'
 import { splatToggleTheme } from '../lib/themeSplat'
 import { FOOD_COUNT } from '../data/foodCount'
-import LogoSplash from '../components/LogoSplash'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
@@ -200,20 +199,6 @@ function FeatureRow({ src, eyebrow, title, body, flip, textColor, softColor }) {
 export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
   const theme = useStore((s) => s.theme)
   const toggleTheme = useStore((s) => s.toggleTheme)
-
-  /* ── Intro logo animation — plays once per browser session, then fades
-     into the page. 'playing' → 'fading' (700ms cross-fade) → 'done'. */
-  const [intro, setIntro] = useState(() =>
-    sessionStorage.getItem('ms-intro-seen') ? 'done' : 'playing'
-  )
-  const finishIntro = () => {
-    setIntro((s) => {
-      if (s !== 'playing') return s   // idempotent: ended/tap/safety can all fire
-      sessionStorage.setItem('ms-intro-seen', '1')
-      setTimeout(() => setIntro('done'), 750)
-      return 'fading'
-    })
-  }
   const rootRef      = useRef(null)
   const progressRef  = useRef(null)
   const guidePathRef = useRef(null)
@@ -418,11 +403,6 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
 
   return (
     <div ref={rootRef} className="bg-bg text-cream font-mono antialiased">
-
-      {/* ── Intro logo animation overlay ── */}
-      {intro !== 'done' && (
-        <LogoSplash onDone={finishIntro} fading={intro === 'fading'} />
-      )}
 
       {/* ── Scroll progress bar ── */}
       <div

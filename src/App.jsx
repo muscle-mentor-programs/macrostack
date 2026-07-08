@@ -254,10 +254,14 @@ export default function App() {
     )
   }
 
-  // Branded splash while the session check is in flight (also what PWA users
-  // see on every cold launch) — the logo animation loops until auth resolves.
+  // While the session check is in flight: on a fresh session the BootSplash
+  // (main.jsx) is already playing the logo animation on top — render plain
+  // black underneath so two videos never play at once. On same-session
+  // reloads (splash already seen) the animation loops until auth resolves.
   if (authLoading) {
-    return <LogoSplash loop />
+    return sessionStorage.getItem('ms-intro-seen')
+      ? <LogoSplash loop />
+      : <div className="fixed inset-0" style={{ background: '#000' }} />
   }
 
   if (!isAuthenticated) {
