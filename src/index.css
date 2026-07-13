@@ -118,7 +118,7 @@ body {
     radial-gradient(ellipse 130% 35% at 50% 0%, rgba(30, 25, 18, 0.65) 0%, transparent 65%),
     var(--color-bg);
   color: var(--color-cream);
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-family: 'Space Grotesk', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
