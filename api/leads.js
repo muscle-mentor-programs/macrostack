@@ -1,3 +1,4 @@
+import { requireSuperadmin } from './_auth.js'
 /**
  * POST /api/leads
  *
@@ -68,6 +69,7 @@ function friendlyAnthropicError(errText, status) {
 const DISABLED = true
 
 export default async function handler(req, res) {
+  if (!(await requireSuperadmin(req, res))) return
   if (DISABLED) {
     return res.status(503).json({ error: 'Lead Finder is temporarily disabled.' })
   }

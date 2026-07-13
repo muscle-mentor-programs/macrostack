@@ -1,3 +1,4 @@
+import apiFetch from '../lib/apiFetch'
 import { useRef, useState, useEffect } from 'react'
 import { format, subDays, parseISO } from 'date-fns'
 import { Sparkles, Send, X, Loader2 } from 'lucide-react'
@@ -55,7 +56,7 @@ export default function KayCoachChat({ onClose }) {
     setMessages(history)
     setLoading(true)
     try {
-      const res = await fetch('/api/ai/messages', {
+      const res = await apiFetch('/api/ai/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

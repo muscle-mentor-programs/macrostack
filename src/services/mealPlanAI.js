@@ -1,3 +1,4 @@
+import apiFetch from '../lib/apiFetch'
 import { FOODS } from '../data/foods'
 
 const MAX_PER_CAT = 10
@@ -193,7 +194,7 @@ Respond with ONLY this JSON (no markdown):
   ]
 }`
 
-  const response = await fetch('/api/ai/messages', {
+  const response = await apiFetch('/api/ai/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

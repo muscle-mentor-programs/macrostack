@@ -1,3 +1,4 @@
+import apiFetch from '../../lib/apiFetch'
 import { useState } from 'react'
 import {
   Radar, Search, ExternalLink, Shield, Loader2, RefreshCw,
@@ -19,7 +20,7 @@ function LeadPanel({ kind, icon: Icon, eyebrow, title, blurb }) {
     setLoading(true)
     setError(null)
     try {
-      const r = await fetch('/api/leads', {
+      const r = await apiFetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind }),

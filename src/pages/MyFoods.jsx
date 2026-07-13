@@ -1,3 +1,4 @@
+import apiFetch from '../lib/apiFetch'
 import { useState, useMemo, useEffect } from 'react'
 import { Plus, Trash2, Search, X, Pencil, Check, Database, Scan, Sparkles, Loader2 } from 'lucide-react'
 import useStore from '../store'
@@ -265,7 +266,7 @@ function AISearchPanel({ onAdded }) {
     setResults([])
     setAdded({})
     try {
-      const res = await fetch('/api/ai/food-search', {
+      const res = await apiFetch('/api/ai/food-search', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ query: aiQuery.trim() }),

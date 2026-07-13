@@ -1,3 +1,4 @@
+import { requireUser } from '../_auth.js'
 /**
  * Vercel serverless function — proxies POST /api/ai/messages → Anthropic Messages API
  *
@@ -65,6 +66,7 @@ async function resolveModel(apiKey) {
 }
 
 export default async function handler(req, res) {
+  if (!(await requireUser(req, res))) return
   if (req.method !== 'POST') {
     return res.status(405).setHeader('content-type', 'application/json')
       .send(JSON.stringify({ error: 'Method not allowed' }))

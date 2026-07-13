@@ -1,3 +1,4 @@
+import apiFetch from '../lib/apiFetch'
 /**
  * Generate a weekly check-in review with Kay.
  *
@@ -71,7 +72,7 @@ Respond with ONLY this JSON:
 }
 If no change is warranted, set suggestedGoals equal to the current targets.`
 
-  const response = await fetch('/api/ai/messages', {
+  const response = await apiFetch('/api/ai/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

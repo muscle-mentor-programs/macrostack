@@ -1,3 +1,4 @@
+import { requireUser } from '../_auth.js'
 /**
  * POST /api/email/notify
  * Sends a notification email for new messages or new account creation.
@@ -18,6 +19,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM   = process.env.RESEND_FROM_EMAIL || 'MacroStack <onboarding@resend.dev>'
 
 export default async function handler(req, res) {
+  if (!(await requireUser(req, res))) return
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   if (!process.env.RESEND_API_KEY) {

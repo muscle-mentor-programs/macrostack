@@ -1,3 +1,4 @@
+import apiFetch from '../../../lib/apiFetch'
 import { useState, useMemo } from 'react'
 import { Plus, Trash2, Search, X, Pencil, Check, Database, Scan, Sparkles, Loader2, ChevronLeft } from 'lucide-react'
 import useStore from '../../../store'
@@ -229,7 +230,7 @@ export default function MobileMyFoods() {
     setAiResults([])
     setAiAdded({})
     try {
-      const res  = await fetch('/api/ai/food-search', {
+      const res  = await apiFetch('/api/ai/food-search', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ query: aiQuery.trim() }),

@@ -1,3 +1,4 @@
+import apiFetch from '../../lib/apiFetch'
 import { useState, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
 import {
@@ -105,7 +106,7 @@ function EmailModal({ clients, preselectedId, onClose }) {
         if (!recipients.length) throw new Error('No selected users have an email on file.')
         const clientNames = {}
         recipients.forEach((c) => { clientNames[c.email] = c.name })
-        const res = await fetch('/api/email/send', {
+        const res = await apiFetch('/api/email/send', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({

@@ -12,6 +12,7 @@
     "predev": "node scripts/gen-food-count.mjs"
   },
   "dependencies": {
+    "@sentry/react": "^10.65.0",
     "@supabase/supabase-js": "^2.105.3",
     "@zxing/browser": "^0.2.0",
     "@zxing/library": "^0.22.0",

@@ -1,3 +1,4 @@
+import { requireUser } from '../_auth.js'
 /**
  * Vercel serverless function — proxies /api/ai/* → https://api.anthropic.com/*
  *
@@ -7,6 +8,7 @@
  * Never prefix with VITE_ — this key must stay server-side only.
  */
 export default async function handler(req, res) {
+  if (!(await requireUser(req, res))) return
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
     return res

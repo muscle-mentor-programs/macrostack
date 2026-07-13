@@ -1,3 +1,4 @@
+import { requireSuperadmin } from '../_auth.js'
 /**
  * POST /api/ai/food-search
  *
@@ -11,6 +12,7 @@
  */
 
 export default async function handler(req, res) {
+  if (!(await requireSuperadmin(req, res))) return
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }

@@ -1,3 +1,4 @@
+import apiFetch from '../../lib/apiFetch'
 import { useState, useMemo, useEffect } from 'react'
 import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight, Mail, Download, ArrowLeft } from 'lucide-react'
 import useStore from '../../store'
@@ -187,7 +188,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
         { planName: planName.trim(), days },
         { name: client.name, goals: client.goals }
       )
-      const res = await fetch('/api/email/meal-plan', {
+      const res = await apiFetch('/api/email/meal-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

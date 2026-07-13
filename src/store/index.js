@@ -1,3 +1,4 @@
+import apiFetch from '../lib/apiFetch'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { format } from 'date-fns'
@@ -1564,7 +1565,7 @@ const useStore = create(
               content: m.text,
             }))
 
-          const res = await fetch('/api/ai/messages', {
+          const res = await apiFetch('/api/ai/messages', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1673,7 +1674,7 @@ Rules:
 
           if (from === 'coach' && client?.email) {
             // Coach messaged a client → notify the client
-            fetch('/api/email/notify', {
+            apiFetch('/api/email/notify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({

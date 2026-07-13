@@ -3,6 +3,12 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import LogoSplash from './components/LogoSplash.jsx'
+import * as Sentry from '@sentry/react'
+
+// Error monitoring — no-op until VITE_SENTRY_DSN is set in Vercel env
+if (import.meta.env.VITE_SENTRY_DSN) {
+ Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN, sendDefaultPii: false, tracesSampleRate: 0 })
+}
 
 /* ── Boot splash — the logo animation plays IN FULL over the entire app on
    every new browser session (landing, deep links, PWA launches), then fades
