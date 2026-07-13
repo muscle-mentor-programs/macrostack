@@ -3,6 +3,7 @@ import { UserPlus, Loader2, Check, X, ShieldCheck, Mail } from 'lucide-react'
 import useStore from '../store'
 import ScrambleText from '../components/ScrambleText'
 import ThemeToggle from '../components/ThemeToggle'
+import { isNativeIOS } from '../lib/platform'
 
 /* ── Create-account + payment page ────────────────────────────────────────────
    Landing CTAs land here. If a plan was picked (ms-pending-plan), the page
@@ -34,7 +35,10 @@ export default function SignupCheckout({ onBack, onSignIn }) {
   const { signup, startCheckout, setCheckoutRedirect } = useStore()
 
   const [pending, setPending] = useState(readPendingPlan)
-  const paidPlan = pending?.plan || null
+  // Apple IAP rule: the native iOS build never runs Stripe checkout — any
+  // picked plan is ignored and signup is always free (upgrade happens on the
+  // website). No-op on the web/PWA where isNativeIOS is always false.
+  const paidPlan = isNativeIOS ? null : (pending?.plan || null)
   const isCoachPlan = pending?.audience === 'coach'
   const tierInfo = isCoachPlan ? COACH_TIER_INFO[paidPlan] : null
   const proInfo  = !isCoachPlan && paidPlan ? PRO_PLAN_INFO[paidPlan] : null
@@ -265,6 +269,12 @@ export default function SignupCheckout({ onBack, onSignIn }) {
                 Free to start · No credit card required
               </p>
             )}
+            <p className="font-mono text-[10px] text-dim leading-relaxed">
+              By creating an account you agree to our{' '}
+              <a href="/terms" target="_blank" rel="noopener" className="underline hover:text-cream transition-colors">Terms</a>
+              {' '}and{' '}
+              <a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-cream transition-colors">Privacy Policy</a>.
+            </p>
             <button
               onClick={onSignIn}
               className="font-mono text-xs text-muted hover:text-cream tracking-widest transition-colors py-1"

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Check, Loader2, Settings, Users, ArrowUpRight, ArrowDownRight, Lock, Banknote, ExternalLink } from 'lucide-react'
 import useStore from '../store'
 import useSubscription from '../hooks/useSubscription'
+import { isNativeIOS } from '../lib/platform'
 // Coach tiers — shared with the landing page, client-limit gates, and edge functions
 import { COACH_TIERS, coachClientLimit, coachTierLabel } from '../lib/coachTiers'
 
@@ -146,12 +147,44 @@ export default function UpgradePage() {
         <p className="font-mono text-xs text-muted mt-2">
           {planLabel(plan)} · {status}
         </p>
+        {isNativeIOS ? (
+          <p className="font-mono text-xs text-muted mt-6 max-w-xs text-center leading-relaxed">
+            Manage your subscription from getmacrostack.com in your web browser.
+          </p>
+        ) : (
+          <button
+            onClick={openBillingPortal}
+            className="flex items-center gap-2 mt-6 border border-border text-cream font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:border-muted transition-colors press"
+          >
+            <Settings size={14} />
+            MANAGE BILLING
+          </button>
+        )}
+      </div>
+    )
+  }
+
+  // Apple App Store rule: the native iOS build can't sell subscriptions through
+  // an outside processor, so the purchase flow is web/PWA-only. This branch is
+  // never reached in a browser — isNativeIOS is only true inside the iOS shell.
+  if (isNativeIOS) {
+    return (
+      <div className="min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 anim-pop"
+          style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}>
+          <Lock size={28} style={{ color: 'var(--color-accent)' }} />
+        </div>
+        <p className="font-mono text-[10px] tracking-[0.3em] text-muted mb-2">MACROSTACK {label}</p>
+        <h1 className="font-display font-black text-3xl tracking-widest text-cream text-center">GO PREMIUM</h1>
+        <p className="font-mono text-xs text-muted mt-3 max-w-xs text-center leading-relaxed">
+          Subscriptions aren't available in the iOS app. Visit getmacrostack.com in your
+          web browser to upgrade — your plan unlocks here instantly.
+        </p>
         <button
-          onClick={openBillingPortal}
-          className="flex items-center gap-2 mt-6 border border-border text-cream font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:border-muted transition-colors press"
+          onClick={() => setActivePage('dashboard')}
+          className="mt-6 border border-border text-cream font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:border-muted transition-colors press"
         >
-          <Settings size={14} />
-          MANAGE BILLING
+          BACK TO DASHBOARD
         </button>
       </div>
     )
@@ -528,7 +561,7 @@ function CoachTierManager({ clients, plan, status, currentUser, changeSubscripti
                     style={{ background: accentA(90), color: '#fff' }}>
                     CURRENT
                   </span>
-                ) : overCap ? (
+                ) : isNativeIOS ? null : overCap ? (
                   <span className="flex-shrink-0 flex items-center gap-1.5 font-display font-bold text-[10px] tracking-widest px-3 py-2 rounded-lg border border-border text-dim cursor-not-allowed">
                     <Lock size={11} /> LOCKED
                   </span>
@@ -552,17 +585,26 @@ function CoachTierManager({ clients, plan, status, currentUser, changeSubscripti
           })}
         </div>
 
-        <p className="font-mono text-[10px] text-dim text-center mt-4 leading-relaxed">
-          Changes are prorated by Stripe on your next invoice.
-        </p>
+        {isNativeIOS ? (
+          <p className="font-mono text-[10px] text-dim text-center mt-4 leading-relaxed">
+            Manage your tier and billing from getmacrostack.com in your web browser —
+            changes apply here instantly.
+          </p>
+        ) : (
+          <>
+            <p className="font-mono text-[10px] text-dim text-center mt-4 leading-relaxed">
+              Changes are prorated by Stripe on your next invoice.
+            </p>
 
-        <button
-          onClick={openBillingPortal}
-          className="w-full flex items-center justify-center gap-2 mt-4 border border-border text-cream font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:border-muted transition-colors press"
-        >
-          <Settings size={14} />
-          MANAGE BILLING
-        </button>
+            <button
+              onClick={openBillingPortal}
+              className="w-full flex items-center justify-center gap-2 mt-4 border border-border text-cream font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:border-muted transition-colors press"
+            >
+              <Settings size={14} />
+              MANAGE BILLING
+            </button>
+          </>
+        )}
 
         {/* Charge your own clients through the platform */}
         <ClientBillingCard />

@@ -1120,13 +1120,21 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         </div>
 
         {/* Footer */}
-        <footer className="max-w-5xl mx-auto mt-24 pt-8 border-t border-border flex items-center justify-between">
+        <footer className="max-w-5xl mx-auto mt-24 pt-8 border-t border-border flex flex-wrap items-center justify-between gap-3">
           <p className="font-display font-black text-sm tracking-widest text-cream">
             MACRO<span style={{ color: ACCENT }}>STACK</span>
           </p>
-          <p className="font-mono text-[10px] tracking-[0.2em] text-muted opacity-70">
-            NUTRITION OS · {new Date().getFullYear()}
-          </p>
+          <div className="flex items-center gap-4">
+            <a href="/privacy" className="font-mono text-[10px] tracking-[0.2em] text-muted opacity-70 hover:opacity-100 transition-opacity">
+              PRIVACY
+            </a>
+            <a href="/terms" className="font-mono text-[10px] tracking-[0.2em] text-muted opacity-70 hover:opacity-100 transition-opacity">
+              TERMS
+            </a>
+            <p className="font-mono text-[10px] tracking-[0.2em] text-muted opacity-70">
+              NUTRITION OS · {new Date().getFullYear()}
+            </p>
+          </div>
         </footer>
       </section>
     </div>

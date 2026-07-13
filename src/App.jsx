@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, lazy, Suspense } from 'react'
 import useStore from './store'
 import useIsMobile from './hooks/useIsMobile'
+import { isNativeApp } from './lib/platform'
 
 // Layouts (small — keep eager so the shell paints instantly)
 import CoachLayout from './layouts/CoachLayout'
@@ -108,11 +109,13 @@ const ROUTABLE = new Set([
   ...Object.keys(CLIENT_PAGES),
 ])
 
-// True when running as an installed PWA (homescreen shortcut).
-// Checked once at module load — doesn't change during a session.
+// True when running as an installed PWA (homescreen shortcut) or inside the
+// native iOS shell — both should boot straight to sign-in, never the
+// marketing landing. Checked once at module load — doesn't change during a session.
 const IS_PWA =
   window.matchMedia('(display-mode: standalone)').matches ||
-  window.navigator.standalone === true
+  window.navigator.standalone === true ||
+  isNativeApp
 
 export default function App() {
   const {
