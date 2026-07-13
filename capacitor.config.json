@@ -1,0 +1,7 @@
+{
+  "appId": "com.getmacrostack.app",
+  "appName": "MacroStack",
+  "webDir": "dist",
+  "backgroundColor": "#08090F",
+  "ios": { "contentInset": "always" }
+}
