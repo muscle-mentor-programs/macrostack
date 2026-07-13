@@ -728,7 +728,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
                   x="252" y={VESSEL_BOTTOM - LAYER_H * i - LAYER_H / 2 + 5}
                   style={{
                     fill: 'var(--color-accent)',
-                    font: '700 13px "Courier Prime", monospace',
+                    font: '700 13px "IBM Plex Mono", monospace',
                     letterSpacing: '2px',
                   }}
                 >

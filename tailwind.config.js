@@ -39,7 +39,7 @@ export default {
       },
       fontFamily: {
         display: ['"Barlow Condensed"', 'sans-serif'],
-        mono: ['"Courier Prime"', '"Courier New"', 'monospace'],
+        mono: ['"IBM Plex Mono"', '"Courier New"', 'monospace'],
       },
     },
   },
