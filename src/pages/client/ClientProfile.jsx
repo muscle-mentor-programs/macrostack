@@ -48,8 +48,12 @@ function PushToggle() {
 }
 
 export default function ClientProfile() {
-  const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode, setClientReminders } = useStore()
+  const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode, setClientReminders, updateClientGoals } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
+
+  // My targets editing (available to every user; coach edits override)
+  const [editGoals, setEditGoals] = useState(false)
+  const [goalDraft, setGoalDraft] = useState({ calories: '', protein: '', carbs: '', fat: '' })
 
   // Coach code linking
   const [codeInput,  setCodeInput]  = useState('')
@@ -243,27 +247,85 @@ export default function ClientProfile() {
         )}
       </div>
 
-      {/* Coach-assigned targets (read-only) */}
+      {/* My targets — every user (free or Pro) can edit; a linked coach can
+          override from their portal at any time */}
       <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">COACH-ASSIGNED TARGETS</p>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MY TARGETS</p>
+          </div>
+          <button
+            onClick={() => {
+              if (editGoals) { setEditGoals(false); return }
+              setGoalDraft({
+                calories: String(client?.goals?.calories ?? ''),
+                protein:  String(client?.goals?.protein  ?? ''),
+                carbs:    String(client?.goals?.carbs    ?? ''),
+                fat:      String(client?.goals?.fat      ?? ''),
+              })
+              setEditGoals(true)
+            }}
+            className="font-display font-bold text-xs tracking-widest text-brown-light press"
+          >
+            {editGoals ? 'CANCEL' : 'EDIT'}
+          </button>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: 'CALORIES', value: client?.goals?.calories, unit: 'kcal' },
-            { label: 'PROTEIN',  value: client?.goals?.protein,  unit: 'g'    },
-            { label: 'CARBS',    value: client?.goals?.carbs,    unit: 'g'    },
-            { label: 'FAT',      value: client?.goals?.fat,      unit: 'g'    },
-          ].map(({ label, value, unit }) => (
-            <div key={label} className="glass-card border border-border rounded-2xl p-3 card-dim">
-              <p className="font-display font-black text-2xl text-cream">{value ?? '—'}</p>
-              <p className="font-mono text-xs text-muted">{label} / {unit}</p>
+        {editGoals ? (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { key: 'calories', label: 'CALORIES / kcal' },
+                { key: 'protein',  label: 'PROTEIN / g'     },
+                { key: 'carbs',    label: 'CARBS / g'       },
+                { key: 'fat',      label: 'FAT / g'         },
+              ].map(({ key, label }) => (
+                <div key={key}>
+                  <label className="font-mono text-[10px] tracking-widest text-muted block mb-1">{label}</label>
+                  <input
+                    type="number" inputMode="numeric" min="0"
+                    value={goalDraft[key]}
+                    onChange={(e) => setGoalDraft((p) => ({ ...p, [key]: e.target.value }))}
+                    className="w-full bg-bg border border-border rounded-xl px-3 py-2.5 font-mono text-sm text-cream focus:outline-none focus:border-brown"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            <button
+              onClick={() => {
+                updateClientGoals(activeClientId, {
+                  calories: Number(goalDraft.calories) || 0,
+                  protein:  Number(goalDraft.protein)  || 0,
+                  carbs:    Number(goalDraft.carbs)    || 0,
+                  fat:      Number(goalDraft.fat)      || 0,
+                })
+                setEditGoals(false)
+              }}
+              className="w-full mt-3 btn-accent font-display font-bold text-xs tracking-widest py-2.5 rounded-xl press"
+              style={{ color: '#fff' }}
+            >
+              SAVE TARGETS
+            </button>
+          </>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: 'CALORIES', value: client?.goals?.calories, unit: 'kcal' },
+              { label: 'PROTEIN',  value: client?.goals?.protein,  unit: 'g'    },
+              { label: 'CARBS',    value: client?.goals?.carbs,    unit: 'g'    },
+              { label: 'FAT',      value: client?.goals?.fat,      unit: 'g'    },
+            ].map(({ label, value, unit }) => (
+              <div key={label} className="glass-card border border-border rounded-2xl p-3 card-dim">
+                <p className="font-display font-black text-2xl text-cream">{value ?? '—'}</p>
+                <p className="font-mono text-xs text-muted">{label} / {unit}</p>
+              </div>
+            ))}
+          </div>
+        )}
         <p className="font-mono text-xs text-dim mt-3">
-          Contact your coach to update these targets.
+          {client?.coachId
+            ? 'Your coach can also adjust these — their changes apply to your account too.'
+            : 'Not sure where to start? Use the macro calculator on our site, then set them here.'}
         </p>
       </div>
 
