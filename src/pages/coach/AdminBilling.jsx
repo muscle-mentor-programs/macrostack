@@ -307,10 +307,22 @@ export default function AdminBilling() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-display font-bold text-sm text-cream truncate">{a.name || 'Unnamed'}</p>
-                      <span className="font-mono text-[8px] tracking-widest px-1.5 py-0.5 rounded flex-shrink-0"
-                        style={{ color: 'var(--color-accent)', background: accentA(10), border: `1px solid ${accentA(25)}` }}>
-                        {a.role.toUpperCase()}
-                      </span>
+                      {/* Account-type tag: ADMIN (red) / COACH (blue) /
+                          CLIENT = user linked to a coach (green) /
+                          USER = solo tracker, no coach (gray) */}
+                      {(() => {
+                        const tag =
+                          a.role === 'superadmin' ? { t: 'ADMIN',  c: '#f87171',            bg: 'rgba(248,113,113,.12)', bd: 'rgba(248,113,113,.35)' } :
+                          a.role === 'coach'      ? { t: 'COACH',  c: 'var(--color-accent)', bg: accentA(10),             bd: accentA(30) } :
+                          clientRec?.coachId      ? { t: 'CLIENT', c: '#7DBF8E',            bg: 'rgba(125,191,142,.12)', bd: 'rgba(125,191,142,.35)' } :
+                                                    { t: 'USER',   c: 'var(--color-muted)',  bg: 'rgba(127,127,127,.10)', bd: 'var(--color-border)' }
+                        return (
+                          <span className="font-mono text-[8px] tracking-widest px-1.5 py-0.5 rounded flex-shrink-0"
+                            style={{ color: tag.c, background: tag.bg, border: `1px solid ${tag.bd}` }}>
+                            {tag.t}
+                          </span>
+                        )
+                      })()}
                       {pending && (
                         <span className="font-mono text-[8px] tracking-widest px-1.5 py-0.5 rounded flex-shrink-0 text-brown-light bg-brown/10 border border-brown/25">
                           PENDING
