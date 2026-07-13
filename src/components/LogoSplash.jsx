@@ -7,11 +7,11 @@ import { useEffect } from 'react'
               rescues a stalled/blocked playback; it never cuts it short.
    - loading: loops silently for full-screen loading splashes.               */
 export default function LogoSplash({ loop = false, onDone, fading = false }) {
-  // Safety net only: the video runs 7s — this fires well after its natural
-  // end, so the animation always finishes unless playback itself is broken.
+  // Safety net only: the video runs ~1.8s at 1.5x — this fires well after its
+  // natural end, so the animation always finishes unless playback is broken.
   useEffect(() => {
     if (loop || !onDone) return
-    const t = setTimeout(onDone, 10000)
+    const t = setTimeout(onDone, 4000)
     return () => clearTimeout(t)
   }, [loop, onDone])
 
@@ -21,13 +21,13 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
       style={{
         background: '#000',
         opacity: fading ? 0 : 1,
-        transition: 'opacity 700ms ease',
+        transition: 'opacity 250ms ease',
         pointerEvents: fading ? 'none' : 'auto',
       }}
     >
-      {/* Intro (pre-landing) renders at half size; the looping loading
-          splash keeps the full-screen treatment. Playback runs 1.5x
-          (the source 7s animation lands in ~4.7s). */}
+      {/* The video is trimmed to end the moment the logo completes (S meets
+          the apple, ~2.7s source / ~1.8s at 1.5x). Intro renders at half
+          size; the PWA/loading splash is full-screen scaled up 25%. */}
       <video
         src="/intro.mp4"
         autoPlay
@@ -36,7 +36,7 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
         loop={loop}
         onEnded={loop ? undefined : onDone}
         ref={(el) => { if (el) el.playbackRate = 1.5 }}
-        className={loop ? 'w-full h-full object-contain' : 'w-1/2 h-1/2 object-contain'}
+        className={loop ? 'w-full h-full object-contain scale-125' : 'w-1/2 h-1/2 object-contain'}
       />
     </div>
   )

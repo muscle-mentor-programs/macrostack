@@ -15,7 +15,7 @@ function BootSplash() {
     setPhase((p) => {
       if (p !== 'playing') return p   // idempotent — ended + safety timer
       sessionStorage.setItem('ms-intro-seen', '1')
-      setTimeout(() => setPhase('done'), 750)
+      setTimeout(() => setPhase('done'), 280)
       return 'fading'
     })
   }
