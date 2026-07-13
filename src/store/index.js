@@ -1,3 +1,4 @@
+import { formatFood } from '../utils/foodFormat'
 import apiFetch from '../lib/apiFetch'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -178,7 +179,7 @@ function dbToMessage(row) {
 }
 
 function dbToFood(row) {
-  return {
+  return formatFood({
     id:          row.id,
     name:        row.name,
     brand:       row.brand        || '',
@@ -192,7 +193,7 @@ function dbToFood(row) {
     source:      row.source       || 'custom',
     addedBy:     row.added_by     || null,
     addedByRole: row.added_by_role || null,   // 'user' | 'coach'
-  }
+  })
 }
 
 const calcTotals = (entries = []) =>
@@ -1870,7 +1871,7 @@ Rules:
         const me = get().currentUser
         const roleTag = me?.role === 'coach' || me?.role === 'superadmin' ? 'coach' : 'user'
         const id = crypto.randomUUID()
-        set((s) => ({ customFoods: [...s.customFoods, { ...food, id, addedByRole: roleTag }] }))
+        set((s) => ({ customFoods: [...s.customFoods, formatFood({ ...food, id, addedByRole: roleTag })] }))
         const row = {
           id, name: food.name, brand: food.brand || '',
           serving_size: food.servingSize || null, serving_unit: food.servingUnit || null,
@@ -1928,7 +1929,7 @@ Rules:
 
         const roleTag = currentUser?.role === 'coach' || currentUser?.role === 'superadmin' ? 'coach' : 'user'
         const id      = crypto.randomUUID()
-        const newFood = { ...food, id, addedByRole: roleTag }
+        const newFood = formatFood({ ...food, id, addedByRole: roleTag })
         set((s) => ({ scannedFoods: [...s.scannedFoods, newFood] }))
 
         // Fire-and-forget write (caller can't await — it uses the sync return value)
@@ -2034,7 +2035,7 @@ Rules:
       addAIFood: async (food) => {
         const me = get().currentUser
         const id = crypto.randomUUID()
-        const newFood = { ...food, id, source: 'ai', addedByRole: 'coach' }
+        const newFood = formatFood({ ...food, id, source: 'ai', addedByRole: 'coach' })
         // AI foods end up in scannedFoods (loadAllData puts source!='custom'&&!='override' there)
         set((s) => ({ scannedFoods: [...s.scannedFoods, { ...newFood }] }))
         const row = {

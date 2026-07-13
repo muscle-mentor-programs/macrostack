@@ -10,6 +10,7 @@ import { FOODS_RESTAURANT5 } from './foods_restaurant5'
 import { FOODS_RESTAURANT6 } from './foods_restaurant6'
 import { FOODS_SUPPLEMENTS2 } from './foods_supplements2'
 import { FOODS_BARS2 } from './foods_bars2'
+import { formatFood } from '../utils/foodFormat'
 import { FOODS_USDA1 } from './foods_usda1'
 import { FOODS_USDA2 } from './foods_usda2'
 import { FOODS_USDA3 } from './foods_usda3'
@@ -19,7 +20,7 @@ import { FOODS_USDA6 } from './foods_usda6'
 import { FOODS_USDA7 } from './foods_usda7'
 
 // All macros are PER ONE SERVING (servingSize / servingUnit)
-export const FOODS = [
+const FOODS_RAW = [
 
   // ============================================================
   // QUEST NUTRITION
@@ -618,6 +619,9 @@ export const FOODS = [
   ...FOODS_USDA6,
   ...FOODS_USDA7,
 ]
+
+// Display style: Title Case names, ALL-CAPS brands (all sources)
+export const FOODS = FOODS_RAW.map(formatFood)
 
 /** Total number of foods in the database — used by Landing page stats. */
 export const FOOD_COUNT = FOODS.length
