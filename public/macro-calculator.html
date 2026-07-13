@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Macro Calculator — Calories, Protein, Carbs & Fat | MacroStack</title>
+  <meta name="description" content="Free macro calculator using the Mifflin-St Jeor equation. Get your daily calories, protein, carbs, and fat targets for cutting, maintaining, or building muscle — then track them free in MacroStack." />
+  <link rel="canonical" href="https://getmacrostack.com/macro-calculator" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Free Macro Calculator | MacroStack" />
+  <meta property="og:description" content="Calculate your daily calories, protein, carbs, and fat in 30 seconds — free, no signup." />
+  <meta property="og:url" content="https://getmacrostack.com/macro-calculator" />
+  <meta property="og:image" content="https://getmacrostack.com/og-image.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebApplication","name":"MacroStack Macro Calculator","applicationCategory":"HealthApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://getmacrostack.com/macro-calculator","description":"Free macro calculator: daily calories, protein, carbs, and fat targets using the Mifflin-St Jeor equation."}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"How are my macros calculated?","acceptedAnswer":{"@type":"Answer","text":"We use the Mifflin-St Jeor equation to estimate your basal metabolic rate, multiply by an activity factor for total daily energy expenditure, then adjust for your goal: roughly -20% for fat loss or +10% for muscle gain. Protein is set at 0.8g per pound of body weight, fat at 25% of calories, and carbs fill the remainder."}},
+    {"@type":"Question","name":"How much protein should I eat per day?","acceptedAnswer":{"@type":"Answer","text":"For people who train, 0.7-1g of protein per pound of body weight per day is the widely used range. This calculator uses 0.8g/lb, which suits most fat-loss and muscle-building goals."}},
+    {"@type":"Question","name":"Is this macro calculator really free?","acceptedAnswer":{"@type":"Answer","text":"Yes — no signup or email required. If you want to actually hit these targets, you can track them free in MacroStack with a 15,000+ verified food database and barcode scanning."}}
+  ]}
+  </script>
+  <style>
+    :root{--bg:#08090F;--surface:#0D1220;--card:#111827;--border:#232C3F;--cream:#D8E6F4;--muted:#8CA3BC;--dim:#4A5A70;--accent:#4878B0;--accent-l:#6B9FD8}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:var(--bg);color:var(--cream);font-family:'Courier Prime',monospace;line-height:1.7;-webkit-font-smoothing:antialiased}
+    .display{font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:.025em;line-height:1.05}
+    nav{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:rgba(8,9,15,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    nav a.logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:.1em;color:var(--cream);text-decoration:none}
+    nav a.logo span{color:var(--accent)}
+    .btn{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.1em;font-size:14px;padding:12px 26px;border-radius:12px;text-decoration:none;background:linear-gradient(135deg,var(--accent),var(--accent-l));color:#fff;box-shadow:0 8px 28px rgba(72,120,176,.35)}
+    main{max-width:860px;margin:0 auto;padding:48px 20px 80px}
+    h1{font-size:clamp(38px,7vw,64px);text-transform:uppercase}
+    h2{font-size:clamp(24px,4vw,34px);text-transform:uppercase;margin:48px 0 14px}
+    .eyebrow{font-size:11px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+    p.lede{color:var(--muted);margin-top:16px;max-width:640px}
+    p{color:var(--muted);margin-bottom:14px}
+    .calc{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px;margin-top:36px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+    label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+    input,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--cream);font-family:'Courier Prime',monospace;font-size:15px}
+    input:focus,select:focus{outline:none;border-color:var(--accent)}
+    button.calcbtn{width:100%;margin-top:18px;padding:15px;border:none;border-radius:12px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:.12em;background:linear-gradient(135deg,var(--accent),var(--accent-l));color:#fff}
+    .results{display:none;margin-top:22px}
+    .results.show{display:block}
+    .macros{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:14px}
+    .macro{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
+    .macro b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:30px;color:var(--accent-l)}
+    .macro span{font-size:11px;letter-spacing:.15em;color:var(--dim)}
+    .cta{background:linear-gradient(160deg,rgba(72,120,176,.16),rgba(72,120,176,.04));border:1px solid rgba(72,120,176,.3);border-radius:20px;padding:28px;margin-top:20px;text-align:center}
+    ul{color:var(--muted);margin:0 0 14px 22px}
+    li{margin-bottom:8px}
+    footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center;font-size:12px;color:var(--dim)}
+    footer a{color:var(--muted);text-decoration:none;margin:0 10px}
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="logo" href="/">MACRO<span>STACK</span></a>
+    <a class="btn" href="/signup">START FREE</a>
+  </nav>
+  <main>
+    <p class="eyebrow">Free Tool · No Signup</p>
+    <h1 class="display">Macro Calculator</h1>
+    <p class="lede">Get your daily calories, protein, carbs, and fat in 30 seconds — using the same Mifflin-St Jeor math nutrition coaches use with real clients.</p>
+
+    <div class="calc">
+      <div class="grid">
+        <div><label>SEX</label><select id="sex"><option value="m">Male</option><option value="f">Female</option></select></div>
+        <div><label>AGE</label><input id="age" type="number" value="30" min="14" max="90" /></div>
+        <div><label>HEIGHT (FT)</label><input id="ft" type="number" value="5" min="3" max="7" /></div>
+        <div><label>HEIGHT (IN)</label><input id="in" type="number" value="10" min="0" max="11" /></div>
+        <div><label>WEIGHT (LB)</label><input id="lb" type="number" value="180" min="60" max="500" /></div>
+        <div><label>ACTIVITY</label><select id="act">
+          <option value="1.2">Sedentary</option><option value="1.375">Light (1-3x/wk)</option>
+          <option value="1.55" selected>Moderate (3-5x/wk)</option><option value="1.725">Very active (6-7x/wk)</option>
+          <option value="1.9">Athlete / physical job</option></select></div>
+        <div><label>GOAL</label><select id="goal">
+          <option value="-0.2">Lose fat</option><option value="0" selected>Maintain</option><option value="0.1">Build muscle</option></select></div>
+      </div>
+      <button class="calcbtn" onclick="calc()">CALCULATE MY MACROS →</button>
+      <div class="results" id="res">
+        <div class="macros">
+          <div class="macro"><b id="rcal">0</b><span>CALORIES</span></div>
+          <div class="macro"><b id="rpro">0g</b><span>PROTEIN</span></div>
+          <div class="macro"><b id="rcarb">0g</b><span>CARBS</span></div>
+          <div class="macro"><b id="rfat">0g</b><span>FAT</span></div>
+        </div>
+        <div class="cta">
+          <p style="color:var(--cream);font-weight:700">Targets are the easy part — hitting them daily is the game.</p>
+          <p>Track these exact numbers free in MacroStack: 15,000+ verified foods, barcode scanning, and weight trends that cut through scale noise.</p>
+          <a class="btn" href="/signup">TRACK THESE MACROS FREE →</a>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="display">How this calculator works</h2>
+    <p>Your <strong>basal metabolic rate (BMR)</strong> — the calories your body burns at rest — is estimated with the Mifflin-St Jeor equation, the formula with the best track record in validation studies and the one most dietitians default to. We multiply BMR by an activity factor to get your <strong>total daily energy expenditure (TDEE)</strong>, then adjust for your goal: about a 20% deficit for fat loss or a 10% surplus for muscle gain.</p>
+    <p>Macros are split the way most evidence-based coaches prescribe them:</p>
+    <ul>
+      <li><strong>Protein — 0.8g per pound of body weight.</strong> Protects muscle in a deficit and supports growth in a surplus.</li>
+      <li><strong>Fat — 25% of total calories.</strong> Enough for hormone health without crowding out carbs.</li>
+      <li><strong>Carbs — everything that's left.</strong> Fuel for training and recovery.</li>
+    </ul>
+    <p>These are starting points, not laws. Run them for two to three weeks, watch your weight trend (not any single weigh-in), and adjust calories by 5–10% based on real results. That feedback loop is exactly what <a href="/" style="color:var(--accent-l)">MacroStack</a> automates — and if you work with a nutrition coach, they can adjust your targets inside the app.</p>
+
+    <h2 class="display">FAQ</h2>
+    <p><strong style="color:var(--cream)">Should I eat back exercise calories?</strong><br/>No — your activity multiplier already accounts for training. Eating back exercise calories on top double-counts them, which is one of the most common reasons fat-loss stalls.</p>
+    <p><strong style="color:var(--cream)">How fast should I lose fat on these numbers?</strong><br/>Roughly 0.5–1% of body weight per week. Faster usually means losing muscle; slower is fine and easier to sustain.</p>
+    <p><strong style="color:var(--cream)">What if my weight isn't changing after 3 weeks?</strong><br/>Drop calories ~10% (take it from carbs and fat, keep protein) or add activity. Consistency of logging matters more than perfect targets — most "plateaus" are untracked calories.</p>
+
+    <div class="cta" style="margin-top:44px">
+      <p class="display" style="font-size:26px;color:var(--cream)">READY TO PUT THESE NUMBERS TO WORK?</p>
+      <p>MacroStack is free to start — log meals in seconds, scan barcodes, and watch the trend.</p>
+      <a class="btn" href="/signup">START FREE →</a>
+    </div>
+  </main>
+  <footer>
+    <a href="/">MacroStack</a> · <a href="/myfitnesspal-alternative">MyFitnessPal Alternative</a> · <a href="/nutrition-coaching-software">Coaching Software</a> · <a href="/trainerize-alternative">Trainerize Alternative</a>
+    <p style="margin-top:10px">© 2026 MacroStack — Precision Nutrition Platform</p>
+  </footer>
+  <script>
+    function calc(){
+      var s=document.getElementById('sex').value, a=+document.getElementById('age').value,
+          h=(+document.getElementById('ft').value*12 + +document.getElementById('in').value)*2.54,
+          w=+document.getElementById('lb').value*0.453592,
+          act=+document.getElementById('act').value, g=+document.getElementById('goal').value;
+      if(!a||!h||!w) return;
+      var bmr = 10*w + 6.25*h - 5*a + (s==='m'?5:-161);
+      var cal = Math.round(bmr*act*(1+g));
+      var pro = Math.round(+document.getElementById('lb').value*0.8);
+      var fat = Math.round(cal*0.25/9);
+      var carb = Math.max(0, Math.round((cal - pro*4 - fat*9)/4));
+      document.getElementById('rcal').textContent=cal.toLocaleString();
+      document.getElementById('rpro').textContent=pro+'g';
+      document.getElementById('rcarb').textContent=carb+'g';
+      document.getElementById('rfat').textContent=fat+'g';
+      document.getElementById('res').classList.add('show');
+    }
+  </script>
+</body>
+</html>
