@@ -74,27 +74,29 @@
     }
   </script>
 
-  <!-- Structured data — helps search engines understand the app -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "MacroStack",
-    "applicationCategory": "HealthApplication",
-    "operatingSystem": "Web, iOS, Android",
-    "url": "https://www.getmacrostack.com/",
-    "description": "The nutrition OS for serious athletes and the coaches who guide them. Precision macro tracking, barcode scanning, AI food data, coach-built meal plans, and real-time coaching.",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "description": "Free to start"
-    }
-  }
-  </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static shell — real crawlable content for search engines and no-JS
+           clients. React replaces everything in #root the moment it mounts. -->
+      <div style="min-height:100vh;background:#08090F;color:#D8E6F4;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;padding:48px 24px">
+        <div style="max-width:640px">
+          <p style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;letter-spacing:.12em">MACRO<span style="color:#4878B0">STACK</span></p>
+          <h1 style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:44px;letter-spacing:.03em;line-height:1.05;margin:18px 0 14px;text-transform:uppercase">Nutrition Coaching &amp; Macro Tracking App</h1>
+          <p style="color:#8CA3BC;line-height:1.7;margin-bottom:14px">MacroStack is the nutrition OS for serious athletes and the coaches who guide them. Log meals in seconds from a 15,000+ verified food database, watch weight trends cut through scale noise, and follow coach-built meal plans — free to start, no ads.</p>
+          <ul style="color:#8CA3BC;line-height:1.7;margin:0 0 14px 20px">
+            <li>Free forever: unlimited food logging, custom foods, calorie and macro targets</li>
+            <li>MacroStack Pro: barcode scanner, weight trends, and full progress analytics — included free while you're connected to a coach</li>
+            <li>MacroStack Coach: run your whole nutrition-coaching business — client dashboards, weekly check-ins, meal plans, and messaging from $19.95/mo, first client free</li>
+          </ul>
+          <p style="color:#8CA3BC;line-height:1.7">
+            <a href="/signup" style="color:#6B9FD8">Create a free account</a> ·
+            <a href="/macro-calculator" style="color:#6B9FD8">Free macro calculator</a> ·
+            <a href="/nutrition-coaching-software" style="color:#6B9FD8">For coaches</a>
+          </p>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
