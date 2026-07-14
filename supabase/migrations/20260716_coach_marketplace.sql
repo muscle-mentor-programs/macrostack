@@ -21,7 +21,7 @@ AS $$
          (SELECT count(*) FROM public.clients c
             WHERE c.coach_id = p.id AND coalesce(c.status, 'active') <> 'archived')
   FROM public.profiles p
-  WHERE p.role = 'coach'
+  WHERE p.role IN ('coach', 'superadmin')  -- superadmin coaches too (founder account)
   ORDER BY p.name;
 $$;
 REVOKE ALL ON FUNCTION public.get_coach_directory() FROM PUBLIC, anon;
