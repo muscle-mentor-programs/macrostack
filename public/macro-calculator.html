@@ -21,8 +21,8 @@
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-    {"@type":"Question","name":"How are my macros calculated?","acceptedAnswer":{"@type":"Answer","text":"We use the Mifflin-St Jeor equation to estimate your basal metabolic rate, multiply by an activity factor for total daily energy expenditure, then adjust for your goal: roughly -20% for fat loss or +10% for muscle gain. Protein is set at 0.8g per pound of body weight, fat at 25% of calories, and carbs fill the remainder."}},
-    {"@type":"Question","name":"How much protein should I eat per day?","acceptedAnswer":{"@type":"Answer","text":"For people who train, 0.7-1g of protein per pound of body weight per day is the widely used range. This calculator uses 0.8g/lb, which suits most fat-loss and muscle-building goals."}},
+    {"@type":"Question","name":"How are my macros calculated?","acceptedAnswer":{"@type":"Answer","text":"We use the Mifflin-St Jeor equation to estimate your basal metabolic rate, multiply by an activity factor for total daily energy expenditure, then adjust for your goal: roughly -20% for fat loss or +10% for muscle gain. Protein is set at 0.8g per pound of body weight (1g/lb if you weight train), fat at 25% of calories, and carbs fill the remainder."}},
+    {"@type":"Question","name":"How much protein should I eat per day?","acceptedAnswer":{"@type":"Answer","text":"For people who train, 0.7-1g of protein per pound of body weight per day is the widely used range. This calculator uses 0.8g/lb, or 1g/lb when you tick the weight-training box, which suits most fat-loss and muscle-building goals."}},
     {"@type":"Question","name":"Is this macro calculator really free?","acceptedAnswer":{"@type":"Answer","text":"Yes — no signup or email required. If you want to actually hit these targets, you can track them free in MacroStack with unlimited logging and a 15,000+ verified food database. Pro adds barcode scanning and weight trends, and is included free while you're connected to a coach."}}
   ]}
   </script>
@@ -83,6 +83,10 @@
           <option value="1.9">Athlete / physical job</option></select></div>
         <div><label>GOAL</label><select id="goal">
           <option value="-0.2">Lose fat</option><option value="0" selected>Maintain</option><option value="0.1">Build muscle</option></select></div>
+        <div style="display:flex;align-items:center;gap:9px;align-self:end;padding-bottom:11px">
+          <input type="checkbox" id="lift" style="width:auto;accent-color:var(--accent);transform:scale(1.25);cursor:pointer" />
+          <label for="lift" style="margin:0;cursor:pointer">I WEIGHT TRAIN</label>
+        </div>
       </div>
       <button class="calcbtn" onclick="calc()">CALCULATE MY MACROS →</button>
       <div class="results" id="res">
@@ -104,7 +108,7 @@
     <p>Your <strong>basal metabolic rate (BMR)</strong> — the calories your body burns at rest — is estimated with the Mifflin-St Jeor equation, the formula with the best track record in validation studies and the one most dietitians default to. We multiply BMR by an activity factor to get your <strong>total daily energy expenditure (TDEE)</strong>, then adjust for your goal: about a 20% deficit for fat loss or a 10% surplus for muscle gain.</p>
     <p>Macros are split the way most evidence-based coaches prescribe them:</p>
     <ul>
-      <li><strong>Protein — 0.8g per pound of body weight.</strong> Protects muscle in a deficit and supports growth in a surplus.</li>
+      <li><strong>Protein — 0.8g per pound of body weight, or 1g/lb if you weight train.</strong> Protects muscle in a deficit and supports growth in a surplus; lifters get the higher target because resistance training raises protein needs.</li>
       <li><strong>Fat — 25% of total calories.</strong> Enough for hormone health without crowding out carbs.</li>
       <li><strong>Carbs — everything that's left.</strong> Fuel for training and recovery.</li>
     </ul>
@@ -134,7 +138,9 @@
       if(!a||!h||!w) return;
       var bmr = 10*w + 6.25*h - 5*a + (s==='m'?5:-161);
       var cal = Math.round(bmr*act*(1+g));
-      var pro = Math.round(+document.getElementById('lb').value*0.8);
+      // Lifters get at least 1g/lb; 0.8g/lb otherwise
+      var perLb = document.getElementById('lift').checked ? 1.0 : 0.8;
+      var pro = Math.round(+document.getElementById('lb').value*perLb);
       var fat = Math.round(cal*0.25/9);
       var carb = Math.max(0, Math.round((cal - pro*4 - fat*9)/4));
       document.getElementById('rcal').textContent=cal.toLocaleString();
