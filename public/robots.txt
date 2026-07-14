@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://getmacrostack.com/sitemap.xml
+Sitemap: https://www.getmacrostack.com/sitemap.xml
