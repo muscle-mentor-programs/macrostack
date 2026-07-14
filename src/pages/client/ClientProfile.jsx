@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { format, subDays } from 'date-fns'
-import { Check, Link2, Camera, Bell, BellRing } from 'lucide-react'
+import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2 } from 'lucide-react'
 import { enablePush, pushPermission } from '../../lib/push'
 import {
   AreaChart, Area, XAxis, YAxis,
@@ -11,6 +11,7 @@ import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
+import CoachMarketplace from '../../components/CoachMarketplace'
 
 /* Enable browser push — new messages from the coach ping the home screen. */
 function PushToggle() {
@@ -48,8 +49,22 @@ function PushToggle() {
 }
 
 export default function ClientProfile() {
-  const { activeClientId, clients, updateClientProfile, uploadClientAvatar, submitCoachCode, setClientReminders, updateClientGoals } = useStore()
+  const {
+    activeClientId, clients, updateClientProfile, uploadClientAvatar,
+    submitCoachCode, setClientReminders, updateClientGoals,
+    unlinkFromCoach, myCoachRequests, fetchMyCoachRequests, coachProfile,
+  } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
+
+  // Unlink + marketplace
+  const [confirmUnlink, setConfirmUnlink] = useState(false)
+  const [unlinking,     setUnlinking]     = useState(false)
+  const [showMarket,    setShowMarket]    = useState(false)
+
+  useEffect(() => { fetchMyCoachRequests() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // A coach replied to a marketplace request with their connection code
+  const codeSentReq = myCoachRequests.find((r) => r.status === 'code_sent' && r.coach_code)
 
   // My targets editing (available to every user; coach edits override)
   const [editGoals, setEditGoals] = useState(false)
@@ -75,6 +90,32 @@ export default function ClientProfile() {
     } else {
       setCodeStatus('error')
       setCodeError(result.error || 'Something went wrong.')
+    }
+  }
+
+  const handleUseSentCode = async () => {
+    if (!codeSentReq) return
+    setCodeStatus('sending')
+    setCodeError('')
+    const result = await submitCoachCode(codeSentReq.coach_code)
+    if (result.ok) {
+      setCodeStatus('sent')
+      setCoachName(result.coachName || '')
+    } else {
+      setCodeStatus('error')
+      setCodeError(result.error || 'Something went wrong.')
+    }
+  }
+
+  const handleUnlink = async () => {
+    setUnlinking(true)
+    const res = await unlinkFromCoach()
+    setUnlinking(false)
+    setConfirmUnlink(false)
+    if (res.ok) {
+      setCoachName('')
+      setCodeStatus('idle')
+      setCodeInput('')
     }
   }
 
@@ -206,44 +247,121 @@ export default function ClientProfile() {
         </div>
 
         {hasCoach ? (
-          <div className="flex items-center gap-2 py-2">
-            <div className="w-5 h-5 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center flex-shrink-0">
-              <Check size={11} className="text-olive-light" />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-2 py-1">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-5 h-5 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center flex-shrink-0">
+                  <Check size={11} className="text-olive-light" />
+                </div>
+                <p className="font-mono text-sm text-olive-light truncate">
+                  Linked to {(coachProfile?.name || coachName) ? <span className="text-cream">{coachProfile?.name || coachName}</span> : 'your coach'}
+                </p>
+              </div>
+              {!confirmUnlink && (
+                <button
+                  onClick={() => setConfirmUnlink(true)}
+                  className="flex items-center gap-1.5 flex-shrink-0 font-display font-bold text-[10px] tracking-widest px-3 py-2 rounded-lg border border-border text-dim hover:text-red-400 hover:border-red-400/30 transition-colors press"
+                >
+                  <Unlink size={11} /> UNLINK
+                </button>
+              )}
             </div>
-            <p className="font-mono text-sm text-olive-light">
-              Linked to {coachName ? <span className="text-cream">{coachName}</span> : 'your coach'}
-            </p>
+            {confirmUnlink && (
+              <div className="bg-red-400/[0.06] border border-red-400/25 rounded-xl p-3.5 space-y-3 anim-fade-in">
+                <p className="font-mono text-xs text-muted leading-relaxed">
+                  <span className="text-red-400 font-bold">Are you sure?</span> Your coach will lose
+                  access to your logs and check-ins, your meal plans from them go away, and any
+                  Pro access included through them ends.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleUnlink}
+                    disabled={unlinking}
+                    className="flex-1 flex items-center justify-center gap-2 font-display font-bold text-xs tracking-widest py-2.5 rounded-lg bg-red-400/15 border border-red-400/30 text-red-400 hover:bg-red-400/25 transition-colors disabled:opacity-50"
+                  >
+                    {unlinking ? <Loader2 size={12} className="animate-spin" /> : <Unlink size={12} />}
+                    YES, UNLINK
+                  </button>
+                  <button
+                    onClick={() => setConfirmUnlink(false)}
+                    disabled={unlinking}
+                    className="flex-1 font-display font-bold text-xs tracking-widest py-2.5 rounded-lg border border-border text-muted hover:text-cream transition-colors"
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : codeStatus === 'sent' ? (
           <p className="font-mono text-sm text-olive-light py-2">
             Linked to {coachName ? <span className="text-cream">{coachName}</span> : 'your coach'}!
           </p>
         ) : (
-          <form onSubmit={handleSubmitCode} className="space-y-3">
-            <p className="font-mono text-xs text-muted leading-relaxed">
-              Enter the code your coach gave you to link your account.
-            </p>
-            <div>
-              <input
-                type="text"
-                placeholder="BRAN4X7K"
-                value={codeInput}
-                onChange={(e) => { setCodeInput(e.target.value.toUpperCase()); setCodeError(''); setCodeStatus('idle') }}
-                className="w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-olive transition-colors tracking-widest uppercase"
-                maxLength={12}
-              />
-            </div>
-            {codeStatus === 'error' && (
-              <p className="font-mono text-xs text-red-400 anim-fade-in">{codeError}</p>
+          <div className="space-y-3">
+            {/* A coach answered your marketplace request with their code */}
+            {codeSentReq && (
+              <button
+                onClick={handleUseSentCode}
+                disabled={codeStatus === 'sending'}
+                className="w-full text-left rounded-xl p-3.5 border transition-colors press anim-fade-in"
+                style={{
+                  borderColor: 'color-mix(in srgb, var(--color-accent) 40%, transparent)',
+                  background:  'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                }}
+              >
+                <p className="font-display font-bold text-xs tracking-widest" style={{ color: 'var(--color-accent)' }}>
+                  {codeStatus === 'sending' ? 'LINKING…' : 'A COACH SENT YOU THEIR CODE'}
+                </p>
+                <p className="font-mono text-xs text-muted mt-1">
+                  Tap to link with code <span className="text-cream tracking-widest">{codeSentReq.coach_code}</span>
+                </p>
+              </button>
             )}
+            <form onSubmit={handleSubmitCode} className="space-y-3">
+              <p className="font-mono text-xs text-muted leading-relaxed">
+                Enter the code your coach gave you to link your account.
+              </p>
+              <div>
+                <input
+                  type="text"
+                  placeholder="BRAN4X7K"
+                  value={codeInput}
+                  onChange={(e) => { setCodeInput(e.target.value.toUpperCase()); setCodeError(''); setCodeStatus('idle') }}
+                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-olive transition-colors tracking-widest uppercase"
+                  maxLength={12}
+                />
+              </div>
+              {codeStatus === 'error' && (
+                <p className="font-mono text-xs text-red-400 anim-fade-in">{codeError}</p>
+              )}
+              <button
+                type="submit"
+                disabled={codeStatus === 'sending' || !codeInput.trim()}
+                className="w-full py-3 rounded-xl font-display font-bold text-sm tracking-widest bg-olive hover:bg-olive-light disabled:opacity-40 disabled:cursor-not-allowed text-bg transition-colors"
+              >
+                {codeStatus === 'sending' ? 'LINKING...' : 'LINK'}
+              </button>
+            </form>
+            {/* No code? Browse the marketplace */}
+            <div className="flex items-center gap-3">
+              <span className="flex-1 h-px bg-border" />
+              <span className="font-mono text-[9px] tracking-[0.3em] text-dim">OR</span>
+              <span className="flex-1 h-px bg-border" />
+            </div>
             <button
-              type="submit"
-              disabled={codeStatus === 'sending' || !codeInput.trim()}
-              className="w-full py-3 rounded-xl font-display font-bold text-sm tracking-widest bg-olive hover:bg-olive-light disabled:opacity-40 disabled:cursor-not-allowed text-bg transition-colors"
+              onClick={() => setShowMarket(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-display font-bold text-sm tracking-widest border transition-colors press"
+              style={{
+                borderColor: 'color-mix(in srgb, var(--color-accent) 40%, transparent)',
+                background:  'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                color: 'var(--color-accent)',
+              }}
             >
-              {codeStatus === 'sending' ? 'LINKING...' : 'LINK'}
+              <Search size={14} />
+              FIND A COACH
             </button>
-          </form>
+          </div>
         )}
       </div>
 
@@ -507,6 +625,12 @@ export default function ClientProfile() {
         onConfirm={handleCropConfirm}
         onCancel={handleCropCancel}
       />,
+      document.body
+    )}
+
+    {/* Coach marketplace — portaled full-screen overlay */}
+    {showMarket && createPortal(
+      <CoachMarketplace onClose={() => { setShowMarket(false); fetchMyCoachRequests() }} />,
       document.body
     )}
     </>

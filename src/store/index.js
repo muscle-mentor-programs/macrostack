@@ -1803,6 +1803,72 @@ Rules:
         return { ok: true, coachName }
       },
 
+      // Unlink from the current coach. Coach loses access to new data and any
+      // Pro-included-via-coach access ends (enforced by useSubscription).
+      unlinkFromCoach: async () => {
+        const { currentUser } = get()
+        if (!currentUser) return { ok: false, error: 'Not logged in' }
+        const { error } = await supabase.from('clients')
+          .update({ coach_id: null })
+          .eq('profile_id', currentUser.id)
+        if (error) return { ok: false, error: error.message }
+        set((s) => ({
+          coachProfile: null,
+          clients: s.clients.map((c) =>
+            c.id === s.activeClientId ? { ...c, coachId: null } : c),
+        }))
+        await get().loadAllData()
+        return { ok: true }
+      },
+
+      // ── COACH MARKETPLACE ─────────────────────────────────────────────────
+      coachDirectory: [],
+      fetchCoachDirectory: async () => {
+        const { data, error } = await supabase.rpc('get_coach_directory')
+        if (error) { console.error('fetchCoachDirectory:', error); return }
+        set({ coachDirectory: data || [] })
+      },
+
+      // The signed-in user's own connection requests (any status)
+      myCoachRequests: [],
+      fetchMyCoachRequests: async () => {
+        const { currentUser } = get()
+        if (!currentUser) return
+        const { data, error } = await supabase.from('coach_requests')
+          .select('*')
+          .eq('client_profile_id', currentUser.id)
+          .order('created_at', { ascending: false })
+        if (!error) set({ myCoachRequests: data || [] })
+      },
+
+      requestCoach: async (coachId) => {
+        const { currentUser } = get()
+        if (!currentUser) return { ok: false, error: 'Not logged in' }
+        const { error } = await supabase.from('coach_requests').insert({
+          client_profile_id: currentUser.id,
+          client_name:  currentUser.name  || '',
+          client_email: currentUser.email || '',
+          coach_id: coachId,
+        })
+        // 23505 = already requested this coach — treat as success, UI shows state
+        if (error && error.code !== '23505') return { ok: false, error: error.message }
+        await get().fetchMyCoachRequests()
+        return { ok: true }
+      },
+
+      // Coach: reply to a marketplace request with the connection code instead
+      // of direct-accepting — the user links themselves when ready.
+      sendCodeToRequest: async (requestId) => {
+        const { currentUser } = get()
+        const { error } = await supabase.from('coach_requests').update({
+          status: 'code_sent',
+          coach_code: currentUser?.coachCode || null,
+        }).eq('id', requestId)
+        if (error) { console.error('sendCodeToRequest:', error); return { ok: false, error: error.message } }
+        set((s) => ({ coachRequests: s.coachRequests.filter((r) => r.id !== requestId) }))
+        return { ok: true }
+      },
+
       fetchCoachRequests: async () => {
         const { data, error } = await supabase
           .from('coach_requests')

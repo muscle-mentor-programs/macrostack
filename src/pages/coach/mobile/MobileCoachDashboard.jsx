@@ -340,7 +340,7 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
 export default function MobileCoachDashboard() {
   const {
     clients, setActivePage, setViewingClientId,
-    currentUser, coachRequests, fetchCoachRequests, respondToRequest,
+    currentUser, coachRequests, fetchCoachRequests, respondToRequest, sendCodeToRequest,
     setPendingChatClientId,
   } = useStore()
 
@@ -474,6 +474,11 @@ export default function MobileCoachDashboard() {
               PENDING REQUESTS ({coachRequests.length})
             </span>
           </div>
+          <p className="font-mono text-[10px] text-dim leading-relaxed">
+            ACCEPT links them instantly; CODE replies with your connection code. Coaching
+            payment is arranged directly between you and your clients — MacroStack doesn't
+            collect coaching fees on your behalf.
+          </p>
           {reqError && (
             <button
               onClick={() => setActivePage('upgrade')}
@@ -489,18 +494,24 @@ export default function MobileCoachDashboard() {
                   <p className="font-mono text-sm text-cream truncate">{req.client_name}</p>
                   <p className="font-mono text-xs text-muted truncate">{req.client_email}</p>
                 </div>
-                <div className="flex gap-2 flex-shrink-0">
+                <div className="flex gap-1.5 flex-shrink-0">
                   <button
                     onClick={() => handleAccept(req.id)}
-                    className="font-display font-bold text-xs tracking-widest px-3 py-2 rounded-lg bg-olive/20 hover:bg-olive/40 text-olive-light border border-olive/30 transition-colors"
+                    className="font-display font-bold text-[11px] tracking-widest px-2.5 py-2 rounded-lg bg-olive/20 hover:bg-olive/40 text-olive-light border border-olive/30 transition-colors"
                   >
                     ACCEPT
                   </button>
                   <button
-                    onClick={() => respondToRequest(req.id, false)}
-                    className="font-display font-bold text-xs tracking-widest px-3 py-2 rounded-lg text-dim hover:text-red-400 border border-border hover:border-red-400/30 transition-colors"
+                    onClick={() => sendCodeToRequest(req.id)}
+                    className="font-display font-bold text-[11px] tracking-widest px-2.5 py-2 rounded-lg bg-brown/15 hover:bg-brown/30 text-brown-light border border-brown/30 transition-colors"
                   >
-                    DECLINE
+                    CODE
+                  </button>
+                  <button
+                    onClick={() => respondToRequest(req.id, false)}
+                    className="font-display font-bold text-[11px] tracking-widest px-2.5 py-2 rounded-lg text-dim hover:text-red-400 border border-border hover:border-red-400/30 transition-colors"
+                  >
+                    ✕
                   </button>
                 </div>
               </div>

@@ -503,7 +503,7 @@ export default function CoachDashboard() {
   const {
     clients, setActivePage, setViewingClientId,
     currentUser, coachRequests, fetchCoachRequests, respondToRequest,
-    setPendingChatClientId,
+    sendCodeToRequest, setPendingChatClientId,
   } = useStore()
   const [editClient,      setEditClient]      = useState(null)
   const [emailModal,      setEmailModal]      = useState(false)
@@ -705,6 +705,11 @@ export default function CoachDashboard() {
                 PENDING REQUESTS ({coachRequests.length})
               </span>
             </div>
+            <p className="font-mono text-[10px] text-dim leading-relaxed">
+              ACCEPT links them to your roster instantly; SEND CODE replies with your connection
+              code so they can link themselves. Coaching payment is arranged directly between you
+              and your clients — MacroStack doesn't collect coaching fees on your behalf.
+            </p>
             {reqError && (
               <button
                 onClick={() => setActivePage('upgrade')}
@@ -729,6 +734,13 @@ export default function CoachDashboard() {
                       className="font-display font-bold text-xs tracking-widest px-3 py-1.5 rounded-lg bg-olive/20 hover:bg-olive/40 text-olive-light border border-olive/30 transition-colors"
                     >
                       ACCEPT
+                    </button>
+                    <button
+                      onClick={() => sendCodeToRequest(req.id)}
+                      title="Reply with your connection code — they link themselves"
+                      className="font-display font-bold text-xs tracking-widest px-3 py-1.5 rounded-lg bg-brown/15 hover:bg-brown/30 text-brown-light border border-brown/30 transition-colors"
+                    >
+                      SEND CODE
                     </button>
                     <button
                       onClick={() => respondToRequest(req.id, false)}
