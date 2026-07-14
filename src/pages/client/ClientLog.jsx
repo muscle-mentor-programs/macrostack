@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, Plus, Search, ArrowLeft, Trash2,
-  Scan, Check, ChevronDown, Lock,
+  Scan, Check, ChevronDown, Lock, Zap,
 } from 'lucide-react'
 import useStore from '../../store'
 import { FOODS, MEALS } from '../../data/foods'
@@ -44,6 +44,8 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const [meal,        setMeal]        = useState(defaultMeal || 'Breakfast')
   const [showScanner, setShowScanner] = useState(false)
   const [scannedUPC,  setScannedUPC]  = useState(null)
+  // Quick add — log raw calories/macros without a database food
+  const [quickAdd, setQuickAdd] = useState(null) // { name, cal, pro, carb, fat }
 
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
   const hiddenIds   = useMemo(() => new Set(hiddenFoodIds || []), [hiddenFoodIds])
@@ -137,6 +139,45 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const handleScan      = (upc) => { setShowScanner(false); setScannedUPC(upc) }
   const handleAfterSave = (food) => { setScannedUPC(null); handleSelectFood(food) }
 
+  // ── Quick add — raw strings while typing (allows blank + decimals) ──
+  const qaClean = (v) => {
+    const s = String(v).replace(/[^0-9.]/g, '')
+    const i = s.indexOf('.')
+    return i === -1 ? s : s.slice(0, i + 1) + s.slice(i + 1).replace(/\./g, '')
+  }
+  const qaSet = (field) => (e) =>
+    setQuickAdd((q) => ({ ...q, [field]: field === 'name' ? e.target.value : qaClean(e.target.value) }))
+
+  const qaNum  = (v) => parseFloat(v) || 0
+  const qaPro  = quickAdd ? qaNum(quickAdd.pro)  : 0
+  const qaCarb = quickAdd ? qaNum(quickAdd.carb) : 0
+  const qaFat  = quickAdd ? qaNum(quickAdd.fat)  : 0
+  // Calories left blank → derive from macros (4/4/9)
+  const qaCal  = quickAdd
+    ? (quickAdd.cal !== '' ? qaNum(quickAdd.cal) : Math.round(qaPro * 4 + qaCarb * 4 + qaFat * 9))
+    : 0
+  const qaValid = qaCal > 0 || qaPro > 0 || qaCarb > 0 || qaFat > 0
+
+  const handleQuickAdd = () => {
+    if (!qaValid) return
+    addClientEntry(clientId, {
+      name:        quickAdd.name.trim() || 'Quick Add',
+      brand:       '',
+      foodId:      null,
+      quantity:    1,
+      servingSize: null,
+      servingUnit: null,
+      meal,
+      calories:    qaCal,
+      protein:     qaPro,
+      carbs:       qaCarb,
+      fat:         qaFat,
+      date:        logDate,
+    })
+    successHaptic()
+    onClose()
+  }
+
   const inpCls   = 'w-full bg-surface border border-border rounded-xl px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors'
   const labelCls = 'font-display text-xs tracking-widest text-muted block mb-1.5'
 
@@ -194,6 +235,22 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         const overflow = filtered.length - limit
         return (
       <div className="flex-1 overflow-y-auto">
+        {/* Quick add — log calories/macros directly, no database food needed */}
+        <div className="px-4 pt-3">
+          <button
+            onClick={() => setQuickAdd({ name: '', cal: '', pro: '', carb: '', fat: '' })}
+            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-border bg-surface text-left transition-colors hover:border-muted press"
+          >
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)' }}>
+              <Zap size={14} style={{ color: 'var(--color-accent)' }} />
+            </span>
+            <span className="min-w-0">
+              <span className="block font-display font-bold text-xs tracking-widest text-cream">QUICK ADD</span>
+              <span className="block font-mono text-[10px] text-muted">Log calories & macros directly</span>
+            </span>
+          </button>
+        </div>
         {/* Quick-add chips — most-logged foods, one tap to open serving popup */}
         {!query.trim() && recentChips.length > 0 && (
           <div className="px-4 pt-3 pb-1 anim-fade-in">
@@ -340,6 +397,77 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
               className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover"
             >
               ADD TO LOG
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Quick-add popup — same centered overlay as the serving popup ── */}
+      {quickAdd && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center px-5"
+          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setQuickAdd(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-surface border border-border rounded-2xl p-4 space-y-3 anim-spring-in shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Zap size={14} style={{ color: 'var(--color-accent)' }} />
+                <p className="font-display font-bold text-sm tracking-widest text-cream">QUICK ADD</p>
+              </div>
+              <button
+                onClick={() => setQuickAdd(null)}
+                className="flex-shrink-0 text-muted hover:text-cream transition-colors mt-0.5"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className={labelCls}>NAME (OPTIONAL)</label>
+                <input type="text" placeholder="Quick Add" value={quickAdd.name}
+                  onChange={qaSet('name')} className={inpCls} />
+              </div>
+              <div>
+                <label className={labelCls}>MEAL</label>
+                <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inpCls}>
+                  {MEALS.map((m) => <option key={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { field: 'cal',  label: 'KCAL', ph: quickAdd.cal === '' && (qaPro || qaCarb || qaFat) ? String(qaCal) : '0' },
+                { field: 'pro',  label: 'PRO',  ph: '0' },
+                { field: 'carb', label: 'CARB', ph: '0' },
+                { field: 'fat',  label: 'FAT',  ph: '0' },
+              ].map(({ field, label, ph }) => (
+                <div key={field}>
+                  <label className={labelCls}>{label}</label>
+                  <input type="text" inputMode="decimal" placeholder={ph}
+                    value={quickAdd[field]} onChange={qaSet(field)} className={inpCls} />
+                </div>
+              ))}
+            </div>
+
+            <p className="font-mono text-[10px] text-dim leading-relaxed">
+              Only know calories? That's enough. Leave KCAL blank and it's calculated
+              from your macros automatically.
+            </p>
+
+            <button
+              onClick={handleQuickAdd}
+              disabled={!qaValid}
+              className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover disabled:opacity-40"
+            >
+              ADD TO LOG{qaValid ? ` — ${Math.round(qaCal)} KCAL` : ''}
             </button>
           </div>
         </div>
