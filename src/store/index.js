@@ -1894,17 +1894,21 @@ Rules:
         }
 
         if (accept) {
+          // RLS blocks a coach from updating a clients row they don't own yet,
+          // so the link runs through a SECURITY DEFINER RPC (validates the
+          // caller owns the request, links, and marks it accepted atomically).
           const { error: linkErr } = await supabase
-            .from('clients')
-            .update({ coach_id: currentUser.id })
-            .eq('profile_id', request.client_profile_id)
-          if (linkErr) { console.error('respondToRequest link:', linkErr); return { ok: false } }
+            .rpc('accept_coach_request', { p_request_id: requestId })
+          if (linkErr) {
+            console.error('respondToRequest link:', linkErr)
+            return { ok: false, error: linkErr.message }
+          }
+        } else {
+          const { error: statusErr } = await supabase.from('coach_requests').update({
+            status: 'rejected',
+          }).eq('id', requestId)
+          if (statusErr) console.error('respondToRequest status:', statusErr)
         }
-
-        const { error: statusErr } = await supabase.from('coach_requests').update({
-          status: accept ? 'accepted' : 'rejected',
-        }).eq('id', requestId)
-        if (statusErr) console.error('respondToRequest status:', statusErr)
 
         set((s) => ({ coachRequests: s.coachRequests.filter((r) => r.id !== requestId) }))
 
