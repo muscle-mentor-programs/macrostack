@@ -1934,6 +1934,50 @@ Rules:
           .eq(field, false)
       },
 
+      // ── SAVED MEALS — private per-user bundles of log entries ─────────────
+      myMeals: [],
+
+      fetchMyMeals: async () => {
+        const { currentUser } = get()
+        if (!currentUser) return
+        // RLS scopes rows to the signed-in owner
+        const { data, error } = await supabase.from('user_meals')
+          .select('*').order('created_at', { ascending: false })
+        if (!error) set({ myMeals: data || [] })
+      },
+
+      // Snapshot a meal card's entries (exact portions) into a reusable meal.
+      saveMeal: async (name, entries) => {
+        const { currentUser } = get()
+        if (!currentUser) return { ok: false, error: 'Not logged in' }
+        const items = entries.map((e) => ({
+          name: e.name, brand: e.brand || '', foodId: e.foodId || null,
+          quantity: e.quantity ?? 1,
+          servingSize: e.servingSize || null, servingUnit: e.servingUnit || null,
+          calories: e.calories ?? 0, protein: e.protein ?? 0,
+          carbs: e.carbs ?? 0, fat: e.fat ?? 0,
+        }))
+        const totals = items.reduce((a, i) => ({
+          calories: a.calories + i.calories, protein: a.protein + i.protein,
+          carbs: a.carbs + i.carbs, fat: a.fat + i.fat,
+        }), { calories: 0, protein: 0, carbs: 0, fat: 0 })
+
+        const row = { id: crypto.randomUUID(), owner: currentUser.id, name, items, ...totals }
+        set((s) => ({ myMeals: [row, ...s.myMeals] }))
+        const { error } = await supabase.from('user_meals').insert(row)
+        if (error) {
+          set((s) => ({ myMeals: s.myMeals.filter((m) => m.id !== row.id) }))
+          console.error('saveMeal:', error)
+          return { ok: false, error: error.message }
+        }
+        return { ok: true }
+      },
+
+      deleteMeal: async (id) => {
+        set((s) => ({ myMeals: s.myMeals.filter((m) => m.id !== id) }))
+        await supabase.from('user_meals').delete().eq('id', id)
+      },
+
       // ── CUSTOM FOODS ──────────────────────────────────────────────────────
       customFoods: [],
 

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, Plus, Search, ArrowLeft, Trash2,
-  Scan, Check, ChevronDown, Lock, Zap,
+  Scan, Check, ChevronDown, Lock, Zap, BookmarkPlus, UtensilsCrossed,
 } from 'lucide-react'
 import useStore from '../../store'
 import { FOODS, MEALS } from '../../data/foods'
@@ -33,7 +33,11 @@ function entryServingLabel(entry) {
 
 // ─── Full-screen food selector (replaces modal) ──────────────────────────────
 function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
-  const { addClientEntry, customFoods, scannedFoods, overrideFoods, hiddenFoodIds, clients, currentUser, setActivePage } = useStore()
+  const {
+    addClientEntry, customFoods, scannedFoods, overrideFoods, hiddenFoodIds,
+    clients, currentUser, setActivePage,
+    myMeals, fetchMyMeals, deleteMeal,
+  } = useStore()
   // Effective access via the hook — includes Pro-included-with-a-coach
   const { hasAccess: canScan } = useSubscription()
 
@@ -46,6 +50,24 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const [scannedUPC,  setScannedUPC]  = useState(null)
   // Quick add — log raw calories/macros without a database food
   const [quickAdd, setQuickAdd] = useState(null) // { name, cal, pro, carb, fat }
+
+  useEffect(() => { fetchMyMeals() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Saved meals matching the search (all of them when the query is empty)
+  const mealMatches = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return myMeals
+    return myMeals.filter((m) => (m.name || '').toLowerCase().includes(q))
+  }, [myMeals, query])
+
+  // One tap re-logs every item in the meal — exact portions, current meal slot
+  const handleLogMeal = (m) => {
+    for (const it of (m.items || [])) {
+      addClientEntry(clientId, { ...it, meal, date: logDate })
+    }
+    successHaptic()
+    onClose()
+  }
 
   const overrideIds = useMemo(() => new Set(overrideFoods.map((f) => f.id)), [overrideFoods])
   const hiddenIds   = useMemo(() => new Set(hiddenFoodIds || []), [hiddenFoodIds])
@@ -251,6 +273,42 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
             </span>
           </button>
         </div>
+        {/* My meals — private saved bundles, one tap logs every item */}
+        {mealMatches.length > 0 && (
+          <div className="px-4 pt-3 anim-fade-in">
+            <p className="font-mono text-[9px] tracking-[0.3em] text-dim mb-2">MY MEALS</p>
+            <div className="space-y-2">
+              {mealMatches.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex items-center gap-2.5 rounded-xl border border-olive/25 bg-olive/[0.07] px-3 py-2.5"
+                >
+                  <button
+                    onClick={() => handleLogMeal(m)}
+                    className="flex-1 flex items-center gap-2.5 text-left min-w-0 press"
+                  >
+                    <span className="w-7 h-7 rounded-lg bg-olive/15 flex items-center justify-center flex-shrink-0">
+                      <UtensilsCrossed size={13} className="text-olive-light" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-mono text-sm text-cream truncate">{m.name}</span>
+                      <span className="block font-mono text-[10px] text-muted">
+                        {(m.items || []).length} item{(m.items || []).length === 1 ? '' : 's'} · {Math.round(m.calories)} kcal · {Math.round(m.protein)}p
+                      </span>
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => deleteMeal(m.id)}
+                    title="Delete this saved meal"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-dim hover:text-red-400 hover:bg-red-400/10 transition-colors flex-shrink-0"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {/* Quick-add chips — most-logged foods, one tap to open serving popup */}
         {!query.trim() && recentChips.length > 0 && (
           <div className="px-4 pt-3 pb-1 anim-fade-in">
@@ -491,13 +549,15 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
 export default function ClientLog() {
   const {
     activeClientId, clients,
-    removeClientEntry, updateClientEntry,
+    removeClientEntry, updateClientEntry, saveMeal,
     getClientTotalsForDate, logDate, setLogDate, setNavHidden,
   } = useStore()
 
   const [modalMeal, setModalMeal] = useState(null)
   // editState: { id, qty, grams, servingSize, perQty: { cal, pro, carb, fat } }
   const [editState, setEditState] = useState(null)
+  // "Make this a meal" — { meal, items, name, saving, done }
+  const [mealSave, setMealSave] = useState(null)
 
   // Hide BottomNav while food selector is open — prevents accidental HOME taps
   // on iOS Safari where fixed children are trapped inside overflow-y-auto containers
@@ -669,12 +729,23 @@ export default function ClientLog() {
                     </span>
                   )}
                 </div>
-                <button
-                  onClick={() => setModalMeal(meal)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-brown/15 text-brown-light hover:bg-brown hover:text-bg transition-colors flex-shrink-0"
-                >
-                  <Plus size={14} strokeWidth={2.5} />
-                </button>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  {items.length > 0 && (
+                    <button
+                      onClick={() => setMealSave({ meal, items, name: '', saving: false, done: false })}
+                      title="Make this a meal — save these exact portions to reuse"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-olive/15 text-olive-light hover:bg-olive hover:text-bg transition-colors"
+                    >
+                      <BookmarkPlus size={14} strokeWidth={2.5} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setModalMeal(meal)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-brown/15 text-brown-light hover:bg-brown hover:text-bg transition-colors"
+                  >
+                    <Plus size={14} strokeWidth={2.5} />
+                  </button>
+                </div>
               </div>
 
               {/* Items or empty placeholder */}
@@ -820,6 +891,112 @@ export default function ClientLog() {
           logDate={logDate}
           defaultMeal={modalMeal}
         />,
+        document.body
+      )}
+
+      {/* ── Make this a meal — snapshot the card's exact portions ── */}
+      {mealSave && createPortal(
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center px-5"
+          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+          onClick={() => !mealSave.saving && setMealSave(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-surface border border-border rounded-2xl p-4 space-y-3 anim-spring-in shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {mealSave.done ? (
+              <div className="text-center py-4">
+                <div className="w-11 h-11 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center mx-auto mb-3 anim-pop">
+                  <Check size={20} className="text-olive-light" />
+                </div>
+                <p className="font-display font-bold text-sm tracking-widest text-cream">MEAL SAVED</p>
+                <p className="font-mono text-xs text-muted mt-1.5 leading-relaxed">
+                  Find it under MY MEALS when adding food — one tap logs all {mealSave.items.length} item{mealSave.items.length === 1 ? '' : 's'}.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <BookmarkPlus size={14} className="text-olive-light" />
+                    <p className="font-display font-bold text-sm tracking-widest text-cream">MAKE THIS A MEAL</p>
+                  </div>
+                  <button
+                    onClick={() => setMealSave(null)}
+                    className="flex-shrink-0 text-muted hover:text-cream transition-colors mt-0.5"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div>
+                  <label className="font-display text-xs tracking-widest text-muted block mb-1.5">MEAL NAME</label>
+                  <input
+                    type="text" autoFocus
+                    placeholder={`My ${mealSave.meal}`}
+                    value={mealSave.name}
+                    onChange={(e) => setMealSave((s) => ({ ...s, name: e.target.value }))}
+                    className={inpCls}
+                  />
+                </div>
+
+                {/* What's going in — exact portions */}
+                <div className="max-h-36 overflow-y-auto space-y-1.5 border border-border/50 rounded-xl p-2.5 card-inset">
+                  {mealSave.items.map((e) => (
+                    <div key={e.id} className="flex items-center justify-between gap-2">
+                      <p className="font-mono text-xs text-cream truncate">{e.name}</p>
+                      <p className="font-mono text-[10px] text-muted flex-shrink-0">
+                        {entryServingLabel(e)} · {Math.round(e.calories)} kcal
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-4 gap-1.5">
+                  {[
+                    { label: 'KCAL', val: mealSave.items.reduce((a, e) => a + e.calories, 0), cls: 'text-cream' },
+                    { label: 'PRO',  val: mealSave.items.reduce((a, e) => a + e.protein,  0), cls: 'text-olive-light' },
+                    { label: 'CARB', val: mealSave.items.reduce((a, e) => a + e.carbs,    0), cls: 'text-brown-light' },
+                    { label: 'FAT',  val: mealSave.items.reduce((a, e) => a + e.fat,      0), cls: 'text-slategray-light' },
+                  ].map(({ label, val, cls }) => (
+                    <div key={label} className="border border-border/50 rounded-lg p-1.5 text-center card-inset">
+                      <p className={`font-display font-black text-sm ${cls}`}>{Math.round(val)}</p>
+                      <p className="font-mono text-[9px] text-muted">{label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="font-mono text-[10px] text-dim leading-relaxed">
+                  Saved privately to your account only — exact portions included.
+                </p>
+
+                <button
+                  onClick={async () => {
+                    setMealSave((s) => ({ ...s, saving: true }))
+                    const res = await saveMeal(
+                      mealSave.name.trim() || `My ${mealSave.meal}`,
+                      mealSave.items
+                    )
+                    if (res.ok) {
+                      successHaptic()
+                      setMealSave((s) => ({ ...s, saving: false, done: true }))
+                      setTimeout(() => setMealSave(null), 1800)
+                    } else {
+                      setMealSave((s) => ({ ...s, saving: false }))
+                    }
+                  }}
+                  disabled={mealSave.saving}
+                  className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover disabled:opacity-50"
+                >
+                  {mealSave.saving ? 'SAVING…' : 'SAVE MEAL'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>,
         document.body
       )}
     </div>
