@@ -51,7 +51,7 @@ function PushToggle() {
 export default function ClientProfile() {
   const {
     activeClientId, clients, updateClientProfile, uploadClientAvatar,
-    submitCoachCode, setClientReminders, updateClientGoals,
+    submitCoachCode, setClientReminders, updateClientGoals, setServingPref,
     unlinkFromCoach, myCoachRequests, fetchMyCoachRequests, coachProfile,
   } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
@@ -599,6 +599,40 @@ export default function ClientProfile() {
 
         {/* Push notifications */}
         <PushToggle />
+      </div>
+
+      {/* Logging preferences */}
+      <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '510ms' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">LOGGING</p>
+        </div>
+        <p className="font-mono text-sm text-cream mb-1">Serving sizes when adding food</p>
+        <p className="font-mono text-[10px] text-dim leading-relaxed mb-3">
+          REMEMBER LAST opens each food at the amount you last logged it at — if you eat
+          the same portions daily, logging becomes one tap. DEFAULT always starts at the
+          label serving size.
+        </p>
+        <div className="flex bg-surface border border-border rounded-xl p-1">
+          {[
+            { id: 'default', label: 'DEFAULT' },
+            { id: 'last',    label: 'REMEMBER LAST' },
+          ].map((opt) => {
+            const active = (client?.servingPref || 'default') === opt.id
+            return (
+              <button
+                key={opt.id}
+                onClick={() => setServingPref(client.id, opt.id)}
+                className="flex-1 py-2.5 font-display font-bold text-[11px] tracking-[0.12em] rounded-lg transition-all"
+                style={active
+                  ? { background: 'linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, white))', color: '#fff' }
+                  : { color: 'var(--color-muted)' }}
+              >
+                {opt.label}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Save button */}

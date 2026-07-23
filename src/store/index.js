@@ -65,6 +65,7 @@ function dbToClient(row) {
     status:           row.status || 'active',
     createdAt:        row.created_at,
     remindersEnabled: row.reminders_enabled ?? true,
+    servingPref:      row.serving_pref || 'default',
     tags:      Array.isArray(row.tags) ? row.tags : [],
     log:       {},
     weightLog: [],
@@ -849,6 +850,17 @@ const useStore = create(
           ),
         }))
         await supabase.from('clients').update({ reminders_enabled: enabled }).eq('id', clientId)
+      },
+
+      // 'default' = label serving size · 'last' = amount this food was last logged at
+      setServingPref: async (clientId, pref) => {
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId ? { ...c, servingPref: pref } : c
+          ),
+        }))
+        const { error } = await supabase.from('clients').update({ serving_pref: pref }).eq('id', clientId)
+        if (error) console.error('setServingPref:', error)
       },
 
       // ── PROGRESS PHOTOS ───────────────────────────────────────────────────

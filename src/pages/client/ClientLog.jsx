@@ -117,10 +117,28 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
     fat:      selected.fat      * (Number(quantity) || 0),
   }) : null
 
+  // With the 'last' serving preference, foods open at the amount they were
+  // last logged at — repeat eaters skip re-entering their usual portions.
+  const servingPref = clients.find((c) => c.id === clientId)?.servingPref || 'default'
+  const lastLoggedQty = (foodId) => {
+    if (!foodId) return null
+    const log = clients.find((c) => c.id === clientId)?.log || {}
+    for (const d of Object.keys(log).sort().reverse()) {
+      const entries = log[d]
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const e = entries[i]
+        if (e.foodId === foodId && Number(e.quantity) > 0) return Number(e.quantity)
+      }
+    }
+    return null
+  }
+
   const handleSelectFood = (food) => {
     setSelected(food)
-    setQuantity('1')
-    setGrams(food.servingSize ? String(food.servingSize) : '')
+    const last = servingPref === 'last' ? lastLoggedQty(food.id) : null
+    const q = last ?? 1
+    setQuantity(String(q))
+    setGrams(food.servingSize ? String(Math.round(q * food.servingSize)) : '')
   }
 
   const handleQtyChange = (val) => {
