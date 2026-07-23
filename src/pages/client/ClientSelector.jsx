@@ -43,7 +43,8 @@ export default function ClientSelector() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        /* Scrolls independently — rosters grow past the fold */
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 -mx-2 px-2 pb-6">
           {clients.map((client, ci) => (
             <button
               key={client.id}
