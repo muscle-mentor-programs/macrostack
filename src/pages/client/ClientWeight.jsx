@@ -247,7 +247,15 @@ export default function ClientWeight() {
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROGRESS PHOTOS</p>
         </div>
-        <ProgressPhotos client={client} canEdit />
+        {hasAccess ? (
+          <ProgressPhotos client={client} canEdit />
+        ) : (
+          <PremiumGate
+            title="PROGRESS PHOTOS"
+            blurb="Build a transformation timeline and line up any two photos side by side."
+            inline
+          />
+        )}
       </div>
 
       {/* History */}

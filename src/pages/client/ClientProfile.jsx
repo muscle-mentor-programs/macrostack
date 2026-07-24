@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { format, subDays } from 'date-fns'
-import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2 } from 'lucide-react'
+import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2, FileDown, Flame, Beef, Repeat } from 'lucide-react'
 import { enablePush, pushPermission } from '../../lib/push'
 import {
   AreaChart, Area, XAxis, YAxis,
   ResponsiveContainer, Tooltip, ReferenceLine,
 } from 'recharts'
 import useStore from '../../store'
+import useSubscription from '../../hooks/useSubscription'
+import PremiumGate from '../../components/PremiumGate'
+import { computeWeeklyStats, downloadProgressReportPDF } from '../../lib/generateProgressReportPDF'
 import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
@@ -55,6 +58,7 @@ export default function ClientProfile() {
     unlinkFromCoach, myCoachRequests, fetchMyCoachRequests, coachProfile,
   } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
+  const { hasAccess } = useSubscription()
 
   // Unlink + marketplace
   const [confirmUnlink, setConfirmUnlink] = useState(false)
@@ -184,6 +188,12 @@ export default function ClientProfile() {
   const avgCal     = daysLogged > 0 ? calData.reduce((s, d) => s + d.cal,     0) / daysLogged : 0
   const avgProtein = daysLogged > 0 ? calData.reduce((s, d) => s + d.protein, 0) / daysLogged : 0
   const avgFat     = daysLogged > 0 ? calData.reduce((s, d) => s + d.fat,     0) / daysLogged : 0
+
+  // ── Weekly report (premium) ────────────────────────────────────────────────
+  const weekly = computeWeeklyStats(client)
+  const calAdherencePct = weekly.daysLogged
+    ? Math.round((weekly.calOnTarget / weekly.daysLogged) * 100)
+    : 0
 
   const tooltipStyle = {
     background: '#1C1A18', border: '1px solid #2A2724',
@@ -525,6 +535,49 @@ export default function ClientProfile() {
           </AreaChart>
         </ResponsiveContainer>
       </div>
+
+      {/* ── Weekly report (premium) ─────────────────────────────────────────── */}
+      <div className="px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '440ms' }}>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">WEEKLY REPORT</p>
+        </div>
+        <p className="font-display font-black text-2xl tracking-wide text-cream">LAST 7 DAYS</p>
+      </div>
+
+      {hasAccess ? (
+        <div className="mx-5 mb-6 anim-fade-in-up" style={{ animationDelay: '470ms' }}>
+          {/* Insight tiles */}
+          <div className="grid grid-cols-3 gap-3 mb-3">
+            {[
+              { icon: Flame,  val: `${calAdherencePct}%`,                        label: 'calorie adherence', color: 'text-cream' },
+              { icon: Beef,   val: `${weekly.proteinHits}/${weekly.daysLogged || 0}`, label: 'protein goal hit',  color: 'text-olive-light' },
+              { icon: Repeat, val: `${weekly.streak}d`,                          label: 'log streak',        color: 'text-brown-light' },
+            ].map(({ icon: Icon, val, label, color }) => (
+              <div key={label} className="glass-card border border-border rounded-2xl p-3 card-dim">
+                <Icon size={14} className="text-muted mb-2" />
+                <p className={`font-display font-black text-2xl leading-none ${color} data-flicker`}>{val}</p>
+                <p className="font-mono text-[10px] text-muted mt-1 leading-tight">{label}</p>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => downloadProgressReportPDF(client)}
+            className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover press"
+          >
+            <FileDown size={15} />
+            DOWNLOAD WEEKLY REPORT
+          </button>
+        </div>
+      ) : (
+        <div className="mx-5 mb-6">
+          <PremiumGate
+            title="WEEKLY REPORT"
+            blurb="A shareable PDF of your week — adherence, macro averages, weight change, and your logging streak."
+            inline
+          />
+        </div>
+      )}
 
       {/* Personal info form */}
       <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '480ms' }}>
