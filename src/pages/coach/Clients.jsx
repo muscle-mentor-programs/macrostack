@@ -15,6 +15,7 @@ import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
 import FormEditor from '../../components/FormEditor'
 import { suggestTargetsFromIntake } from '../../lib/intake'
 import { generateClientReportPDF } from '../../lib/clientReportPDF'
+import { computeWeeklyStats } from '../../lib/generateProgressReportPDF'
 import { reconcileGoals } from '../../utils/macros'
 
 // ─── Harris-Benedict (Mifflin-St Jeor revision) ──────────────────────────────
@@ -1470,6 +1471,12 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   })
   const compliance = Math.round((days.filter((d) => d.logged).length / 7) * 100)
 
+  // Last-7-days adherence insights (shared with the client Profile + report PDF)
+  const weekly = computeWeeklyStats(client)
+  const calAdherencePct = weekly.daysLogged
+    ? Math.round((weekly.calOnTarget / weekly.daysLogged) * 100)
+    : 0
+
   const saveGoals = () => {
     updateClientGoals(client.id, {
       calories: Number(goals.calories),
@@ -1633,6 +1640,26 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                         <p className="font-mono text-xs text-dim text-center mt-1">
                           {format(parseISO(d.date), 'E').charAt(0)}
                         </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 7-day adherence insights */}
+                <div className="anim-fade-in-up" style={{ animationDelay: '170ms' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
+                    <p className="font-mono text-[10px] tracking-[0.3em] text-muted">7-DAY ADHERENCE</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {[
+                      { val: `${calAdherencePct}%`,                              label: 'calorie adherence', color: 'text-cream' },
+                      { val: `${weekly.proteinHits}/${weekly.daysLogged || 0}`,  label: 'protein goal hit',  color: 'text-olive-light' },
+                      { val: `${weekly.streak}d`,                                label: 'log streak',        color: 'text-brown-light' },
+                    ].map(({ val, label, color }) => (
+                      <div key={label} className="border border-border/50 rounded-lg p-3 card-inset">
+                        <p className={`font-display font-bold text-lg ${color}`}>{val}</p>
+                        <p className="font-mono text-[10px] text-muted leading-tight mt-0.5">{label}</p>
                       </div>
                     ))}
                   </div>

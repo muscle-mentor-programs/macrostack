@@ -125,6 +125,47 @@ export function mealPlanTemplate({ clientName, planName, days, coachName }) {
   `)
 }
 
+// ── Template: Weekly progress report ─────────────────────────────────────────
+export function weeklyReportTemplate({
+  clientName, rangeLabel, avgCal, avgProtein, daysLogged,
+  weightChange, weightUnit, calAdherencePct, streak, coachName,
+}) {
+  const stat = (val, label) => `
+    <td style="padding:14px 8px;text-align:center;border:1px solid ${BRAND.border};border-radius:10px;">
+      <div style="font-family:Impact,'Arial Black',sans-serif;font-size:22px;color:${BRAND.cream};">${val}</div>
+      <div style="font-size:10px;letter-spacing:1px;color:${BRAND.muted};margin-top:4px;">${label}</div>
+    </td>`
+  const changeStr = weightChange === null || weightChange === undefined
+    ? '—'
+    : `${weightChange > 0 ? '+' : ''}${weightChange}`
+
+  return shell(`
+    <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;color:${BRAND.olive};">YOUR WEEKLY REPORT</p>
+    <h1 style="margin:0 0 8px;font-family:Impact,'Arial Black',sans-serif;font-size:26px;letter-spacing:4px;color:${BRAND.cream};">LAST 7 DAYS</h1>
+    <p style="margin:0 0 22px;font-size:12px;color:${BRAND.muted};">${rangeLabel}</p>
+
+    <p style="margin:0 0 18px;font-size:13px;color:${BRAND.muted};">Hi ${clientName}, here's how your week went. The full breakdown is in the attached PDF.</p>
+
+    <table width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:20px;">
+      <tr>
+        ${stat(Math.round(avgCal || 0), 'avg kcal')}
+        ${stat(`${Math.round(avgProtein || 0)}g`, 'avg protein')}
+        ${stat(`${daysLogged}/7`, 'days logged')}
+        ${stat(`${changeStr} ${weightUnit || ''}`.trim(), 'weight change')}
+      </tr>
+    </table>
+
+    <p style="margin:0 0 22px;font-size:12px;color:${BRAND.cream};text-align:center;">
+      Calorie adherence <span style="color:${BRAND.olive};">${calAdherencePct}%</span>
+      &nbsp;·&nbsp; Current log streak <span style="color:${BRAND.brown};">${streak} ${streak === 1 ? 'day' : 'days'}</span>
+    </p>
+
+    <a href="https://getmacrostack.com" style="display:block;background:${BRAND.olive};color:${BRAND.bg};text-align:center;text-decoration:none;font-family:Impact,'Arial Black',sans-serif;font-size:13px;letter-spacing:4px;padding:14px;border-radius:10px;margin-bottom:20px;">OPEN IN APP →</a>
+
+    ${coachName ? `<p style="margin:0;font-size:12px;color:${BRAND.muted};text-align:center;">Your coach: ${coachName}</p>` : ''}
+  `)
+}
+
 // ── Template: New message notification ───────────────────────────────────────
 export function newMessageTemplate({ recipientName, senderName, senderRole, preview }) {
   const accentColor = senderRole === 'coach' ? BRAND.brown : BRAND.olive

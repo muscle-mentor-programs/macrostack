@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { format, subDays } from 'date-fns'
-import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2, FileDown, Flame, Beef, Repeat } from 'lucide-react'
+import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2, FileDown, Flame, Beef, Repeat, Mail } from 'lucide-react'
 import { enablePush, pushPermission } from '../../lib/push'
+import apiFetch from '../../lib/apiFetch'
 import {
   AreaChart, Area, XAxis, YAxis,
   ResponsiveContainer, Tooltip, ReferenceLine,
@@ -10,7 +11,7 @@ import {
 import useStore from '../../store'
 import useSubscription from '../../hooks/useSubscription'
 import PremiumGate from '../../components/PremiumGate'
-import { computeWeeklyStats, downloadProgressReportPDF } from '../../lib/generateProgressReportPDF'
+import { computeWeeklyStats, downloadProgressReportPDF, progressReportPDFBase64 } from '../../lib/generateProgressReportPDF'
 import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
@@ -194,6 +195,41 @@ export default function ClientProfile() {
   const calAdherencePct = weekly.daysLogged
     ? Math.round((weekly.calOnTarget / weekly.daysLogged) * 100)
     : 0
+  const reportRange = `${format(subDays(new Date(), 6), 'MMM d')} – ${format(new Date(), 'MMM d, yyyy')}`
+  const [reportEmail, setReportEmail] = useState('idle') // idle | sending | sent | error
+
+  const handleEmailReport = async () => {
+    if (!client?.email || reportEmail === 'sending') return
+    setReportEmail('sending')
+    try {
+      const res = await apiFetch('/api/email/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to:              client.email,
+          clientName:      client.name,
+          rangeLabel:      reportRange,
+          pdfBase64:       progressReportPDFBase64(client),
+          avgCal:          weekly.avgCal,
+          avgProtein:      weekly.avgProtein,
+          daysLogged:      weekly.daysLogged,
+          weightChange:    weekly.weight.change,
+          weightUnit:      weekly.weight.unit,
+          calAdherencePct,
+          streak:          weekly.streak,
+          coachName:       coachProfile?.name || null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to send')
+      setReportEmail('sent')
+      setTimeout(() => setReportEmail('idle'), 3000)
+    } catch (err) {
+      console.error('[EmailReport]', err)
+      setReportEmail('error')
+      setTimeout(() => setReportEmail('idle'), 3000)
+    }
+  }
 
   const tooltipStyle = {
     background: '#1C1A18', border: '1px solid #2A2724',
@@ -568,6 +604,21 @@ export default function ClientProfile() {
             <FileDown size={15} />
             DOWNLOAD WEEKLY REPORT
           </button>
+          {client?.email && (
+            <button
+              onClick={handleEmailReport}
+              disabled={reportEmail === 'sending'}
+              className="w-full flex items-center justify-center gap-2 mt-2.5 border border-border text-cream font-display font-bold text-sm tracking-widest py-3 rounded-xl hover:border-muted transition-colors press disabled:opacity-50"
+            >
+              {reportEmail === 'sending'
+                ? <><Loader2 size={15} className="animate-spin" /> SENDING…</>
+                : reportEmail === 'sent'
+                ? <><Check size={15} className="text-olive-light" /> SENT TO YOUR EMAIL</>
+                : reportEmail === 'error'
+                ? <>COULDN'T SEND — TRY AGAIN</>
+                : <><Mail size={15} /> EMAIL ME THIS REPORT</>}
+            </button>
+          )}
         </div>
       ) : (
         <div className="mx-5 mb-6">

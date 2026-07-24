@@ -14,6 +14,7 @@ import { reconcileGoals } from '../../../utils/macros'
 import { generateMealPlan } from '../../../services/mealPlanAI'
 import { CheckinTab, ClientFormsTab } from '../Clients'
 import ProgressPhotos from '../../../components/ProgressPhotos'
+import { computeWeeklyStats } from '../../../lib/generateProgressReportPDF'
 
 // ─── Harris-Benedict (Mifflin-St Jeor) ───────────────────────────────────────
 const ACTIVITY = [
@@ -479,6 +480,12 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
   })
   const compliance = Math.round((days.filter((d) => d.logged).length / 7) * 100)
 
+  // Last-7-days adherence insights (shared with client Profile + report PDF)
+  const weekly = computeWeeklyStats(client)
+  const calAdherencePct = weekly.daysLogged
+    ? Math.round((weekly.calOnTarget / weekly.daysLogged) * 100)
+    : 0
+
   const saveGoals = () => {
     updateClientGoals(client.id, { calories: Number(goals.calories), protein: Number(goals.protein), carbs: Number(goals.carbs), fat: Number(goals.fat) })
     setEditGoals(false)
@@ -586,6 +593,23 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
                     <p className="font-mono text-[10px] text-dim text-center mt-1">
                       {format(parseISO(d.date), 'E').charAt(0)}
                     </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 7-day adherence insights */}
+            <div>
+              <p className="font-display text-xs text-muted tracking-widest mb-3">7-DAY ADHERENCE</p>
+              <div className="grid grid-cols-3 gap-2.5">
+                {[
+                  { val: `${calAdherencePct}%`,                             label: 'cal adherence',    color: 'text-cream' },
+                  { val: `${weekly.proteinHits}/${weekly.daysLogged || 0}`, label: 'protein goal hit', color: 'text-olive-light' },
+                  { val: `${weekly.streak}d`,                               label: 'log streak',       color: 'text-brown-light' },
+                ].map(({ val, label, color }) => (
+                  <div key={label} className="border border-border/50 rounded-lg p-3 card-inset">
+                    <p className={`font-display font-bold text-lg ${color}`}>{val}</p>
+                    <p className="font-mono text-[10px] text-muted leading-tight mt-0.5">{label}</p>
                   </div>
                 ))}
               </div>
