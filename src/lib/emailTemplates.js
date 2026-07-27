@@ -186,11 +186,15 @@ export function newMessageTemplate({ recipientName, senderName, senderRole, prev
 }
 
 // ── Template: Automated reminder (log meals / submit check-in) ───────────────
-export function reminderTemplate({ recipientName, coachName, missedLog, missedCheckin }) {
+export function reminderTemplate({ recipientName, coachName, missedLog, missedCheckin, missedWeighIn }) {
   const items = []
   if (missedLog) items.push({
     title: 'LOG TODAY’S MEALS',
     body:  'You haven’t logged anything today. Even a quick estimate keeps your data — and your coaching — accurate.',
+  })
+  if (missedWeighIn) items.push({
+    title: 'LOG A WEIGH-IN',
+    body:  'It’s been over a week since your last weigh-in. A quick step on the scale keeps your trend line honest.',
   })
   if (missedCheckin) items.push({
     title: 'SUBMIT YOUR WEEKLY CHECK-IN',

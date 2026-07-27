@@ -342,14 +342,24 @@ const useStore = create(
       loadAllData: async () => {
         // All four queries run in parallel — cuts login latency to the slowest
         // single query instead of the sum of all four
-        let [clientRes, msgRes, foodRes, reqRes] = await Promise.all([
+        let [clientRes, msgRes, foodRes, reqRes, waterRes] = await Promise.all([
           supabase.from('clients')
             .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*), progress_photos(*), form_submissions(*)')
             .order('created_at', { ascending: true }),
           supabase.from('messages').select('*').order('created_at', { ascending: true }),
           supabase.from('custom_foods').select('*').order('created_at', { ascending: true }),
           supabase.from('coach_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
+          // Kept as its own query (not a clients join) so a not-yet-migrated
+          // water_log table degrades gracefully instead of breaking client data.
+          supabase.from('water_log').select('client_id, date, ml'),
         ])
+
+        // client_id → { 'yyyy-mm-dd': ml }
+        const waterByClient = {}
+        ;(waterRes?.data || []).forEach((r) => {
+          if (!waterByClient[r.client_id]) waterByClient[r.client_id] = {}
+          waterByClient[r.client_id][r.date] = r.ml
+        })
 
         // Graceful fallbacks while newer migrations haven't run yet — don't
         // let a missing table take down all client data.
@@ -379,6 +389,7 @@ const useStore = create(
           return {
             ...dbToClient(row),
             log,
+            water: waterByClient[row.id] || {},
             weightLog: (row.weight_log || [])
               .map(dbToWeight)
               .sort((a, b) => a.date.localeCompare(b.date)),
@@ -954,6 +965,45 @@ const useStore = create(
         if (error) console.error('food_log insert:', error)
       },
 
+      // Clone every food entry from one day into another (defaults to today).
+      // Returns the number of entries copied so the UI can confirm.
+      copyDayEntries: async (clientId, fromDate, toDate) => {
+        const target = toDate || today()
+        const client = get().clients.find((c) => c.id === clientId)
+        const source = client?.log?.[fromDate] || []
+        if (!source.length) return 0
+
+        const rows = source.map((e) => ({
+          id:           crypto.randomUUID(),
+          client_id:    clientId,
+          date:         target,
+          name:         e.name,
+          brand:        e.brand        || '',
+          food_id:      e.foodId       || null,
+          quantity:     e.quantity     ?? 1,
+          serving_size: e.servingSize  || null,
+          serving_unit: e.servingUnit  || null,
+          meal:         e.meal         || 'Other',
+          calories:     e.calories     ?? 0,
+          protein:      e.protein      ?? 0,
+          carbs:        e.carbs        ?? 0,
+          fat:          e.fat          ?? 0,
+        }))
+
+        // Optimistic: append cloned entries to the target day
+        const cloned = rows.map((r) => dbToEntry(r))
+        set((s) => ({
+          clients: s.clients.map((c) => {
+            if (c.id !== clientId) return c
+            return { ...c, log: { ...c.log, [target]: [...(c.log[target] || []), ...cloned] } }
+          }),
+        }))
+
+        const { error } = await supabase.from('food_log').insert(rows)
+        if (error) console.error('food_log copy-day insert:', error)
+        return rows.length
+      },
+
       removeClientEntry: async (clientId, date, entryId) => {
         set((s) => ({
           clients: s.clients.map((c) => {
@@ -990,6 +1040,24 @@ const useStore = create(
 
       getClientTotalsForDate: (clientId, date) =>
         calcTotals(get().clients.find((c) => c.id === clientId)?.log?.[date]),
+
+      // ── WATER LOG ─────────────────────────────────────────────────────────
+      // Set the day's total hydration (ml). Upserts one row per (client, date).
+      setClientWater: async (clientId, date, ml) => {
+        const day   = date || today()
+        const total = Math.max(0, Math.round(ml))
+
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === clientId ? { ...c, water: { ...(c.water || {}), [day]: total } } : c
+          ),
+        }))
+
+        const { error } = await supabase
+          .from('water_log')
+          .upsert({ client_id: clientId, date: day, ml: total }, { onConflict: 'client_id,date' })
+        if (error) console.error('water_log upsert:', error)
+      },
 
       // ── WEIGHT LOG ────────────────────────────────────────────────────────
       addClientWeight: async (clientId, entry) => {

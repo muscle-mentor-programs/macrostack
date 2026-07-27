@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, Plus, Search, ArrowLeft, Trash2,
-  Scan, Check, ChevronDown, Lock, Zap, BookmarkPlus, UtensilsCrossed,
+  Scan, Check, ChevronDown, Lock, Zap, BookmarkPlus, UtensilsCrossed, Copy,
 } from 'lucide-react'
 import useStore from '../../store'
 import { FOODS, MEALS } from '../../data/foods'
@@ -567,11 +567,12 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
 export default function ClientLog() {
   const {
     activeClientId, clients,
-    removeClientEntry, updateClientEntry, saveMeal,
+    removeClientEntry, updateClientEntry, saveMeal, copyDayEntries,
     getClientTotalsForDate, logDate, setLogDate, setNavHidden,
   } = useStore()
 
   const [modalMeal, setModalMeal] = useState(null)
+  const [copying, setCopying] = useState(false)
   // editState: { id, qty, grams, servingSize, perQty: { cal, pro, carb, fat } }
   const [editState, setEditState] = useState(null)
   // "Make this a meal" — { meal, items, name, saving, done }
@@ -603,6 +604,23 @@ export default function ClientLog() {
     entries.map((e) => e.meal || 'Other').filter((m) => !PRIMARY_MEALS.includes(m))
   )]
   const allSections = [...PRIMARY_MEALS, ...extraMeals]
+
+  // Recent days that already have entries (before the current day) — offered
+  // as one-tap "copy this day" starting points when today is empty.
+  const clientLog = client?.log || {}
+  const recentLoggedDays = Object.keys(clientLog)
+    .filter((d) => d < logDate && (clientLog[d]?.length || 0) > 0)
+    .sort((a, b) => b.localeCompare(a))
+    .slice(0, 3)
+    .map((d) => ({ date: d, count: clientLog[d].length }))
+
+  const handleCopyDay = async (fromDate) => {
+    if (copying) return
+    setCopying(true)
+    await copyDayEntries(activeClientId, fromDate, logDate)
+    successHaptic()
+    setCopying(false)
+  }
 
   // ── Edit handlers ──────────────────────────────────────────────────────────
   // Keep qty/grams as RAW STRINGS while editing so the field can be cleared
@@ -720,6 +738,34 @@ export default function ClientLog() {
           </div>
         ))}
       </div>
+
+      {/* Copy a previous day — only when today is empty and there's history */}
+      {entries.length === 0 && recentLoggedDays.length > 0 && (
+        <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim">
+          <div className="flex items-center gap-2 mb-1">
+            <Copy size={13} className="text-brown-light flex-shrink-0" />
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">COPY A PREVIOUS DAY</p>
+          </div>
+          <p className="font-mono text-xs text-dim mb-3">Start from a day you've already logged.</p>
+          <div className="flex flex-col gap-2">
+            {recentLoggedDays.map(({ date, count }) => (
+              <button
+                key={date}
+                onClick={() => handleCopyDay(date)}
+                disabled={copying}
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-border hover:border-brown/60 bg-surface/40 transition-colors press disabled:opacity-50"
+              >
+                <span className="font-mono text-sm text-cream">
+                  {format(parseISO(date), 'EEE, MMM d')}
+                </span>
+                <span className="font-mono text-[11px] text-muted">
+                  {count} {count === 1 ? 'item' : 'items'} →
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Meal sections */}
       <div className="flex-1 px-5 pb-6 space-y-3">

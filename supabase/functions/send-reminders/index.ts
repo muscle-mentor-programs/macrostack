@@ -84,6 +84,18 @@ serve(async (req) => {
       if (!prev || r.created_at > prev) lastCheckin.set(r.client_id, r.created_at)
     }
 
+    // Most recent weigh-in per client (by log date, not insert time)
+    const { data: weights } = await admin
+      .from('weight_log')
+      .select('client_id, date')
+      .in('client_id', ids)
+    const lastWeighIn = new Map<string, string>()
+    for (const r of weights || []) {
+      const prev = lastWeighIn.get(r.client_id)
+      if (!prev || r.date > prev) lastWeighIn.set(r.client_id, r.date)
+    }
+    const weekAgoDate = new Date(Date.now() - 7 * DAY_MS).toISOString().slice(0, 10)
+
     // Coach names for the email copy
     const coachIds = [...new Set(candidates.map((c) => c.coach_id).filter(Boolean))]
     const coachNames = new Map<string, string>()
@@ -102,8 +114,10 @@ serve(async (req) => {
       const last = lastCheckin.get(c.id)
       const accountOldEnough = new Date(c.created_at).getTime() < weekAgo
       const missedCheckin = accountOldEnough && (!last || new Date(last).getTime() < weekAgo)
+      const lastW = lastWeighIn.get(c.id)
+      const missedWeighIn = accountOldEnough && (!lastW || lastW < weekAgoDate)
 
-      if (!missedLog && !missedCheckin) continue
+      if (!missedLog && !missedCheckin && !missedWeighIn) continue
 
       const res = await fetch(`${siteUrl}/api/email/notify`, {
         method: 'POST',
@@ -115,6 +129,7 @@ serve(async (req) => {
           coachName:      coachNames.get(c.coach_id) || null,
           missedLog,
           missedCheckin,
+          missedWeighIn,
         }),
       })
       if (res.ok) {

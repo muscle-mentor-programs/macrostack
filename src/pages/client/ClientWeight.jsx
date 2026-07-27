@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { format, parseISO } from 'date-fns'
+import { format, parseISO, subDays } from 'date-fns'
 import { Scale, TrendingDown, TrendingUp, Minus, Trash2, Calendar } from 'lucide-react'
 import { ComposedChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts'
 import useStore from '../../store'
@@ -52,7 +52,7 @@ export default function ClientWeight() {
   const currentMA     = withMA[withMA.length - 1]?.ma
 
   // 30-day change: first vs last entry in last 30 days
-  const thirtyAgo = format(new Date(Date.now() - 30 * 86400000), 'yyyy-MM-dd')
+  const thirtyAgo = format(subDays(new Date(), 30), 'yyyy-MM-dd')
   const last30    = sorted.filter((w) => w.date >= thirtyAgo)
   const change30  =
     last30.length > 1
@@ -65,6 +65,43 @@ export default function ClientWeight() {
     weight: w.value,
     avg:    w.ma,
   }))
+
+  // Trend insight — interpret the 7-day moving average over the recent window
+  // (anchored to the latest weigh-in, so it's independent of "now"). Matches
+  // the app convention: loss = olive, gain = red, flat = muted.
+  const trend = (() => {
+    if (withMA.length < 4) return null
+    const latest = withMA[withMA.length - 1]
+    const latestTime = parseISO(latest.date).getTime()
+    const windowStart = latestTime - 21 * 86400000
+    const inWindow = withMA.filter((w) => parseISO(w.date).getTime() >= windowStart)
+    if (inWindow.length < 2) return null
+    const first = inWindow[0]
+    const days  = Math.round((latestTime - parseISO(first.date).getTime()) / 86400000)
+    if (days < 7) return null
+    const unit  = latest.unit || 'lbs'
+    const pace  = (latest.ma - first.ma) / (days / 7) // unit per week
+    const threshold = Math.max(0.2, latest.ma * 0.002)
+    if (Math.abs(pace) <= threshold) {
+      return {
+        title: 'HOLDING STEADY',
+        blurb: `Your 7-day average has held for about ${days} days. If the goal is to move the scale, it may be time to adjust intake.`,
+        color: 'text-muted', Icon: Minus,
+      }
+    }
+    if (pace < 0) {
+      return {
+        title: 'TRENDING DOWN',
+        blurb: `Down about ${Math.abs(pace).toFixed(1)} ${unit}/week over the last ${days} days.`,
+        color: 'text-olive-light', Icon: TrendingDown,
+      }
+    }
+    return {
+      title: 'TRENDING UP',
+      blurb: `Up about ${pace.toFixed(1)} ${unit}/week over the last ${days} days.`,
+      color: 'text-red-400', Icon: TrendingUp,
+    }
+  })()
 
   const ChangeIcon  = change30 === null ? Minus : change30 < 0 ? TrendingDown : TrendingUp
   const changeColor = change30 === null
@@ -174,6 +211,21 @@ export default function ClientWeight() {
           <p className="font-mono text-[10px] text-muted mt-1">30d change</p>
         </div>
       </div>
+
+      {/* Trend insight — premium */}
+      {hasAccess && trend && (
+        <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-border flex items-center justify-center flex-shrink-0">
+              <trend.Icon size={16} className={trend.color} />
+            </div>
+            <div className="min-w-0">
+              <p className={`font-display font-black text-base tracking-widest ${trend.color}`}>{trend.title}</p>
+              <p className="font-mono text-xs text-muted mt-1 leading-relaxed">{trend.blurb}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chart — premium analytics */}
       {!hasAccess && chartData.length > 1 && (

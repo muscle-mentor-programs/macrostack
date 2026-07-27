@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { format, subDays } from 'date-fns'
-import { LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList, Flame, UserPlus } from 'lucide-react'
+import { LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList, Flame, UserPlus, Droplets } from 'lucide-react'
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts'
 import useStore from '../../store'
 import AnimatedNumber from '../../components/AnimatedNumber'
@@ -242,10 +242,17 @@ function MealPlanSection({ client, onLogMeal }) {
 }
 
 export default function ClientDashboard() {
-  const { activeClientId, clients, getClientTotalsForDate, logDate, setActivePage, setActiveClientId, setActiveRole, addClientEntry, coachProfile } = useStore()
+  const { activeClientId, clients, getClientTotalsForDate, logDate, setActivePage, setActiveClientId, setActiveRole, addClientEntry, setClientWater, coachProfile } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
   const totals = getClientTotalsForDate(activeClientId, logDate)
   const remaining = (client?.goals?.calories || 0) - totals.calories
+
+  // Water — one 250 ml cup per pip, default goal 8 cups (2 L).
+  const CUP_ML = 250
+  const WATER_GOAL_CUPS = 8
+  const waterMl  = client?.water?.[logDate] || 0
+  const waterCups = Math.round(waterMl / CUP_ML)
+  const setCups = (n) => setClientWater(activeClientId, logDate, Math.max(0, n) * CUP_ML)
 
   // Consecutive logged days. A day counts if anything was logged. Today not
   // having entries yet doesn't break the streak — it starts from yesterday.
@@ -344,6 +351,49 @@ export default function ClientDashboard() {
         <MacroChip label="PROTEIN" current={totals.protein} goal={client?.goals?.protein} color="olive" delay={150} />
         <MacroChip label="CARBS" current={totals.carbs} goal={client?.goals?.carbs} color="brown" delay={220} />
         <MacroChip label="FAT" current={totals.fat} goal={client?.goals?.fat} color="slate" delay={290} />
+      </div>
+
+      {/* Water tracker */}
+      <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '310ms' }}>
+        <div className="glass-card border border-border rounded-2xl p-4 card-dim">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Droplets size={14} className="text-slategray-light flex-shrink-0" />
+              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">WATER</p>
+            </div>
+            <p className="font-mono text-xs text-muted flex-shrink-0">
+              <span className="text-cream font-bold">{waterCups}</span>
+              <span className="text-dim"> / {WATER_GOAL_CUPS} cups</span>
+              <span className="text-dim"> · {(waterMl / 1000).toFixed(2)} L</span>
+            </p>
+          </div>
+          <div className="flex gap-1.5">
+            {Array.from({ length: WATER_GOAL_CUPS }, (_, i) => {
+              const n = i + 1
+              const filled = n <= waterCups
+              return (
+                <button
+                  key={n}
+                  onClick={() => setCups(waterCups === n ? n - 1 : n)}
+                  aria-label={`${n} ${n === 1 ? 'cup' : 'cups'}`}
+                  className="flex-1 h-10 rounded-lg border flex items-center justify-center transition-colors press"
+                  style={filled
+                    ? { background: 'color-mix(in srgb, var(--color-slategray, #64748b) 30%, transparent)', borderColor: 'color-mix(in srgb, var(--color-slategray, #64748b) 45%, transparent)' }
+                    : { background: 'transparent', borderColor: 'var(--color-border)' }}
+                >
+                  <Droplets
+                    size={13}
+                    className={filled ? 'text-slategray-light' : 'text-dim'}
+                    fill={filled ? 'currentColor' : 'none'}
+                  />
+                </button>
+              )
+            })}
+          </div>
+          {waterCups >= WATER_GOAL_CUPS && (
+            <p className="font-mono text-[10px] text-olive-light mt-2.5 text-center">Goal hit — nice. Tap a cup to adjust.</p>
+          )}
+        </div>
       </div>
 
       {/* Your Coach — between the macros and the meal plan. Connected clients

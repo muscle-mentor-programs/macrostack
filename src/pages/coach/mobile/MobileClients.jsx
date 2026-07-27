@@ -15,6 +15,7 @@ import { generateMealPlan } from '../../../services/mealPlanAI'
 import { CheckinTab, ClientFormsTab } from '../Clients'
 import ProgressPhotos from '../../../components/ProgressPhotos'
 import { computeWeeklyStats } from '../../../lib/generateProgressReportPDF'
+import { estimateMaintenance } from '../../../lib/adaptiveTargets'
 
 // ─── Harris-Benedict (Mifflin-St Jeor) ───────────────────────────────────────
 const ACTIVITY = [
@@ -486,6 +487,9 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
     ? Math.round((weekly.calOnTarget / weekly.daysLogged) * 100)
     : 0
 
+  // Maintenance estimate from actual intake vs weight trend (non-prescriptive)
+  const maint = estimateMaintenance(client)
+
   const saveGoals = () => {
     updateClientGoals(client.id, { calories: Number(goals.calories), protein: Number(goals.protein), carbs: Number(goals.carbs), fat: Number(goals.fat) })
     setEditGoals(false)
@@ -662,6 +666,34 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
                 </div>
               )}
             </div>
+
+            {/* Adaptive target — maintenance estimate from real data */}
+            {maint && (
+              <div>
+                <p className="font-display text-xs text-muted tracking-widest mb-3">MAINTENANCE ESTIMATE</p>
+                <div className="border border-border/50 rounded-xl p-3.5 card-inset">
+                  <div className="flex items-baseline gap-2">
+                    <p className="font-display font-black text-2xl text-cream">≈ {maint.estMaintenance.toLocaleString()}</p>
+                    <p className="font-mono text-[10px] text-muted">kcal / day</p>
+                  </div>
+                  <p className="font-mono text-[11px] text-muted mt-1.5 leading-relaxed">
+                    From {maint.avgIntake.toLocaleString()} kcal avg over {maint.loggedDays} logged days and a
+                    {' '}{maint.weeklyChange > 0 ? '+' : ''}{maint.weeklyChange} {maint.unit}/wk trend ({maint.spanDays}d).
+                  </p>
+                  {maint.delta !== null && (
+                    <p className="font-mono text-[11px] mt-2 leading-relaxed"
+                      style={{ color: Math.abs(maint.delta) < 100 ? 'var(--color-muted)' : 'var(--color-cream)' }}>
+                      {Math.abs(maint.delta) < 100
+                        ? `Current target (${maint.currentTarget.toLocaleString()}) sits about at maintenance.`
+                        : maint.delta < 0
+                        ? `Current target is ~${Math.abs(maint.delta).toLocaleString()} kcal below maintenance — a deficit.`
+                        : `Current target is ~${maint.delta.toLocaleString()} kcal above maintenance — a surplus.`}
+                    </p>
+                  )}
+                  <p className="font-mono text-[9px] text-dim mt-2">Estimate only — adjust targets above as you see fit.</p>
+                </div>
+              </div>
+            )}
 
             {/* Client since */}
             <p className="font-mono text-xs text-dim text-center">

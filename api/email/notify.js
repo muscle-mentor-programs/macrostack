@@ -45,11 +45,13 @@ export default async function handler(req, res) {
       html    = welcomeTemplate({ name, role })
     } else if (type === 'reminder') {
       // Automated nudge from the send-reminders scheduled function
-      const { recipientName, coachName, missedLog, missedCheckin } = payload
-      subject = missedCheckin && !missedLog
-        ? 'Your weekly check-in is due'
-        : 'Don’t forget to log today'
-      html = reminderTemplate({ recipientName, coachName, missedLog, missedCheckin })
+      const { recipientName, coachName, missedLog, missedCheckin, missedWeighIn } = payload
+      subject = missedLog
+        ? 'Don’t forget to log today'
+        : missedWeighIn && !missedCheckin
+        ? 'Time for a weigh-in'
+        : 'Your weekly check-in is due'
+      html = reminderTemplate({ recipientName, coachName, missedLog, missedCheckin, missedWeighIn })
     } else {
       return res.status(400).json({ error: `Unknown notification type: ${type}` })
     }
