@@ -573,6 +573,7 @@ export default function ClientLog() {
 
   const [modalMeal, setModalMeal] = useState(null)
   const [copying, setCopying] = useState(false)
+  const [copyFrom, setCopyFrom] = useState('')
   // editState: { id, qty, grams, servingSize, perQty: { cal, pro, carb, fat } }
   const [editState, setEditState] = useState(null)
   // "Make this a meal" — { meal, items, name, saving, done }
@@ -606,19 +607,20 @@ export default function ClientLog() {
   const allSections = [...PRIMARY_MEALS, ...extraMeals]
 
   // Recent days that already have entries (before the current day) — offered
-  // as one-tap "copy this day" starting points when today is empty.
+  // in the "copy a previous day" dropdown when today is empty.
   const clientLog = client?.log || {}
   const recentLoggedDays = Object.keys(clientLog)
     .filter((d) => d < logDate && (clientLog[d]?.length || 0) > 0)
     .sort((a, b) => b.localeCompare(a))
-    .slice(0, 3)
+    .slice(0, 14)
     .map((d) => ({ date: d, count: clientLog[d].length }))
 
-  const handleCopyDay = async (fromDate) => {
-    if (copying) return
+  const handleCopyDay = async () => {
+    if (copying || !copyFrom) return
     setCopying(true)
-    await copyDayEntries(activeClientId, fromDate, logDate)
+    await copyDayEntries(activeClientId, copyFrom, logDate)
     successHaptic()
+    setCopyFrom('')
     setCopying(false)
   }
 
@@ -739,31 +741,31 @@ export default function ClientLog() {
         ))}
       </div>
 
-      {/* Copy a previous day — only when today is empty and there's history */}
+      {/* Copy a previous day — slim row, only when today is empty and there's history */}
       {entries.length === 0 && recentLoggedDays.length > 0 && (
-        <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim">
-          <div className="flex items-center gap-2 mb-1">
-            <Copy size={13} className="text-brown-light flex-shrink-0" />
-            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">COPY A PREVIOUS DAY</p>
-          </div>
-          <p className="font-mono text-xs text-dim mb-3">Start from a day you've already logged.</p>
-          <div className="flex flex-col gap-2">
+        <div className="mx-5 mb-5 flex items-center gap-2 glass-card border border-border rounded-xl px-3 py-2.5 anim-fade-in-up card-dim">
+          <Copy size={13} className="text-brown-light flex-shrink-0" />
+          <select
+            value={copyFrom}
+            onChange={(e) => setCopyFrom(e.target.value)}
+            disabled={copying}
+            aria-label="Copy a previous day"
+            className="flex-1 min-w-0 bg-surface border border-border rounded-lg px-2.5 py-2 font-mono text-xs text-cream focus:outline-none focus:border-brown transition-colors disabled:opacity-50"
+          >
+            <option value="">Copy a previous day…</option>
             {recentLoggedDays.map(({ date, count }) => (
-              <button
-                key={date}
-                onClick={() => handleCopyDay(date)}
-                disabled={copying}
-                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-border hover:border-brown/60 bg-surface/40 transition-colors press disabled:opacity-50"
-              >
-                <span className="font-mono text-sm text-cream">
-                  {format(parseISO(date), 'EEE, MMM d')}
-                </span>
-                <span className="font-mono text-[11px] text-muted">
-                  {count} {count === 1 ? 'item' : 'items'} →
-                </span>
-              </button>
+              <option key={date} value={date}>
+                {format(parseISO(date), 'EEE, MMM d')} · {count} {count === 1 ? 'item' : 'items'}
+              </option>
             ))}
-          </div>
+          </select>
+          <button
+            onClick={handleCopyDay}
+            disabled={!copyFrom || copying}
+            className="flex-shrink-0 btn-accent disabled:opacity-40 text-bg font-display font-bold text-xs tracking-widest px-3.5 py-2 rounded-lg transition-colors glow-hover press"
+          >
+            {copying ? '…' : 'COPY'}
+          </button>
         </div>
       )}
 
