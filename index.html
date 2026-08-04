@@ -78,8 +78,15 @@
   <body>
     <div id="root">
       <!-- Static shell — real crawlable content for search engines and no-JS
-           clients. React replaces everything in #root the moment it mounts. -->
-      <div style="min-height:100vh;background:#08090F;color:#D8E6F4;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;padding:48px 24px">
+           clients. React replaces everything in #root the moment it mounts.
+           Held invisible for 2.5s so it never flashes before React takes over;
+           crawlers read DOM text regardless of opacity, and a human with JS
+           disabled still sees it after the delay. -->
+      <style>
+        @keyframes ms-shell-in { to { opacity: 1 } }
+        .ms-shell { opacity: 0; animation: ms-shell-in .5s ease 2.5s forwards }
+      </style>
+      <div class="ms-shell" style="min-height:100vh;background:#08090F;color:#D8E6F4;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;padding:48px 24px">
         <div style="max-width:640px">
           <p style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;letter-spacing:.12em">MACRO<span style="color:#4878B0">STACK</span></p>
           <h1 style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:44px;letter-spacing:.03em;line-height:1.05;margin:18px 0 14px;text-transform:uppercase">Nutrition Coaching &amp; Macro Tracking App</h1>
