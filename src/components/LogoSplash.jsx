@@ -1,4 +1,12 @@
 import { useEffect } from 'react'
+import { isNativeApp } from '../lib/platform'
+
+// Installed PWA / native shell — the intro is the app's boot screen there,
+// so it renders big; in a browser it stays half-size ahead of the landing page.
+const IS_STANDALONE =
+  window.matchMedia('(display-mode: standalone)').matches ||
+  window.navigator.standalone === true ||
+  isNativeApp
 
 /* ── LogoSplash — full-screen MacroStack logo animation (/intro.mp4) ──────────
    Two modes:
@@ -37,7 +45,9 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
         loop={loop}
         onEnded={loop ? undefined : onDone}
         ref={(el) => { if (el) el.playbackRate = 1.5 }}
-        className={loop ? 'w-full h-full object-contain scale-[3.75]' : 'w-1/2 h-1/2 object-contain'}
+        className={loop || IS_STANDALONE
+          ? 'w-full h-full object-contain scale-[3.75]'
+          : 'w-1/2 h-1/2 object-contain'}
       />
     </div>
   )
