@@ -27,7 +27,8 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
     >
       {/* The video is trimmed to end the moment the logo completes (S meets
           the apple, ~2.7s source / ~1.8s at 1.5x). Intro renders at half
-          size; the PWA/loading splash is full-screen scaled up 25%. */}
+          size; the PWA/loading splash is full-screen scaled to 3.75x
+          (logo sits small in the frame — the scale crops dead space). */}
       <video
         src="/intro.mp4"
         autoPlay
@@ -36,7 +37,7 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
         loop={loop}
         onEnded={loop ? undefined : onDone}
         ref={(el) => { if (el) el.playbackRate = 1.5 }}
-        className={loop ? 'w-full h-full object-contain scale-125' : 'w-1/2 h-1/2 object-contain'}
+        className={loop ? 'w-full h-full object-contain scale-[3.75]' : 'w-1/2 h-1/2 object-contain'}
       />
     </div>
   )
