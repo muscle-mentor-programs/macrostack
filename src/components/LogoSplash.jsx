@@ -46,7 +46,7 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
         onEnded={loop ? undefined : onDone}
         ref={(el) => { if (el) el.playbackRate = 1.5 }}
         className={loop || IS_STANDALONE
-          ? 'w-full h-full object-contain scale-[3.75]'
+          ? 'w-full h-full object-contain scale-[2.625]'
           : 'w-1/2 h-1/2 object-contain'}
       />
     </div>
