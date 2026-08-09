@@ -936,6 +936,11 @@ const useStore = create(
       },
 
       // ── FOOD LOG ──────────────────────────────────────────────────────────
+      // Set when a food-log write fails so the UI can tell the user instead of
+      // silently losing the entry on the next reload.
+      logSaveError: null,
+      clearLogSaveError: () => set({ logSaveError: null }),
+
       addClientEntry: async (clientId, entry) => {
         const date = entry.date || today()
         const id   = crypto.randomUUID()
@@ -962,7 +967,17 @@ const useStore = create(
           carbs:        entry.carbs        ?? 0,
           fat:          entry.fat          ?? 0,
         })
-        if (error) console.error('food_log insert:', error)
+        if (error) {
+          console.error('food_log insert:', error)
+          // Roll back the optimistic entry and surface the failure
+          set((s) => ({
+            logSaveError: `Couldn't save "${entry.name}" — ${/JWT|token|401/i.test(error.message) ? 'your session expired. Sign out and back in.' : error.message}`,
+            clients: s.clients.map((c) => {
+              if (c.id !== clientId) return c
+              return { ...c, log: { ...c.log, [date]: (c.log[date] || []).filter((e) => e.id !== id) } }
+            }),
+          }))
+        }
       },
 
       // Clone every food entry from one day into another (defaults to today).

@@ -569,7 +569,15 @@ export default function ClientLog() {
     activeClientId, clients,
     removeClientEntry, updateClientEntry, saveMeal, copyDayEntries,
     getClientTotalsForDate, logDate, setLogDate, setNavHidden,
+    logSaveError, clearLogSaveError,
   } = useStore()
+
+  // A failed save rolled back its entry — show why, then auto-dismiss
+  useEffect(() => {
+    if (!logSaveError) return
+    const t = setTimeout(clearLogSaveError, 8000)
+    return () => clearTimeout(t)
+  }, [logSaveError]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const [modalMeal, setModalMeal] = useState(null)
   const [copying, setCopying] = useState(false)
@@ -723,6 +731,16 @@ export default function ClientLog() {
           <ChevronRight size={22} />
         </button>
       </div>
+
+      {/* Save failure — the optimistic entry was rolled back */}
+      {logSaveError && (
+        <button
+          onClick={clearLogSaveError}
+          className="mx-5 mt-4 -mb-1 text-left font-mono text-xs text-red-400 bg-red-400/10 border border-red-400/25 rounded-xl px-4 py-3 leading-relaxed anim-fade-in"
+        >
+          {logSaveError} <span className="text-dim">· tap to dismiss</span>
+        </button>
+      )}
 
       {/* Daily totals bar */}
       <div className="grid grid-cols-4 mx-5 mt-5 mb-5 glass-card border border-border rounded-2xl overflow-hidden anim-fade-in card-dim" style={{ animationDelay: '60ms' }}>
