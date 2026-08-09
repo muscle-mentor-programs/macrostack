@@ -340,11 +340,27 @@ const useStore = create(
 
       // ── DATA LOADING ──────────────────────────────────────────────────────
       loadAllData: async () => {
-        // All four queries run in parallel — cuts login latency to the slowest
-        // single query instead of the sum of all four
-        let [clientRes, msgRes, foodRes, reqRes, waterRes] = await Promise.all([
+        // food_log is fetched separately and PAGINATED: Supabase caps every
+        // response (including embedded arrays) at 1000 rows, so an embedded
+        // food_log(*) silently drops entries once an account logs enough —
+        // new saves "disappear" on reload. Page until a short page comes back.
+        const fetchAllFoodLog = async () => {
+          const all = []
+          for (let page = 0; page < 50; page++) {
+            const { data, error } = await supabase.from('food_log').select('*')
+              .order('date', { ascending: true })
+              .order('created_at', { ascending: true })
+              .range(page * 1000, page * 1000 + 999)
+            if (error) { console.error('food_log load:', error); break }
+            all.push(...(data || []))
+            if (!data || data.length < 1000) break
+          }
+          return all
+        }
+
+        let [clientRes, msgRes, foodRes, reqRes, waterRes, foodLogRows] = await Promise.all([
           supabase.from('clients')
-            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*), progress_photos(*), form_submissions(*)')
+            .select('*, weight_log(*), meal_plans(*), checkins(*), progress_photos(*), form_submissions(*)')
             .order('created_at', { ascending: true }),
           supabase.from('messages').select('*').order('created_at', { ascending: true }),
           supabase.from('custom_foods').select('*').order('created_at', { ascending: true }),
@@ -352,7 +368,15 @@ const useStore = create(
           // Kept as its own query (not a clients join) so a not-yet-migrated
           // water_log table degrades gracefully instead of breaking client data.
           supabase.from('water_log').select('client_id, date, ml'),
+          fetchAllFoodLog(),
         ])
+
+        // client_id → [rows] — replaces the old embedded food_log(*)
+        const foodLogByClient = {}
+        ;(foodLogRows || []).forEach((r) => {
+          if (!foodLogByClient[r.client_id]) foodLogByClient[r.client_id] = []
+          foodLogByClient[r.client_id].push(r)
+        })
 
         // client_id → { 'yyyy-mm-dd': ml }
         const waterByClient = {}
@@ -365,12 +389,12 @@ const useStore = create(
         // let a missing table take down all client data.
         if (clientRes.error) {
           clientRes = await supabase.from('clients')
-            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*), progress_photos(*)')
+            .select('*, weight_log(*), meal_plans(*), checkins(*), progress_photos(*)')
             .order('created_at', { ascending: true })
         }
         if (clientRes.error) {
           clientRes = await supabase.from('clients')
-            .select('*, food_log(*), weight_log(*), meal_plans(*), checkins(*)')
+            .select('*, weight_log(*), meal_plans(*), checkins(*)')
             .order('created_at', { ascending: true })
         }
 
@@ -380,9 +404,9 @@ const useStore = create(
         if (reqRes.error)    console.error('loadAllData requests:', reqRes.error)
 
         let clients = (clientRes.data || []).map((row) => {
-          // Group food_log entries by date
+          // Group food_log entries by date (from the paginated fetch)
           const log = {}
-          ;(row.food_log || []).forEach((e) => {
+          ;(foodLogByClient[row.id] || []).forEach((e) => {
             if (!log[e.date]) log[e.date] = []
             log[e.date].push(dbToEntry(e))
           })
