@@ -7,7 +7,6 @@ import { isNativeApp } from './lib/platform'
 import CoachLayout from './layouts/CoachLayout'
 import ClientLayout from './layouts/ClientLayout'
 import MotionPage from './components/MotionPage'
-import LogoSplash from './components/LogoSplash'
 
 // ── Code-split pages — each loads on demand, keeping the initial bundle
 //    small (Landing, the 1900-item food DB, and recharts are the heavy ones)
@@ -257,14 +256,11 @@ export default function App() {
     )
   }
 
-  // While the session check is in flight: on a fresh session the BootSplash
-  // (main.jsx) is already playing the logo animation on top — render plain
-  // black underneath so two videos never play at once. On same-session
-  // reloads (splash already seen) the animation loops until auth resolves.
+  // Keep the startup surface neutral while the saved session is checked.
+  // The landing page is rendered as soon as auth resolves, without a logo
+  // splash animation.
   if (authLoading) {
-    return sessionStorage.getItem('ms-intro-seen')
-      ? <LogoSplash loop />
-      : <div className="fixed inset-0" style={{ background: '#000' }} />
+    return <div className="fixed inset-0" style={{ background: '#000' }} />
   }
 
   if (!isAuthenticated) {
