@@ -14,6 +14,18 @@ import { requireUser } from '../_auth.js'
 let _cachedModel = null
 let _cacheTime   = 0
 const CACHE_TTL  = 30 * 60 * 1000 // 30 minutes
+const requestWindow = new Map()
+const REQUEST_LIMIT = 20
+const WINDOW_MS = 10 * 60 * 1000
+
+function isRateLimited(userId) {
+  const now = Date.now()
+  const timestamps = (requestWindow.get(userId) || []).filter((time) => now - time < WINDOW_MS)
+  if (timestamps.length >= REQUEST_LIMIT) return true
+  timestamps.push(now)
+  requestWindow.set(userId, timestamps)
+  return false
+}
 
 /**
  * Score a model id so we can pick the best available one.
@@ -66,7 +78,8 @@ async function resolveModel(apiKey) {
 }
 
 export default async function handler(req, res) {
-  if (!(await requireUser(req, res))) return
+  const auth = await requireUser(req, res)
+  if (!auth) return
   if (req.method !== 'POST') {
     return res.status(405).setHeader('content-type', 'application/json')
       .send(JSON.stringify({ error: 'Method not allowed' }))
@@ -80,8 +93,27 @@ export default async function handler(req, res) {
       }))
   }
 
+  if (isRateLimited(auth.user.id)) {
+    return res.status(429).setHeader('content-type', 'application/json')
+      .send(JSON.stringify({ error: 'Too many AI requests. Please try again in a few minutes.' }))
+  }
+
   const model = await resolveModel(apiKey)
-  const body  = { ...req.body, model }
+  const requestedMessages = Array.isArray(req.body?.messages) ? req.body.messages : []
+  const messages = requestedMessages.slice(-20).map((message) => ({
+    role: message?.role === 'assistant' ? 'assistant' : 'user',
+    content: String(message?.content || '').slice(0, 16_000),
+  })).filter((message) => message.content)
+  if (!messages.length) {
+    return res.status(400).setHeader('content-type', 'application/json')
+      .send(JSON.stringify({ error: 'At least one message is required.' }))
+  }
+  const body = {
+    model,
+    max_tokens: Math.min(Math.max(Number(req.body?.max_tokens) || 1024, 1), 8192),
+    system: String(req.body?.system || '').slice(0, 16_000),
+    messages,
+  }
 
   try {
     const upstream = await fetch('https://api.anthropic.com/v1/messages', {

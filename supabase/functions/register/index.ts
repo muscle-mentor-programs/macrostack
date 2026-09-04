@@ -33,7 +33,11 @@ serve(async (req) => {
       email: cleanEmail,
       password,
       email_confirm: true, // skip the confirmation email entirely
+      // Keep the validated role here until the database migration that reads
+      // app_metadata is applied; direct client signup never receives this
+      // server-validated value.
       user_metadata: { name: (name || '').trim() || cleanEmail.split('@')[0], role: safeRole },
+      app_metadata: { role: safeRole },
     })
 
     if (error) {

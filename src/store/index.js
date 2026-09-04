@@ -8,6 +8,24 @@ import { coachClientLimit } from '../lib/coachTiers'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 
+function legacyStoragePath(url, bucket) {
+  if (!url) return null
+  try {
+    const marker = `/storage/v1/object/public/${bucket}/`
+    const pathname = new URL(url).pathname
+    const index = pathname.indexOf(marker)
+    return index === -1 ? null : decodeURIComponent(pathname.slice(index + marker.length))
+  } catch {
+    return null
+  }
+}
+
+async function signedStorageUrl(bucket, path) {
+  if (!supabase || !path) return null
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60)
+  return error ? null : data?.signedUrl || null
+}
+
 // ─── Subscription helpers ────────────────────────────────────────────────────
 
 // Effective access: superadmin override beats Stripe status (so a webhook can
@@ -61,7 +79,8 @@ function dbToClient(row) {
       fat:      row.goal_fat      ?? 65,
     },
     activeMealPlanId: row.active_meal_plan_id || null,
-    avatarUrl:        row.avatar_url || null,
+    avatarPath:       row.avatar_path || legacyStoragePath(row.avatar_url, 'avatars'),
+    avatarUrl:        null,
     status:           row.status || 'active',
     createdAt:        row.created_at,
     remindersEnabled: row.reminders_enabled ?? true,
@@ -171,7 +190,8 @@ function dbToMessage(row) {
     id:             row.id,
     from:           row.from_role,
     text:           row.text,
-    attachmentUrl:  row.attachment_url  || null,
+    attachmentPath: row.attachment_path || legacyStoragePath(row.attachment_url, 'chat-attachments'),
+    attachmentUrl:  null,
     attachmentType: row.attachment_type || null,
     timestamp:      row.created_at,
     readByCoach:    row.read_by_coach,
@@ -432,6 +452,13 @@ const useStore = create(
           }
         })
 
+        await Promise.all(clients.map(async (client) => {
+          client.avatarUrl = await signedStorageUrl('avatars', client.avatarPath)
+          await Promise.all((client.photos || []).map(async (photo) => {
+            photo.url = await signedStorageUrl('progress-photos', photo.path)
+          }))
+        }))
+
         // Coach Portal view for a superadmin: scope to only their own clients.
         // (Superadmin Portal / regular coaches are unaffected — RLS already
         // scopes real coaches to their own roster.)
@@ -446,6 +473,9 @@ const useStore = create(
           if (!messages[row.client_id]) messages[row.client_id] = []
           messages[row.client_id].push(dbToMessage(row))
         })
+        await Promise.all(Object.values(messages).flat().map(async (message) => {
+          message.attachmentUrl = await signedStorageUrl('chat-attachments', message.attachmentPath)
+        }))
 
         const foodRows      = foodRes.data || []
         const customFoods   = foodRows.filter((f) => f.source === 'custom').map(dbToFood)
@@ -863,14 +893,8 @@ const useStore = create(
 
         if (error) { console.error('Avatar upload error:', error); return { error } }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(path)
-
-        // Cache-bust so the browser re-fetches the new image immediately
-        const avatarUrl = `${publicUrl}?t=${Date.now()}`
-
-        await supabase.from('clients').update({ avatar_url: publicUrl }).eq('id', clientId)
+        const avatarUrl = await signedStorageUrl('avatars', path)
+        await supabase.from('clients').update({ avatar_path: path, avatar_url: null }).eq('id', clientId)
         set((s) => ({
           clients: s.clients.map((c) => c.id === clientId ? { ...c, avatarUrl } : c),
         }))
@@ -909,20 +933,18 @@ const useStore = create(
           .upload(path, file, { contentType: file.type })
         if (error) { console.error('Progress photo upload:', error); return { error } }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('progress-photos')
-          .getPublicUrl(path)
+        const url = await signedStorageUrl('progress-photos', path)
 
         const takenAt = today()
         const { data: row, error: insErr } = await supabase
           .from('progress_photos')
-          .insert({ client_id: clientId, url: publicUrl, path, note, taken_at: takenAt })
+          .insert({ client_id: clientId, url: '', path, note, taken_at: takenAt })
           .select()
           .single()
         if (insErr) { console.error('Progress photo insert:', insErr); return { error: insErr } }
 
         const photo = {
-          id: row.id, url: publicUrl, path, note,
+          id: row.id, url, path, note,
           takenAt: row.taken_at, createdAt: row.created_at,
         }
         set((s) => ({
@@ -1474,8 +1496,7 @@ const useStore = create(
         const { error } = await supabase.storage.from('chat-attachments')
           .upload(path, file, { contentType: file.type || undefined })
         if (error) { console.error('attachment upload:', error); return { error } }
-        const { data: { publicUrl } } = supabase.storage.from('chat-attachments').getPublicUrl(path)
-        return { url: publicUrl, type }
+        return { url: await signedStorageUrl('chat-attachments', path), path, type }
       },
 
       // ── WEB PUSH ──────────────────────────────────────────────────────────
@@ -1762,6 +1783,7 @@ Rules:
         const msg = {
           id, from, text,
           attachmentUrl:  attachment?.url  || null,
+          attachmentPath: attachment?.path || null,
           attachmentType: attachment?.type || null,
           timestamp:     new Date().toISOString(),
           readByCoach:   from === 'coach',
@@ -1778,7 +1800,7 @@ Rules:
           read_by_client: from === 'client',
         }
         let { error } = await supabase.from('messages').insert(
-          attachment ? { ...row, attachment_url: attachment.url, attachment_type: attachment.type } : row
+          attachment ? { ...row, attachment_url: null, attachment_path: attachment.path, attachment_type: attachment.type } : row
         )
         // Retry without attachment columns if that migration hasn't run yet
         if (error && attachment) ({ error } = await supabase.from('messages').insert(row))
@@ -1848,11 +1870,9 @@ Rules:
           return { ok: true }
         }
 
-        // ── Preferred path: the `register` edge function creates an already-
-        //    confirmed user via the admin API, sidestepping Supabase's built-in
-        //    confirmation mailer (the source of "Error sending confirmation
-        //    email"). Then we sign in directly. Falls back to the legacy
-        //    signUp if the function isn't deployed / is unreachable.
+        // The register Edge Function creates an already-confirmed user via the
+        // Admin API. It is the only self-service route allowed to assign a
+        // coach role, and it validates that assignment server-side.
         try {
           const res = await fetch(
             `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/register`,
@@ -1879,21 +1899,10 @@ Rules:
           if (res.status === 409 || json.already) {
             return { ok: false, error: json.error || 'An account with this email already exists.' }
           }
-          // 404 / 500 / unexpected → fall through to the legacy path.
+          return { ok: false, error: json.error || 'Registration is temporarily unavailable. Please try again.' }
         } catch {
-          // Network error / function not deployed → fall through.
+          return { ok: false, error: 'Registration is temporarily unavailable. Please try again.' }
         }
-
-        // ── Fallback: original Supabase signUp (works once custom SMTP is set
-        //    or email confirmation is disabled in the Supabase dashboard).
-        const { data, error } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password,
-          options: { data: { name: name.trim(), role } },
-        })
-        if (error) return { ok: false, error: error.message }
-        if (!data.session) return { ok: true, needsConfirmation: true }
-        return finalize()
       },
 
       // Enter a coach code → link directly to that coach (no accept step).
