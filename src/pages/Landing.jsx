@@ -5,10 +5,9 @@ import { splatToggleTheme } from '../lib/themeSplat'
 import { FOOD_COUNT } from '../data/foodCount'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
-import Lenis from 'lenis'
+import './Landing.css'
 
-gsap.registerPlugin(ScrollTrigger, MotionPathPlugin)
+gsap.registerPlugin(ScrollTrigger)
 
 // Dev-only handle for driving animations in headless verification
 if (import.meta.env.DEV) window.__gsap = gsap
@@ -71,7 +70,6 @@ const STORY_STEPS = [
   },
 ]
 
-const STORY_PCTS = ['25%', '50%', '75%', '100%']
 
 const CARDS = [
   { icon: '◎', title: 'PRECISION TRACKING', body: 'Exact macros for every meal. Custom foods, serving math, gram-level control.' },
@@ -159,14 +157,12 @@ const COACH_SHOWCASE = [
 
 /* Fill-vessel geometry (SVG user units). Bottom edge sits at y = VESSEL_BOTTOM;
    each story step fills one LAYER_H slab upward — animated via attr y/height. */
-const VESSEL_BOTTOM = 320
-const LAYER_H       = 70
 
 /* ── Feature row — a large phone mockup on one side, copy on the other.
    `flip` puts the phone on the right. Reveals on scroll via coach-reveal. ── */
 function FeatureRow({ src, eyebrow, title, body, flip, textColor, softColor }) {
   return (
-    <div className={`flex flex-col ${flip ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-10 md:gap-16`}>
+    <div className={`landing-product-card flex flex-col ${flip ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-10 md:gap-16`}>
       {/* Phone */}
       <div className="coach-reveal flex-shrink-0 w-[60vw] max-w-[260px] md:w-[320px] md:max-w-[320px]">
         <img
@@ -201,9 +197,6 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
   const toggleTheme = useStore((s) => s.toggleTheme)
   const rootRef      = useRef(null)
   const progressRef  = useRef(null)
-  const guidePathRef = useRef(null)
-  const guideDotRef  = useRef(null)
-  const fillRef      = useRef(null)
   const trackRef     = useRef(null)
 
   /* Smooth-scroll to a section — use Lenis so the pinned ScrollTrigger
@@ -218,183 +211,27 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2), // easeInOutCubic
       })
     } else {
-      el.scrollIntoView({ behavior: 'smooth' })
+      el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
     }
   }
 
   useLayoutEffect(() => {
     const root = rootRef.current
     document.documentElement.classList.add('landing-mode')
-
     const mm = gsap.matchMedia(root)
-
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       const q = gsap.utils.selector(root)
-
-      /* ── 1. Smooth scroll foundation ── */
-      const lenis = new Lenis({ lerp: 0.1 })
-      window.lenis = lenis
-      lenis.on('scroll', ScrollTrigger.update)
-      const raf = (time) => lenis.raf(time * 1000)
-      gsap.ticker.add(raf)
-      gsap.ticker.lagSmoothing(0)
-
-      /* ── 7c. Scroll progress bar ── */
-      gsap.set(progressRef.current, { scaleX: 0, transformOrigin: 'left center' })
-      gsap.to(progressRef.current, {
-        scaleX: 1, ease: 'none',
-        scrollTrigger: { start: 0, end: 'max', scrub: true },
+      gsap.from(q('.hero-word'), { yPercent: 110, duration: 1, stagger: .12, ease: 'power4.out' })
+      gsap.from(q('.hero-sub, .hero-ctas, .hero-mockup'), { y: 28, opacity: 0, duration: 1, stagger: .14, delay: .3 })
+      q('.coach-reveal, .story-step, .showcase .snap-start').forEach((el) => {
+        gsap.from(el, { y: 32, opacity: 0, duration: .75, ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 94%', once: true } })
       })
-
-      /* ── 2. Hero intro — words rise line by line ── */
-      gsap.fromTo(q('.hero-word'),
-        { yPercent: 120 },
-        { yPercent: 0, duration: 1.1, ease: 'power4.out', stagger: 0.09, delay: 0.15 })
-      gsap.fromTo(q('.hero-sub'),
-        { y: 26, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out', delay: 0.7 })
-      gsap.fromTo(q('.hero-ctas'),
-        { y: 26, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out', delay: 0.85 })
-      gsap.fromTo(q('.hero-mockup'),
-        { y: 40, autoAlpha: 0, scale: 0.96 },
-        { y: 0, autoAlpha: 1, scale: 1, duration: 1.1, ease: 'power3.out', delay: 0.55 })
-      gsap.to(q('.scroll-cue-dot'), {
-        y: 9, repeat: -1, yoyo: true, duration: 0.7, ease: 'power1.inOut',
-      })
-
-      /* Hero recedes as you scroll past */
-      gsap.to(q('.hero-inner'), {
-        yPercent: 28, scale: 0.94, opacity: 0.1, ease: 'none',
-        scrollTrigger: {
-          trigger: q('.hero')[0], start: 'top top', end: 'bottom top', scrub: true,
-        },
-      })
-
-      /* ── 3. Guide line — draws itself + glowing dot rides the tip ── */
-      const path = guidePathRef.current
-      const len  = path.getTotalLength()
-      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len })
-      gsap.to(path, {
-        strokeDashoffset: 0, ease: 'none',
-        scrollTrigger: {
-          trigger: q('.guide-wrap')[0], start: 'top 70%', end: 'bottom 75%', scrub: true,
-        },
-      })
-      gsap.to(guideDotRef.current, {
-        ease: 'none',
-        motionPath: { path, align: path, alignOrigin: [0.5, 0.5] },
-        scrollTrigger: {
-          trigger: q('.guide-wrap')[0], start: 'top 70%', end: 'bottom 75%', scrub: true,
-        },
-      })
-
-      /* ── 4. Statement — words light up as scroll passes through ── */
-      q('.stmt-word').forEach((w) => {
-        gsap.fromTo(w, { opacity: 0.15 }, {
-          opacity: 1, ease: 'none',
-          scrollTrigger: { trigger: w, start: 'top 78%', end: 'top 55%', scrub: true },
-        })
-      })
-
-      /* ── 5. Pinned story — steps crossfade while the vessel fills ── */
-      const steps = q('.story-step')
-      const pcts  = q('.story-pct')
-      const layerLabels = q('.story-layer-label')
-      gsap.set(steps.slice(1), { autoAlpha: 0, y: 30 })
-      gsap.set(pcts.slice(1),  { autoAlpha: 0 })
-      gsap.set(layerLabels.slice(1), { opacity: 0.2 })
-      gsap.set(fillRef.current, {
-        attr: { y: VESSEL_BOTTOM - LAYER_H, height: LAYER_H },
-      })
-
-      const storyTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: q('.story')[0],
-          start: 'top top',
-          end: `+=${STORY_STEPS.length * 90}%`,
-          pin: true,
-          scrub: true,
-          invalidateOnRefresh: true,
-        },
-      })
-      for (let i = 1; i < STORY_STEPS.length; i++) {
-        storyTl
-          .to(steps[i - 1], { autoAlpha: 0, y: -30, duration: 0.45 }, i)
-          .fromTo(steps[i], { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.45 }, i + 0.25)
-          .to(pcts[i - 1],  { autoAlpha: 0, duration: 0.3 }, i)
-          .to(pcts[i],      { autoAlpha: 1, duration: 0.3 }, i + 0.2)
-          .to(layerLabels[i], { opacity: 1, duration: 0.4 }, i + 0.3)
-      }
-      /* Vessel fill — ONE continuous, silky rise across all steps instead of a
-         jump per step. Linear (attr y/height) so the level tracks the scroll at
-         a perfectly steady pace — no per-step easing pulse. */
-      storyTl.to(fillRef.current, {
-        attr: {
-          y: VESSEL_BOTTOM - LAYER_H * STORY_STEPS.length,
-          height: LAYER_H * STORY_STEPS.length,
-        },
-        ease: 'none',
-        duration: STORY_STEPS.length - 1,
-      }, 0)
-      storyTl.to({}, { duration: 0.5 }) // hold the finished state briefly
-
-      /* ── 6. Showcase — native horizontal scroll (no pin); cards reveal ── */
-      gsap.fromTo(q('.showcase .snap-start'),
-        { autoAlpha: 0, y: 24 },
-        {
-          autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.08,
-          scrollTrigger: { trigger: q('.showcase')[0], start: 'top 75%', once: true },
-        })
-
-      /* ── 7a. Stat counters — count up once ── */
-      q('.stat-num').forEach((el) => {
-        const target = parseFloat(el.dataset.value)
-        const obj = { v: 0 }
-        gsap.to(obj, {
-          v: target, duration: 1.8, ease: 'power2.out',
-          onUpdate: () => { el.textContent = Math.round(obj.v).toLocaleString('en-US') },
-          scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-        })
-      })
-
-      /* ── 6.5 Coaching section — staggered reveal on scroll ── */
-      gsap.set(q('.coach-reveal'), { y: 28, autoAlpha: 0 })
-      ScrollTrigger.batch(q('.coach-reveal'), {
-        start: 'top 88%',
-        onEnter: (els) => gsap.to(els, {
-          y: 0, autoAlpha: 1, duration: 0.6, ease: 'power3.out', stagger: 0.1, overwrite: true,
-        }),
-      })
-
-      /* ── 7b. CTA scales in with scrub ── */
-      gsap.fromTo(q('.finale-cta'),
-        { scale: 0.86, autoAlpha: 0.25 },
-        {
-          scale: 1, autoAlpha: 1, ease: 'none',
-          scrollTrigger: {
-            trigger: q('.finale-cta')[0], start: 'top 92%', end: 'top 58%', scrub: true,
-          },
-        })
-
-      /* Pin-spacers change the document height AFTER Lenis measures it —
-         re-sync Lenis dimensions on every ScrollTrigger refresh, then force
-         one refresh now that all scenes exist. */
-      const onRefresh = () => lenis.resize()
-      ScrollTrigger.addEventListener('refresh', onRefresh)
-      ScrollTrigger.refresh()
-
-      return () => {
-        ScrollTrigger.removeEventListener('refresh', onRefresh)
-        gsap.ticker.remove(raf)
-        lenis.destroy()
-        delete window.lenis
-      }
+      gsap.fromTo(progressRef.current, { scaleX: 0 }, { scaleX: 1, ease: 'none',
+        scrollTrigger: { start: 0, end: 'max', scrub: true } })
+      gsap.to(q('.hero-orbit'), { rotate: 30, ease: 'none',
+        scrollTrigger: { trigger: q('.hero')[0], start: 'top top', end: 'bottom top', scrub: 1 } })
     })
-
-    /* Reduced motion: no animation context registers — the page renders fully
-       static and visible because every hidden state is set in JS, never CSS. */
-
     return () => {
       mm.revert()
       document.documentElement.classList.remove('landing-mode')
@@ -402,7 +239,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
   }, [])
 
   return (
-    <div ref={rootRef} className="bg-bg text-cream font-mono antialiased">
+    <div ref={rootRef} className="landing-redesign bg-bg text-cream font-mono antialiased">
 
       {/* ── Scroll progress bar ── */}
       <div
@@ -536,8 +373,10 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             </div>
           </div>
 
-          {/* Right — home screen mockup */}
+          {/* Product composition */}
           <div className="hero-mockup relative flex justify-center md:justify-end">
+            <div className="hero-orbit" aria-hidden="true" />
+            <img className="hero-secondary" src="/mockups/app-weight.png" alt="MacroStack weight trends screen" />
             <div
               className="pointer-events-none absolute inset-0 -z-10"
               style={{ background: `radial-gradient(ellipse 55% 55% at 55% 45%, ${accentA(22)}, transparent 65%)` }}
@@ -551,6 +390,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           </div>
         </div>
 
+        <div className="landing-hero-rail"><span>LOG WITH PRECISION</span><span>BUILD CONSISTENCY</span><span>PERFORM WITH PURPOSE</span></div>
         {/* Scroll cue */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
           <p className="font-mono text-[9px] tracking-[0.35em] text-muted opacity-70">SCROLL</p>
@@ -563,25 +403,6 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
       {/* ══ 3+4. GUIDE LINE — weaves behind content across the light statement
              AND the dark "four steps" block (z-1 line, z-0 backdrops, z-2 content) ══ */}
       <div className="guide-wrap relative" style={{ background: INVERT_BG, color: INVERT_INK, isolation: 'isolate' }}>
-        {/* Weaving SVG guide line — above the section backdrops, behind content */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          style={{ zIndex: 1 }}
-          viewBox="0 0 1000 2000"
-          preserveAspectRatio="none"
-          fill="none"
-        >
-          <path
-            ref={guidePathRef}
-            d="M 500 0 C 500 260, 160 330, 160 560 C 160 800, 840 760, 840 1010 C 840 1260, 200 1300, 320 1560 C 400 1740, 500 1800, 500 2000"
-            style={{ stroke: ACCENT, strokeOpacity: 0.55 }}
-            strokeWidth="2.5"
-          />
-          <circle ref={guideDotRef} r="7" style={{ fill: ACCENT }}>
-            <animate attributeName="opacity" values="1;0.6;1" dur="1.6s" repeatCount="indefinite" />
-          </circle>
-        </svg>
-
         {/* Statement */}
         <section className="relative z-[2] min-h-[70vh] flex items-center justify-center px-6 py-24 md:py-28">
           <p className="stmt max-w-3xl text-center font-display font-black text-4xl md:text-6xl leading-[1.15] tracking-wide">
@@ -666,103 +487,15 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
       </div>
 
       {/* ══ 5. PINNED STORY (theme dark) ═════════════════════════════════════ */}
-      <section className="story relative h-screen overflow-hidden bg-bg">
-        <div className="h-full max-w-2xl mx-auto px-6 flex flex-col items-center justify-center gap-6 md:gap-8">
-
-          {/* Vessel illustration — sits ABOVE the text, centered */}
-          <div className="flex justify-center">
-            <svg width="280" height="340" viewBox="0 0 320 360" className="max-h-[30vh] md:max-h-[40vh] w-auto">
-              <defs>
-                <clipPath id="vesselClip">
-                  <rect x="80" y="40" width="160" height="280" rx="18" />
-                </clipPath>
-                <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" style={{ stopColor: ACCENT_LIGHT }} />
-                  <stop offset="100%" style={{ stopColor: 'var(--color-accent)' }} />
-                </linearGradient>
-              </defs>
-
-              {/* Vessel outline */}
-              <rect x="80" y="40" width="160" height="280" rx="18"
-                style={{ stroke: accentA(40), fill: 'rgba(127,127,127,0.04)' }} strokeWidth="2" />
-
-              {/* The fill — y/height animated, clipped to vessel */}
-              <g clipPath="url(#vesselClip)">
-                <rect
-                  ref={fillRef}
-                  x="80" y={VESSEL_BOTTOM - LAYER_H} width="160" height={LAYER_H}
-                  fill="url(#fillGrad)" fillOpacity="0.88"
-                />
-                {[1, 2, 3].map((i) => (
-                  <line
-                    key={i}
-                    x1="80" x2="240"
-                    y1={VESSEL_BOTTOM - LAYER_H * i} y2={VESSEL_BOTTOM - LAYER_H * i}
-                    style={{ stroke: 'var(--color-bg)' }} strokeOpacity="0.45" strokeWidth="2"
-                  />
-                ))}
-              </g>
-
-              {/* % readout — crossfades per step */}
-              {STORY_PCTS.map((p) => (
-                <text
-                  key={p}
-                  className="story-pct"
-                  x="160" y="190"
-                  textAnchor="middle"
-                  style={{
-                    fill: 'var(--color-cream)',
-                    font: '900 44px "Barlow Condensed", sans-serif',
-                    letterSpacing: '2px',
-                  }}
-                >
-                  {p}
-                </text>
-              ))}
-
-              {/* Layer labels light up as each fills */}
-              {['PRO', 'CARB', 'FAT', 'KCAL'].map((label, i) => (
-                <text
-                  key={label}
-                  className="story-layer-label"
-                  x="252" y={VESSEL_BOTTOM - LAYER_H * i - LAYER_H / 2 + 5}
-                  style={{
-                    fill: 'var(--color-accent)',
-                    font: '700 13px "Space Grotesk", monospace',
-                    letterSpacing: '2px',
-                  }}
-                >
-                  {label}
-                </text>
-              ))}
-
-            </svg>
-          </div>
-
-          {/* Steps — stacked crossfade, centered below the animation */}
-          <div className="relative h-56 md:h-60 w-full">
-            {STORY_STEPS.map((s) => (
-              <div key={s.n} className="story-step absolute inset-0 flex flex-col items-center justify-start text-center">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <span className="font-display font-black text-5xl" style={{ color: accentA(33) }}>
-                    {s.n}
-                  </span>
-                  <span
-                    className="font-mono text-[10px] tracking-[0.3em] px-2.5 py-1 rounded-full border"
-                    style={{ color: ACCENT, borderColor: accentA(27), background: accentA(7) }}
-                  >
-                    {s.tag}
-                  </span>
-                </div>
-                <h3 className="font-display font-black text-3xl md:text-5xl tracking-wide leading-tight mb-4 text-cream">
-                  {s.title}
-                </h3>
-                <p className="text-sm md:text-base leading-relaxed text-muted max-w-md mx-auto">
-                  {s.body}
-                </p>
-              </div>
-            ))}
-          </div>
+      <section className="story bg-bg">
+        <div className="landing-story-grid">
+          {STORY_STEPS.map((s) => (
+            <article key={s.n} className="story-step">
+              <div className="landing-step-top"><span>{s.n}</span><span>{s.tag}</span></div>
+              <h3 className="font-display">{s.title}</h3>
+              <p>{s.body}</p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -859,7 +592,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               YOUR NUTRITION, <span style={{ color: ACCENT }}>IN YOUR POCKET</span>.
             </h2>
           </div>
-          <div className="space-y-24 md:space-y-36">
+          <div className="landing-product-grid">
             {APP_SHOWCASE.map((f, i) => (
               <FeatureRow key={f.src} {...f} flip={i % 2 === 1} textColor="var(--color-cream)" softColor="var(--color-muted)" />
             ))}
@@ -1007,7 +740,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
             </div>
           </div>
-          <div className="space-y-20 md:space-y-32">
+          <div className="landing-product-grid">
             {COACH_SHOWCASE.map((f, i) => (
               <FeatureRow key={f.src} {...f} flip={i % 2 === 1} textColor={INVERT_INK} softColor={INVERT_SOFT} />
             ))}
@@ -1086,7 +819,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           {STATS.map((s) => (
             <div key={s.label}>
               <p className="font-display font-black text-4xl md:text-7xl" style={{ color: ACCENT }}>
-                <span className="stat-num" data-value={s.value}>0</span>
+                <span className="stat-num" data-value={s.value}>{s.value.toLocaleString('en-US')}</span>
                 <span>{s.suffix}</span>
               </p>
               <p className="font-mono text-[9px] md:text-xs tracking-[0.3em] text-muted mt-2">
