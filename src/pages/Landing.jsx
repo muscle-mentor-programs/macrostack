@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { Smartphone, Share, PlusSquare, Sun, Moon } from 'lucide-react'
+import { Smartphone, Share, PlusSquare, Sun, Moon, Utensils, ScanBarcode, LayoutDashboard, Bot, CalendarDays, ChartNoAxesCombined, Target, ArrowRight } from 'lucide-react'
 import useStore from '../store'
 import { splatToggleTheme } from '../lib/themeSplat'
 import { FOOD_COUNT } from '../data/foodCount'
@@ -53,31 +53,31 @@ const STATEMENT =
 
 const STORY_STEPS = [
   {
-    n: '01', tag: 'LOG', title: 'LOG MEALS IN SECONDS',
+    n: '01', icon: Utensils, tag: 'LOG', title: 'LOG MEALS IN SECONDS',
     body: 'Your most-logged foods surface first. One tap, macros counted. The fastest food log you have ever used.',
   },
   {
-    n: '02', tag: 'SCAN', title: 'SCAN ANY BARCODE',
+    n: '02', icon: ScanBarcode, tag: 'SCAN', title: 'SCAN ANY BARCODE',
     body: 'Point your camera at a label and get instant, verified macros from a database of 15,000+ foods.',
   },
   {
-    n: '03', tag: 'COACH', title: 'YOUR COACH SEES EVERYTHING',
+    n: '03', icon: LayoutDashboard, tag: 'COACH', title: 'YOUR COACH SEES EVERYTHING',
     body: 'Daily intake, 7-day compliance, weight trends — live on your coach’s dashboard, with real-time messaging built in.',
   },
   {
-    n: '04', tag: 'COMING SOON', title: 'MEET KAY — AI NUTRITIONIST',
+    n: '04', icon: Bot, tag: 'COMING SOON', title: 'MEET KAY — AI NUTRITIONIST',
     body: 'Kay is on the way: a built-in AI nutritionist that suggests meals to fit your remaining macros. Launching soon.',
   },
 ]
 
 
 const CARDS = [
-  { icon: '◎', title: 'PRECISION TRACKING', body: 'Exact macros for every meal. Custom foods, serving math, gram-level control.' },
-  { icon: '▤', title: 'BARCODE SCANNER',    body: 'Instant nutrition data from any label. No typing, no guessing.' },
-  { icon: '↗', title: 'COACH DASHBOARD',    body: 'Unlimited clients, individual targets, live compliance — one screen.' },
-  { icon: '✦', title: 'KAY AI',             body: 'A nutrition expert in your pocket. Food intel and answers, 24/7.', soon: true },
-  { icon: '▦', title: 'MEAL PLANS',         body: 'Coaches build day-by-day plans. Clients log a full meal with one tap.' },
-  { icon: '◠', title: 'WEIGHT & TRENDS',    body: '7-day moving averages, calorie trends, consistency heatmaps.' },
+  { icon: Target, title: 'PRECISION TRACKING', body: 'Exact macros for every meal. Custom foods, serving math, gram-level control.' },
+  { icon: ScanBarcode, title: 'BARCODE SCANNER',    body: 'Instant nutrition data from any label. No typing, no guessing.' },
+  { icon: LayoutDashboard, title: 'COACH DASHBOARD',    body: 'Unlimited clients, individual targets, live compliance — one screen.' },
+  { icon: Bot, title: 'KAY AI',             body: 'A nutrition expert in your pocket. Food intel and answers, 24/7.', soon: true },
+  { icon: CalendarDays, title: 'MEAL PLANS',         body: 'Coaches build day-by-day plans. Clients log a full meal with one tap.' },
+  { icon: ChartNoAxesCombined, title: 'WEIGHT & TRENDS',    body: '7-day moving averages, calorie trends, consistency heatmaps.' },
 ]
 
 const STATS = [
@@ -491,7 +491,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         <div className="landing-story-grid">
           {STORY_STEPS.map((s) => (
             <article key={s.n} className="story-step">
-              <div className="landing-step-top"><span>{s.n}</span><span>{s.tag}</span></div>
+              <div className="landing-step-top"><span className="landing-card-icon"><s.icon size={22} strokeWidth={1.5} aria-hidden="true" /></span><span>{s.n} / {s.tag}</span></div>
               <h3 className="font-display">{s.title}</h3>
               <p>{s.body}</p>
             </article>
@@ -500,11 +500,11 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
       </section>
 
       {/* ══ 6. SHOWCASE (inverted theme section) — square cards, compact ═════ */}
-      <section id="features" className="showcase relative py-20 md:py-28 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
+      <section id="features" className="showcase relative py-20 md:py-28 overflow-hidden" style={{ background: 'var(--color-bg)', color: 'var(--color-cream)' }}>
         <div className="px-6 md:px-10 max-w-5xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
-            <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: INVERT_SOFT }}>
+            <p className="font-mono text-[10px] tracking-[0.3em]" style={{ color: 'var(--color-muted)' }}>
               THE PLATFORM
             </p>
             <span className="w-8 h-px" style={{ background: accentA(60) }} />
@@ -527,13 +527,13 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               key={c.title}
               className="w-[74vw] sm:w-[300px] md:w-[340px] aspect-square flex-shrink-0 snap-start rounded-3xl p-6 md:p-8 backdrop-blur-sm flex flex-col justify-between"
               style={{
-                background: INVERT_CARD,
-                border: INVERT_BORDER,
+                background: 'var(--color-card)',
+                border: '1px solid var(--color-border)',
                 boxShadow: `0 8px 40px ${INVERT_SHADOW}`,
               }}
             >
               <div className="flex items-start justify-between">
-                <span className="text-5xl" style={{ color: ACCENT }}>{c.icon}</span>
+                <span className="landing-card-icon"><c.icon size={24} strokeWidth={1.5} aria-hidden="true" /></span>
                 {c.soon && (
                   <span
                     className="font-mono text-[9px] tracking-[0.25em] px-2.5 py-1 rounded-full border"
@@ -547,7 +547,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
                 <h3 className="font-display font-black text-2xl md:text-3xl tracking-wide mb-3">
                   {c.title}
                 </h3>
-                <p className="text-sm md:text-base leading-relaxed" style={{ color: INVERT_SOFT }}>{c.body}</p>
+                <p className="text-sm md:text-base leading-relaxed" style={{ color: 'color-mix(in srgb,var(--color-cream) 72%,var(--color-bg))' }}>{c.body}</p>
               </div>
             </div>
           ))}
@@ -561,7 +561,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               color: ON_ACCENT,
             }}
           >
-            <span className="text-4xl">→</span>
+            <ArrowRight size={26} strokeWidth={1.5} aria-hidden="true" />
             <div>
               <h3 className="font-display font-black text-3xl md:text-4xl tracking-wide">
                 SEE IT ALL.

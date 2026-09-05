@@ -30,19 +30,24 @@
 .landing-redesign .guide-wrap > section:last-child { padding-block: 90px 40px; }
 .landing-redesign .guide-wrap > section:last-child > div:last-child { max-width: 1200px; }
 .landing-redesign .guide-wrap > section:last-child h2 { font-size: clamp(40px,5vw,72px); }
-.landing-story-grid { max-width: 1248px; margin: auto; padding: 0 24px 100px; display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
-.landing-redesign .story-step { padding: 30px 24px; border: 1px solid var(--color-border); margin-left: -1px; background: var(--color-card); }
-.landing-step-top { display: flex; justify-content: space-between; align-items: center; color: var(--color-accent); margin-bottom: 52px; }
-.landing-step-top span:first-child { font-size: 36px; font-weight: 300; }
+.landing-story-grid { max-width: 1248px; margin: auto; padding: 0 24px 64px; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
+.landing-redesign .story-step { padding: 26px 24px; border: 1px solid var(--color-border); border-top-color: color-mix(in srgb,var(--color-accent) 45%,var(--color-border)); border-radius: 8px; background: var(--color-card); }
+.landing-step-top { display: flex; gap: 12px; justify-content: space-between; align-items: center; color: var(--color-accent); margin-bottom: 26px; }
+.landing-card-icon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 42px; height: 42px; border: 1px solid color-mix(in srgb,var(--color-accent) 25%,var(--color-border)); border-radius: 6px; color: var(--color-accent); background: color-mix(in srgb,var(--color-accent) 6%,transparent); }
 .landing-step-top span:last-child { font-size: 9px; letter-spacing: .15em; }
-.landing-redesign .story-step h3 { font-size: 28px; line-height: 1.1; margin-bottom: 18px; }
-.landing-redesign .story-step p { font-size: 13px; line-height: 1.8; color: var(--color-muted); }
+.landing-redesign .story-step h3 { font-size: 26px; font-weight: 800; line-height: 1.1; margin-bottom: 14px; }
+.landing-redesign .story-step p { font-size: 13px; line-height: 1.8; color: color-mix(in srgb,var(--color-cream) 72%,var(--color-bg)); }
 .landing-redesign .showcase > div:first-child { max-width: 1200px; text-align: left; }
 .landing-redesign .showcase > div:first-child > div { justify-content: flex-start; }
 .landing-redesign .showcase .premium-scroll { overflow: visible; max-width: 1248px; margin: 45px auto 0; padding: 0 24px; }
-.landing-redesign .showcase .premium-scroll > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; gap: 16px; }
-.landing-redesign .showcase .snap-start { width: auto; aspect-ratio: auto; min-height: 265px; border-radius: 8px; box-shadow: none !important; }
+.landing-redesign .showcase { border-top: 1px solid var(--color-border); }
+.landing-redesign .showcase .premium-scroll > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; gap: 16px; align-items: stretch; }
+.landing-redesign .showcase .snap-start { width: auto; aspect-ratio: auto; min-height: 240px; border-radius: 8px; box-shadow: none !important; justify-content: flex-start; gap: 26px; padding: 26px; }
+.landing-redesign .showcase .snap-start h3 { font-size: 26px; font-weight: 800; line-height: 1.1; }
+.landing-redesign .showcase .snap-start p { font-size: 14px; line-height: 1.75; }
 .landing-redesign .showcase .snap-start:last-child { grid-column: 1 / -1; min-height: 130px; flex-direction: row; align-items: center; }
+.landing-redesign .showcase .snap-start:last-child > svg { flex-shrink: 0; }
+.landing-redesign .showcase .snap-start:last-child p { font-size: 10px; letter-spacing: .15em; margin-top: 8px; }
 .landing-redesign #app { padding-top: 100px; }
 .landing-redesign #app > div:nth-child(2), .landing-redesign #pricing, .landing-redesign #coach > div:last-child { max-width: 1200px; }
 .landing-product-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
@@ -90,7 +95,8 @@
   .landing-story-grid { grid-template-columns: 1fr; padding-bottom: 60px; }
   .landing-step-top { margin-bottom: 22px; }
   .landing-redesign .showcase .premium-scroll > div, .landing-product-grid { grid-template-columns: 1fr; }
-  .landing-redesign .showcase .snap-start { min-height: 230px; }
+  .landing-redesign .showcase .snap-start { min-height: 0; gap: 22px; padding: 24px; }
+  .landing-redesign .showcase .snap-start h3, .landing-redesign .story-step h3 { font-size: 26px; text-wrap: pretty; }
   .landing-redesign .showcase .snap-start:last-child { gap: 25px; }
   .landing-redesign .landing-product-card { padding: 28px 24px 0; }
   .landing-redesign #coach .grid-cols-2 { grid-template-columns: 1fr; gap: 24px; }
