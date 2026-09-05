@@ -48,7 +48,7 @@ export default function Sidebar({ width }) {
   const activeIdx = Math.max(0, NAV.findIndex((n) => n.id === activePage))
 
   return (
-    <aside className="flex-shrink-0 flex flex-col h-full relative z-10 my-4 ml-4 rounded-3xl glass-sidebar border border-border overflow-hidden"
+    <aside className="product-sidebar flex-shrink-0 flex flex-col h-full relative z-10 my-4 ml-4 rounded-3xl glass-sidebar border border-border overflow-hidden"
       style={{ width: width ?? 256, borderRight: '1px solid var(--color-border)' }}
     >
       {/* Ambient accent glow — landing hero language */}
@@ -60,7 +60,8 @@ export default function Sidebar({ width }) {
       />
 
       {/* Brand */}
-      <div className="px-6 pt-7 pb-6 border-b border-border relative scanline-parent">
+      <div className="product-brand px-6 pt-7 pb-6 border-b border-border relative scanline-parent">
+        <img src="/icon-192.png" alt="" className="product-brand-mark" width="38" height="38" />
         <h1 className="font-display font-black text-2xl tracking-widest text-cream uppercase leading-none">
           <ScrambleText text="MACRO" duration={900} delay={0} />
           <span style={{ color: 'var(--color-accent)' }}>
@@ -120,6 +121,7 @@ export default function Sidebar({ width }) {
             return (
               <button
                 key={id}
+                aria-current={active ? 'page' : undefined}
                 onClick={() => setActivePage(id)}
                 style={{ height: ITEM_H, animationDelay: `${i * 45}ms` }}
                 className={`anim-slide-left w-full flex items-center gap-3 px-4 rounded-xl transition-colors duration-200 group relative ${

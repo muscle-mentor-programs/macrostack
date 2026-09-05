@@ -42,11 +42,11 @@ export default function ClientLayout({ children }) {
   const isSuperAdmin = currentUser?.role === 'superadmin'
 
   return (
-    <div className="flex flex-col h-full w-full bg-bg relative">
+    <div className="software-ui software-client flex flex-col h-full w-full bg-bg relative">
       <AmbientBackground />
 
       {/* Top-right controls: role switch (superadmin only) + theme + logout */}
-      <div className="fixed top-safe right-4 z-30 flex items-center gap-2">
+      <div className="product-controls fixed top-safe right-4 z-30 flex items-center gap-2">
         {isSuperAdmin && (
           <button
             onClick={() => setActiveRole(null)}

@@ -86,11 +86,11 @@ export default function CoachLayout({ children }) {
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
     return (
-      <div className="flex flex-col h-full w-full bg-bg overflow-hidden relative">
+      <div className="software-ui software-coach flex flex-col h-full w-full bg-bg overflow-hidden relative">
         <AmbientBackground />
 
         {/* Floating top-right controls */}
-        <div className="fixed top-safe right-4 z-30 flex items-center gap-1.5">
+        <div className="product-controls fixed top-safe right-4 z-30 flex items-center gap-1.5">
           {isSuperAcct && (
             <button
               onClick={() => setPortalMode(portalMode === 'superadmin' ? 'coach' : 'superadmin')}
@@ -135,7 +135,7 @@ export default function CoachLayout({ children }) {
 
   /* ── Desktop layout — floating rail + floating page canvas ──── */
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-bg relative">
+    <div className="software-ui software-coach flex h-screen w-screen overflow-hidden bg-bg relative">
       <AmbientBackground />
 
       {/* Landing-style ambient accent glows behind the shell */}
@@ -169,7 +169,7 @@ export default function CoachLayout({ children }) {
       <main className="flex-1 min-w-0 overflow-hidden relative py-4 pr-4">
         <div
           key={activePage}
-          className="h-full rounded-3xl border border-border overflow-hidden relative"
+          className="product-canvas h-full rounded-3xl border border-border overflow-hidden relative"
           style={{
             background: 'color-mix(in srgb, var(--color-surface) 55%, var(--color-bg))',
             boxShadow:

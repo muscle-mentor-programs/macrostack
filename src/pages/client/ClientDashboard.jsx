@@ -327,7 +327,7 @@ export default function ClientDashboard() {
       </div>
 
       {/* Calorie ring */}
-      <div className="flex flex-col items-center py-6 px-5 anim-fade-in" style={{ animationDelay: '100ms' }}>
+      <div className="client-energy flex flex-col items-center py-6 px-5 anim-fade-in" style={{ animationDelay: '100ms' }}>
         <CalorieRing current={totals.calories} goal={client?.goals?.calories || 2000} />
         <div className="flex gap-8 mt-4">
           <div className="text-center">
@@ -347,7 +347,7 @@ export default function ClientDashboard() {
       </div>
 
       {/* Macro chips */}
-      <div className="flex gap-3 px-5 mb-6">
+      <div className="client-macros flex gap-3 px-5 mb-6">
         <MacroChip label="PROTEIN" current={totals.protein} goal={client?.goals?.protein} color="olive" delay={150} />
         <MacroChip label="CARBS" current={totals.carbs} goal={client?.goals?.carbs} color="brown" delay={220} />
         <MacroChip label="FAT" current={totals.fat} goal={client?.goals?.fat} color="slate" delay={290} />

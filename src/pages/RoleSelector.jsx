@@ -12,7 +12,7 @@ export default function RoleSelector() {
   const enterCoach      = () => { setPortalMode('coach');      setActiveRole('coach') }
 
   return (
-    <div className="flex h-screen w-screen bg-bg items-center justify-center anim-fade-in">
+    <div className="software-ui software-entry flex h-screen w-screen bg-bg items-center justify-center anim-fade-in">
       {/* Back to homepage */}
       <button
         onClick={logout}

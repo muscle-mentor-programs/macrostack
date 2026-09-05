@@ -1,0 +1,181 @@
+/*
+ * Product visual language: shared with the editorial landing page.
+ * Activated by software-ui on application/entry layouts. :has also covers
+ * sheets rendered into document.body without changing their positioning.
+ * Animation classes, chart geometry, safe-area rules and behavior are retained.
+ */
+body:has(.software-ui) {
+  --product-line: color-mix(in srgb, var(--color-accent) 25%, var(--color-border));
+  --product-soft: color-mix(in srgb, var(--color-cream) 60%, var(--color-muted));
+  --product-panel: color-mix(in srgb, var(--color-card) 95%, var(--color-accent));
+  --product-shadow: 0 8px 28px #00000014;
+}
+
+/* Flat, precise panel edges replace the old heavy, beveled glass cards. */
+body:has(.software-ui) :is(.glass-card, .card-dim) {
+  background: var(--product-panel) !important;
+  box-shadow: var(--product-shadow) !important;
+  border-color: var(--product-line) !important;
+  border-radius: 10px;
+}
+body:has(.software-ui) :is(.rounded-2xl, .rounded-3xl):is(.bg-card, .bg-surface, .border) {
+  border-radius: 10px;
+}
+body:has(.software-ui) .card-inset {
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-bg) 72%, var(--color-accent) 5%) !important;
+  box-shadow: none !important;
+}
+body:has(.software-ui) .card-hover:hover {
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
+}
+body:has(.software-ui) .text-muted { color: var(--product-soft) !important; }
+body:has(.software-ui) .text-gradient-accent {
+  background-image: linear-gradient(135deg, var(--color-cream), var(--color-accent));
+}
+body:has(.software-ui) :is(h1,h2,h3).font-display {
+  letter-spacing: -.015em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+body:has(.software-ui) .glass-panel {
+  background: linear-gradient(115deg, color-mix(in srgb, var(--color-accent) 9%, var(--color-bg)), var(--color-bg)) !important;
+  box-shadow: none !important;
+  border-color: var(--product-line) !important;
+}
+body:has(.software-ui) .glass-panel :is(h1,h2):is(.text-3xl,.text-4xl) {
+  font-size: clamp(34px, 3.6vw, 54px);
+  line-height: 1.02;
+}
+body:has(.software-ui) .glass-panel > div { min-width: 0; }
+body:has(.software-ui) .accent-line::before {
+  left: 0; right: auto; width: 72px; height: 2px;
+  background: var(--color-accent);
+  filter: none;
+}
+
+/* Keep status/macro colors semantic; unify only neutral and primary controls. */
+body:has(.software-ui) :is(button,a):is(.rounded-lg,.rounded-xl,.rounded-2xl) {
+  border-radius: 6px;
+}
+body:has(.software-ui) .btn-accent {
+  border-radius: 6px;
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+body:has(.software-ui) :is(button,a,input,select,textarea):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+body:has(.software-ui) :is(input,textarea,select):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]) {
+  border-radius: 6px;
+  border-color: var(--product-line);
+}
+body:has(.software-ui) :is(input,textarea)::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+body:has(.software-ui) table th {
+  font-size: 10px;
+  letter-spacing: .12em;
+  padding-block: 14px;
+}
+body:has(.software-ui) table td { font-variant-numeric: tabular-nums; }
+
+/* Desktop workspace: framed rail and an editorial page canvas. */
+.software-ui .product-sidebar {
+  height: calc(100% - 32px);
+  border-radius: 12px;
+}
+.software-ui .product-sidebar nav {
+  min-height: 100px;
+  overflow-y: auto;
+  padding-bottom: 16px;
+}
+.software-ui .product-sidebar > :not(nav) { flex-shrink: 0; }
+.software-ui .product-sidebar h1 { font-size: 26px; letter-spacing: .02em; }
+.software-ui .product-brand { padding: 24px 20px 20px; }
+.software-ui .product-brand-mark {
+  width: 38px; height: 38px; margin-bottom: 14px;
+  border-radius: 8px; border: 1px solid var(--product-line);
+}
+.software-ui .product-canvas {
+  border-radius: 12px;
+  box-shadow: 0 10px 40px #00000018 !important;
+}
+body:has(.software-ui) .product-sidebar.glass-sidebar {
+  background: color-mix(in srgb, var(--color-bg) 96%, var(--color-accent)) !important;
+}
+.software-ui .product-controls {
+  padding: 4px;
+  background: var(--color-bg);
+  border: 1px solid var(--product-line);
+  border-radius: 10px;
+}
+
+/* Bottom navigation retains badges, spring indicators and hide-on-scroll. */
+body:has(.software-ui) .glass-bottom-nav {
+  background: color-mix(in srgb, var(--color-bg) 96%, transparent) !important;
+  border-top-color: var(--product-line);
+  box-shadow: 0 -6px 24px #00000012 !important;
+}
+.software-ui .glass-bottom-nav > div { max-width: 900px; margin-inline: auto; }
+.software-ui .glass-bottom-nav button[aria-current=page] { color: var(--color-accent); }
+.software-ui .product-nav-pill {
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+/* Client overview: an instrument panel for the existing calorie ring. */
+.software-ui .client-energy {
+  margin: 20px 20px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--product-line);
+  background:
+    radial-gradient(ellipse at 50% 15%, color-mix(in srgb, var(--color-accent) 13%, transparent), transparent 70%),
+    linear-gradient(90deg, transparent 49.8%, color-mix(in srgb, var(--color-accent) 5%, transparent) 50%, transparent 50.2%),
+    var(--color-bg);
+}
+.software-ui .client-energy > .flex { width: min(100%, 330px); justify-content: space-evenly; gap: 16px; }
+.software-ui .client-energy .text-lg { font-size: 28px; line-height: 1; }
+.software-ui .client-energy .text-xs { font-size: 10px; letter-spacing: .12em; margin-top: 8px; }
+.software-ui .client-macros .font-black { font-size: 30px; line-height: 1.1; }
+
+/* Entry screens share the landing's open grid and oversized brand typography.
+ * No transforms/filter on these wrappers: the existing 3D flip stays intact.
+ */
+.software-entry {
+  background-image:
+    radial-gradient(ellipse at 15% 15%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 55%),
+    linear-gradient(color-mix(in srgb, var(--color-accent) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 4%, transparent) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
+}
+.software-entry .max-w-sm { max-width: 420px; }
+.software-entry h1 { letter-spacing: -.03em !important; }
+.software-entry h1 :is(.text-brown, .text-brown-light) {
+  -webkit-text-stroke: 1px var(--color-accent);
+  -webkit-text-fill-color: transparent;
+}
+.software-entry .scanline-parent h1 { font-size: 78px; line-height: .92; }
+.software-entry .glass-card { padding: 28px; }
+
+@media (min-width: 1024px) {
+  .software-client main > div { max-width: 1100px; margin-inline: auto; }
+  .software-client main { background: color-mix(in srgb, var(--color-bg) 98%, var(--color-accent)); }
+  .software-client .client-energy { max-width: 680px; margin-inline: auto; }
+  .software-client .client-macros { max-width: 720px; width: 100%; margin-inline: auto; }
+}
+@media (max-width: 767px) {
+  body:has(.software-ui) .glass-panel :is(h1,h2):is(.text-3xl,.text-4xl) { font-size: 38px; }
+  .software-ui .product-controls { top: max(8px, env(safe-area-inset-top)); }
+  .software-ui .glass-bottom-nav button { min-height: 60px; }
+  .software-entry .scanline-parent h1 { font-size: 68px; }
+  .software-entry .glass-card { padding: 24px; }
+  body:has(.software-ui) :is(input,textarea,select):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]) { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Existing motion components retain their own reduced-motion handling. */
+  body:has(.software-ui) :is(.card-hover,.btn-accent) { transition-duration: .01ms; }
+}

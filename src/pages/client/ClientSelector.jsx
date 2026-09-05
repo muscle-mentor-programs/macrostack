@@ -8,7 +8,7 @@ export default function ClientSelector() {
   const isClientUser = currentUser?.role === 'client'
 
   return (
-    <div className="flex flex-col h-screen bg-bg px-6 pt-12 pb-8">
+    <div className="software-ui software-entry flex flex-col h-screen bg-bg px-6 pt-12 pb-8">
       {/* Back button — coaches only; client users skip this row entirely */}
       {!isClientUser && (
         <div className="mb-10 anim-fade-in-down">

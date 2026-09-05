@@ -31,6 +31,7 @@ export default function BottomNav() {
           return (
             <button
               key={id}
+              aria-current={active ? 'page' : undefined}
               onClick={() => { tapHaptic(); setActivePage(id) }}
               className={`relative flex flex-col items-center justify-center py-3 gap-1 transition-all duration-200 ${
                 active ? 'text-brown-light' : 'text-muted hover:text-cream'
@@ -39,7 +40,7 @@ export default function BottomNav() {
               {/* Active pill background */}
               {active && (
                 <span
-                  className="absolute inset-x-3 top-1.5 bottom-4 rounded-xl pointer-events-none"
+                  className="product-nav-pill absolute inset-x-3 top-1.5 bottom-4 rounded-xl pointer-events-none"
                   style={{ background: 'rgba(154,123,85,0.10)' }}
                 />
               )}

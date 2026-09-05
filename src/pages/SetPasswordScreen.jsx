@@ -38,7 +38,7 @@ export default function SetPasswordScreen({ onDone }) {
   }
 
   return (
-    <div className="flex h-full w-full bg-bg items-center justify-center px-6">
+    <div className="software-ui software-entry flex h-full w-full bg-bg items-center justify-center px-6">
       <div className="w-full max-w-sm anim-fade-in-up">
 
         {/* Logo / brand mark */}

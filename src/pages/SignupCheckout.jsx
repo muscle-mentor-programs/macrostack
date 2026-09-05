@@ -129,7 +129,7 @@ export default function SignupCheckout({ onBack, onSignIn }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-bg overflow-y-auto anim-fade-in">
+    <div className="software-ui software-entry fixed inset-0 bg-bg overflow-y-auto anim-fade-in">
       {/* Back to landing */}
       {onBack && (
         <div className="fixed top-safe left-4 z-10">
