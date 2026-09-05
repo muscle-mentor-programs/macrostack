@@ -486,7 +486,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           <div className="text-center md:text-left">
             {/* App icon — signals this is an installable app at first glance */}
             <img
-              src="/apple-touch-icon.png"
+              src="/macrostack-logo.jpg"
               alt="MacroStack app icon"
               width="64"
               height="64"
