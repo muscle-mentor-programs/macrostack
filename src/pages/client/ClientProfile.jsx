@@ -134,12 +134,22 @@ export default function ClientProfile() {
   const [saved,      setSaved]      = useState(false)
   const [uploading,  setUploading]  = useState(false)
   const [cropSrc,    setCropSrc]    = useState(null)   // object-URL while cropping
+  const [photoMessage, setPhotoMessage] = useState('')
   const fileInputRef = useRef(null)
+  useEffect(() => () => { if (cropSrc) URL.revokeObjectURL(cropSrc) }, [cropSrc])
 
   // Step 1 — file selected → open crop modal
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0]
+    e.target.value = ''
     if (!file) return
+    setPhotoMessage('')
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setPhotoMessage('Choose a JPG, PNG, or WebP photo.'); return
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setPhotoMessage('Choose a photo smaller than 20 MB.'); return
+    }
     const url = URL.createObjectURL(file)
     setCropSrc(url)
     e.target.value = ''
@@ -147,12 +157,16 @@ export default function ClientProfile() {
 
   // Step 2 — crop confirmed → upload blob
   const handleCropConfirm = async (blob) => {
-    URL.revokeObjectURL(cropSrc)
-    setCropSrc(null)
     setUploading(true)
-    const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
-    await uploadClientAvatar(activeClientId, file)
-    setUploading(false)
+    try {
+      const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
+      const result = await uploadClientAvatar(activeClientId, file)
+      if (result?.error) throw new Error(result.error.message || result.error)
+      setCropSrc(null)
+      setPhotoMessage('Profile photo updated.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleCropCancel = () => {
@@ -256,6 +270,7 @@ export default function ClientProfile() {
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
+          aria-label="Change profile photo"
           className="relative group focus:outline-none"
         >
           <ClientAvatar
@@ -276,6 +291,7 @@ export default function ClientProfile() {
         <p className="font-mono text-xs text-dim mt-2">
           {uploading ? 'Uploading…' : 'Tap to change photo'}
         </p>
+        {photoMessage && <p role="status" className="text-sm text-muted mt-2 px-5 text-center">{photoMessage}</p>}
         <input
           ref={fileInputRef}
           type="file"

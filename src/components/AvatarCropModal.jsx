@@ -18,24 +18,21 @@ async function cropToBlob(imageSrc, pixelCrop, mimeType = 'image/jpeg') {
   })
 
   const canvas = document.createElement('canvas')
-  canvas.width  = pixelCrop.width
-  canvas.height = pixelCrop.height
+  canvas.width  = 512
+  canvas.height = 512
   const ctx = canvas.getContext('2d')
 
-  // Circular clip
-  ctx.beginPath()
-  ctx.arc(pixelCrop.width / 2, pixelCrop.height / 2, pixelCrop.width / 2, 0, Math.PI * 2)
-  ctx.clip()
+  if (!ctx) throw new Error('Photo editing is unavailable in this browser.')
 
   ctx.drawImage(
     img,
     pixelCrop.x, pixelCrop.y,
     pixelCrop.width, pixelCrop.height,
     0, 0,
-    pixelCrop.width, pixelCrop.height,
+    512, 512,
   )
 
-  return new Promise((resolve) => canvas.toBlob(resolve, mimeType, 0.92))
+  return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not prepare this photo. Please choose another image.')), mimeType, 0.88))
 }
 
 export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
@@ -43,25 +40,35 @@ export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
   const [zoom,       setZoom]       = useState(1)
   const [croppedArea, setCroppedArea] = useState(null)
   const [confirming, setConfirming] = useState(false)
+  const [error, setError] = useState('')
 
   const onCropComplete = useCallback((_, croppedAreaPixels) => {
     setCroppedArea(croppedAreaPixels)
   }, [])
 
   const handleConfirm = async () => {
-    if (!croppedArea) return
+    if (!croppedArea || confirming) return
     setConfirming(true)
-    const blob = await cropToBlob(imageSrc, croppedArea)
-    onConfirm(blob)
+    setError('')
+    try {
+      const blob = await cropToBlob(imageSrc, croppedArea)
+      await onConfirm(blob)
+    } catch (err) {
+      setError(err.message || 'Could not save your photo. Please try again.')
+    } finally {
+      setConfirming(false)
+    }
   }
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col bg-bg anim-fade-in">
+    <div role="dialog" aria-modal="true" aria-label="Crop profile photo" aria-busy={confirming} className="fixed inset-0 z-[200] flex flex-col bg-bg anim-fade-in">
 
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border glass-panel flex-shrink-0">
         <button
           onClick={onCancel}
+          disabled={confirming}
+          aria-label="Cancel photo upload"
           className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream transition-colors"
         >
           <X size={20} />
@@ -69,11 +76,11 @@ export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
         <p className="font-display font-bold text-sm tracking-widest text-cream">CROP PHOTO</p>
         <button
           onClick={handleConfirm}
-          disabled={confirming}
+          disabled={confirming || !croppedArea}
           className="flex items-center gap-1.5 bg-brown hover:bg-brown-light disabled:opacity-50 text-bg font-display font-bold text-sm tracking-widest px-4 py-2 rounded-xl transition-colors glow-hover"
         >
           {confirming
-            ? <div className="w-4 h-4 border-2 border-bg/40 border-t-bg rounded-full animate-spin" />
+            ? <><div className="w-4 h-4 border-2 border-bg/40 border-t-bg rounded-full animate-spin" /> SAVING</>
             : <><Check size={14} /> SAVE</>
           }
         </button>
@@ -91,10 +98,11 @@ export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
           onCropChange={setCrop}
           onZoomChange={setZoom}
           onCropComplete={onCropComplete}
+          mediaProps={{ onError: () => setError('This image could not be opened. Choose a JPG, PNG, or WebP photo.') }}
           style={{
             containerStyle: { background: '#000' },
             cropAreaStyle:  {
-              border: '2px solid rgba(154,123,85,0.8)',
+              border: '2px solid var(--color-accent)',
               boxShadow: '0 0 0 9999px rgba(0,0,0,0.72)',
             },
           }}
@@ -103,15 +111,19 @@ export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
 
       {/* Zoom slider */}
       <div className="flex-shrink-0 px-8 py-5 border-t border-border glass-panel">
+        {error && <p role="alert" className="text-sm text-red-400 text-center mb-3">{error}</p>}
         <p className="font-mono text-xs text-muted text-center mb-3 tracking-widest">PINCH OR DRAG TO ADJUST</p>
         <input
           type="range"
+          aria-label="Photo zoom"
+          disabled={confirming}
           min={1}
           max={3}
           step={0.01}
           value={zoom}
           onChange={(e) => setZoom(Number(e.target.value))}
-          className="w-full accent-brown"
+          className="w-full"
+          style={{ accentColor: 'var(--color-accent)' }}
         />
       </div>
 

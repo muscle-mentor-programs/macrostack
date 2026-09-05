@@ -885,18 +885,26 @@ const useStore = create(
       uploadClientAvatar: async (clientId, file) => {
         if (!supabase) return { error: 'Supabase not configured' }
         const ext  = file.name.split('.').pop().toLowerCase()
-        const path = `clients/${clientId}.${ext}`
+        const path = `clients/${clientId}.${crypto.randomUUID()}.${ext}`
 
         const { error } = await supabase.storage
           .from('avatars')
-          .upload(path, file, { upsert: true, contentType: file.type })
+          .upload(path, file, { contentType: file.type })
 
-        if (error) { console.error('Avatar upload error:', error); return { error } }
+        if (error) {
+          const denied = /row.level|policy|unauthorized|permission/i.test(error.message || '')
+          return { error: denied
+            ? 'Photo access was denied. Please contact support; your existing photo is unchanged.'
+            : 'The photo could not upload. Check your connection and try again.' }
+        }
 
         const avatarUrl = await signedStorageUrl('avatars', path)
-        await supabase.from('clients').update({ avatar_path: path, avatar_url: null }).eq('id', clientId)
+        if (!avatarUrl) return { error: 'Could not load the uploaded photo securely. Please try again.' }
+        const { data: updated, error: saveError } = await supabase.from('clients')
+          .update({ avatar_path: path, avatar_url: null }).eq('id', clientId).select('id').single()
+        if (saveError || !updated) return { error: 'Could not save the photo to your profile. Please try again.' }
         set((s) => ({
-          clients: s.clients.map((c) => c.id === clientId ? { ...c, avatarUrl } : c),
+          clients: s.clients.map((c) => c.id === clientId ? { ...c, avatarUrl, avatarPath: path } : c),
         }))
         return { avatarUrl }
       },
