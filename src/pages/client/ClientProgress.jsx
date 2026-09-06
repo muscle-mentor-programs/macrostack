@@ -30,7 +30,7 @@ export default function ClientProgress() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="PROGRESS" duration={750} />
         </h1>
@@ -38,7 +38,7 @@ export default function ClientProgress() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-3 px-5 mt-5 mb-6">
+      <div className="app-page-gutter grid grid-cols-2 gap-3 px-5 mt-5 mb-6">
         {[
           { val: avgCal.toFixed(0),     label: 'avg kcal / day',   color: 'text-cream',         delay: 60 },
           { val: daysLogged,            label: 'days logged',       color: 'text-cream',         delay: 120 },
@@ -53,7 +53,7 @@ export default function ClientProgress() {
       </div>
 
       {/* Calorie trend chart */}
-      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '300ms' }}>
+      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '300ms' }}>
         <div className="flex items-center gap-2 mb-4"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.3em] text-muted">CALORIE TREND</p></div>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
@@ -101,7 +101,7 @@ export default function ClientProgress() {
       </div>
 
       {/* Protein trend chart */}
-      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '400ms' }}>
+      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '400ms' }}>
         <div className="flex items-center gap-2 mb-4"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROTEIN TREND</p></div>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>

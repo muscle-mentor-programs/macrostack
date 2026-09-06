@@ -80,7 +80,7 @@ export default function CoachChat() {
     <div className="flex h-full overflow-hidden">
       {/* ── Left: roster ─────────────────────────────────────────────────── */}
       <div className="w-80 flex-shrink-0 border-r border-border flex flex-col">
-        <div className="relative px-6 pt-7 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+        <div className="app-page-gutter relative px-6 pt-7 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
             <p className="font-mono text-[10px] tracking-[0.3em] text-muted">INBOX</p>
@@ -172,7 +172,7 @@ export default function CoachChat() {
       {selectedClient ? (
         <div key={selectedId} className="flex-1 flex flex-col overflow-hidden anim-fade-in">
           {/* Thread header — identity + live nutrition context */}
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0 glass-panel">
+          <div className="app-page-gutter flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0 glass-panel">
             <div className="relative">
               <ClientAvatar name={selectedClient.name} avatarUrl={selectedClient.avatarUrl} className="w-10 h-10" textClassName="text-sm" />
               <span
@@ -202,7 +202,7 @@ export default function CoachChat() {
           </div>
 
           {/* Messages — flex-col-reverse anchors newest at bottom */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse">
+          <div className="app-page-gutter flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse">
             {threadItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
                 <div
@@ -244,7 +244,7 @@ export default function CoachChat() {
           </div>
 
           {/* Composer — attachments, quick replies, auto-growing input */}
-          <div className="px-6 py-4 border-t border-border flex-shrink-0 glass-panel">
+          <div className="app-page-gutter px-6 py-4 border-t border-border flex-shrink-0 glass-panel">
             <Composer
               clientId={selectedClient.id}
               placeholder={`Message ${selectedClient.name.split(' ')[0]}…`}

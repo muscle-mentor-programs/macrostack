@@ -52,7 +52,7 @@ const LeadFinder = lazy(() => import('./pages/coach/LeadFinder'))
 // not like a loading failure. Mirrors the typical page anatomy.
 function PageLoader() {
   return (
-    <div className="h-full w-full bg-bg px-5 pt-mobile-header anim-fade-in">
+    <div className="app-page-gutter h-full w-full bg-bg px-5 pt-mobile-header anim-fade-in">
       <div className="skeleton h-8 w-44 mb-2" />
       <div className="skeleton h-3 w-28 mb-8" />
       <div className="skeleton h-36 w-full mb-4 !rounded-2xl" />

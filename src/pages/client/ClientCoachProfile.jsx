@@ -400,7 +400,7 @@ export default function ClientCoachProfile() {
 
   if (!coachProfile && !client?.coachId) {
     return (
-      <div className="flex flex-col items-center justify-center h-full py-24 text-center px-8 anim-fade-in">
+      <div className="app-page-gutter flex flex-col items-center justify-center h-full py-24 text-center px-8 anim-fade-in">
         <User size={36} className="text-dim mb-4" />
         <p className="font-display font-bold text-xl text-muted tracking-widest">NO COACH LINKED</p>
         <p className="font-mono text-sm text-dim mt-2 max-w-xs leading-relaxed">
@@ -426,7 +426,7 @@ export default function ClientCoachProfile() {
   return (
     <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
-      <div className="glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
+      <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
         <h2 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="COACH" duration={700} />
         </h2>
@@ -434,12 +434,12 @@ export default function ClientCoachProfile() {
       </div>
 
       {!profile ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center px-8 anim-fade-in">
+        <div className="app-page-gutter flex flex-col items-center justify-center py-24 text-center px-8 anim-fade-in">
           <div className="w-8 h-8 border-2 border-brown border-t-transparent rounded-full animate-spin mb-4" />
           <p className="font-mono text-sm text-muted">Loading coach profile…</p>
         </div>
       ) : (
-        <div className="px-4 py-6 space-y-6 pb-24 anim-fade-in">
+        <div className="app-page-gutter px-4 py-6 space-y-6 pb-24 anim-fade-in">
 
           {/* Avatar + name card */}
           <div className="glass-card border border-border rounded-2xl p-5 flex items-center gap-4">

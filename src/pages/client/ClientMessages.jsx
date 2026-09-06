@@ -79,11 +79,11 @@ export default function ClientMessages() {
   if (!hasCoach) {
     return (
       <div className="fixed inset-x-0 top-0 bottom-0 flex flex-col bg-bg z-10">
-        <div className="px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
+        <div className="app-page-gutter px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
           <h1 className="font-display font-black text-2xl tracking-wide text-cream leading-none">COACH</h1>
           <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-8 anim-fade-in">
+        <div className="app-page-gutter flex-1 flex flex-col items-center justify-center text-center px-8 anim-fade-in">
           <MessageCircle size={36} className="text-dim mb-3 anim-pop" />
           <p className="font-display font-bold text-xl text-muted tracking-widest">NOT CONNECTED YET</p>
           <p className="font-mono text-sm text-dim mt-2 max-w-xs leading-relaxed">
@@ -104,11 +104,11 @@ export default function ClientMessages() {
   if (!hasAccess) {
     return (
       <div className="fixed inset-x-0 top-0 bottom-0 flex flex-col bg-bg z-10">
-        <div className="px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
+        <div className="app-page-gutter px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
           <h1 className="font-display font-black text-2xl tracking-wide text-cream leading-none">COACH</h1>
           <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-8 anim-fade-in">
+        <div className="app-page-gutter flex-1 flex flex-col items-center justify-center text-center px-8 anim-fade-in">
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 anim-pop"
             style={{ background: accentA(12), border: `1px solid ${accentA(28)}` }}
@@ -141,7 +141,7 @@ export default function ClientMessages() {
       style={{ bottom: overlayBottom }}
     >
       {/* Header — the coach's real identity */}
-      <div className="flex items-center gap-3 px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter flex items-center gap-3 px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div
           className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 font-display font-black text-base"
           style={{ background: accentA(14), border: `1px solid ${accentA(32)}`, color: 'var(--color-accent)' }}
@@ -157,7 +157,7 @@ export default function ClientMessages() {
       </div>
 
       {/* Messages — flex-col-reverse anchors newest at bottom */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 flex flex-col-reverse">
+      <div className="app-page-gutter flex-1 min-h-0 overflow-y-auto px-5 py-4 flex flex-col-reverse">
         {threadItems.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             <MessageCircle size={36} className="text-dim mb-3 anim-pop" />

@@ -116,7 +116,7 @@ function MealPlanSection({ client, onLogMeal }) {
 
   if (!activePlan) {
     return (
-      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-5 text-center anim-fade-in-up" style={{ animationDelay: '360ms' }}>
+      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-5 text-center anim-fade-in-up" style={{ animationDelay: '360ms' }}>
         <BookOpen size={28} className="text-dim mx-auto mb-2" />
         <p className="font-display font-bold text-sm text-muted tracking-widest">NO ACTIVE MEAL PLAN</p>
         <p className="font-mono text-xs text-dim mt-1">Your coach hasn't assigned a meal plan yet</p>
@@ -300,7 +300,7 @@ export default function ClientDashboard() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter sticky top-0 z-20 flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <div>
           <p className="font-mono text-xs text-muted tracking-widest">
             {(() => {
@@ -347,14 +347,14 @@ export default function ClientDashboard() {
       </div>
 
       {/* Macro chips */}
-      <div className="client-macros flex gap-3 px-5 mb-6">
+      <div className="app-page-gutter client-macros flex gap-3 px-5 mb-6">
         <MacroChip label="PROTEIN" current={totals.protein} goal={client?.goals?.protein} color="olive" delay={150} />
         <MacroChip label="CARBS" current={totals.carbs} goal={client?.goals?.carbs} color="brown" delay={220} />
         <MacroChip label="FAT" current={totals.fat} goal={client?.goals?.fat} color="slate" delay={290} />
       </div>
 
       {/* Water tracker */}
-      <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '310ms' }}>
+      <div className="app-page-gutter px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '310ms' }}>
         <div className="glass-card border border-border rounded-2xl p-4 card-dim">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 min-w-0">
@@ -398,7 +398,7 @@ export default function ClientDashboard() {
 
       {/* Your Coach — between the macros and the meal plan. Connected clients
           get a card into their coach; unlinked clients can connect from here. */}
-      <div className="px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '330ms' }}>
+      <div className="app-page-gutter px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '330ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">YOUR COACH</p>

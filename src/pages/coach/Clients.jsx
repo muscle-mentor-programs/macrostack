@@ -1464,7 +1464,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   return (
     <div className="flex flex-col h-full overflow-hidden anim-fade-in">
       {/* Focus header — back to grid + identity + live pulse */}
-      <div className="relative flex items-center gap-3 md:gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
+      <div className="app-page-gutter relative flex items-center gap-3 md:gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
         <button
           onClick={onClose}
           className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-border text-muted hover:text-cream hover:border-muted transition-colors flex-shrink-0"
@@ -1551,7 +1551,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
       <div className="flex-1 overflow-y-auto">
         {tab === 'workspace' && <ClientWorkspace key={client.id} client={client} />}
         {tab === 'overview' && (
-          <div className="p-4 md:p-6 xl:p-8 max-w-6xl mx-auto">
+          <div className="app-page-gutter p-4 md:p-6 xl:p-8 max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 xl:gap-6">
 
               {/* ── Left column: today's intake + 7-day compliance ── */}
@@ -1776,19 +1776,19 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
         )}
 
         {tab === 'checkin' && (
-          <div className="p-4 md:p-6 max-w-6xl mx-auto">
+          <div className="app-page-gutter p-4 md:p-6 max-w-6xl mx-auto">
             <CheckinTab client={client} />
           </div>
         )}
 
         {tab === 'mealplans' && (
-          <div className="p-4 md:p-6 max-w-6xl mx-auto">
+          <div className="app-page-gutter p-4 md:p-6 max-w-6xl mx-auto">
             <MealPlansTab clientId={client.id} />
           </div>
         )}
 
         {tab === 'photos' && (
-          <div className="p-4 md:p-6 max-w-3xl mx-auto">
+          <div className="app-page-gutter p-4 md:p-6 max-w-3xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROGRESS PHOTO TIMELINE</p>
@@ -1798,7 +1798,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
         )}
 
         {tab === 'forms' && (
-          <div className="p-4 md:p-6 max-w-3xl mx-auto">
+          <div className="app-page-gutter p-4 md:p-6 max-w-3xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">FORM RESPONSES</p>
@@ -1917,7 +1917,7 @@ export default function Clients() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="relative px-5 md:px-8 pt-6 md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter relative px-5 md:px-8 pt-6 md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
@@ -1980,7 +1980,7 @@ export default function Clients() {
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto p-5 md:p-6 xl:p-8">
+      <div className="app-page-gutter flex-1 overflow-y-auto p-5 md:p-6 xl:p-8">
         {clients.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 anim-fade-in">
             <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">

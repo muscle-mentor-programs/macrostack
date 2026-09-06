@@ -258,7 +258,7 @@ export default function ClientProfile() {
     <>
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="PROFILE" duration={750} />
         </h1>
@@ -302,7 +302,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Link to Coach */}
-      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
+      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 size={14} className="text-olive-light" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">LINK TO COACH</p>
@@ -429,7 +429,7 @@ export default function ClientProfile() {
 
       {/* My targets — every user (free or Pro) can edit; a linked coach can
           override from their portal at any time */}
-      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
+      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
@@ -510,7 +510,7 @@ export default function ClientProfile() {
       </div>
 
       {/* ── 30-Day Progress ─────────────────────────────────────────────────── */}
-      <div className="px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '250ms' }}>
+      <div className="app-page-gutter px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '250ms' }}>
         <div className="flex items-center gap-2 mb-1">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">30-DAY PROGRESS</p>
@@ -534,7 +534,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Calorie trend */}
-      <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
+      <div className="app-page-inset mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">CALORIE TREND</p>
@@ -561,7 +561,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Protein trend */}
-      <div className="mx-5 mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
+      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROTEIN TREND</p>
@@ -589,7 +589,7 @@ export default function ClientProfile() {
       </div>
 
       {/* ── Weekly report (premium) ─────────────────────────────────────────── */}
-      <div className="px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '440ms' }}>
+      <div className="app-page-gutter px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '440ms' }}>
         <div className="flex items-center gap-2 mb-1">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">WEEKLY REPORT</p>
@@ -647,7 +647,7 @@ export default function ClientProfile() {
       )}
 
       {/* Personal info form */}
-      <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '480ms' }}>
+      <div className="app-page-inset mb-4 glass-card border border-border rounded-2xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '480ms' }}>
         <div className="flex items-center gap-2">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PERSONAL INFO</p>
@@ -687,7 +687,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Notifications */}
-      <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '500ms' }}>
+      <div className="app-page-inset mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '500ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">NOTIFICATIONS</p>
@@ -722,7 +722,7 @@ export default function ClientProfile() {
       </div>
 
       {/* Logging preferences */}
-      <div className="mx-5 mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '510ms' }}>
+      <div className="app-page-inset mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '510ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">LOGGING</p>

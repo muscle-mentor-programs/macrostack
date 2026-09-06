@@ -414,7 +414,7 @@ export default function MobileCoachDashboard() {
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
       {/* Header — starts at y=0, background covers status bar */}
-      <div className="glass-panel accent-line sticky top-0 z-20 anim-fade-in-down px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
+      <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 anim-fade-in-down px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
         <h2 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="DASHBOARD" duration={800} />
         </h2>
@@ -422,7 +422,7 @@ export default function MobileCoachDashboard() {
           {format(new Date(), 'EEEE, MMMM d, yyyy')}
         </p>
       </div>
-      <div className="px-4 pt-4 pb-4 space-y-5">
+      <div className="app-page-gutter px-4 pt-4 pb-4 space-y-5">
 
       {/* Summary stats row */}
       <div className="grid grid-cols-3 gap-3">

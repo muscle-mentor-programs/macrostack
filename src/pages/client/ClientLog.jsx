@@ -225,7 +225,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
     <div className="fixed inset-0 z-50 flex flex-col bg-bg anim-page-slide-up">
 
       {/* ── Header ── */}
-      <div className="flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border glass-panel accent-line flex-shrink-0">
+      <div className="app-page-gutter flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border glass-panel accent-line flex-shrink-0">
         <button
           onClick={onClose}
           className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-surface transition-colors flex-shrink-0"
@@ -254,7 +254,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
       </div>
 
       {/* ── Search bar ── */}
-      <div className="px-4 py-3 border-b border-border flex-shrink-0">
+      <div className="app-page-gutter px-4 py-3 border-b border-border flex-shrink-0">
         <div className="relative">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
           <input
@@ -276,7 +276,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         return (
       <div className="flex-1 overflow-y-auto">
         {/* Quick add — log calories/macros directly, no database food needed */}
-        <div className="px-4 pt-3">
+        <div className="app-page-gutter px-4 pt-3">
           <button
             onClick={() => setQuickAdd({ name: '', cal: '', pro: '', carb: '', fat: '' })}
             className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-border bg-surface text-left transition-colors hover:border-muted press"
@@ -709,7 +709,7 @@ export default function ClientLog() {
     <div className="relative" style={{ minHeight: '100%' }}>
       <div className="flex flex-col min-h-full">
       {/* Date nav */}
-      <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter sticky top-0 z-20 flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <button onClick={prev} className="w-10 h-10 flex items-center justify-center text-muted hover:text-cream">
           <ChevronLeft size={22} />
         </button>
@@ -761,7 +761,7 @@ export default function ClientLog() {
 
       {/* Copy a previous day — slim row, only when today is empty and there's history */}
       {entries.length === 0 && recentLoggedDays.length > 0 && (
-        <div className="mx-5 mb-5 flex items-center gap-2 glass-card border border-border rounded-xl px-3 py-2.5 anim-fade-in-up card-dim">
+        <div className="app-page-inset mb-5 flex items-center gap-2 glass-card border border-border rounded-xl px-3 py-2.5 anim-fade-in-up card-dim">
           <Copy size={13} className="text-brown-light flex-shrink-0" />
           <select
             value={copyFrom}
@@ -788,7 +788,7 @@ export default function ClientLog() {
       )}
 
       {/* Meal sections */}
-      <div className="flex-1 px-5 pb-6 space-y-3">
+      <div className="app-page-gutter flex-1 px-5 pb-6 space-y-3">
         {allSections.map((meal, sectionIdx) => {
           const items  = mealGroups[meal] || []
           const mTotal = items.reduce(

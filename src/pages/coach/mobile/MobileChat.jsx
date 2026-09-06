@@ -53,7 +53,7 @@ function ThreadScreen({ client, onBack }) {
       style={{ bottom: kbHeight > 0 ? `${kbHeight}px` : '0px' }}
     >
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
+      <div className="app-page-gutter flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
         <button
           onClick={onBack}
           className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0"
@@ -68,7 +68,7 @@ function ThreadScreen({ client, onBack }) {
       </div>
 
       {/* Messages — flex-col-reverse anchors newest at bottom */}
-      <div className="flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse">
+      <div className="app-page-gutter flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse">
         {threadItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <MessageCircle size={36} className="text-dim mb-3" />
@@ -141,7 +141,7 @@ export default function MobileChat() {
   return (
     <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
-      <div className="glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-3 border-b border-border anim-fade-in-down">
+      <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-3 border-b border-border anim-fade-in-down">
         <div className="flex items-center gap-3">
           <h2 className="font-display font-black text-3xl tracking-wide text-cream">
             <ScrambleText text="CHAT" duration={700} />
@@ -159,13 +159,13 @@ export default function MobileChat() {
 
       {/* Client list */}
       {clients.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center px-8 anim-fade-in">
+        <div className="app-page-gutter flex flex-col items-center justify-center py-24 text-center px-8 anim-fade-in">
           <MessageCircle size={30} className="text-dim mb-3" />
           <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS</p>
           <p className="font-mono text-sm text-dim mt-1">Add users to start chatting</p>
         </div>
       ) : (
-        <div className="px-4 py-4 space-y-3 pb-20">
+        <div className="app-page-gutter px-4 py-4 space-y-3 pb-20">
           {clients.map((client, i) => {
             const lastMsg = (messages[client.id] || []).slice(-1)[0]
             const unread  = unreadFor(client.id)

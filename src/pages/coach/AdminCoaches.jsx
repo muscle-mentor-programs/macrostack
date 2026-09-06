@@ -99,7 +99,7 @@ export default function AdminCoaches() {
 
   if (!isSuperadmin) {
     return (
-      <div className="min-h-full flex flex-col items-center justify-center text-center px-6 anim-fade-in">
+      <div className="app-page-gutter min-h-full flex flex-col items-center justify-center text-center px-6 anim-fade-in">
         <Shield size={36} className="text-dim mb-4" />
         <p className="font-display font-bold text-xl text-muted tracking-widest">SUPERADMIN ONLY</p>
         <p className="font-mono text-xs text-dim mt-2">This panel is restricted.</p>
@@ -110,7 +110,7 @@ export default function AdminCoaches() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header — locked */}
-      <div className="relative px-5 md:px-8 pt-mobile-header md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter relative px-5 md:px-8 pt-mobile-header md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
@@ -147,7 +147,7 @@ export default function AdminCoaches() {
 
       {/* Coach cards */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-5 md:p-6 max-w-4xl mx-auto w-full space-y-2.5">
+        <div className="app-page-gutter p-5 md:p-6 max-w-4xl mx-auto w-full space-y-2.5">
         {adminAccountsError ? (
           <div className="flex flex-col items-center justify-center h-48 anim-fade-in text-center px-6">
             <p className="font-display font-bold text-lg text-red-400 tracking-widest">COULDN'T LOAD COACHES</p>

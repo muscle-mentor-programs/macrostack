@@ -108,7 +108,7 @@ export default function UpgradePage() {
   // ── Pro included via coach link (no personal sub needed) ──
   if (viaCoach && !isSubscribed) {
     return (
-      <div className="min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
+      <div className="app-page-gutter min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 anim-pop"
           style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}>
           <Users size={28} style={{ color: 'var(--color-accent)' }} />
@@ -137,7 +137,7 @@ export default function UpgradePage() {
       currentUser={currentUser} changeSubscriptionTier={changeSubscriptionTier} openBillingPortal={openBillingPortal} />
 
     return (
-      <div className="min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
+      <div className="app-page-gutter min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 anim-pop"
           style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}>
           <Check size={28} style={{ color: 'var(--color-accent)' }} />
@@ -169,7 +169,7 @@ export default function UpgradePage() {
   // never reached in a browser — isNativeIOS is only true inside the iOS shell.
   if (isNativeIOS) {
     return (
-      <div className="min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
+      <div className="app-page-gutter min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 anim-pop"
           style={{ background: accentA(14), border: `1px solid ${accentA(30)}` }}>
           <Lock size={28} style={{ color: 'var(--color-accent)' }} />
@@ -191,7 +191,7 @@ export default function UpgradePage() {
   }
 
   return (
-    <div className="min-h-full px-6 pt-mobile-header pb-12 anim-content-rise">
+    <div className="app-page-gutter min-h-full px-6 pt-mobile-header pb-12 anim-content-rise">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -485,7 +485,7 @@ function CoachTierManager({ clients, plan, status, currentUser, changeSubscripti
   }
 
   return (
-    <div className="min-h-full px-6 pt-mobile-header pb-12 anim-content-rise">
+    <div className="app-page-gutter min-h-full px-6 pt-mobile-header pb-12 anim-content-rise">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="text-center mb-7">

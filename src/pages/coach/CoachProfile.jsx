@@ -72,7 +72,7 @@ export default function CoachProfile() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header — locked */}
-      <div className="relative px-4 md:px-8 pt-mobile-header md:pt-6 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter relative px-4 md:px-8 pt-mobile-header md:pt-6 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -115,7 +115,7 @@ export default function CoachProfile() {
 
       {/* Scrollable content — main column + sticky rail (code + live preview) */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto anim-fade-in grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
+        <div className="app-page-gutter px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto anim-fade-in grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
           <div className="space-y-5 min-w-0">
 
           {/* Identity hero */}

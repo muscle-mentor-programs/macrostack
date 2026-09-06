@@ -115,7 +115,7 @@ export default function ClientWeight() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter sticky top-0 z-20 px-5 pt-mobile-header pb-4 border-b border-border anim-fade-in-down glass-panel accent-line">
         <h1 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="WEIGHT" duration={750} />
         </h1>
@@ -123,7 +123,7 @@ export default function ClientWeight() {
       </div>
 
       {/* Log input */}
-      <div className="mx-5 mt-5 mb-5 bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '60ms' }}>
+      <div className="app-page-inset mt-5 mb-5 bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '60ms' }}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.3em] text-muted">LOG WEIGHT</p></div>
           {/* Date toggle */}
@@ -188,7 +188,7 @@ export default function ClientWeight() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-3 px-5 mb-5">
+      <div className="app-page-gutter grid grid-cols-3 gap-3 px-5 mb-5">
         <div className="glass-card border border-border rounded-2xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '120ms' }}>
           <Scale size={14} className="text-muted mb-2" />
           <p className="font-display font-black text-2xl text-cream leading-none data-flicker">
@@ -214,7 +214,7 @@ export default function ClientWeight() {
 
       {/* Trend insight — premium */}
       {hasAccess && trend && (
-        <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim">
+        <div className="app-page-inset mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-border flex items-center justify-center flex-shrink-0">
               <trend.Icon size={16} className={trend.color} />
@@ -234,7 +234,7 @@ export default function ClientWeight() {
         </div>
       )}
       {hasAccess && chartData.length > 1 && (
-        <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '300ms' }}>
+        <div className="app-page-inset mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover card-dim" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center gap-2 mb-2"><span className="w-5 h-px bg-brown/50 flex-shrink-0" /><p className="font-mono text-[10px] tracking-[0.3em] text-muted">WEIGHT TREND</p></div>
           <div className="flex items-center gap-5 mb-3">
             <div className="flex items-center gap-1.5">
@@ -294,7 +294,7 @@ export default function ClientWeight() {
       )}
 
       {/* Progress photos */}
-      <div className="mx-5 mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '330ms' }}>
+      <div className="app-page-inset mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim" style={{ animationDelay: '330ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROGRESS PHOTOS</p>
@@ -312,7 +312,7 @@ export default function ClientWeight() {
 
       {/* History */}
       {sorted.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-5 mt-8 anim-fade-in" style={{ animationDelay: '350ms' }}>
+        <div className="app-page-gutter flex-1 flex flex-col items-center justify-center text-center px-5 mt-8 anim-fade-in" style={{ animationDelay: '350ms' }}>
           <Scale size={32} className="text-dim mb-3 anim-pop" style={{ animationDelay: '420ms' }} />
           <p className="font-display font-bold text-lg text-muted tracking-widest">NO ENTRIES YET</p>
           <p className="font-mono text-xs text-dim mt-1">Log your weight above to begin tracking</p>

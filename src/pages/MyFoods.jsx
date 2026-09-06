@@ -499,7 +499,7 @@ export default function MyFoods() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="relative flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 md:px-8 py-5 md:py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter relative flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 md:px-8 py-5 md:py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
           <h2 className="font-display font-black text-3xl md:text-4xl tracking-wide text-cream">
             <ScrambleText text="FOOD DATABASE" duration={950} />
@@ -552,7 +552,7 @@ export default function MyFoods() {
       )}
 
       {/* Search + source filter */}
-      <div className="px-5 md:px-8 py-4 border-b border-border flex-shrink-0 flex flex-wrap items-center gap-3 md:gap-4">
+      <div className="app-page-gutter px-5 md:px-8 py-4 border-b border-border flex-shrink-0 flex flex-wrap items-center gap-3 md:gap-4">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
@@ -597,7 +597,7 @@ export default function MyFoods() {
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
         {/* Column headers */}
-        <div className="grid grid-cols-6 md:grid-cols-9 px-5 md:px-8 py-2.5 border-b border-border bg-surface sticky top-0 z-10">
+        <div className="app-page-gutter grid grid-cols-6 md:grid-cols-9 px-5 md:px-8 py-2.5 border-b border-border bg-surface sticky top-0 z-10">
           <div className="col-span-3 font-display text-xs text-muted tracking-widest">FOOD</div>
           <div className="hidden md:block md:col-span-2 font-display text-xs text-muted tracking-widest">SERVING</div>
           <div className="font-display text-xs text-muted tracking-widest text-right">KCAL</div>
@@ -615,7 +615,7 @@ export default function MyFoods() {
             return (
               <div
                 key={food.id}
-                className="grid grid-cols-6 md:grid-cols-9 px-5 md:px-8 py-3 hover:bg-card transition-colors group anim-row"
+                className="app-page-gutter grid grid-cols-6 md:grid-cols-9 px-5 md:px-8 py-3 hover:bg-card transition-colors group anim-row"
                 style={{ animationDelay: `${Math.min(foodIdx, 18) * 22}ms` }}
               >
                 {/* Name + brand */}

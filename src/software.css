@@ -179,3 +179,20 @@ body:has(.software-ui) .glass-bottom-nav {
   /* Existing motion components retain their own reduced-motion handling. */
   body:has(.software-ui) :is(.card-hover,.btn-accent) { transition-duration: .01ms; }
 }
+
+/* Shared outer page gutters. Card interiors and dialog widths stay independent. */
+:root { --app-page-gutter: 12px; }
+@media (max-width: 767px) {
+  :root { --app-page-gutter: 8px; }
+}
+.app-page-gutter {
+  padding-inline: var(--app-page-gutter) !important;
+  max-width: none !important;
+}
+.app-page-inset { margin-inline: var(--app-page-gutter) !important; }
+.software-client main > div { max-width: none !important; }
+.software-client .client-energy {
+  margin-inline: var(--app-page-gutter);
+  max-width: none;
+}
+.software-client .client-macros { max-width: none; }

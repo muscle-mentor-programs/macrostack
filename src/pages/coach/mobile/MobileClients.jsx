@@ -506,7 +506,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
   return (
     <div className="fixed inset-0 bg-bg z-40 flex flex-col anim-slide-right overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border bg-surface flex-shrink-0">
+      <div className="app-page-gutter flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border bg-surface flex-shrink-0">
         <button onClick={onBack} className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0">
           <ChevronLeft size={22} />
         </button>
@@ -551,7 +551,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
       <div className="flex-1 overflow-y-auto pb-nav">
         {tab === 'workspace' && <ClientWorkspace key={client.id} client={client} />}
         {tab === 'overview' && (
-          <div className="p-5 space-y-6">
+          <div className="app-page-gutter p-5 space-y-6">
             {/* Today's intake */}
             <div>
               <p className="font-display text-xs text-muted tracking-widest mb-3">TODAY'S INTAKE</p>
@@ -718,19 +718,19 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
         )}
 
         {tab === 'mealplans' && (
-          <div className="p-5">
+          <div className="app-page-gutter p-5">
             <MealPlansTab clientId={client.id} />
           </div>
         )}
 
         {tab === 'checkin' && (
-          <div className="p-5">
+          <div className="app-page-gutter p-5">
             <CheckinTab client={client} />
           </div>
         )}
 
         {tab === 'photos' && (
-          <div className="p-5">
+          <div className="app-page-gutter p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROGRESS PHOTO TIMELINE</p>
@@ -740,7 +740,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
         )}
 
         {tab === 'forms' && (
-          <div className="p-5">
+          <div className="app-page-gutter p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">FORM RESPONSES</p>
@@ -780,7 +780,7 @@ export default function MobileClients() {
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
       {/* Header — starts at y=0, background covers status bar */}
-      <div className="glass-panel accent-line sticky top-0 z-20 flex items-center justify-between px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down flex-shrink-0">
+      <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 flex items-center justify-between px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down flex-shrink-0">
         <div>
           <h2 className="font-display font-black text-3xl tracking-wide text-cream">
             <ScrambleText text="CLIENTS" duration={700} />
@@ -798,7 +798,7 @@ export default function MobileClients() {
         </button>
       </div>
 
-      <div className="px-4 pt-4 pb-4 space-y-4">
+      <div className="app-page-gutter px-4 pt-4 pb-4 space-y-4">
       {/* Search */}
       {clients.length > 0 && (
         <div className="relative">

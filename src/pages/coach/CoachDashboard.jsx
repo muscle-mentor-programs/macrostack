@@ -604,7 +604,7 @@ export default function CoachDashboard() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
           <h2 className="font-display font-black text-4xl tracking-wide text-cream">
             <ScrambleText text="DASHBOARD" duration={900} />
@@ -656,7 +656,7 @@ export default function CoachDashboard() {
 
       {/* Onboarding checklist — new-coach guide, dismissible */}
       {checklistOpen && (
-        <div className="px-8 pt-4 pb-0 flex-shrink-0">
+        <div className="app-page-gutter px-8 pt-4 pb-0 flex-shrink-0">
           <div className="glass-card border rounded-2xl p-4 card-dim"
             style={{ borderColor: 'color-mix(in srgb, var(--color-accent) 35%, transparent)' }}>
             <div className="flex items-center justify-between mb-3">
@@ -697,7 +697,7 @@ export default function CoachDashboard() {
 
       {/* Pending client requests */}
       {coachRequests.length > 0 && (
-        <div className="px-8 pt-4 pb-0 flex-shrink-0">
+        <div className="app-page-gutter px-8 pt-4 pb-0 flex-shrink-0">
           <div className="bg-card border border-brown/30 rounded-xl p-4 space-y-3 card-dim">
             <div className="flex items-center gap-2">
               <Bell size={14} className="text-brown" />
@@ -758,7 +758,7 @@ export default function CoachDashboard() {
 
       {/* Auto-adjust nudges — clients whose targets deserve a look */}
       {nudges.length > 0 && (
-        <div className="px-8 pt-4 pb-0 flex-shrink-0">
+        <div className="app-page-gutter px-8 pt-4 pb-0 flex-shrink-0">
           <div className="bg-card border border-amber-400/25 rounded-xl p-4 space-y-3 card-dim">
             <div className="flex items-center gap-2">
               <Gauge size={14} className="text-amber-300" />
@@ -795,7 +795,7 @@ export default function CoachDashboard() {
       )}
 
       {/* Summary stats + business signals */}
-      <div className="grid grid-cols-5 gap-3 px-8 py-5 border-b border-border flex-shrink-0 glass-panel">
+      <div className="app-page-gutter grid grid-cols-5 gap-3 px-8 py-5 border-b border-border flex-shrink-0 glass-panel">
         {[
           { label: 'ACTIVE USERS', val: active.length, color: 'text-cream',       Icon: Users      },
           { label: 'AVG 7-DAY LOG', val: `${avgCompliance}%`,
@@ -824,7 +824,7 @@ export default function CoachDashboard() {
       </div>
 
       {/* Client cards */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="app-page-gutter flex-1 overflow-y-auto px-8 py-6">
         {active.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <Users size={40} className="text-dim mb-4" />

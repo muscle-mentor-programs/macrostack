@@ -100,7 +100,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in overflow-hidden">
       {/* Sticky header */}
-      <div className="flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border bg-surface flex-shrink-0">
+      <div className="app-page-gutter flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border bg-surface flex-shrink-0">
         <h3 className="font-display font-black text-xl tracking-widest text-cream">
           {initial ? 'EDIT FOOD' : 'ADD CUSTOM FOOD'}
         </h3>
@@ -110,7 +110,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
       </div>
 
       {/* Scrollable form */}
-      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
+      <div className="app-page-gutter flex-1 overflow-y-auto px-5 py-5 space-y-5">
         {/* Name + Brand */}
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -179,7 +179,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
       </div>
 
       {/* Footer */}
-      <div className="px-5 pb-6 pt-3 border-t border-border bg-surface">
+      <div className="app-page-gutter px-5 pb-6 pt-3 border-t border-border bg-surface">
         <button
           onClick={handleSave}
           disabled={!canSave}
@@ -308,7 +308,7 @@ export default function MobileMyFoods() {
   return (
     <div className="flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
-      <div className="glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
+      <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down">
         <div className="flex items-start justify-between">
           <div>
             <h2 className="font-display font-black text-3xl tracking-wide text-cream">
@@ -331,7 +331,7 @@ export default function MobileMyFoods() {
       </div>
 
       {/* Sticky search + filter bar */}
-      <div className="sticky top-0 z-10 bg-bg px-4 pt-2 pb-3 border-b border-border space-y-3">
+      <div className="app-page-gutter sticky top-0 z-10 bg-bg px-4 pt-2 pb-3 border-b border-border space-y-3">
         {/* Search */}
         <div className="flex items-center gap-3 bg-bg border border-border rounded-xl px-4 py-2.5 focus-within:border-brown transition-colors card-dim">
           <Search size={14} className="text-muted flex-shrink-0" />
@@ -387,7 +387,7 @@ export default function MobileMyFoods() {
           return (
             <div
               key={food.id}
-              className="flex items-center px-4 py-3.5 anim-row group"
+              className="app-page-gutter flex items-center px-4 py-3.5 anim-row group"
               style={{ animationDelay: `${Math.min(idx, 12) * 25}ms` }}
             >
               {/* Info */}

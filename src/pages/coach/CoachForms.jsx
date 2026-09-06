@@ -86,7 +86,7 @@ export default function CoachForms() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="relative px-6 md:px-8 pt-mobile-header md:pt-6 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="app-page-gutter relative px-6 md:px-8 pt-mobile-header md:pt-6 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <h2 className="font-display font-black text-3xl md:text-4xl tracking-wide text-cream">
           <ScrambleText text="FORMS" duration={800} />
         </h2>
@@ -95,7 +95,7 @@ export default function CoachForms() {
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 md:px-8 py-6 space-y-6 max-w-6xl w-full mx-auto">
+      <div className="app-page-gutter flex-1 overflow-y-auto px-5 md:px-8 py-6 space-y-6 max-w-6xl w-full mx-auto">
 
         {/* ── Core forms — intro + weekly side by side on wide screens ── */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
