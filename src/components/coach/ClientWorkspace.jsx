@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { format, subDays } from 'date-fns'
+import { format, parseISO, subDays } from 'date-fns'
+import { BookOpen, CheckCheck, ChevronDown, MessageSquare } from 'lucide-react'
 import useStore from '../../store'
 import { appendWorkspace, latestEntries, loadWorkspace, periodSummary } from '../../lib/coachWorkspace'
 import './CoachWorkspace.css'
@@ -98,6 +99,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
   const lastReview = reviews[0]
   const now = periodSummary(client, day(), 7)
   const prior = periodSummary(client, format(subDays(new Date(), 7), 'yyyy-MM-dd'), 7)
+  const journal = section === 'Journal' ? periodSummary(client, date || day(), days) : null
   const matches = e => `${e.title} ${e.body} ${e.details.tags || ''}`.toLowerCase().includes(search.toLowerCase())
   const events = [
     ...entries,
@@ -108,9 +110,9 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
     ...(client.weightLog || []).map(e => ({ id: `weight-${e.id || e.date}`, kind: 'weight', title: `Weight: ${e.value} ${e.unit || 'lbs'}`, body: '', created_at: e.date, details: {} })),
   ].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
   const recordCard = e => <article key={e.id} className="cw-panel">
-    <div className="cw-row"><span className="cw-pill">{e.kind}</span><span className="cw-muted">{stamp(e.created_at)}</span>{e.details.pinned && <span className="cw-pill">Pinned</span>}</div>
+    <div className="cw-row"><span className="cw-pill">{e.kind}</span><span className="cw-muted">{section === 'Journal' && e.created_at ? format(parseISO(e.created_at), 'MMMM d, yyyy') : stamp(e.created_at)}</span>{e.details.pinned && <span className="cw-pill">Pinned</span>}</div>
     <h3>{e.title}</h3><p>{e.body}</p>
-    {e.details.source && <p className="cw-muted">Linked evidence: {e.details.source}</p>}
+    {e.details.source && <p className="cw-muted">Linked evidence: {section === 'Journal' ? e.details.source.replace(/^\d{4}-\d{2}-\d{2}(?= \/)/, value => format(parseISO(value), 'MMMM d, yyyy')) : e.details.source}</p>}
     {e.details.tags && <p className="cw-muted">Tags: {e.details.tags}</p>}
     {e.details.due && <p className="cw-muted">Due {e.details.due} · {e.details.owner || 'Coach'} · {e.details.state || 'open'}</p>}
     {e.details.nextReview && <p className="cw-muted">Next review: {e.details.nextReview}</p>}
@@ -161,18 +163,29 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
     {section === 'Notes' && <><label className="cw-muted">Search notes<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search text or tags" /></label><div className="cw-row"><button onClick={() => start('note')}>New coaching note</button></div>{notes.filter(matches).map(recordCard)}{!notes.length && <p className="cw-muted">Create your first dated note. Your original notes are preserved below.</p>}<LegacyCoachNotes key={client.id} clientId={client.id} /></>}
     {section === 'Tasks' && <><div className="cw-row"><button onClick={() => start('task')}>New follow-up</button><button aria-pressed={filter === 'open'} onClick={() => setFilter(filter === 'open' ? 'all' : 'open')}>Open only</button></div>{tasks.filter(t => filter !== 'open' || t.details.state !== 'done').map(recordCard)}{!tasks.length && <p className="cw-muted">No follow-ups yet. Due dates appear in the coach workboard.</p>}</>}
     {section === 'Reviews' && <><div className="cw-grid">{[['This week', now], ['Previous week', prior]].map(([label, stats]) => <div className="cw-panel" key={label}><h3>{label}</h3><p>{stats.days}/7 days logged</p><p>Average: {stats.calories ?? '—'} kcal · {stats.protein ?? '—'}g protein</p><p className="cw-muted">Logged days only; missing days excluded.</p></div>)}</div><div className="cw-grid">{(client.checkins || []).slice(0, 2).map((c, i) => <div className="cw-panel" key={c.id}><h3>{i ? 'Previous check-in' : 'Latest check-in'}</h3><p className="cw-muted">{stamp(c.createdAt)}</p><p>{c.notes}</p>{(c.answers || []).map((a, n) => <p key={n}>{a.label}: {String(a.value ?? '—')}</p>)}</div>)}</div><button onClick={() => { if (!draft) setDraft({ record_id: crypto.randomUUID(), kind: 'review', title: `Review — ${day()}`, body: templates['Weekly review'], details: { snapshot: { current: now, previous: prior, goals: client.goals, checkinId: client.checkins?.[0]?.id || null } } }) }}>Complete review</button><p className="cw-muted">Saving records your review. It does not send a message or change client targets.</p>{reviews.map(recordCard)}</>}
-    {section === 'Journal' && <>
-      <div className="cw-grid"><label>Period ending<input type="date" value={date} onChange={e => setDate(e.target.value)} /></label><label>Days<select value={days} onChange={e => setDays(Number(e.target.value))}>{[7,14,30].map(n => <option key={n}>{n}</option>)}</select></label></div>
-      <p className="cw-muted">{periodSummary(client, date || day(), days).days}/{days} days have entries. Logging completeness is unconfirmed; zero logged food does not mean zero intake.</p>
-      {periodSummary(client, date || day(), days).dates.map(d => {
+    {section === 'Journal' && <section className="cw-journal" aria-label="Client journal">
+      <div className="cw-panel cw-journal-toolbar">
+        <div><span className="cw-journal-eyebrow"><BookOpen size={14} aria-hidden="true" /> DAILY NUTRITION</span><h3>Client journal</h3><p className="cw-muted">Explore meals, leave private observations, and track your reviews.</p></div>
+        <div className="cw-journal-filters"><label>Period ending<input type="date" value={date} onChange={e => setDate(e.target.value)} /></label><label>Show<select value={days} onChange={e => setDays(Number(e.target.value))}>{[7,14,30].map(n => <option key={n} value={n}>{n} days</option>)}</select></label></div>
+      </div>
+      <div className="cw-journal-context"><p><strong>{journal.days} of {days}</strong> days with entries</p><p className="cw-muted">Ending {format(parseISO(date || day()), 'MMMM d, yyyy')} · Logged entries may be incomplete. No log does not mean no intake.</p></div>
+      <div className="cw-journal-grid">{journal.dates.map(d => {
         const foods = client.log?.[d] || []; const reviewed = latestEntries(entries, 'day_review').some(e => e.details.date === d)
-        return <details className="cw-panel" key={d}><summary>{d} · {foods.length ? `${foods.length} entries · completeness unconfirmed` : 'Not logged'} {reviewed ? '· Reviewed' : ''}</summary>
-          {foods.map((food, i) => <div className="cw-panel" key={food.id || i}><h3>{food.meal || 'Meal'} · {food.name}</h3><p>{Math.round(food.calories || 0)} kcal · {Math.round(food.protein || 0)}g protein</p><button onClick={() => start('comment', `${d} / ${food.meal || 'meal'} / ${food.name} / ${food.id || i}`)}>Add private comment</button></div>)}
-          <button disabled={busy || !!error} onClick={() => save({ record_id: crypto.randomUUID(), kind: 'day_review', title: `Journal reviewed — ${d}`, body: 'Coach reviewed the available entries. This does not certify a complete food log.', details: { date: d } })}>Mark reviewed</button>
+        const totals = foods.reduce((sum, food) => { for (const key of ['calories','protein','carbs','fat']) sum[key] += Number(food[key]) || 0; return sum }, {calories:0,protein:0,carbs:0,fat:0})
+        const dateLabel = format(parseISO(d), 'MMMM d, yyyy')
+        return <details className="cw-panel cw-journal-day" key={d}><summary>
+          <span className="cw-journal-dayline"><span className="cw-journal-eyebrow">{format(parseISO(d), 'EEEE')}</span>{reviewed && <span className="cw-journal-reviewed"><CheckCheck size={14} aria-hidden="true" /> Reviewed</span>}</span>
+          <span className="cw-journal-date">{dateLabel}</span>
+          <span className="cw-journal-metrics">{[['calories','kcal'],['protein','protein'],['carbs','carbs'],['fat','fat']].map(([key,label]) => <span key={key}><strong>{foods.length ? `${Math.round(totals[key])}${key === 'calories' ? '' : 'g'}` : '—'}</strong><span>{label}</span></span>)}</span>
+          <span className="cw-journal-expand"><span>{foods.length ? `${foods.length} ${foods.length === 1 ? 'entry' : 'entries'} · View journal` : 'No entries logged'}</span><ChevronDown size={16} aria-hidden="true" /></span>
+        </summary><div className="cw-journal-body">
+          {!foods.length && <p className="cw-muted">No food entries are available for this day. Intake is unknown.</p>}
+          {foods.map((food, i) => <div className="cw-journal-food" key={food.id || i}><span className="cw-journal-eyebrow">{food.meal || 'Meal'}</span><h4>{food.name}</h4><p className="cw-muted">{Math.round(food.calories || 0)} kcal · {Math.round(food.protein || 0)}g protein · {Math.round(food.carbs || 0)}g carbs · {Math.round(food.fat || 0)}g fat</p><button onClick={() => start('comment', `${d} / ${food.meal || 'meal'} / ${food.name} / ${food.id || i}`)}><MessageSquare size={13} aria-hidden="true" /> Add private comment</button></div>)}
+          <button disabled={busy || loading || !!error || reviewed} onClick={() => save({ record_id: crypto.randomUUID(), kind: 'day_review', title: `Journal reviewed — ${dateLabel}`, body: 'Coach reviewed the available entries. This does not certify a complete food log.', details: { date: d } })}><CheckCheck size={14} aria-hidden="true" />{reviewed ? 'Reviewed' : 'Mark reviewed'}</button>
           {latestEntries(entries, 'comment').filter(e => e.details.source?.startsWith(d)).map(recordCard)}
-        </details>
-      })}
-    </>}
+        </div></details>
+      })}</div>
+    </section>}
     {section === 'Timeline' && <><div className="cw-grid"><label>Search history<input type="search" value={search} onChange={e => setSearch(e.target.value)} /></label><label>Event type<select value={filter} onChange={e => setFilter(e.target.value)}>{['all','note','task','review','brief','plan','comment','day_review','checkin','photo','weight'].map(k => <option key={k}>{k}</option>)}</select></label></div><div className="cw-timeline">{events.filter(matches).filter(e => filter === 'all' || e.kind === filter).map(e => <article className="cw-panel" key={e.id}><span className="cw-pill">{e.kind}</span><p className="cw-muted">{stamp(e.created_at)}</p><h3>{e.title}</h3><p>{e.body}</p></article>)}</div></>}
     {section === 'Plan' && <><div className="cw-panel"><h3>Current targets</h3><p>{client.goals.calories} kcal · {client.goals.protein}g protein · {client.goals.carbs}g carbs · {client.goals.fat}g fat</p><p className="cw-muted">Use the existing Overview target controls and Plans tab to make changes. Historical targets before documented snapshots are unknown.</p></div><button onClick={() => { if (!draft) setDraft({ record_id: crypto.randomUUID(), kind: 'plan', title: `Plan decision — ${day()}`, body: 'COACHING PHASE\n\nGOAL & MILESTONES\n\nRATIONALE\n\nNEXT ACTIONS\n', details: { snapshot: { goals: client.goals, mealPlanId: client.activeMealPlanId || null }, previous: plan?.details.snapshot || null } }) }}>Document plan & rationale</button><p className="cw-muted">Snapshots preserve targets at the time you document a decision. They do not retroactively reconstruct earlier changes.</p>{latestEntries(entries, 'plan').map(recordCard)}</>}
   </div>
