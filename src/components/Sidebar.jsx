@@ -5,8 +5,8 @@ import ThemeToggle from './ThemeToggle'
 import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap, ClipboardList, Radar } from 'lucide-react'
 
 const BASE_NAV = [
-  { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
-  { id: 'clients',   label: 'USERS',     icon: Users           },
+  { id: 'dashboard', label: 'WORKBOARD', icon: LayoutDashboard },
+  { id: 'clients',   label: 'CLIENTS',   icon: Users           },
   { id: 'chat',      label: 'CHAT',      icon: MessageCircle   },
   { id: 'foods',     label: 'MY FOODS',  icon: Utensils        },
   { id: 'forms',     label: 'FORMS',     icon: ClipboardList   },

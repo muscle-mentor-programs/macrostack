@@ -4,7 +4,7 @@ import useIsSuperadmin from '../hooks/useIsSuperadmin'
 
 const BASE_NAV = [
   { id: 'dashboard', label: 'HOME',    icon: LayoutDashboard },
-  { id: 'clients',   label: 'USERS',   icon: Users           },
+  { id: 'clients',   label: 'CLIENTS', icon: Users           },
   { id: 'chat',      label: 'CHAT',    icon: MessageCircle   },
   { id: 'foods',     label: 'FOODS',   icon: Utensils        },
   { id: 'forms',     label: 'FORMS',   icon: ClipboardList   },

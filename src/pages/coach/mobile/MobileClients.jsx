@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import useStore from '../../../store'
 import ClientAvatar from '../../../components/ClientAvatar'
+import ClientWorkspace from '../../../components/coach/ClientWorkspace'
 import AnimatedNumber from '../../../components/AnimatedNumber'
 import ScrambleText from '../../../components/ScrambleText'
 import MealPlanBuilder from '../MealPlanBuilder'
@@ -530,6 +531,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
       {/* Tabs */}
       <div className="flex border-b border-border flex-shrink-0 bg-surface overflow-x-auto">
         {[
+          { id: 'workspace', label: 'CLIENT HUB' },
           { id: 'overview',  label: 'OVERVIEW' },
           { id: 'checkin',   label: 'CHECK-IN' },
           { id: 'mealplans', label: 'PLANS'    },
@@ -547,6 +549,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto pb-nav">
+        {tab === 'workspace' && <ClientWorkspace key={client.id} client={client} />}
         {tab === 'overview' && (
           <div className="p-5 space-y-6">
             {/* Today's intake */}
@@ -780,7 +783,7 @@ export default function MobileClients() {
       <div className="glass-panel accent-line sticky top-0 z-20 flex items-center justify-between px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down flex-shrink-0">
         <div>
           <h2 className="font-display font-black text-3xl tracking-wide text-cream">
-            <ScrambleText text="USERS" duration={700} />
+            <ScrambleText text="CLIENTS" duration={700} />
           </h2>
           <p className="font-mono text-xs text-muted mt-0.5">
             <AnimatedNumber value={clients.length} duration={600} /> {clients.length === 1 ? 'user' : 'users'}
@@ -816,7 +819,7 @@ export default function MobileClients() {
           <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">
             <User size={24} className="text-muted" />
           </div>
-          <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS</p>
+          <p className="font-display font-bold text-xl text-muted tracking-widest">NO CLIENTS</p>
           <p className="font-mono text-sm text-dim mt-2">Add your first user to get started</p>
           <button onClick={() => setShowAddScreen(true)}
             className="mt-5 bg-brown/20 border border-brown/30 text-brown-light font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl hover:bg-brown/30 transition-colors">

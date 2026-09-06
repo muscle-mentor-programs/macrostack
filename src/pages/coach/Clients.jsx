@@ -5,6 +5,7 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'rec
 import useStore from '../../store'
 import { coachClientLimit, coachTierLabel } from '../../lib/coachTiers'
 import ClientAvatar from '../../components/ClientAvatar'
+import ClientWorkspace, { LegacyCoachNotes } from '../../components/coach/ClientWorkspace'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
 import MealPlanBuilder from './MealPlanBuilder'
@@ -754,45 +755,9 @@ function ArchiveButton({ client, onArchived }) {
   )
 }
 
-/* ── Private coach notes — autosaving doc, never visible to the client ─────── */
+/* ── Original private coach notes, never visible to the client ───────────── */
 function PrivateNotes({ clientId }) {
-  const { clientNotes, fetchClientNote, saveClientNote } = useStore()
-  const [body, setBody]   = useState(clientNotes[clientId] ?? null)
-  const [saved, setSaved] = useState(false)
-  const timer = useRef(null)
-
-  useEffect(() => {
-    if (body === null) fetchClientNote(clientId).then(setBody)
-  }, [clientId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const onChange = (v) => {
-    setBody(v); setSaved(false)
-    clearTimeout(timer.current)
-    timer.current = setTimeout(async () => {
-      await saveClientNote(clientId, v)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 1500)
-    }, 700)
-  }
-
-  return (
-    <div className="bg-card border border-border rounded-2xl p-4 card-dim">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PRIVATE NOTES</p>
-        </div>
-        {saved && <span className="font-mono text-[9px] text-olive-light">SAVED ✓</span>}
-      </div>
-      <textarea
-        value={body ?? ''}
-        onChange={(e) => onChange(e.target.value)}
-        rows={5}
-        placeholder="Injuries, preferences, context — only you can see this…"
-        className="w-full bg-surface border border-border rounded-xl px-3 py-2.5 font-mono text-xs text-cream placeholder-dim focus:outline-none focus:border-brown resize-y leading-relaxed"
-      />
-    </div>
-  )
+  return <div className="coach-workspace"><LegacyCoachNotes key={clientId} clientId={clientId} /></div>
 }
 
 /* ── Scheduled target changes — set-and-forget macro periodization ─────────── */
@@ -1505,7 +1470,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-border text-muted hover:text-cream hover:border-muted transition-colors flex-shrink-0"
         >
           <ChevronLeft size={14} />
-          <span className="font-display font-bold text-[10px] tracking-widest hidden sm:inline">USERS</span>
+          <span className="font-display font-bold text-[10px] tracking-widest hidden sm:inline">CLIENTS</span>
         </button>
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-11 h-11" textClassName="text-base" />
@@ -1562,6 +1527,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
       {/* Tabs — scrollable on narrow screens */}
       <div className="flex border-b border-border flex-shrink-0 overflow-x-auto">
         {[
+          { id: 'workspace',  label: 'CLIENT HUB' },
           { id: 'overview',   label: 'OVERVIEW'   },
           { id: 'checkin',    label: 'CHECK-IN'   },
           { id: 'mealplans',  label: 'MEAL PLANS' },
@@ -1583,6 +1549,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
       </div>
 
       <div className="flex-1 overflow-y-auto">
+        {tab === 'workspace' && <ClientWorkspace key={client.id} client={client} />}
         {tab === 'overview' && (
           <div className="p-4 md:p-6 xl:p-8 max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 xl:gap-6">
@@ -1958,7 +1925,7 @@ export default function Clients() {
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">YOUR ROSTER</p>
             </div>
             <h2 className="font-display font-black text-4xl tracking-wide text-cream leading-none">
-              <ScrambleText text="USERS" duration={700} />
+              <ScrambleText text="CLIENTS" duration={700} />
             </h2>
           </div>
 
@@ -2019,7 +1986,7 @@ export default function Clients() {
             <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">
               <User size={24} className="text-muted" />
             </div>
-            <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS</p>
+            <p className="font-display font-bold text-xl text-muted tracking-widest">NO CLIENTS</p>
             <p className="font-mono text-sm text-dim mt-2">Add your first user to get started</p>
             <button
               onClick={() => setShowAddModal(true)}

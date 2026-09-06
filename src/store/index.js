@@ -1361,18 +1361,19 @@ const useStore = create(
       clientNotes: {},   // { [clientId]: body }
 
       fetchClientNote: async (clientId) => {
-        const { data } = await supabase.from('client_notes').select('body').eq('client_id', clientId).maybeSingle()
+        const { data, error } = await supabase.from('client_notes').select('body').eq('client_id', clientId).maybeSingle()
+        if (error) throw error
         set((s) => ({ clientNotes: { ...s.clientNotes, [clientId]: data?.body || '' } }))
         return data?.body || ''
       },
 
       saveClientNote: async (clientId, body) => {
         const me = get().currentUser
-        set((s) => ({ clientNotes: { ...s.clientNotes, [clientId]: body } }))
         const { error } = await supabase.from('client_notes').upsert({
           client_id: clientId, coach_id: me.id, body, updated_at: new Date().toISOString(),
         })
-        if (error) console.error('saveClientNote:', error)
+        if (error) throw error
+        set((s) => ({ clientNotes: { ...s.clientNotes, [clientId]: body } }))
       },
 
       // ── MEAL PLAN TEMPLATES ───────────────────────────────────────────────
