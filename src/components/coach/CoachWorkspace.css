@@ -1,4 +1,4 @@
-.coach-workspace { color: var(--color-cream); padding: 24px; max-width: 1280px; margin: auto; }
+.coach-workspace { color: var(--color-cream); padding: 24px 12px; width:100%; margin: auto; }
 .coach-workspace * { min-width: 0; }
 .cw-header { display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:20px; }
 .cw-header h2 { font-family:var(--font-display,'Barlow Condensed',sans-serif); font-size:32px; font-weight:800; margin:0; }
@@ -10,6 +10,7 @@
 .coach-workspace button:disabled { opacity:.5; cursor:wait; }
 .coach-workspace :focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
 .cw-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.cw-grid:has(> label) + .cw-grid { margin-top:24px; }
 .cw-panel { padding:20px; border:1px solid var(--color-border); border-radius:10px; background:var(--color-card); margin-bottom:16px; overflow-wrap:anywhere; }
 .cw-panel h3 { font-size:18px; font-weight:700; margin-bottom:12px; }
 .cw-panel p { white-space:pre-wrap; line-height:1.65; font-size:14px; }
@@ -24,7 +25,7 @@
 .cw-timeline { border-left:1px solid var(--color-border); padding-left:18px; }
 .cw-timeline article { position:relative; }
 .cw-timeline article::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--color-accent); position:absolute; left:-22px; top:24px; }
-@media(max-width:767px) { .coach-workspace { padding:16px; } .cw-grid { grid-template-columns:1fr; } .cw-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .coach-workspace input, .coach-workspace select, .coach-workspace textarea { font-size:16px; } }
+@media(max-width:767px) { .coach-workspace { padding:16px 8px; } .cw-grid { grid-template-columns:1fr; } .cw-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .coach-workspace input, .coach-workspace select, .coach-workspace textarea { font-size:16px; } }
 @media(max-width:767px) {
   .coach-workspace.pt-mobile-header { padding-top:calc(env(safe-area-inset-top, 0px) + 72px); padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 96px); }
 }

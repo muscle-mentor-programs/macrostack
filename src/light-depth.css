@@ -1,0 +1,48 @@
+/* Light-only elevation hierarchy. No positioning, filters or motion changes:
+   raised cards, grounded canvas, recessed fields, floating navigation. */
+html:is(.light, .forest-light, .ocean-light) {
+  --light-contact: color-mix(in srgb, var(--color-cream) 10%, transparent);
+  --light-ambient: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  --light-raised: inset 0 1px 0 #ffffffed, 0 2px 3px var(--light-contact), 0 10px 24px var(--light-ambient);
+  --light-inset: inset 0 1px 3px var(--light-contact), 0 1px 0 #ffffffd9;
+}
+
+html:is(.light, .forest-light, .ocean-light) body:has(.software-ui) {
+  --product-shadow: var(--light-raised);
+  --product-panel: linear-gradient(155deg, color-mix(in srgb, var(--color-card) 35%, white), var(--color-card));
+}
+
+/* Shared neutral cards include portal sheets mounted outside the app shell. */
+html:is(.light, .forest-light, .ocean-light) body :is(.bg-card, .glass-card, .card-dim, .cw-panel):not(button):not(input):not(select):not(textarea) {
+  box-shadow: var(--light-raised) !important;
+  background-image: linear-gradient(155deg, #ffffff80, #ffffff00) !important;
+}
+
+html:is(.light, .forest-light, .ocean-light) body:has(.software-ui) .product-canvas {
+  background: color-mix(in srgb, var(--color-bg) 92%, var(--color-accent)) !important;
+  box-shadow: inset 0 1px 0 #ffffffcc, 0 8px 28px var(--light-ambient) !important;
+}
+html:is(.light, .forest-light, .ocean-light) body .card-inset {
+  background: color-mix(in srgb, var(--color-bg) 92%, var(--color-accent)) !important;
+  box-shadow: var(--light-inset) !important;
+}
+html:is(.light, .forest-light, .ocean-light) body:has(.software-ui) :is(input, textarea, select):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]) {
+  box-shadow: var(--light-inset);
+}
+html:is(.light, .forest-light, .ocean-light) body :is(.glass-panel, .glass-sidebar, .glass-bottom-nav) {
+  box-shadow: inset 0 1px 0 #ffffffeb, 0 4px 16px var(--light-ambient) !important;
+}
+
+/* Public feature/product cards get elevation on the card itself, never the
+   cropped phone image: preserve the earlier rectangular-shadow fix. */
+html:is(.light, .forest-light, .ocean-light) .landing-redesign :is(.story-step, .landing-product-card) {
+  box-shadow: var(--light-raised);
+}
+html:is(.light, .forest-light, .ocean-light) .landing-redesign .showcase .snap-start {
+  box-shadow: var(--light-raised) !important;
+}
+@media (hover:hover) {
+  html:is(.light, .forest-light, .ocean-light) body .card-hover:hover {
+    box-shadow: inset 0 1px 0 #fff, 0 3px 6px var(--light-contact), 0 14px 30px var(--light-ambient) !important;
+  }
+}
