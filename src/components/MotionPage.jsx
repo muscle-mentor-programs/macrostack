@@ -25,6 +25,10 @@ const TARGETS =
    creating hundreds of ScrollTriggers on long list pages. */
 const MAX_REVEALS = 24
 
+// A suspended mobile animation ticker must never leave a loaded page invisible.
+// Keep a subtle fade, but make every frame readable, including the initial one.
+const ENTRANCE_ALPHA = 0.85
+
 export default function MotionPage({ children }) {
   const ref = useRef(null)
 
@@ -58,7 +62,7 @@ export default function MotionPage({ children }) {
       // Entrance choreography — spring rise, header first, cards cascade
       if (above.length) {
         gsap.fromTo(above,
-          { y: 26, autoAlpha: 0, scale: 0.985 },
+          { y: 26, autoAlpha: ENTRANCE_ALPHA, scale: 0.985 },
           {
             y: 0, autoAlpha: 1, scale: 1,
             duration: 0.55, ease: 'power3.out', stagger: 0.06,
@@ -70,7 +74,7 @@ export default function MotionPage({ children }) {
       if (scroller) {
         below.slice(0, MAX_REVEALS).forEach((el) => {
           gsap.fromTo(el,
-            { y: 30, autoAlpha: 0 },
+            { y: 30, autoAlpha: ENTRANCE_ALPHA },
             {
               y: 0, autoAlpha: 1, duration: 0.6, ease: 'power3.out',
               clearProps: 'transform',
@@ -84,7 +88,7 @@ export default function MotionPage({ children }) {
       } else if (below.length) {
         // No scroller (desktop coach pages self-scroll) — include in entrance
         gsap.fromTo(below,
-          { y: 26, autoAlpha: 0 },
+          { y: 26, autoAlpha: ENTRANCE_ALPHA },
           { y: 0, autoAlpha: 1, duration: 0.55, ease: 'power3.out', stagger: 0.04, clearProps: 'transform' })
       }
     }, root)
