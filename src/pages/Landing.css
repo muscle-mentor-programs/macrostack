@@ -58,7 +58,7 @@
 .landing-redesign .landing-product-card p { font-size: 13px; line-height: 1.8; }
 .landing-redesign #coach .landing-product-card { background: var(--land-invert-card); border-color: var(--land-invert-border); }
 /* These cropped mockups must not cast a shadow against the rectangular crop. */
-.landing-redesign #coach .landing-product-card img { filter: none !important; }
+.landing-redesign .landing-product-card img { filter: none !important; }
 .landing-redesign #pricing { border-top: 1px solid var(--color-border); padding-top: 80px; margin-top: 100px; }
 .landing-redesign #pricing .rounded-3xl { border-radius: 10px; }
 .landing-redesign #pricing .text-5xl { font-size: 64px; letter-spacing: -.04em; }
