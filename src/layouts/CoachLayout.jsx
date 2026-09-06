@@ -86,7 +86,7 @@ export default function CoachLayout({ children }) {
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
     return (
-      <div className="software-ui software-coach flex flex-col h-full w-full bg-bg overflow-hidden relative">
+      <div data-coach-page={activePage} className="software-ui software-coach flex flex-col h-full w-full bg-bg overflow-hidden relative">
         <AmbientBackground />
 
         {/* Floating top-right controls */}
@@ -135,7 +135,7 @@ export default function CoachLayout({ children }) {
 
   /* ── Desktop layout — floating rail + floating page canvas ──── */
   return (
-    <div className="software-ui software-coach flex h-screen w-screen overflow-hidden bg-bg relative">
+    <div data-coach-page={activePage} className="software-ui software-coach flex h-screen w-screen overflow-hidden bg-bg relative">
       <AmbientBackground />
 
       {/* Landing-style ambient accent glows behind the shell */}

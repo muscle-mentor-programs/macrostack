@@ -1,0 +1,64 @@
+/* Complementary accents belong only to the coaching shell. Existing macro,
+   warning, chart, and action colors remain independent of these header tones. */
+.software-coach {
+  --coach-teal: #89cfc5;
+  --coach-sage: #b7c98d;
+  --coach-amber: #e0b67c;
+  --coach-lavender: #bba6d9;
+  --coach-blue: #91b7e5;
+  --coach-tone: var(--coach-amber);
+}
+html:is(.light, .forest-light, .ocean-light) .software-coach {
+  --coach-teal: #246c66;
+  --coach-sage: #546b34;
+  --coach-amber: #835620;
+  --coach-lavender: #695185;
+  --coach-blue: #315f96;
+}
+.software-coach[data-coach-page=foods],
+.software-coach [data-coach-section=Journal] { --coach-tone: var(--coach-sage); }
+.software-coach[data-coach-page=chat],
+.software-coach[data-coach-page=profile] { --coach-tone: var(--coach-teal); }
+.software-coach[data-coach-page=forms],
+.software-coach [data-coach-section=Notes],
+.software-coach [data-coach-section=Reviews],
+.software-coach [data-coach-record=note],
+.software-coach [data-coach-record=review],
+.software-coach [data-coach-record=comment] { --coach-tone: var(--coach-lavender); }
+.software-coach[data-coach-page=clients],
+.software-coach[data-coach-page=coaches],
+.software-coach [data-coach-section=Summary],
+.software-coach [data-coach-section=Timeline] { --coach-tone: var(--coach-blue); }
+.software-coach [data-coach-section=Tasks],
+.software-coach [data-coach-section=Plan],
+.software-coach [data-coach-record=task],
+.software-coach [data-coach-record=plan] { --coach-tone: var(--coach-amber); }
+
+/* Color hierarchy, without changing text sizes, padding, or card elevation. */
+body .software-coach :is(h2,h3,h4):is(.text-cream, :not([class])),
+body .software-coach :is(.cw-section-intro, .cw-section-heading, .cw-panel, .cw-header) > :is(h2,h3) {
+  color: var(--coach-tone) !important;
+}
+body .software-coach .cw-header > div > h2,
+body .software-coach .cw-journal-date {
+  color: color-mix(in srgb, var(--color-cream) 70%, var(--coach-tone)) !important;
+}
+body .software-coach :is(.cw-journal-eyebrow, .cw-journal-reviewed) {
+  color: var(--coach-tone);
+}
+body .software-coach .glass-panel {
+  background: linear-gradient(115deg, color-mix(in srgb, var(--coach-tone) 9%, var(--color-bg)), var(--color-bg)) !important;
+}
+body .software-coach .accent-line::before { background: var(--coach-tone); }
+body .software-coach :is(.cw-panel, .glass-card, .card-dim):not(button):not(input):not(select):not(textarea) {
+  border-top-color: color-mix(in srgb, var(--coach-tone) 48%, var(--color-border)) !important;
+}
+body .software-coach :is(.cw-client-header, .cw-journal-toolbar) {
+  border-top: 1px solid color-mix(in srgb, var(--coach-tone) 48%, var(--color-border));
+}
+.software-coach .cw-stats > :nth-child(1) { --coach-tone: var(--coach-blue); }
+.software-coach .cw-stats > :nth-child(2) { --coach-tone: var(--coach-teal); }
+.software-coach .cw-stats > :nth-child(3) { --coach-tone: var(--coach-sage); }
+.software-coach .cw-stats > :nth-child(4) { --coach-tone: var(--coach-amber); }
+body .software-coach .cw-stat > .cw-muted { color: var(--coach-tone); }
+body .software-coach .cw-stat > strong { color: color-mix(in srgb, var(--color-cream) 75%, var(--coach-tone)); }

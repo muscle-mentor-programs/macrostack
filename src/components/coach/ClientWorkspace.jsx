@@ -139,7 +139,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
     ...(client.weightLog || []).map(e => ({ id: `weight-${e.id || e.date}`, kind: 'weight', title: `Weight: ${e.value} ${e.unit || 'lbs'}`, body: '', created_at: e.date, details: {} })),
   ].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
   const filteredEvents = events.filter(matches).filter(e => filter === 'all' || e.kind === filter)
-  const recordCard = e => <article key={e.id} className={`cw-panel cw-record ${e.details.pinned ? 'cw-record-pinned' : ''}`}>
+  const recordCard = e => <article key={e.id} data-coach-record={e.kind} className={`cw-panel cw-record ${e.details.pinned ? 'cw-record-pinned' : ''}`}>
     <div className="cw-row"><span className="cw-pill">{e.kind}</span><span className="cw-muted">{section === 'Journal' && e.created_at ? format(parseISO(e.created_at), 'MMMM d, yyyy') : stamp(e.created_at)}</span>{e.details.pinned && <span className="cw-pill">Pinned</span>}</div>
     <h3>{e.title}</h3><p>{e.body}</p>
     {e.details.source && <p className="cw-muted">Linked evidence: {section === 'Journal' ? e.details.source.replace(/^\d{4}-\d{2}-\d{2}(?= \/)/, value => format(parseISO(value), 'MMMM d, yyyy')) : e.details.source}</p>}
@@ -158,7 +158,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
       {e.kind === 'task' && <button disabled={busy || !!draft} onClick={() => save({ ...e, details: { ...e.details, state: e.details.state === 'done' ? 'open' : 'done' } })}>{e.details.state === 'done' ? 'Reopen' : 'Complete task'}</button>}
     </div>
   </article>
-  return <div className="coach-workspace cw-client-workspace">
+  return <div data-coach-section={section} className="coach-workspace cw-client-workspace">
     <header className="cw-header cw-client-header"><div><p className="cw-journal-eyebrow"><LockKeyhole size={13} aria-hidden="true" /> PRIVATE CLIENT WORKSPACE</p><h2>{client.name}</h2><p className="cw-muted">{client.email}</p></div>
       <div className="cw-row"><button className="cw-primary" onClick={() => start('note')}><Plus size={14} aria-hidden="true" />Add note</button><button onClick={() => start('task')}><ListChecks size={14} aria-hidden="true" />Create task</button></div>
     </header>
