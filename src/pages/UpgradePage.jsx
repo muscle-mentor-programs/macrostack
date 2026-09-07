@@ -3,7 +3,7 @@ import { Check, Loader2, Settings, Users, ArrowUpRight, ArrowDownRight, Lock, Ba
 import useStore from '../store'
 import useSubscription from '../hooks/useSubscription'
 import { isNativeIOS } from '../lib/platform'
-// Coach tiers — shared with the landing page, client-limit gates, and edge functions
+// Coach tiers, shared with the landing page, client-limit gates, and edge functions
 import { COACH_TIERS, coachClientLimit, coachTierLabel } from '../lib/coachTiers'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
@@ -15,9 +15,9 @@ const COACH_PERKS = [
   'Real-time client messaging',
 ]
 // Pro covers the solo power features. Coach connection, messaging, and
-// meal plans unlock separately via a coach code — so they're NOT listed here.
+// meal plans unlock separately via a coach code, so they're NOT listed here.
 const USER_PERKS = [
-  'Barcode scanner — instant macros from any label',
+  'Barcode scanner, instant macros from any label',
   'Weight trends & 7-day moving averages',
   'Calorie history & consistency insights',
 ]
@@ -31,7 +31,7 @@ const PRICES = {
 const CADENCES = ['weekly', 'monthly', 'annual']
 const SUFFIX   = { weekly: 'wk', monthly: 'mo', annual: 'yr' }
 
-// Friendly label for the active plan on the management view — coach tiers show
+// Friendly label for the active plan on the management view, coach tiers show
 // their client range, user cadences show the cadence name.
 function planLabel(plan) {
   if (!plan) return 'Subscription active'
@@ -49,7 +49,7 @@ function annualizedCost(prices, cadence) {
   return prices.annual
 }
 // Savings of a cadence vs the next-cheaper one up (monthly vs weekly,
-// annual vs monthly) — the "step up and save" comparison.
+// annual vs monthly), the "step up and save" comparison.
 const PREV_CADENCE = { monthly: 'weekly', annual: 'monthly' }
 function savingsPct(prices, cadence) {
   const prev = PREV_CADENCE[cadence]
@@ -63,7 +63,7 @@ export default function UpgradePage() {
 
   const isCoach = audience === 'coach'
 
-  // Plan picked on the landing page before auth (stored by Landing.jsx) —
+  // Plan picked on the landing page before auth (stored by Landing.jsx) -
   // preselect it here, then clear the key so it only applies once.
   const pendingPlan = (() => {
     try { return JSON.parse(localStorage.getItem('ms-pending-plan') || 'null') } catch { return null }
@@ -116,8 +116,8 @@ export default function UpgradePage() {
         <p className="font-mono text-[10px] tracking-[0.3em] text-muted mb-2">YOUR PLAN</p>
         <h1 className="font-display font-black text-3xl tracking-widest text-cream text-center">PRO INCLUDED</h1>
         <p className="font-mono text-xs text-muted mt-3 max-w-xs text-center leading-relaxed">
-          You're connected to a coach, so every Pro feature — barcode scanner, weight trends,
-          full analytics — is unlocked for as long as you're linked. Nothing to pay here.
+          You're connected to a coach, so every Pro feature, barcode scanner, weight trends,
+          full analytics, is unlocked for as long as you're linked. Nothing to pay here.
         </p>
         <button
           onClick={() => setActivePage('dashboard')}
@@ -131,7 +131,7 @@ export default function UpgradePage() {
 
   // ── Already subscribed: management view ──
   if (hasAccess && isSubscribed) {
-    // Coaches manage their tier here — upgrade anytime, downgrade only once
+    // Coaches manage their tier here, upgrade anytime, downgrade only once
     // the roster fits the lower tier (also enforced server-side).
     if (isCoach) return <CoachTierManager clients={clients} plan={plan} status={status}
       currentUser={currentUser} changeSubscriptionTier={changeSubscriptionTier} openBillingPortal={openBillingPortal} />
@@ -166,7 +166,7 @@ export default function UpgradePage() {
 
   // Apple App Store rule: the native iOS build can't sell subscriptions through
   // an outside processor, so the purchase flow is web/PWA-only. This branch is
-  // never reached in a browser — isNativeIOS is only true inside the iOS shell.
+  // never reached in a browser, isNativeIOS is only true inside the iOS shell.
   if (isNativeIOS) {
     return (
       <div className="app-page-gutter min-h-full flex flex-col items-center justify-center px-6 py-12 anim-fade-in">
@@ -178,7 +178,7 @@ export default function UpgradePage() {
         <h1 className="font-display font-black text-3xl tracking-widest text-cream text-center">GO PREMIUM</h1>
         <p className="font-mono text-xs text-muted mt-3 max-w-xs text-center leading-relaxed">
           Subscriptions aren't available in the iOS app. Visit getmacrostack.com in your
-          web browser to upgrade — your plan unlocks here instantly.
+          web browser to upgrade, your plan unlocks here instantly.
         </p>
         <button
           onClick={() => setActivePage('dashboard')}
@@ -212,7 +212,7 @@ export default function UpgradePage() {
 
         {/* Plan selector */}
         {isCoach ? (
-          /* Coach — pick a tier by active client count */
+          /* Coach, pick a tier by active client count */
           <div className="space-y-2.5 mb-6">
             {COACH_TIERS.map((t) => {
               const active = tier === t.key
@@ -252,7 +252,7 @@ export default function UpgradePage() {
             </p>
           </div>
         ) : (
-          /* User — cadence toggle, sliding pill across 3 options */
+          /* User, cadence toggle, sliding pill across 3 options */
           <div className="relative flex bg-card border border-border rounded-xl p-1 card-dim mb-6">
             <div
               className="absolute top-1 bottom-1 rounded-lg pointer-events-none"
@@ -337,7 +337,7 @@ export default function UpgradePage() {
         >
           {loading
             ? <><Loader2 size={16} className="animate-spin" /> STARTING CHECKOUT…</>
-            : <>SUBSCRIBE — ${price}/{suffix}</>}
+            : <>SUBSCRIBE, ${price}/{suffix}</>}
         </button>
 
         <button
@@ -358,7 +358,7 @@ export default function UpgradePage() {
   )
 }
 
-/* ── Client billing — coaches charge their clients through MacroStack ─────────
+/* ── Client billing, coaches charge their clients through MacroStack ─────────
    Stripe Connect Express: connect once, set a monthly price, clients get a
    PAY COACH button on their coach tab. Money goes straight to the coach. */
 export function ClientBillingCard() {
@@ -386,7 +386,7 @@ export function ClientBillingCard() {
     const res = await startConnectOnboarding()
     if (!res.ok) { setError(res.error); setBusy(false) }
     else if (!res.url) {
-      // Already ready — refresh state
+      // Already ready, refresh state
       await fetchCoachBilling()
       setBusy(false)
     }
@@ -428,7 +428,7 @@ export function ClientBillingCard() {
           className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-xs tracking-widest py-3 rounded-xl transition-colors disabled:opacity-50"
         >
           {busy ? <Loader2 size={13} className="animate-spin" /> : <ExternalLink size={13} />}
-          {coachBilling === null ? 'LOADING…' : 'CONNECT STRIPE — 2 MINUTES'}
+          {coachBilling === null ? 'LOADING…' : 'CONNECT STRIPE, 2 MINUTES'}
         </button>
       ) : (
         <div className="space-y-3">
@@ -464,7 +464,7 @@ export function ClientBillingCard() {
   )
 }
 
-/* ── Coach tier manager — upgrade / downgrade the active subscription ─────────
+/* ── Coach tier manager, upgrade / downgrade the active subscription ─────────
    Upgrades apply immediately (prorated). Downgrades are blocked until the
    roster fits the lower tier; the edge function re-verifies server-side. */
 function CoachTierManager({ clients, plan, status, currentUser, changeSubscriptionTier, openBillingPortal }) {
@@ -516,7 +516,7 @@ function CoachTierManager({ clients, plan, status, currentUser, changeSubscripti
 
         {changed && (
           <p className="flex items-center justify-center gap-2 font-mono text-xs text-olive-light mb-4">
-            <Check size={13} /> Tier updated — billing is prorated automatically.
+            <Check size={13} /> Tier updated, billing is prorated automatically.
           </p>
         )}
         {error && (
@@ -587,7 +587,7 @@ function CoachTierManager({ clients, plan, status, currentUser, changeSubscripti
 
         {isNativeIOS ? (
           <p className="font-mono text-[10px] text-dim text-center mt-4 leading-relaxed">
-            Manage your tier and billing from getmacrostack.com in your web browser —
+            Manage your tier and billing from getmacrostack.com in your web browser -
             changes apply here instantly.
           </p>
         ) : (

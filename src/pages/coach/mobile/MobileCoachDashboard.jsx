@@ -206,7 +206,7 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
         >
           <ClipboardCheck size={13} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
           <span className="font-mono text-[10px] truncate" style={{ color: 'var(--color-accent)' }}>
-            New check-in — tap to review
+            New check-in, tap to review
           </span>
         </button>
       )}
@@ -220,7 +220,7 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
         >
           <ClipboardList size={13} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
           <span className="font-mono text-[10px] truncate" style={{ color: 'var(--color-accent)' }}>
-            {newForms === 1 ? 'New form response' : `${newForms} new form responses`} — tap to view
+            {newForms === 1 ? 'New form response' : `${newForms} new form responses`}, tap to view
           </span>
         </button>
       )}
@@ -416,7 +416,7 @@ export default function MobileCoachDashboard() {
 
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
-      {/* Header — starts at y=0, background covers status bar */}
+      {/* Header, starts at y=0, background covers status bar */}
       <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 anim-fade-in-down px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
         <h2 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="DASHBOARD" duration={800} />
@@ -479,7 +479,7 @@ export default function MobileCoachDashboard() {
           </div>
           <p className="font-mono text-[10px] text-dim leading-relaxed">
             ACCEPT links them instantly; CODE replies with your connection code. Coaching
-            payment is arranged directly between you and your clients — MacroStack doesn't
+            payment is arranged directly between you and your clients, MacroStack doesn't
             collect coaching fees on your behalf.
           </p>
           {reqError && (
@@ -523,7 +523,7 @@ export default function MobileCoachDashboard() {
         </div>
       )}
 
-      {/* Auto-adjust nudges — clients whose targets deserve a look */}
+      {/* Auto-adjust nudges, clients whose targets deserve a look */}
       {nudges.length > 0 && (
         <div className="glass-card border border-amber-400/25 rounded-xl p-4 space-y-3">
           <div className="flex items-center gap-2">

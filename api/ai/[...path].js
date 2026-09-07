@@ -1,11 +1,11 @@
 import { requireUser } from '../_auth.js'
 /**
- * Vercel serverless function — proxies /api/ai/* → https://api.anthropic.com/*
+ * Vercel serverless function, proxies /api/ai/* → https://api.anthropic.com/*
  *
  * REQUIRED: Set ANTHROPIC_API_KEY in Vercel project settings:
  *   Vercel Dashboard → Project → Settings → Environment Variables
  *
- * Never prefix with VITE_ — this key must stay server-side only.
+ * Never prefix with VITE_, this key must stay server-side only.
  */
 export default async function handler(req, res) {
   if (!(await requireUser(req, res))) return

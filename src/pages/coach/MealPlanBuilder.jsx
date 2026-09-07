@@ -10,7 +10,7 @@ import { rankFoods, getRecentFoodIdsFromClients } from '../../utils/foodSearch'
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 const WEIGHT_UNITS = ['g', 'ml', 'oz', 'fl oz', 'L']
 
-// "1 bar" / "2 × bar" / "150 g" / "6 oz" — for food picker info rows
+// "1 bar" / "2 × bar" / "150 g" / "6 oz", for food picker info rows
 function servingLabel(food) {
   if (!food.servingUnit) return `${food.servingSize}g`
   if (WEIGHT_UNITS.includes(food.servingUnit)) return `${food.servingSize} ${food.servingUnit} per serving`
@@ -285,7 +285,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
             ? showFoodPanel ? 'hidden' : 'flex w-full'
             : 'w-[480px]'
         }`}>
-          {/* Day tabs — fixed 7 days, distributed evenly */}
+          {/* Day tabs, fixed 7 days, distributed evenly */}
           <div className="flex items-center px-3 py-3 gap-1.5 border-b border-border flex-shrink-0">
             {days.map((d, i) => (
               <button
@@ -370,7 +370,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                   {items.length === 0 ? (
                     <div className="px-4 py-3 text-center">
                       <p className="font-mono text-xs text-dim">
-                        {isMobile ? 'Tap + to add foods' : 'Empty — select a food on the right →'}
+                        {isMobile ? 'Tap + to add foods' : 'Empty, select a food on the right →'}
                       </p>
                     </div>
                   ) : (

@@ -1,4 +1,4 @@
-// ─── Restaurant Menu Items — Batch 2 ─────────────────────────────────────────
+// ─── Restaurant Menu Items, Batch 2 ─────────────────────────────────────────
 // Chains: KFC · Arby's · Dairy Queen · Whataburger · In-N-Out · Raising Cane's
 //         Carl's Jr./Hardee's · Del Taco · El Pollo Loco
 // Nutrition data from official restaurant nutrition pages and verified databases.

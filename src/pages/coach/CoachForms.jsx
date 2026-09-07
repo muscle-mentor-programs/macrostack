@@ -27,7 +27,7 @@ function Toggle({ on, onChange, label }) {
   )
 }
 
-/* ── FORMS — build + auto-send forms to every client ─────────────────────────
+/* ── FORMS, build + auto-send forms to every client ─────────────────────────
    Active forms appear in each client's app until completed: the intro
    questionnaire once (new clients), custom forms once each, and the weekly
    check-in every 7 days. */
@@ -91,13 +91,13 @@ export default function CoachForms() {
           <ScrambleText text="FORMS" duration={800} />
         </h2>
         <p className="font-mono text-xs md:text-sm text-muted mt-1">
-          Auto-sent in-app — active forms appear for every client until completed
+          Auto-sent in-app, active forms appear for every client until completed
         </p>
       </div>
 
       <div className="app-page-gutter flex-1 overflow-y-auto px-5 md:px-8 py-6 space-y-6 max-w-6xl w-full mx-auto">
 
-        {/* ── Core forms — intro + weekly side by side on wide screens ── */}
+        {/* ── Core forms, intro + weekly side by side on wide screens ── */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
 
         {/* ── Intro questionnaire ── */}
@@ -157,7 +157,7 @@ export default function CoachForms() {
           </div>
           {!introForm && (
             <p className="font-mono text-[10px] text-dim mt-3 leading-relaxed">
-              Starts from a proven 14-question intake — stats, history, preferences, red flags — and you can tailor every question.
+              Starts from a proven 14-question intake, stats, history, preferences, red flags, and you can tailor every question.
             </p>
           )}
         </div>
@@ -170,7 +170,7 @@ export default function CoachForms() {
               <div className="min-w-0">
                 <p className="font-display font-bold text-base text-cream tracking-wide">Weekly Check-in</p>
                 <p className="font-mono text-[10px] text-muted mt-0.5">
-                  Due from every client each week — reviewed on their check-in tab
+                  Due from every client each week, reviewed on their check-in tab
                 </p>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function CoachForms() {
               <span>
                 <span className="block font-mono text-sm text-cream">Photo uploads</span>
                 <span className="block font-mono text-[10px] text-dim mt-0.5">
-                  Clients attach progress photos with each check-in — saved to their file
+                  Clients attach progress photos with each check-in, saved to their file
                 </span>
               </span>
             </span>
@@ -224,7 +224,7 @@ export default function CoachForms() {
           {customs.length === 0 ? (
             <div className="glass-card border border-dashed border-border rounded-2xl p-6 text-center card-dim">
               <p className="font-mono text-xs text-dim leading-relaxed">
-                Build any form — habit audits, injury screens, program feedback — and it's sent to every client until they fill it out.
+                Build any form, habit audits, injury screens, program feedback, and it's sent to every client until they fill it out.
               </p>
             </div>
           ) : (

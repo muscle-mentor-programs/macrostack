@@ -4,7 +4,7 @@ import { Camera, Trash2, X, Loader2, ImagePlus, Columns2 } from 'lucide-react'
 import useStore from '../store'
 import { successHaptic } from '../utils/haptics'
 
-/* Progress-photo timeline — shared by the client WEIGHT page (canEdit) and
+/* Progress-photo timeline, shared by the client WEIGHT page (canEdit) and
    the coach's client detail (read-only). Photos render oldest → newest so
    the strip reads like a transformation timeline. */
 export default function ProgressPhotos({ client, canEdit = false }) {
@@ -61,7 +61,7 @@ export default function ProgressPhotos({ client, canEdit = false }) {
 
   return (
     <div>
-      {/* Compare toggle — the before/after money shot */}
+      {/* Compare toggle, the before/after money shot */}
       {photos.length >= 2 && (
         <div className="flex items-center justify-between mb-3">
           <button
@@ -133,7 +133,7 @@ export default function ProgressPhotos({ client, canEdit = false }) {
 
       {canEdit && photos.length === 0 && !uploading && (
         <p className="font-mono text-xs text-dim mt-2">
-          Add a photo every week or two — you and your coach will see the timeline here.
+          Add a photo every week or two, you and your coach will see the timeline here.
         </p>
       )}
       {error && <p className="font-mono text-xs text-red-400 mt-2">{error}</p>}

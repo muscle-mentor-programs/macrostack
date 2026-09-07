@@ -35,7 +35,7 @@ export default function SignupCheckout({ onBack, onSignIn }) {
   const { signup, startCheckout, setCheckoutRedirect } = useStore()
 
   const [pending, setPending] = useState(readPendingPlan)
-  // Apple IAP rule: the native iOS build never runs Stripe checkout — any
+  // Apple IAP rule: the native iOS build never runs Stripe checkout, any
   // picked plan is ignored and signup is always free (upgrade happens on the
   // website). No-op on the web/PWA where isNativeIOS is always false.
   const paidPlan = isNativeIOS ? null : (pending?.plan || null)
@@ -66,7 +66,7 @@ export default function SignupCheckout({ onBack, onSignIn }) {
     setLoading(true); setError('')
 
     // Raise the redirect gate BEFORE signup flips isAuthenticated, so the app
-    // never flashes in before Stripe opens — checkout comes first.
+    // never flashes in before Stripe opens, checkout comes first.
     if (paidPlan) setCheckoutRedirect(true)
 
     const res = await signup(name.trim(), email.trim(), password, effectiveRole)
@@ -79,12 +79,12 @@ export default function SignupCheckout({ onBack, onSignIn }) {
       setConfirmSent(true); setLoading(false); return
     }
 
-    // Account is live and signed in — go straight to payment if a plan was picked.
+    // Account is live and signed in, go straight to payment if a plan was picked.
     if (paidPlan) {
       setPaying(true)
       const co = await startCheckout(pending.audience, paidPlan)
       if (!co.ok) {
-        // Checkout didn't start; drop the gate so the app takes over — its
+        // Checkout didn't start; drop the gate so the app takes over, its
         // pending-plan redirect lands them on the Upgrade page to retry.
         setCheckoutRedirect(false)
         setPaying(false)
@@ -95,7 +95,7 @@ export default function SignupCheckout({ onBack, onSignIn }) {
 
   const planLine = tierInfo
     ? { label: 'MACROSTACK COACH', name: tierInfo.range, price: `$${tierInfo.price}`, unit: '/mo', tag: tierInfo.tag,
-        note: 'Your first client is free — this tier kicks in as your roster grows.' }
+        note: 'Your first client is free, this tier kicks in as your roster grows.' }
     : proInfo
     ? { label: 'MACROSTACK PRO', name: proInfo.name, price: `$${proInfo.price}`, unit: proInfo.unit, tag: proInfo.tag,
         note: 'Barcode scanner + full progress analytics. Cancel anytime.' }
@@ -181,7 +181,7 @@ export default function SignupCheckout({ onBack, onSignIn }) {
             >
               <button
                 onClick={removePlan}
-                title="Remove plan — create a free account instead"
+                title="Remove plan, create a free account instead"
                 className="absolute top-3 right-3 text-dim hover:text-cream transition-colors p-1"
               >
                 <X size={14} />
@@ -191,7 +191,7 @@ export default function SignupCheckout({ onBack, onSignIn }) {
               </p>
               <div className="flex items-baseline justify-between gap-3 pr-6">
                 <p className="font-display font-black text-lg text-cream tracking-wide">
-                  {planLine.label} <span style={{ color: 'var(--color-accent)' }}>— {planLine.name.toUpperCase()}</span>
+                  {planLine.label} <span style={{ color: 'var(--color-accent)' }}>- {planLine.name.toUpperCase()}</span>
                 </p>
                 <p className="font-mono text-sm text-cream whitespace-nowrap">
                   <span className="font-display font-black text-xl">{planLine.price}</span>
@@ -202,7 +202,7 @@ export default function SignupCheckout({ onBack, onSignIn }) {
             </div>
           )}
 
-          {/* Role toggle — free signups only */}
+          {/* Role toggle, free signups only */}
           {!paidPlan && (
             <div className="flex bg-card border border-border rounded-xl p-1 mb-5">
               {[{ id: 'client', label: "I'M A USER" }, { id: 'coach', label: "I'M A COACH" }].map((r) => (

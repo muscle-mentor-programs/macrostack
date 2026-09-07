@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   const systemPrompt = `You are a precise nutritional database assistant. When given a food search query, return a JSON array of matching foods with accurate USDA-level nutritional data.
 
 Rules:
-- Return ONLY a valid JSON array — no markdown, no explanation, no extra text.
+- Return ONLY a valid JSON array, no markdown, no explanation, no extra text.
 - Each item must have these exact fields:
   { "name": string, "brand": string, "servingSize": number, "servingUnit": string, "calories": number, "protein": number, "carbs": number, "fat": number, "fiber": number, "sugar": number, "sodium": number }
 - "brand" is empty string "" for generic/whole foods.
@@ -76,9 +76,9 @@ Return a JSON array of matching foods with complete nutritional information.`
       if (/credit balance is too low/i.test(msg)) {
         msg = 'The Anthropic account is out of API credits. Top up at console.anthropic.com → Plans & Billing, then retry.'
       } else if (upstream.status === 429 || /rate limit/i.test(msg)) {
-        msg = 'Anthropic rate limit hit — wait a minute and retry.'
+        msg = 'Anthropic rate limit hit, wait a minute and retry.'
       } else if (upstream.status === 529 || /overloaded/i.test(msg)) {
-        msg = 'Anthropic API is temporarily overloaded — retry in a moment.'
+        msg = 'Anthropic API is temporarily overloaded, retry in a moment.'
       }
       return res.status(upstream.status).json({ error: msg || `Anthropic API error (${upstream.status})` })
     }

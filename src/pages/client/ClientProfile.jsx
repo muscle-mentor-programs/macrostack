@@ -17,7 +17,7 @@ import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
 import CoachMarketplace from '../../components/CoachMarketplace'
 
-/* Enable browser push — new messages from the coach ping the home screen. */
+/* Enable browser push, new messages from the coach ping the home screen. */
 function PushToggle() {
   const registerPushSubscription = useStore((s) => s.registerPushSubscription)
   const [state, setState] = useState(pushPermission())
@@ -138,7 +138,7 @@ export default function ClientProfile() {
   const fileInputRef = useRef(null)
   useEffect(() => () => { if (cropSrc) URL.revokeObjectURL(cropSrc) }, [cropSrc])
 
-  // Step 1 — file selected → open crop modal
+  // Step 1, file selected → open crop modal
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0]
     e.target.value = ''
@@ -155,7 +155,7 @@ export default function ClientProfile() {
     e.target.value = ''
   }
 
-  // Step 2 — crop confirmed → upload blob
+  // Step 2, crop confirmed → upload blob
   const handleCropConfirm = async (blob) => {
     setUploading(true)
     try {
@@ -265,7 +265,7 @@ export default function ClientProfile() {
         <p className="font-mono text-xs text-muted mt-1">Your info & 30-day progress</p>
       </div>
 
-      {/* Avatar — tap to upload */}
+      {/* Avatar, tap to upload */}
       <div className="flex flex-col items-center mt-5 mb-6 anim-pop" style={{ animationDelay: '80ms' }}>
         <button
           onClick={() => fileInputRef.current?.click()}
@@ -427,7 +427,7 @@ export default function ClientProfile() {
         )}
       </div>
 
-      {/* My targets — every user (free or Pro) can edit; a linked coach can
+      {/* My targets, every user (free or Pro) can edit; a linked coach can
           override from their portal at any time */}
       <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
         <div className="flex items-center justify-between mb-4">
@@ -496,7 +496,7 @@ export default function ClientProfile() {
               { label: 'FAT',      value: client?.goals?.fat,      unit: 'g'    },
             ].map(({ label, value, unit }) => (
               <div key={label} className="glass-card border border-border rounded-2xl p-3 card-dim">
-                <p className="font-display font-black text-2xl text-cream">{value ?? '—'}</p>
+                <p className="font-display font-black text-2xl text-cream">{value ?? '-'}</p>
                 <p className="font-mono text-xs text-muted">{label} / {unit}</p>
               </div>
             ))}
@@ -504,7 +504,7 @@ export default function ClientProfile() {
         )}
         <p className="font-mono text-xs text-dim mt-3">
           {client?.coachId
-            ? 'Your coach can also adjust these — their changes apply to your account too.'
+            ? 'Your coach can also adjust these, their changes apply to your account too.'
             : 'Not sure where to start? Use the macro calculator on our site, then set them here.'}
         </p>
       </div>
@@ -631,7 +631,7 @@ export default function ClientProfile() {
                 : reportEmail === 'sent'
                 ? <><Check size={15} className="text-olive-light" /> SENT TO YOUR EMAIL</>
                 : reportEmail === 'error'
-                ? <>COULDN'T SEND — TRY AGAIN</>
+                ? <>COULDN'T SEND, TRY AGAIN</>
                 : <><Mail size={15} /> EMAIL ME THIS REPORT</>}
             </button>
           )}
@@ -640,7 +640,7 @@ export default function ClientProfile() {
         <div className="mx-5 mb-6">
           <PremiumGate
             title="WEEKLY REPORT"
-            blurb="A shareable PDF of your week — adherence, macro averages, weight change, and your logging streak."
+            blurb="A shareable PDF of your week, adherence, macro averages, weight change, and your logging streak."
             inline
           />
         </div>
@@ -729,7 +729,7 @@ export default function ClientProfile() {
         </div>
         <p className="font-mono text-sm text-cream mb-1">Serving sizes when adding food</p>
         <p className="font-mono text-[10px] text-dim leading-relaxed mb-3">
-          REMEMBER LAST opens each food at the amount you last logged it at — if you eat
+          REMEMBER LAST opens each food at the amount you last logged it at, if you eat
           the same portions daily, logging becomes one tap. DEFAULT always starts at the
           label serving size.
         </p>
@@ -772,7 +772,7 @@ export default function ClientProfile() {
       </div>
     </div>
 
-    {/* Crop modal — portaled so it sits above everything */}
+    {/* Crop modal, portaled so it sits above everything */}
     {cropSrc && createPortal(
       <AvatarCropModal
         imageSrc={cropSrc}
@@ -782,7 +782,7 @@ export default function ClientProfile() {
       document.body
     )}
 
-    {/* Coach marketplace — portaled full-screen overlay */}
+    {/* Coach marketplace, portaled full-screen overlay */}
     {showMarket && createPortal(
       <CoachMarketplace onClose={() => { setShowMarket(false); fetchMyCoachRequests() }} />,
       document.body

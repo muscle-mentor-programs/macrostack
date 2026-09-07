@@ -23,7 +23,7 @@ function CalorieRing({ current, goal }) {
 
   const rawPct  = (current / (goal || 1)) * 100
   const pct     = Math.min(rawPct, 100)
-  // "On target" = within 90–105% of goal — ring breathes gold
+  // "On target" = within 90–105% of goal, ring breathes gold
   const onTarget = rawPct >= 90 && rawPct <= 105
   const data = [{ value: pct, fill: accentColor }]
 
@@ -247,7 +247,7 @@ export default function ClientDashboard() {
   const totals = getClientTotalsForDate(activeClientId, logDate)
   const remaining = (client?.goals?.calories || 0) - totals.calories
 
-  // Water — one 250 ml cup per pip, default goal 8 cups (2 L).
+  // Water, one 250 ml cup per pip, default goal 8 cups (2 L).
   const CUP_ML = 250
   const WATER_GOAL_CUPS = 8
   const waterMl  = client?.water?.[logDate] || 0
@@ -255,7 +255,7 @@ export default function ClientDashboard() {
   const setCups = (n) => setClientWater(activeClientId, logDate, Math.max(0, n) * CUP_ML)
 
   // Consecutive logged days. A day counts if anything was logged. Today not
-  // having entries yet doesn't break the streak — it starts from yesterday.
+  // having entries yet doesn't break the streak, it starts from yesterday.
   const streak = useMemo(() => {
     const log = client?.log || {}
     const todayStr = format(new Date(), 'yyyy-MM-dd')
@@ -391,12 +391,12 @@ export default function ClientDashboard() {
             })}
           </div>
           {waterCups >= WATER_GOAL_CUPS && (
-            <p className="font-mono text-[10px] text-olive-light mt-2.5 text-center">Goal hit — nice. Tap a cup to adjust.</p>
+            <p className="font-mono text-[10px] text-olive-light mt-2.5 text-center">Goal hit, nice. Tap a cup to adjust.</p>
           )}
         </div>
       </div>
 
-      {/* Your Coach — between the macros and the meal plan. Connected clients
+      {/* Your Coach, between the macros and the meal plan. Connected clients
           get a card into their coach; unlinked clients can connect from here. */}
       <div className="app-page-gutter px-5 mb-6 anim-fade-in-up" style={{ animationDelay: '330ms' }}>
         <div className="flex items-center gap-2 mb-3">
@@ -442,7 +442,7 @@ export default function ClientDashboard() {
         )}
       </div>
 
-      {/* Meal Plan Section — only relevant once linked to a coach (code-based) */}
+      {/* Meal Plan Section, only relevant once linked to a coach (code-based) */}
       {client?.coachId && (
         <MealPlanSection client={client} onLogMeal={handleLogMeal} />
       )}

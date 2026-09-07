@@ -37,7 +37,7 @@ export const FOODS_RESTAURANT = [
   { id: 'r_cfa_cobb_salad_grilled', name: 'Cobb Salad w/ Grilled Chicken',  brand: 'Chick-fil-A', category: 'Restaurant', servingSize: 410, servingUnit: '1 salad',    calories: 500, protein: 42, carbs: 22, fiber: 5, sugar: 9,  fat: 27, saturatedFat: 10, sodium: 1390 },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CHIPOTLE — individual ingredients (build your own bowl/burrito)
+  // CHIPOTLE, individual ingredients (build your own bowl/burrito)
   // ══════════════════════════════════════════════════════════════════════════
   { id: 'r_chp_flour_tortilla',     name: 'Flour Tortilla (Burrito)',        brand: 'Chipotle', category: 'Restaurant', servingSize: 117, servingUnit: '1 tortilla',  calories: 320, protein: 8,  carbs: 51, fiber: 2, sugar: 1,  fat: 9,  saturatedFat: 3.5,sodium: 700  },
   { id: 'r_chp_white_rice',         name: 'Cilantro-Lime White Rice',        brand: 'Chipotle', category: 'Restaurant', servingSize: 115, servingUnit: '1 serving',   calories: 210, protein: 4,  carbs: 40, fiber: 1, sugar: 0,  fat: 3,  saturatedFat: 0.5,sodium: 390  },

@@ -1,7 +1,7 @@
 {
   "name": "MacroStack",
   "short_name": "MacroStack",
-  "description": "Nutrition coaching platform — track macros, log meals, and connect with your coach.",
+  "description": "Nutrition coaching platform, track macros, log meals, and connect with your coach.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

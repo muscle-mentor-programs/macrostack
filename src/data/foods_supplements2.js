@@ -1,4 +1,4 @@
-// ─── Supplement Brands — Batch 2 ─────────────────────────────────────────────
+// ─── Supplement Brands, Batch 2 ─────────────────────────────────────────────
 // Brands: Ghost · Transparent Labs · Legion · 1st Phorm · Rule 1 · BSN
 //         MusclePharm · MuscleTech · Kaged · Redcon1 · Ascent
 // RTD: Muscle Milk · Orgain · OWYN · Slate Milk
@@ -18,7 +18,7 @@ export const FOODS_SUPPLEMENTS2 = [
 
   { id: 'ghost_casein_chocolate_milk', name: 'Casein Protein – Chocolate Milk', brand: 'Ghost', category: 'Casein Protein', servingSize: 35, servingUnit: 'scoop', calories: 130, protein: 25, carbs: 4, fiber: 0, sugar: 2, fat: 1.5, saturatedFat: 1, sodium: 160 },
 
-  // Ghost Legend Pre-Workout RTD — typically ~10 cal (non-caloric), skipped per instructions
+  // Ghost Legend Pre-Workout RTD, typically ~10 cal (non-caloric), skipped per instructions
 
 
   // ══ TRANSPARENT LABS ═══════════════════════════════════════════════════════
@@ -44,8 +44,8 @@ export const FOODS_SUPPLEMENTS2 = [
 
   { id: 'legion_plant_plus_chocolate_pb', name: 'Plant+ – Chocolate Peanut Butter', brand: 'Legion Athletics', category: 'Plant Protein', servingSize: 36, servingUnit: 'scoop', calories: 120, protein: 24, carbs: 4, fiber: 1, sugar: 0, fat: 2, saturatedFat: 0.5, sodium: 130 },
 
-  // Legion Phoenix Fat Burner — non-caloric, skipped per instructions
-  // Legion Pulse Pre-Workout — non-caloric (unflavored/plain), skipped per instructions
+  // Legion Phoenix Fat Burner, non-caloric, skipped per instructions
+  // Legion Pulse Pre-Workout, non-caloric (unflavored/plain), skipped per instructions
 
 
   // ══ 1ST PHORM ══════════════════════════════════════════════════════════════
@@ -58,7 +58,7 @@ export const FOODS_SUPPLEMENTS2 = [
 
   { id: 'first_phorm_phormula1_salted_caramel', name: 'Phormula-1 Whey Isolate – Salted Caramel', brand: '1st Phorm', category: 'Whey Protein', servingSize: 24, servingUnit: 'scoop', calories: 90, protein: 20, carbs: 0.5, fiber: 0, sugar: 0, fat: 0.5, saturatedFat: 0, sodium: 420 },
 
-  // Bliss Go Pack — non-caloric supplement stack, skipped per instructions
+  // Bliss Go Pack, non-caloric supplement stack, skipped per instructions
 
 
   // ══ RULE 1 (R1) PROTEINS ═══════════════════════════════════════════════════
@@ -144,7 +144,7 @@ export const FOODS_SUPPLEMENTS2 = [
   { id: 'ascent_plant_protein_chocolate', name: 'Native Fuel Plant – Chocolate', brand: 'Ascent', category: 'Plant Protein', servingSize: 41, servingUnit: 'scoop', calories: 150, protein: 25, carbs: 8, fiber: 2, sugar: 1, fat: 3.5, saturatedFat: 0.5, sodium: 120 },
 
 
-  // ══ RTD — MUSCLE MILK ══════════════════════════════════════════════════════
+  // ══ RTD, MUSCLE MILK ══════════════════════════════════════════════════════
 
   { id: 'muscle_milk_genuine_chocolate_rtd', name: 'Genuine Protein Shake – Chocolate (11oz)', brand: 'Muscle Milk', category: 'RTD Shake', servingSize: 330, servingUnit: 'bottle', calories: 160, protein: 25, carbs: 9, fiber: 5, sugar: 0, fat: 4.5, saturatedFat: 1, sodium: 160 },
 
@@ -157,7 +157,7 @@ export const FOODS_SUPPLEMENTS2 = [
   { id: 'muscle_milk_pro40_knockout_chocolate_rtd', name: 'Pro Series 40g – Knockout Chocolate (14oz)', brand: 'Muscle Milk', category: 'RTD Shake', servingSize: 414, servingUnit: 'bottle', calories: 220, protein: 40, carbs: 10, fiber: 5, sugar: 2, fat: 3, saturatedFat: 1, sodium: 290 },
 
 
-  // ══ RTD — ORGAIN ═══════════════════════════════════════════════════════════
+  // ══ RTD, ORGAIN ═══════════════════════════════════════════════════════════
 
   { id: 'orgain_organic_protein_shake_chocolate_rtd', name: 'Organic Protein Shake – Chocolate Fudge (11oz)', brand: 'Orgain', category: 'RTD Shake', servingSize: 330, servingUnit: 'bottle', calories: 130, protein: 20, carbs: 11, fiber: 2, sugar: 3, fat: 2, saturatedFat: 0, sodium: 240 },
 
@@ -168,7 +168,7 @@ export const FOODS_SUPPLEMENTS2 = [
   { id: 'orgain_kids_protein_shake_chocolate_rtd', name: 'Kids Protein Nutritional Shake – Chocolate (8.25oz)', brand: 'Orgain', category: 'RTD Shake', servingSize: 244, servingUnit: 'bottle', calories: 150, protein: 8, carbs: 22, fiber: 3, sugar: 9, fat: 3, saturatedFat: 0.5, sodium: 130 },
 
 
-  // ══ RTD — OWYN ═════════════════════════════════════════════════════════════
+  // ══ RTD, OWYN ═════════════════════════════════════════════════════════════
 
   { id: 'owyn_dark_chocolate_rtd', name: 'Plant Protein Shake – Dark Chocolate (12oz)', brand: 'OWYN', category: 'RTD Shake', servingSize: 355, servingUnit: 'bottle', calories: 180, protein: 20, carbs: 10, fiber: 5, sugar: 4, fat: 7, saturatedFat: 1, sodium: 270 },
 
@@ -179,7 +179,7 @@ export const FOODS_SUPPLEMENTS2 = [
   { id: 'owyn_cookies_cream_rtd', name: 'Plant Protein Shake – Cookies & Crème (12oz)', brand: 'OWYN', category: 'RTD Shake', servingSize: 355, servingUnit: 'bottle', calories: 180, protein: 20, carbs: 8, fiber: 3, sugar: 4, fat: 7, saturatedFat: 1, sodium: 270 },
 
 
-  // ══ RTD — SLATE MILK ═══════════════════════════════════════════════════════
+  // ══ RTD, SLATE MILK ═══════════════════════════════════════════════════════
   // Slate uses ultrafiltered milk; ~100 cal, 20g protein, ~1g sugar per 11oz can
 
   { id: 'slate_milk_classic_chocolate_rtd', name: 'High Protein Chocolate Milk – Classic Chocolate (11oz)', brand: 'Slate Milk', category: 'RTD Shake', servingSize: 325, servingUnit: 'can', calories: 100, protein: 20, carbs: 3, fiber: 0, sugar: 1, fat: 0, saturatedFat: 0, sodium: 150 },

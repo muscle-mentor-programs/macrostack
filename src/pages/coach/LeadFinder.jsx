@@ -9,7 +9,7 @@ import ScrambleText from '../../components/ScrambleText'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
-/* ── One scanner panel — fires /api/leads and renders lead cards ────────────── */
+/* ── One scanner panel, fires /api/leads and renders lead cards ────────────── */
 function LeadPanel({ kind, icon: Icon, eyebrow, title, blurb }) {
   const [leads, setLeads]     = useState(null)   // null = never scanned
   const [loading, setLoading] = useState(false)
@@ -83,7 +83,7 @@ function LeadPanel({ kind, icon: Icon, eyebrow, title, blurb }) {
             </div>
             <p className="font-display font-bold text-sm text-muted tracking-widest">SEARCHING THE WEB</p>
             <p className="font-mono text-xs text-dim mt-2 max-w-[260px] leading-relaxed">
-              Claude is running live searches across Reddit, X, and forums — this can take a minute or two.
+              Claude is running live searches across Reddit, X, and forums, this can take a minute or two.
             </p>
           </div>
         ) : error ? (
@@ -107,7 +107,7 @@ function LeadPanel({ kind, icon: Icon, eyebrow, title, blurb }) {
         ) : leads.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center anim-fade-in px-4">
             <p className="font-display font-bold text-sm text-muted tracking-widest">NO LEADS THIS PASS</p>
-            <p className="font-mono text-xs text-dim mt-2">Try rescanning — every pass runs fresh searches.</p>
+            <p className="font-mono text-xs text-dim mt-2">Try rescanning, every pass runs fresh searches.</p>
           </div>
         ) : (
           leads.map((lead, i) => (
@@ -180,7 +180,7 @@ function LeadPanel({ kind, icon: Icon, eyebrow, title, blurb }) {
   )
 }
 
-/* ── LEAD FINDER — superadmin-only prospecting via Claude + live web search ── */
+/* ── LEAD FINDER, superadmin-only prospecting via Claude + live web search ── */
 export default function LeadFinder() {
   const isSuperadmin = useIsSuperadmin()
 
@@ -206,7 +206,7 @@ export default function LeadFinder() {
           <ScrambleText text="LEAD FINDER" duration={800} />
         </h2>
         <p className="font-mono text-xs md:text-sm text-muted mt-2">
-          Claude scans the live web for people who need MacroStack — direct links to their posts, ready to reply to.
+          Claude scans the live web for people who need MacroStack, direct links to their posts, ready to reply to.
         </p>
       </div>
 

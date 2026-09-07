@@ -3,7 +3,7 @@ import { format, subDays } from 'date-fns'
 /* ── Auto-adjust nudges ───────────────────────────────────────────────────────
    Flags clients whose recent data suggests their targets deserve a look, so
    the coach gets nudged instead of having to notice it themselves. Pure
-   client-side math over data already in the store — no backend.
+   client-side math over data already in the store, no backend.
 
    A nudge only fires when the data is trustworthy:
      • ≥ 3 weight entries in the last 21 days spanning ≥ 10 days
@@ -53,7 +53,7 @@ export function computeGoalNudge(client) {
     return {
       type:  'stalled',
       title: 'Weight has stalled',
-      detail: `Flat for ${spanDays} days at ${last.value} ${unit} despite logging ${logged7}/7 days — targets may need a change.`,
+      detail: `Flat for ${spanDays} days at ${last.value} ${unit} despite logging ${logged7}/7 days, targets may need a change.`,
     }
   }
 
@@ -62,7 +62,7 @@ export function computeGoalNudge(client) {
     return {
       type:  'rapid',
       title: `${dir} weight fast`,
-      detail: `${dir} ${Math.abs(perWeek).toFixed(1)} ${unit}/week over the last ${spanDays} days — consider easing the targets.`,
+      detail: `${dir} ${Math.abs(perWeek).toFixed(1)} ${unit}/week over the last ${spanDays} days, consider easing the targets.`,
     }
   }
 

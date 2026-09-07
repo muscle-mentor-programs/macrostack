@@ -9,7 +9,7 @@ const IS_INSTALLED =
   (typeof window !== 'undefined' &&
     (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true))
 
-// "Add to Home Screen" instructions — Share → Add to Home Screen.
+// "Add to Home Screen" instructions, Share → Add to Home Screen.
 function AddToHomeScreen() {
   if (IS_INSTALLED) return null
 
@@ -27,7 +27,7 @@ function AddToHomeScreen() {
         <p className="font-display font-bold text-xs tracking-widest text-cream">ADD TO HOME SCREEN</p>
       </div>
       <p className="font-mono text-[11px] text-muted leading-relaxed mb-3">
-        Add MacroStack to your home screen for the full-screen app experience — the fastest way to log every day.
+        Add MacroStack to your home screen for the full-screen app experience, the fastest way to log every day.
       </p>
       <div className="space-y-2">
         {steps.map((s, i) => {
@@ -412,7 +412,7 @@ export default function LoginScreen({ onBack }) {
         </div>
         {/* ─────────────────────────────────────────────── */}
 
-        {/* Edition toggle — segmented control with sliding pill */}
+        {/* Edition toggle, segmented control with sliding pill */}
         <div className="relative flex mt-4 bg-card border border-border rounded-xl p-1 card-dim">
           <div
             className="absolute top-1 bottom-1 rounded-lg pointer-events-none"

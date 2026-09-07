@@ -372,7 +372,7 @@ export default function MobileMyFoods() {
         </div>
       </div>
 
-      {/* Food list — cap at 150 when browsing all with no search query to keep mobile fast */}
+      {/* Food list, cap at 150 when browsing all with no search query to keep mobile fast */}
       {(() => {
         const isUnfiltered = filter === 'all' && !query.trim()
         const visible = isUnfiltered ? filtered.slice(0, 150) : filtered
@@ -480,7 +480,7 @@ export default function MobileMyFoods() {
         {hidden > 0 && (
           <div className="px-4 py-5 text-center">
             <p className="font-mono text-xs text-dim">
-              Showing 150 of {filtered.length} — search to narrow results
+              Showing 150 of {filtered.length}, search to narrow results
             </p>
           </div>
         )}
@@ -488,7 +488,7 @@ export default function MobileMyFoods() {
         )
       })()}
 
-      {/* FABs — positioned above nav + iOS safe area */}
+      {/* FABs, positioned above nav + iOS safe area */}
       <div className="fixed right-4 flex flex-col gap-3 z-30" style={{ bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
         {/* Scan (secondary) */}
         <button

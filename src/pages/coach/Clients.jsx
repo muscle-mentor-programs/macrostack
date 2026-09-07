@@ -107,7 +107,7 @@ function AddClientModal({ onClose }) {
     })
 
     if (!result) {
-      setCalcError('Calculation failed — check your inputs.')
+      setCalcError('Calculation failed, check your inputs.')
       return
     }
 
@@ -337,7 +337,7 @@ function AddClientModal({ onClose }) {
                     </div>
                   ))}
                   <p className="col-span-4 font-mono text-xs text-dim text-center mt-1">
-                    ↑ auto-applied to targets below — adjust as needed
+                    ↑ auto-applied to targets below, adjust as needed
                   </p>
                 </div>
               )}
@@ -445,7 +445,7 @@ function MealPlansTab({ clientId }) {
       // New plan OR AI-generated plan (editingPlan may be truthy but id is null)
       addMealPlan(client.id, planData)
     }
-    // Don't close here — let MealPlanBuilder show the "SAVED" animation
+    // Don't close here, let MealPlanBuilder show the "SAVED" animation
     // then call onClose() itself after 800 ms
   }
 
@@ -618,7 +618,7 @@ function MealPlansTab({ clientId }) {
         CREATE PLAN MANUALLY
       </button>
 
-      {/* Templates — reuse plans across the whole roster */}
+      {/* Templates, reuse plans across the whole roster */}
       {(mealPlanTemplates || []).length > 0 && (
         <div className="bg-card border border-border rounded-xl p-4 space-y-2 anim-fade-in-up card-dim" style={{ animationDelay: '120ms' }}>
           <div className="flex items-center gap-2 mb-1">
@@ -650,7 +650,7 @@ function MealPlansTab({ clientId }) {
         </div>
       )}
       {templateSaved && (
-        <p className="font-mono text-[10px] text-olive-light text-center">Saved as template ✓ — assign it to any client from here.</p>
+        <p className="font-mono text-[10px] text-olive-light text-center">Saved as template ✓, assign it to any client from here.</p>
       )}
 
       {/* Auto-AI section */}
@@ -727,7 +727,7 @@ function MealPlansTab({ clientId }) {
 }
 
 // ── Coach weekly check-in review (latest submission + AI analysis) ───────────
-/* ── Archive / restore — pause a client without losing their data ──────────── */
+/* ── Archive / restore, pause a client without losing their data ──────────── */
 function ArchiveButton({ client, onArchived }) {
   const setClientArchived = useStore((s) => s.setClientArchived)
   const [error, setError] = useState('')
@@ -745,7 +745,7 @@ function ArchiveButton({ client, onArchived }) {
       <button
         onClick={toggle}
         className="flex items-center gap-2 text-muted hover:text-cream font-display font-bold text-xs tracking-widest transition-colors"
-        title={archived ? 'Restore to active roster' : "Pause this client — keeps all data, doesn't count toward your tier"}
+        title={archived ? 'Restore to active roster' : "Pause this client, keeps all data, doesn't count toward your tier"}
       >
         {archived ? <ArchiveRestore size={13} /> : <Archive size={13} />}
         {archived ? 'RESTORE USER' : 'ARCHIVE USER'}
@@ -760,7 +760,7 @@ function PrivateNotes({ clientId }) {
   return <div className="coach-workspace"><LegacyCoachNotes key={clientId} clientId={clientId} /></div>
 }
 
-/* ── Scheduled target changes — set-and-forget macro periodization ─────────── */
+/* ── Scheduled target changes, set-and-forget macro periodization ─────────── */
 function TargetScheduler({ client }) {
   const { targetSchedules, fetchTargetSchedules, addTargetSchedule, deleteTargetSchedule } = useStore()
   const [adding, setAdding] = useState(false)
@@ -804,7 +804,7 @@ function TargetScheduler({ client }) {
 
       {schedules.length === 0 && !adding && (
         <p className="font-mono text-[10px] text-dim leading-relaxed">
-          Plan a diet break, refeed, or calorie ramp — targets change automatically on the date you pick.
+          Plan a diet break, refeed, or calorie ramp, targets change automatically on the date you pick.
         </p>
       )}
 
@@ -850,7 +850,7 @@ function TargetScheduler({ client }) {
   )
 }
 
-/* ── Check-in trends — scale answers charted across weeks ──────────────────── */
+/* ── Check-in trends, scale answers charted across weeks ──────────────────── */
 const TREND_COLORS = ['#4878B0', '#6B7A52', '#9A7B55', '#8A6FA8', '#B06848']
 function CheckinTrends({ client }) {
   const checkins = [...(client.checkins || [])].reverse() // oldest → newest
@@ -904,7 +904,7 @@ function CheckinTrends({ client }) {
   )
 }
 
-/* ── Client tags — quick labels with inline add/remove ─────────────────────── */
+/* ── Client tags, quick labels with inline add/remove ─────────────────────── */
 function TagEditor({ client }) {
   const updateClientTags = useStore((s) => s.updateClientTags)
   const [adding, setAdding] = useState(false)
@@ -948,11 +948,11 @@ function TagEditor({ client }) {
   )
 }
 
-/* Renders a check-in's content — new answer snapshots when present, the
+/* Renders a check-in's content, new answer snapshots when present, the
    legacy adherence/hunger/energy fields for older submissions.
    (Exported for the mobile client detail screen.) */
 export function CheckinAnswers({ checkin, compact = false }) {
-  const scaleLabel = (n) => (n ? `${n}/5` : '—')
+  const scaleLabel = (n) => (n ? `${n}/5` : '-')
   const answers = checkin.answers || []
 
   if (answers.length > 0) {
@@ -964,7 +964,7 @@ export function CheckinAnswers({ checkin, compact = false }) {
           <div className={`grid gap-2 ${compact ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
             {scales.map((a, i) => (
               <div key={i} className="border border-border/50 rounded-lg p-2.5 card-inset">
-                <p className="font-display font-black text-lg text-cream">{a.value ? `${a.value}/5` : '—'}</p>
+                <p className="font-display font-black text-lg text-cream">{a.value ? `${a.value}/5` : '-'}</p>
                 <p className="font-mono text-[9px] text-muted leading-snug mt-0.5">{a.label}</p>
               </div>
             ))}
@@ -974,9 +974,9 @@ export function CheckinAnswers({ checkin, compact = false }) {
           <div key={i}>
             <p className="font-mono text-[10px] tracking-widest text-muted mb-1">{a.label.toUpperCase()}</p>
             {a.type === 'yesno' ? (
-              <p className="font-mono text-sm text-cream">{a.value === null || a.value === undefined ? '—' : a.value ? 'Yes' : 'No'}</p>
+              <p className="font-mono text-sm text-cream">{a.value === null || a.value === undefined ? '-' : a.value ? 'Yes' : 'No'}</p>
             ) : (
-              <p className="font-mono text-sm text-cream leading-relaxed whitespace-pre-wrap">{a.value === null || a.value === undefined || a.value === '' ? '—' : String(a.value)}</p>
+              <p className="font-mono text-sm text-cream leading-relaxed whitespace-pre-wrap">{a.value === null || a.value === undefined || a.value === '' ? '-' : String(a.value)}</p>
             )}
           </div>
         ))}
@@ -1032,7 +1032,7 @@ function CheckinPhotos({ urls }) {
   )
 }
 
-/* Weekly check-in question editor — thin wrapper over the shared FormEditor
+/* Weekly check-in question editor, thin wrapper over the shared FormEditor
    that loads the coach's set (or defaults) and saves via saveCheckinQuestions. */
 function QuestionEditorModal({ onClose }) {
   const { fetchCheckinQuestions, saveCheckinQuestions } = useStore()
@@ -1077,7 +1077,7 @@ function IntakeSuggestion({ client, submission }) {
         </p>
       </div>
       <p className="font-mono text-[10px] text-muted leading-relaxed">
-        Mifflin-St Jeor from their intake — {basis.age}y {basis.sex}, {basis.weightLb} lbs,{' '}
+        Mifflin-St Jeor from their intake, {basis.age}y {basis.sex}, {basis.weightLb} lbs,{' '}
         {Math.floor(basis.heightIn / 12)}'{basis.heightIn % 12}", activity ×{basis.activity} → {basis.tdee} TDEE (maintenance start).
       </p>
       <div className="grid grid-cols-4 gap-2">
@@ -1288,7 +1288,7 @@ export function CheckinTab({ client }) {
           {/* Suggested targets */}
           <div className="border-t border-border/50 pt-4">
             <p className="font-mono text-[10px] tracking-widest text-muted mb-2.5">
-              {goalsChanged ? 'SUGGESTED TARGETS' : 'TARGETS — NO CHANGE'}
+              {goalsChanged ? 'SUGGESTED TARGETS' : 'TARGETS, NO CHANGE'}
             </p>
             <div className="grid grid-cols-4 gap-2">
               {[
@@ -1326,7 +1326,7 @@ export function CheckinTab({ client }) {
         </div>
       )}
 
-      {/* Respond to the client — closes the check-in loop */}
+      {/* Respond to the client, closes the check-in loop */}
       {latest && (
         <div className="glass-card border border-border rounded-2xl p-5 card-dim space-y-3">
           <div className="flex items-center justify-between">
@@ -1463,7 +1463,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden anim-fade-in">
-      {/* Focus header — back to grid + identity + live pulse */}
+      {/* Focus header, back to grid + identity + live pulse */}
       <div className="app-page-gutter relative flex items-center gap-3 md:gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
         <button
           onClick={onClose}
@@ -1493,7 +1493,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           </div>
         </div>
 
-        {/* Pulse chips — glanceable context without leaving the header */}
+        {/* Pulse chips, glanceable context without leaving the header */}
         <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
           {[
             {
@@ -1524,7 +1524,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
         </div>
       </div>
 
-      {/* Tabs — scrollable on narrow screens */}
+      {/* Tabs, scrollable on narrow screens */}
       <div className="flex border-b border-border flex-shrink-0 overflow-x-auto">
         {[
           { id: 'workspace',  label: 'CLIENT HUB' },
@@ -1692,7 +1692,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                   )}
                 </div>
 
-                {/* Adaptive target — maintenance estimate from real data */}
+                {/* Adaptive target, maintenance estimate from real data */}
                 {maint && (
                   <div className="anim-fade-in-up" style={{ animationDelay: '175ms' }}>
                     <div className="flex items-center gap-2 mb-3">
@@ -1714,11 +1714,11 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                           {Math.abs(maint.delta) < 100
                             ? `Current target (${maint.currentTarget.toLocaleString()}) sits about at maintenance.`
                             : maint.delta < 0
-                            ? `Current target is ~${Math.abs(maint.delta).toLocaleString()} kcal below maintenance — a deficit.`
-                            : `Current target is ~${maint.delta.toLocaleString()} kcal above maintenance — a surplus.`}
+                            ? `Current target is ~${Math.abs(maint.delta).toLocaleString()} kcal below maintenance, a deficit.`
+                            : `Current target is ~${maint.delta.toLocaleString()} kcal above maintenance, a surplus.`}
                         </p>
                       )}
-                      <p className="font-mono text-[9px] text-dim mt-2">Estimate only — adjust targets above as you see fit.</p>
+                      <p className="font-mono text-[9px] text-dim mt-2">Estimate only, adjust targets above as you see fit.</p>
                     </div>
                   </div>
                 )}
@@ -1856,7 +1856,7 @@ export default function Clients() {
 
   const selectedClient = clients.find((c) => c.id === selectedId)
 
-  /* ── Roster annotation — memoized: streaks/dots recompute only when data
+  /* ── Roster annotation, memoized: streaks/dots recompute only when data
      changes, not on every keystroke of unrelated state ── */
   const annotated = useMemo(() => clients.map((client) => {
     const totals      = getClientTotalsForDate(client.id, today)
@@ -1899,7 +1899,7 @@ export default function Clients() {
     return true
   }), [annotated, search, filter])
 
-  /* ── FOCUS VIEW — full-page client detail, no split pane ── */
+  /* ── FOCUS VIEW, full-page client detail, no split pane ── */
   if (selectedClient) {
     return (
       <>

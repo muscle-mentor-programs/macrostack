@@ -6,7 +6,7 @@ import ThemeToggle from '../components/ThemeToggle'
 import useStore from '../store'
 import useIsMobile from '../hooks/useIsMobile'
 
-// Resizable sidebar width — persisted so it survives reloads.
+// Resizable sidebar width, persisted so it survives reloads.
 const SIDEBAR_MIN = 200
 const SIDEBAR_MAX = 460
 const SIDEBAR_KEY = 'macrostack-sidebar-w'
@@ -15,11 +15,11 @@ const readSidebarWidth = () => {
   return v >= SIDEBAR_MIN && v <= SIDEBAR_MAX ? v : 256
 }
 
-/* ── Minimal ambient background — grain + grid + directional depth ── */
+/* ── Minimal ambient background, grain + grid + directional depth ── */
 function AmbientBackground() {
   return (
     <>
-      {/* Film grain — tactile texture without visual noise */}
+      {/* Film grain, tactile texture without visual noise */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -28,7 +28,7 @@ function AmbientBackground() {
           backgroundSize: '200px 200px',
         }}
       />
-      {/* Faint grid — structural techy detail */}
+      {/* Faint grid, structural techy detail */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.018]"
         style={{
@@ -37,7 +37,7 @@ function AmbientBackground() {
           backgroundSize: '40px 40px',
         }}
       />
-      {/* Directional top fade — adds depth without color bleeding */}
+      {/* Directional top fade, adds depth without color bleeding */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -94,7 +94,7 @@ export default function CoachLayout({ children }) {
           {isSuperAcct && (
             <button
               onClick={() => setPortalMode(portalMode === 'superadmin' ? 'coach' : 'superadmin')}
-              title={portalMode === 'superadmin' ? 'Superadmin Portal — tap for Coach view' : 'Coach Portal — tap for full access'}
+              title={portalMode === 'superadmin' ? 'Superadmin Portal, tap for Coach view' : 'Coach Portal, tap for full access'}
               className="w-9 h-9 flex items-center justify-center rounded-xl border transition-all shadow-sm"
               style={portalMode === 'superadmin'
                 ? { background: 'rgba(248,113,113,0.12)', borderColor: 'rgba(248,113,113,0.4)', color: '#f87171' }
@@ -120,7 +120,7 @@ export default function CoachLayout({ children }) {
           </button>
         </div>
 
-        {/* Scrollable page content — MotionPage (in App) choreographs entrances
+        {/* Scrollable page content, MotionPage (in App) choreographs entrances
             and binds scroll reveals to this scroller via data-scroller */}
         <main ref={mainRef} data-scroller className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
           <div key={activePage} className="min-h-full">
@@ -133,7 +133,7 @@ export default function CoachLayout({ children }) {
     )
   }
 
-  /* ── Desktop layout — floating rail + floating page canvas ──── */
+  /* ── Desktop layout, floating rail + floating page canvas ──── */
   return (
     <div data-coach-page={activePage} className="software-ui software-coach flex h-screen w-screen overflow-hidden bg-bg relative">
       <AmbientBackground />
@@ -151,7 +151,7 @@ export default function CoachLayout({ children }) {
 
       <Sidebar width={sidebarWidth} />
 
-      {/* Drag handle — resize the sidebar / main split */}
+      {/* Drag handle, resize the sidebar / main split */}
       <div
         onMouseDown={startResize}
         title="Drag to resize"
@@ -165,7 +165,7 @@ export default function CoachLayout({ children }) {
         />
       </div>
 
-      {/* Page canvas — rounded floating surface, pages scroll inside it */}
+      {/* Page canvas, rounded floating surface, pages scroll inside it */}
       <main className="flex-1 min-w-0 overflow-hidden relative py-4 pr-4">
         <div
           key={activePage}

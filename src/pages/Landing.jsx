@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger)
 // Dev-only handle for driving animations in headless verification
 if (import.meta.env.DEV) window.__gsap = gsap
 
-/* ── Theme tokens — landing inherits the app's active theme ──────────────────
+/* ── Theme tokens, landing inherits the app's active theme ──────────────────
    All colors come from the CSS custom properties the app's theme system sets
    (ocean/forest/default, dark/light). Accent shades and alphas are derived
    with color-mix so every theme renders its own correct palette.            */
@@ -21,7 +21,7 @@ const ACCENT_LIGHT = 'color-mix(in srgb, var(--color-accent) 72%, white)'
 const ACCENT_DARK  = 'color-mix(in srgb, var(--color-accent) 70%, black)'
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
-/* Inverted section: the theme's cream as background, its bg as ink — keeps
+/* Inverted section: the theme's cream as background, its bg as ink, keeps
    the dark/light alternation alive in every theme. */
 const INVERT_BG     = 'var(--land-invert-bg)'
 const INVERT_INK    = 'var(--land-invert-ink)'
@@ -30,7 +30,7 @@ const INVERT_CARD   = 'var(--land-invert-card)'
 const INVERT_BORDER = '1px solid var(--land-invert-border)'
 const INVERT_SHADOW = 'var(--land-invert-shadow)'
 
-const ON_ACCENT = '#FFFFFF' /* accent is mid-tone in every theme — white reads on all */
+const ON_ACCENT = '#FFFFFF' /* accent is mid-tone in every theme, white reads on all */
 
 /* ── Content data ─────────────────────────────────────────────────────────── */
 
@@ -54,7 +54,7 @@ const STATEMENT =
 const CARDS = [
   { icon: Target, title: 'PRECISION TRACKING', body: 'Exact macros for every meal. Custom foods, serving math, gram-level control.' },
   { icon: ScanBarcode, title: 'BARCODE SCANNER',    body: 'Instant nutrition data from any label. No typing, no guessing.' },
-  { icon: LayoutDashboard, title: 'COACH DASHBOARD',    body: 'Unlimited clients, individual targets, live compliance — one screen.' },
+  { icon: LayoutDashboard, title: 'COACH DASHBOARD',    body: 'Unlimited clients, individual targets, live compliance, one screen.' },
   { icon: Bot, title: 'KAY AI',             body: 'A nutrition expert in your pocket. Food intel and answers, 24/7.', soon: true },
   { icon: CalendarDays, title: 'MEAL PLANS',         body: 'Coaches build day-by-day plans. Clients log a full meal with one tap.' },
   { icon: ChartNoAxesCombined, title: 'WEIGHT & TRENDS',    body: '7-day moving averages, calorie trends, consistency heatmaps.' },
@@ -68,7 +68,7 @@ const STATS = [
   { value: 24,         suffix: '/7', label: 'COACH ACCESS'   },
 ]
 
-/* MacroStack Pro billing options — same Pro features, three cadences.
+/* MacroStack Pro billing options, same Pro features, three cadences.
    Display prices; Stripe is the source of truth at checkout. */
 const PRO_PLANS = [
   { id: 'weekly',  name: 'WEEKLY',  price: '5.95',  unit: '/wk', note: 'Billed weekly' },
@@ -78,13 +78,13 @@ const PRO_PLANS = [
 
 /* What Pro unlocks on top of the always-free core. */
 const PRO_FEATURES = [
-  'Barcode scanner — instant macros from any label',
+  'Barcode scanner, instant macros from any label',
   'Weight trends & 7-day moving averages',
   'Calorie history & consistency insights',
-  'Everything in Free — unlimited logging, 15,000+ foods, custom foods',
+  'Everything in Free, unlimited logging, 15,000+ foods, custom foods',
 ]
 
-/* MacroStack Coach — tiered by active client count. `plan` matches the tier
+/* MacroStack Coach, tiered by active client count. `plan` matches the tier
    keys in UpgradePage / the create-checkout-session edge function, so a click
    here carries through signup straight into Stripe checkout. */
 const COACH_TIERS = [
@@ -106,39 +106,39 @@ function clearPlan() {
   try { localStorage.removeItem(PENDING_PLAN_KEY) } catch { /* private mode */ }
 }
 
-/* Everything a coach gets. (A few are on the near-term roadmap — we build them next.) */
+/* Everything a coach gets. (A few are on the near-term roadmap, we build them next.) */
 const COACH_FEATURES = [
   { t: 'Live client dashboard',      d: 'Every client’s daily intake, macros, and 7-day compliance at a glance.' },
-  { t: 'AI meal-plan builder',       d: 'Build day-by-day custom plans in seconds — clients log them in one tap.' },
+  { t: 'AI meal-plan builder',       d: 'Build day-by-day custom plans in seconds, clients log them in one tap.' },
   { t: 'Real-time messaging',        d: 'Direct in-app chat with every client, with read receipts and unread badges.' },
-  { t: 'Weekly check-ins',           d: 'Clients submit weight, adherence & notes — AI summarizes so you review in seconds.' },
+  { t: 'Weekly check-ins',           d: 'Clients submit weight, adherence & notes, AI summarizes so you review in seconds.' },
   { t: 'Macro targets & auto-adjust',d: 'Set each client’s calorie & macro goals; get nudges to adjust as progress dictates.' },
   { t: 'Progress & photos',          d: 'Weight trends, compliance streaks, and progress-photo timelines over time.' },
-  { t: 'Automated reminders',        d: 'Auto-nudge clients to log meals and submit check-ins — hands-off.' },
-  { t: 'Pro included for every client', d: 'Everyone on your roster gets the full Pro app — barcode scanner, trends, analytics — at no extra cost to them.' },
+  { t: 'Automated reminders',        d: 'Auto-nudge clients to log meals and submit check-ins, hands-off.' },
+  { t: 'Pro included for every client', d: 'Everyone on your roster gets the full Pro app, barcode scanner, trends, analytics, at no extra cost to them.' },
   { t: 'Client mobile app',          d: 'Your clients get a fast, installable app to log meals and scan barcodes.' },
-  { t: 'Your brand, front & center', d: 'A coach profile clients see — credentials, bio, specialties, and your links.' },
+  { t: 'Your brand, front & center', d: 'A coach profile clients see, credentials, bio, specialties, and your links.' },
 ]
 
-/* Product mockups — large phones alternate left/right beside feature copy as
+/* Product mockups, large phones alternate left/right beside feature copy as
    you scroll. Files live in public/mockups/. */
 const APP_SHOWCASE = [
-  { src: '/mockups/app-home.png',   eyebrow: 'YOUR DAY',  title: 'EVERY GRAM, AT A GLANCE',  body: 'Calories, macros, and your streak the second you open the app — no digging required.' },
+  { src: '/mockups/app-home.png',   eyebrow: 'YOUR DAY',  title: 'EVERY GRAM, AT A GLANCE',  body: 'Calories, macros, and your streak the second you open the app, no digging required.' },
   { src: '/mockups/app-search.png', eyebrow: 'LOG FAST',  title: '15,000+ FOODS, ONE TAP',    body: 'Search the database or scan any barcode for verified macros. Your go-to foods surface first.' },
   { src: '/mockups/app-weight.png', eyebrow: 'PROGRESS',  title: 'WATCH THE REAL TREND',     body: '7-day moving averages cut the daily scale noise so you see actual change, not water weight.' },
   { src: '/mockups/app-chat.png',   eyebrow: 'COACHING',  title: 'YOUR COACH, ONE TAP AWAY', body: 'Message your coach and submit weekly check-ins right inside the app.' },
 ]
 const COACH_SHOWCASE = [
-  { src: '/mockups/coach-dashboard.png', eyebrow: 'DASHBOARD', title: 'YOUR ROSTER, LIVE',      body: "Every client's intake, compliance, and streaks on one screen — spot who's on track in seconds." },
+  { src: '/mockups/coach-dashboard.png', eyebrow: 'DASHBOARD', title: 'YOUR ROSTER, LIVE',      body: "Every client's intake, compliance, and streaks on one screen, spot who's on track in seconds." },
   { src: '/mockups/coach-users.png',     eyebrow: 'USERS',     title: 'EVERY CLIENT, TRACKED',  body: "See who's dialed in and who needs a nudge at a glance, then drill into anyone." },
-  { src: '/mockups/coach-chat.png',      eyebrow: 'MESSAGING', title: 'MESSAGE ANY CLIENT',     body: 'Direct chat with your whole roster — unread badges so nothing slips.' },
-  { src: '/mockups/coach-profile.png',   eyebrow: 'YOUR BRAND', title: "A PROFILE THAT'S YOURS", body: 'Clients see your code, bio, credentials, and specialties — your brand, front and center.' },
+  { src: '/mockups/coach-chat.png',      eyebrow: 'MESSAGING', title: 'MESSAGE ANY CLIENT',     body: 'Direct chat with your whole roster, unread badges so nothing slips.' },
+  { src: '/mockups/coach-profile.png',   eyebrow: 'YOUR BRAND', title: "A PROFILE THAT'S YOURS", body: 'Clients see your code, bio, credentials, and specialties, your brand, front and center.' },
 ]
 
 /* Fill-vessel geometry (SVG user units). Bottom edge sits at y = VESSEL_BOTTOM;
-   each story step fills one LAYER_H slab upward — animated via attr y/height. */
+   each story step fills one LAYER_H slab upward, animated via attr y/height. */
 
-/* ── Feature row — a large phone mockup on one side, copy on the other.
+/* ── Feature row, a large phone mockup on one side, copy on the other.
    `flip` puts the phone on the right. Reveals on scroll via coach-reveal. ── */
 function FeatureRow({ src, eyebrow, title, body, flip, textColor, softColor }) {
   return (
@@ -179,7 +179,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
   const progressRef  = useRef(null)
   const trackRef     = useRef(null)
 
-  /* Smooth-scroll to a section — use Lenis so the pinned ScrollTrigger
+  /* Smooth-scroll to a section, use Lenis so the pinned ScrollTrigger
      sections stay in sync; fall back to native smooth scroll if it's not ready. */
   const scrollToSection = (id) => {
     const el = document.getElementById(id)
@@ -241,7 +241,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           <span>MACRO<span style={{ color: ACCENT }}>STACK</span></span>
         </button>
 
-        {/* Section links — jump straight to each section (hidden on mobile) */}
+        {/* Section links, jump straight to each section (hidden on mobile) */}
         <div className="hidden md:flex items-center gap-7 absolute left-1/2 -translate-x-1/2">
           {NAV_LINKS.map(({ id, label }) => (
             <button
@@ -280,7 +280,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
 
       {/* ══ 2. HERO ══════════════════════════════════════════════════════════ */}
       {/* min-h-screen (not h-screen): on phones the stacked hero content is
-          taller than the viewport — a fixed height + overflow-hidden clips it.
+          taller than the viewport, a fixed height + overflow-hidden clips it.
           Mobile padding clears the fixed nav (top) and scroll cue (bottom). */}
       <section className="hero relative min-h-screen overflow-hidden flex items-center justify-center pt-24 pb-24 md:pt-0 md:pb-0">
         {/* Radial brand glows */}
@@ -300,7 +300,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         />
 
         <div className="hero-inner relative w-full max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 md:gap-10 items-center">
-          {/* Left — copy */}
+          {/* Left, copy */}
           <div className="text-center md:text-left">
             <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-muted mb-6">
               PRECISION NUTRITION PLATFORM
@@ -319,7 +319,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             </h1>
             <p className="hero-sub max-w-md mx-auto md:mx-0 mt-8 text-sm md:text-base leading-relaxed text-muted">
               The nutrition OS for serious athletes and the coaches who guide them.
-              Macro tracking, coaching tools, and AI food intel — one platform.
+              Macro tracking, coaching tools, and AI food intel, one platform.
             </p>
             <div className="hero-ctas flex items-center justify-center md:justify-start gap-4 mt-10">
               <button
@@ -369,7 +369,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 3+4. GUIDE LINE — weaves behind content across the light statement
+      {/* ══ 3+4. GUIDE LINE, weaves behind content across the light statement
              AND the dark "four steps" block (z-1 line, z-0 backdrops, z-2 content) ══ */}
       <div className="guide-wrap relative" style={{ background: INVERT_BG, color: INVERT_INK, isolation: 'isolate' }}>
         {/* Statement */}
@@ -383,7 +383,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           </p>
         </section>
 
-        {/* Mobile web app — install steps (light section, below the statement) */}
+        {/* Mobile web app, install steps (light section, below the statement) */}
         <section className="relative z-[2] px-6 pb-24 md:pb-28">
           <div className="relative max-w-4xl mx-auto">
             <div className="coach-reveal text-center mb-2">
@@ -399,16 +399,16 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               </h2>
               <p className="font-mono text-xs md:text-sm mt-5 max-w-md mx-auto leading-relaxed" style={{ color: INVERT_SOFT }}>
                 MacroStack runs right in your browser. Add it to your home screen for a
-                full-screen, app-like experience — no download, no updates to chase.
+                full-screen, app-like experience, no download, no updates to chase.
               </p>
             </div>
 
             {/* Install steps */}
             <div className="coach-reveal grid gap-4 md:grid-cols-3 mt-12">
               {[
-                { n: '01', icon: Smartphone, t: 'Open in your browser', d: <>Go to <b>getmacrostack.com</b> on your phone — Safari on iPhone, Chrome on Android.</> },
+                { n: '01', icon: Smartphone, t: 'Open in your browser', d: <>Go to <b>getmacrostack.com</b> on your phone, Safari on iPhone, Chrome on Android.</> },
                 { n: '02', icon: Share,      t: 'Tap Share',            d: <>Tap the <b>Share</b> button in your browser's toolbar.</> },
-                { n: '03', icon: PlusSquare, t: 'Add to Home Screen',   d: <>Choose <b>Add to Home Screen</b> — MacroStack lands right beside your other apps.</> },
+                { n: '03', icon: PlusSquare, t: 'Add to Home Screen',   d: <>Choose <b>Add to Home Screen</b>, MacroStack lands right beside your other apps.</> },
               ].map(({ n, icon: Icon, t, d }) => (
                 <div
                   key={n}
@@ -438,7 +438,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
 
       </div>
 
-      {/* ══ 6. SHOWCASE (inverted theme section) — square cards, compact ═════ */}
+      {/* ══ 6. SHOWCASE (inverted theme section), square cards, compact ═════ */}
       <section id="features" className="showcase relative py-20 md:py-28 overflow-hidden" style={{ background: 'var(--color-bg)', color: 'var(--color-cream)' }}>
         <div className="px-6 md:px-10 max-w-5xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -455,7 +455,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
 
         {/* pb-20/-mb-14: overflow-x clips vertical overflow too, so the strip
             needs room for the cards' soft drop-shadows (largest ≈ 60px + the
-            scrollbar) — otherwise they get chopped into a visible line +
+            scrollbar), otherwise they get chopped into a visible line +
             shading band across the section. */}
         <div ref={trackRef} className="premium-scroll mt-10 md:mt-12 px-6 md:px-10 overflow-x-auto pb-20 -mb-14 snap-x snap-mandatory">
           {/* w-max + mx-auto: centered under the heading when the cards fit
@@ -514,7 +514,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 6.1 THE APP + 6.2 PRICING — one continuous dark section, no seam ═ */}
+      {/* ══ 6.1 THE APP + 6.2 PRICING, one continuous dark section, no seam ═ */}
       <section id="app" className="relative bg-bg px-6 pt-10 pb-28 md:pb-36 overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0"
@@ -538,7 +538,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           </div>
         </div>
 
-        {/* ── PRICING — MacroStack Pro (same section as the app showcase, no divider line) ── */}
+        {/* ── PRICING, MacroStack Pro (same section as the app showcase, no divider line) ── */}
         <div id="pricing" className="relative max-w-5xl mx-auto mt-28 md:mt-40">
           {/* Heading */}
           <div className="coach-reveal text-center mb-12">
@@ -552,12 +552,12 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             </h2>
             <p className="font-mono text-xs md:text-sm text-muted mt-4 max-w-md mx-auto leading-relaxed">
               Start free, forever. Go Pro for the barcode scanner and full progress
-              analytics — same features on every plan, cancel anytime.
+              analytics, same features on every plan, cancel anytime.
               {' '}<span style={{ color: ACCENT }}>Working with a coach? Pro is included free while you're connected.</span>
             </p>
           </div>
 
-          {/* Plan cards — three billing cadences */}
+          {/* Plan cards, three billing cadences */}
           <div className="coach-reveal grid gap-5 md:grid-cols-3 items-stretch">
             {PRO_PLANS.map((p) => (
               <div
@@ -599,7 +599,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             ))}
           </div>
 
-          {/* What's included — identical across every Pro plan */}
+          {/* What's included, identical across every Pro plan */}
           <div
             className="coach-reveal mt-10 rounded-3xl p-7 md:p-9"
             style={{ background: 'var(--color-card)', border: '1px solid var(--color-border)' }}
@@ -622,7 +622,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         </div>
       </section>
 
-      {/* ══ 6.5 MACROSTACK COACH — coach your clients on the platform ════════ */}
+      {/* ══ 6.5 MACROSTACK COACH, coach your clients on the platform ════════ */}
       <section id="coach" className="relative px-6 pt-28 pb-20 overflow-hidden" style={{ background: INVERT_BG, color: INVERT_INK }}>
         {/* ambient glow */}
         <div
@@ -643,13 +643,13 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               <span style={{ color: ACCENT }}>ALL IN ONE PLACE</span>.
             </h2>
             <p className="max-w-xl mx-auto text-center text-sm md:text-base leading-relaxed mt-5" style={{ color: INVERT_SOFT }}>
-              Run your whole nutrition-coaching business on MacroStack — build meal plans, track
+              Run your whole nutrition-coaching business on MacroStack, build meal plans, track
               compliance, message clients, and review weekly check-ins from one dashboard.
               <strong style={{ color: INVERT_INK }}> Your first client is free.</strong> Scale as you grow.
             </p>
           </div>
 
-          {/* Feature grid — everything a coach gets */}
+          {/* Feature grid, everything a coach gets */}
           <div className="coach-reveal grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-12">
             {COACH_FEATURES.map(({ t, d }) => (
               <div
@@ -671,7 +671,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             ))}
           </div>
 
-          {/* Coach portal mockups — alternating large mockups + copy */}
+          {/* Coach portal mockups, alternating large mockups + copy */}
           <div className="coach-reveal mt-20 mb-16 md:mb-24 text-center">
             <div className="flex items-center gap-2 justify-center">
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
@@ -685,7 +685,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             ))}
           </div>
 
-          {/* Pricing — tiered by roster size */}
+          {/* Pricing, tiered by roster size */}
           <div className="coach-reveal mt-16">
             <div className="flex items-center gap-2 justify-center mb-3">
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
@@ -693,7 +693,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
             </div>
             <p className="text-center text-sm mb-9 max-w-lg mx-auto leading-relaxed" style={{ color: INVERT_SOFT }}>
-              One flat monthly rate for your entire client list — <strong style={{ color: INVERT_INK }}>every feature included on every tier</strong>. No per-client fees, no add-ons.
+              One flat monthly rate for your entire client list, <strong style={{ color: INVERT_INK }}>every feature included on every tier</strong>. No per-client fees, no add-ons.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               {COACH_TIERS.map((tier) => {
@@ -776,7 +776,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
             <span style={{ color: ACCENT }}>STACKING.</span>
           </h2>
           <p className="text-sm md:text-base text-muted mt-6 max-w-md mx-auto">
-            Free to start. No credit card. Your coach — or your goals — are waiting.
+            Free to start. No credit card. Your coach, or your goals, are waiting.
           </p>
           <button
             onClick={() => { clearPlan(); onSignUp() }}

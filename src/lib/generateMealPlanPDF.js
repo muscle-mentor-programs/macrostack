@@ -152,7 +152,7 @@ export function generateMealPlanPDF(plan, client) {
         }
 
         setTxt(doc, COLORS.cream)
-        const name = item.brand ? `${item.name} — ${item.brand}` : item.name
+        const name = item.brand ? `${item.name}, ${item.brand}` : item.name
         const label = item.quantity !== 1 ? `× ${item.quantity}  ${name}` : name
         doc.text(label, PAD + 16, y + 9, { maxWidth: INNER * 0.6 })
 

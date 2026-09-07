@@ -59,7 +59,7 @@ html.ocean-light {
 }
 
 /* ─────────────────────────────────────────────
-   THEME TRANSITION — premium cross-fade
+   THEME TRANSITION, premium cross-fade
    The View Transitions API snapshots the old
    theme and cross-fades to the new one. We just
    slow the UA's default fade down and give it a
@@ -103,7 +103,7 @@ html, body, #root {
 }
 
 /* Per CSS Backgrounds spec §2.11.1, the root element's (html) background
-   covers the ENTIRE canvas — including areas beyond the layout viewport
+   covers the ENTIRE canvas, including areas beyond the layout viewport
    such as the iOS home-indicator zone (810-844 pt) in PWA standalone mode.
    Body background propagation to canvas is blocked when html has overflow:clip.
    Setting this directly on html guarantees the home-indicator strip is painted
@@ -113,7 +113,7 @@ html {
 }
 
 body {
-  /* Warm radial glow from top-center — makes the whole screen feel lit from above */
+  /* Warm radial glow from top-center, makes the whole screen feel lit from above */
   background:
     radial-gradient(ellipse 130% 35% at 50% 0%, rgba(30, 25, 18, 0.65) 0%, transparent 65%),
     var(--color-bg);
@@ -123,7 +123,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
-/* Light/coloured themes — flat background looks cleaner than a tinted gradient */
+/* Light/coloured themes, flat background looks cleaner than a tinted gradient */
 html.light body,
 html.forest-light body,
 html.ocean-light body { background: var(--color-bg); }
@@ -141,7 +141,7 @@ html.ocean-light body { background: var(--color-bg); }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
 
 /* ─────────────────────────────────────────────
-   LIGHT MODE — Tailwind utility overrides
+   LIGHT MODE, Tailwind utility overrides
    Tailwind bakes hardcoded hex values into
    utility classes at build time, so we need
    explicit overrides for html.light.
@@ -409,7 +409,7 @@ html.ocean-light {
   color-scheme: light;
 }
 
-/* Cool light falling from above — the light-mode twin of the dark glow */
+/* Cool light falling from above, the light-mode twin of the dark glow */
 html.ocean-light body {
   background:
     radial-gradient(ellipse 120% 42% at 50% 0%, rgba(72, 120, 176, 0.07) 0%, transparent 62%),
@@ -543,7 +543,7 @@ input[type="number"]::-webkit-outer-spin-button {
   100% { box-shadow: 0 0 0 0 rgba(154, 123, 85, 0); }
 }
 
-/* Number flicker — subtle randomness on data values */
+/* Number flicker, subtle randomness on data values */
 @keyframes dataFlicker {
   0%, 96%, 100% { opacity: 1; }
   97%  { opacity: 0.85; }
@@ -562,7 +562,7 @@ input[type="number"]::-webkit-outer-spin-button {
   50%       { transform: translateY(-2px); }
 }
 
-/* Glitch shift — used on hover */
+/* Glitch shift, used on hover */
 @keyframes glitchShift {
   0%        { clip-path: inset(0 0 100% 0); transform: translateX(0); }
   10%       { clip-path: inset(30% 0 50% 0); transform: translateX(-3px); }
@@ -612,7 +612,7 @@ input[type="number"]::-webkit-outer-spin-button {
   animation: slideUpSheet 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Stagger helpers — apply via inline style animationDelay */
+/* Stagger helpers, apply via inline style animationDelay */
 .anim-stagger > * {
   animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -623,7 +623,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .anim-stagger > *:nth-child(5) { animation-delay: 240ms; }
 .anim-stagger > *:nth-child(6) { animation-delay: 300ms; }
 
-/* Scanline overlay — position: relative required on parent */
+/* Scanline overlay, position: relative required on parent */
 .scanline-parent {
   position: relative;
   overflow: hidden;
@@ -655,7 +655,7 @@ input[type="number"]::-webkit-outer-spin-button {
   color: var(--color-accent);
 }
 
-/* Press-inward / tactile feedback — replaces dark tap flash */
+/* Press-inward / tactile feedback, replaces dark tap flash */
 .press {
   transform-origin: center;
   transition: transform 110ms cubic-bezier(0.2, 0, 0.38, 0.9),
@@ -688,13 +688,13 @@ input[type="number"]::-webkit-outer-spin-button {
                 box-shadow 110ms ease;
   }
 
-  /* .press already has will-change — keep its more refined values */
+  /* .press already has will-change, keep its more refined values */
   .press:active {
     transform: scale(0.965);
     box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.55);
   }
 
-  /* Edge-to-edge list rows (.press-row below) — the inset-shadow rectangle
+  /* Edge-to-edge list rows (.press-row below), the inset-shadow rectangle
      looks squared-off on unrounded rows; use the soft tint press instead */
   button.press-row:not(:disabled):active {
     transform: scale(0.985);
@@ -721,8 +721,8 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /* ── Landing CTA animations ────────────────────────────────────────────────────
-   .btn-lift  — springy lift + brighten on hover, quick press on tap
-   .btn-shine — a light sheen sweeps across on hover (primary CTAs)          */
+   .btn-lift , springy lift + brighten on hover, quick press on tap
+   .btn-shine, a light sheen sweeps across on hover (primary CTAs)          */
 .btn-lift {
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.35s ease, filter 0.35s ease;
@@ -788,7 +788,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ── Nav bar background — theme-aware semi-transparent card colour ───────────
+/* ── Nav bar background, theme-aware semi-transparent card colour ───────────
    Tailwind bakes the hardcoded hex from tailwind.config into bg-card/95,
    so opacity variants are immune to the html.* overrides. We use a custom
    class here that we can override per theme instead.                        */
@@ -799,7 +799,7 @@ html.forest-light .nav-bg { background-color: rgba(251,254,251,0.95) !important;
 html.ocean-dark   .nav-bg { background-color: rgba(20,27,46,0.95)   !important; }
 html.ocean-light  .nav-bg { background-color: rgba(250,252,255,0.95) !important; }
 
-/* ── Nav bar elevation — heavy shadow in dark themes, subtle in light ──────── */
+/* ── Nav bar elevation, heavy shadow in dark themes, subtle in light ──────── */
 .nav-elevated { box-shadow: 0 -6px 24px rgba(0,0,0,0.45); }
 html.light        .nav-elevated { box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
 html.forest-light .nav-elevated { box-shadow: 0 -2px 12px rgba(0,20,0,0.08); }
@@ -814,11 +814,11 @@ html.ocean-light  .nav-elevated { box-shadow: 0 -2px 12px rgba(0,10,30,0.08); }
 /* Full-screen height with 100vh fallback for browsers lacking dvh support */
 .h-dvh {
   height: 100vh;   /* fallback (iOS < 15.4, older Android) */
-  height: 100dvh;  /* dynamic viewport — correct on modern iOS Safari */
+  height: 100dvh;  /* dynamic viewport, correct on modern iOS Safari */
 }
 
 /* Exact visible-viewport height set by JS (window.innerHeight).
-   This is the only truly reliable value on iOS/Android — use it for
+   This is the only truly reliable value on iOS/Android, use it for
    the outermost layout containers so nav bars pin to the real bottom. */
 .h-app {
   height: 100dvh;                    /* instant first-paint (before JS) */
@@ -836,14 +836,14 @@ html.ocean-light  .nav-elevated { box-shadow: 0 -2px 12px rgba(0,10,30,0.08); }
   padding-top: calc(env(safe-area-inset-top, 0px) + 20px);
 }
 
-/* Mobile page headers — background starts at y=0 (covers status bar), text
+/* Mobile page headers, background starts at y=0 (covers status bar), text
    starts below the safe-area + fixed top buttons (bottom at ~48px) with extra
    breathing room so page content never crowds the buttons */
 .pt-mobile-header {
   padding-top: calc(env(safe-area-inset-top, 0px) + 72px);
 }
 
-/* Fixed elements near the top — clears status bar + 12 px breathing room */
+/* Fixed elements near the top, clears status bar + 12 px breathing room */
 .top-safe {
   top: calc(env(safe-area-inset-top, 0px) + 12px);
 }
@@ -870,7 +870,7 @@ input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
 }
 
-/* Premium horizontal scrollbar — thin, rounded, accent-tinted (replaces the
+/* Premium horizontal scrollbar, thin, rounded, accent-tinted (replaces the
    chunky default bar on the showcase card row). */
 .premium-scroll {
   scrollbar-width: thin;
@@ -892,7 +892,7 @@ input[type="date"]::-webkit-date-and-time-value {
   background: color-mix(in srgb, var(--color-accent) 65%, transparent);
 }
 
-/* Kill the browser autofill yellow — tint the field with the theme accent
+/* Kill the browser autofill yellow, tint the field with the theme accent
    (light blue) and keep the text legible, so autofilled fields stay on-theme. */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -969,7 +969,7 @@ select:-webkit-autofill {
 }
 
 /* ─────────────────────────────────────────────
-   APP SHELL — PREMIUM AMBIENT STYLES
+   APP SHELL, PREMIUM AMBIENT STYLES
 ───────────────────────────────────────────── */
 
 /* Slow organic drift for ambient background blobs */
@@ -982,7 +982,7 @@ select:-webkit-autofill {
   100% { transform: translate(0px, 0px) scale(1); }
 }
 
-/* Page entrance — blur + scale + translate spring */
+/* Page entrance, blur + scale + translate spring */
 @keyframes appPageReveal {
   from {
     opacity: 0;
@@ -991,7 +991,7 @@ select:-webkit-autofill {
   }
   to {
     opacity: 1;
-    /* No transform/filter in "to" — fill-mode:both would leave a non-none
+    /* No transform/filter in "to", fill-mode:both would leave a non-none
        transform on the wrapper after the animation ends, which would make it
        the containing block for position:fixed descendants (CSS §9.3.1) and
        trap full-screen overlays like ClientDetailScreen inside the wrapper
@@ -1003,7 +1003,7 @@ select:-webkit-autofill {
   animation: appPageReveal 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Full-screen page push — slides up from below with a fade */
+/* Full-screen page push, slides up from below with a fade */
 @keyframes pageSlideUp {
   from {
     opacity: 0;
@@ -1011,7 +1011,7 @@ select:-webkit-autofill {
   }
   to {
     opacity: 1;
-    /* No transform in "to" — fill-mode:both must not leave a transform on
+    /* No transform in "to", fill-mode:both must not leave a transform on
        the element or it becomes the containing block for fixed descendants. */
   }
 }
@@ -1020,7 +1020,7 @@ select:-webkit-autofill {
   animation: pageSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Glass sidebar — premium deep frosted panel */
+/* Glass sidebar, premium deep frosted panel */
 .glass-sidebar {
   backdrop-filter: blur(32px) saturate(200%);
   -webkit-backdrop-filter: blur(32px) saturate(200%);
@@ -1033,7 +1033,7 @@ html.forest-light .glass-sidebar { background: rgba(243, 251, 243, 0.92) !import
 html.ocean-dark   .glass-sidebar { background: rgba(7, 9, 18, 0.88) !important; }
 html.ocean-light  .glass-sidebar { background: rgba(255, 255, 255, 0.86) !important; border-right-color: rgba(16,48,96,0.06) !important; box-shadow: 0 8px 32px rgba(16,40,80,0.06) !important; }
 
-/* Glass bottom nav — deep frosted floating platform */
+/* Glass bottom nav, deep frosted floating platform */
 .glass-bottom-nav {
   backdrop-filter: blur(36px) saturate(210%);
   -webkit-backdrop-filter: blur(36px) saturate(210%);
@@ -1049,7 +1049,7 @@ html.forest-light .glass-bottom-nav { background: rgba(248, 254, 248, 0.96) !imp
 html.ocean-dark   .glass-bottom-nav { background: rgba(8, 11, 22, 0.96) !important; }
 html.ocean-light  .glass-bottom-nav { background: rgba(255, 255, 255, 0.96) !important; box-shadow: 0 -8px 32px rgba(16,40,80,0.08), 0 -1px 0 rgba(16,40,80,0.05) !important; }
 
-/* Glass panel — for sticky page headers */
+/* Glass panel, for sticky page headers */
 .glass-panel {
   backdrop-filter: blur(28px) saturate(200%);
   -webkit-backdrop-filter: blur(28px) saturate(200%);
@@ -1063,11 +1063,11 @@ html.forest-light .glass-panel { background: rgba(247, 253, 247, 0.94) !importan
 html.ocean-dark   .glass-panel { background: rgba(7, 9, 18, 0.88) !important; }
 html.ocean-light  .glass-panel { background: rgba(255, 255, 255, 0.92) !important; box-shadow: 0 1px 0 rgba(16,40,80,0.05), 0 4px 20px rgba(16,40,80,0.05) !important; }
 
-/* Glass card — premium layered depth for major content panels */
+/* Glass card, premium layered depth for major content panels */
 .glass-card {
   backdrop-filter: blur(32px) saturate(200%);
   -webkit-backdrop-filter: blur(32px) saturate(200%);
-  /* Subtle top-lit gradient — warmer/lighter at top, cooler at bottom */
+  /* Subtle top-lit gradient, warmer/lighter at top, cooler at bottom */
   background: linear-gradient(160deg, rgba(28, 25, 21, 0.88) 0%, rgba(15, 13, 11, 0.74) 100%);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.13),   /* top edge lit highlight  */
@@ -1084,7 +1084,7 @@ html.forest-light .glass-card { background: linear-gradient(160deg, rgba(232,248
 html.ocean-dark   .glass-card { background: linear-gradient(160deg, rgba(20, 28, 50, 0.88) 0%, rgba(10, 15, 30, 0.74) 100%) !important; }
 html.ocean-light  .glass-card { background: linear-gradient(160deg, rgba(255,255,255,0.97) 0%, rgba(245,249,254,0.92) 100%) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 3px rgba(16,32,64,0.04), 0 8px 28px rgba(16,32,64,0.07), 0 0 0 1px rgba(16,48,96,0.04) !important; }
 
-/* Accent gradient line — decorative top-of-section separator */
+/* Accent gradient line, decorative top-of-section separator */
 .accent-line::before {
   content: '';
   position: absolute;
@@ -1095,7 +1095,7 @@ html.ocean-light  .glass-card { background: linear-gradient(160deg, rgba(255,255
   filter: blur(0.3px);
 }
 
-/* Base card dimension — rich raised look for all cards */
+/* Base card dimension, rich raised look for all cards */
 .card-dim {
   box-shadow:
     0 1px 2px rgba(0,0,0,0.32),
@@ -1108,7 +1108,7 @@ html.light        .card-dim { box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px
 html.forest-light .card-dim { box-shadow: 0 1px 3px rgba(0,20,0,0.08), 0 4px 16px rgba(0,20,0,0.09), 0 0 0 1px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.95); }
 html.ocean-light  .card-dim { box-shadow: 0 1px 3px rgba(0,10,30,0.08), 0 4px 16px rgba(0,10,30,0.09), 0 0 0 1px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.95); }
 
-/* Card hover lift — float up with accent glow on interaction */
+/* Card hover lift, float up with accent glow on interaction */
 .card-hover {
   transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1118,12 +1118,12 @@ html.ocean-light  .card-dim { box-shadow: 0 1px 3px rgba(0,10,30,0.08), 0 4px 16
   box-shadow: 0 2px 6px rgba(0,0,0,0.28), 0 12px 48px rgba(0,0,0,0.52), 0 0 0 1px rgba(154,123,85,0.25), inset 0 1px 0 rgba(255,255,255,0.13);
 }
 
-/* Accent glow utility — ambient glow around accent-coloured elements */
+/* Accent glow utility, ambient glow around accent-coloured elements */
 .accent-glow {
   box-shadow: 0 0 24px rgba(154,123,85,0.28), 0 0 0 1px rgba(154,123,85,0.18);
 }
 
-/* Inset cell — for stat tiles / macro cells that sit inside a card.
+/* Inset cell, for stat tiles / macro cells that sit inside a card.
    Creates a pressed-in surface distinct from the card itself. */
 .card-inset {
   background: rgba(0,0,0,0.22);
@@ -1144,7 +1144,7 @@ html.ocean-light  .card-inset { background: rgba(0,0,0,0.05) !important; box-sha
   -webkit-text-fill-color: transparent;
 }
 
-/* Premium CTA button — matches the landing page primary button:
+/* Premium CTA button, matches the landing page primary button:
    accent → lighter-accent gradient, white text, accent glow (no brown). */
 .btn-accent {
   background: linear-gradient(135deg, var(--color-accent) 0%, color-mix(in srgb, var(--color-accent) 72%, white) 100%);
@@ -1161,7 +1161,7 @@ html.ocean-light  .card-inset { background: rgba(0,0,0,0.05) !important; box-sha
    PREMIUM MOTION SYSTEM
 ───────────────────────────────────────────── */
 
-/* Spring pop — overshoot entrance for modals and confirmations */
+/* Spring pop, overshoot entrance for modals and confirmations */
 @keyframes springIn {
   0%   { opacity: 0; transform: scale(0.90) translateY(8px); }
   60%  { opacity: 1; transform: scale(1.015) translateY(-1px); }
@@ -1171,7 +1171,7 @@ html.ocean-light  .card-inset { background: rgba(0,0,0,0.05) !important; box-sha
   animation: springIn 0.42s cubic-bezier(0.34, 1.4, 0.64, 1) both;
 }
 
-/* Success pulse — single gold ripple for goal hits / saves */
+/* Success pulse, single gold ripple for goal hits / saves */
 @keyframes successPulse {
   0%   { box-shadow: 0 0 0 0 rgba(154,123,85,0.55); }
   100% { box-shadow: 0 0 0 18px rgba(154,123,85,0); }
@@ -1180,7 +1180,7 @@ html.ocean-light  .card-inset { background: rgba(0,0,0,0.05) !important; box-sha
   animation: successPulse 0.7s cubic-bezier(0.16, 1, 0.3, 1) 1;
 }
 
-/* Goal-hit ring glow — breathes gold while a target is met */
+/* Goal-hit ring glow, breathes gold while a target is met */
 @keyframes goalGlow {
   0%, 100% { filter: drop-shadow(0 0 6px rgba(184,150,96,0.35)); }
   50%       { filter: drop-shadow(0 0 18px rgba(184,150,96,0.65)); }
@@ -1189,7 +1189,7 @@ html.ocean-light  .card-inset { background: rgba(0,0,0,0.05) !important; box-sha
   animation: goalGlow 2.6s ease-in-out infinite;
 }
 
-/* Skeleton shimmer — branded loading placeholder */
+/* Skeleton shimmer, branded loading placeholder */
 @keyframes skeletonSweep {
   from { background-position: -200% 0; }
   to   { background-position: 200% 0; }
@@ -1217,8 +1217,8 @@ html.ocean-light .skeleton {
   background-size: 200% 100%;
 }
 
-/* Gold glow on text — for hitting targets.
-   NOTE: deliberately avoids background-clip:text + transparent fill —
+/* Gold glow on text, for hitting targets.
+   NOTE: deliberately avoids background-clip:text + transparent fill -
    that combo renders invisible text on iOS Safari when animated. */
 @keyframes goldPulse {
   0%, 100% { text-shadow: 0 0 8px rgba(212,184,130,0.25); }
@@ -1234,7 +1234,7 @@ html.ocean-light .text-gold-sweep {
   color: #8A6B35; /* deeper gold for contrast on light backgrounds */
 }
 
-/* Progress bar — gradient fill with a lit tip */
+/* Progress bar, gradient fill with a lit tip */
 .bar-premium {
   position: relative;
   background: linear-gradient(90deg, var(--color-accent) 0%, #C8A468 100%);
@@ -1250,7 +1250,7 @@ html.ocean-light .text-gold-sweep {
   filter: blur(2px);
 }
 
-/* Soft entrance for whole-page content — gentler than page-reveal */
+/* Soft entrance for whole-page content, gentler than page-reveal */
 @keyframes contentRise {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; }
@@ -1259,7 +1259,7 @@ html.ocean-light .text-gold-sweep {
   animation: contentRise 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Error shake — wrong password, invalid input */
+/* Error shake, wrong password, invalid input */
 @keyframes shakeX {
   0%, 100% { transform: translateX(0); }
   20%      { transform: translateX(-6px); }
@@ -1271,7 +1271,7 @@ html.ocean-light .text-gold-sweep {
   animation: shakeX 0.4s ease both;
 }
 
-/* Centered tracked text — letter-spacing adds trailing space after the last
+/* Centered tracked text, letter-spacing adds trailing space after the last
    glyph, shifting tracked display text visually left of true center.
    Compensate with equal leading padding. */
 .track-center    { padding-left: 0.1em;  }  /* pairs with tracking-widest  */
@@ -1281,7 +1281,7 @@ html.ocean-light .text-gold-sweep {
    LANDING SCROLLYTELLING MODE
    The app shell locks html/body/#root to the viewport (overflow:hidden)
    for the PWA layout. The GSAP/Lenis landing needs the DOCUMENT to be the
-   scroller, so this class — added while Landing is mounted — restores
+   scroller, so this class, added while Landing is mounted, restores
    natural document flow. Specificity beats the base rules; no !important.
 ───────────────────────────────────────────── */
 html.landing-mode,

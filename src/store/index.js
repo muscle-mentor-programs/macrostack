@@ -272,7 +272,7 @@ const useStore = create(
             update.activeClientId = clientProfile.id
             update.activePage     = 'dashboard'
             if (clientProfile.coachId) {
-              // load coach profile async — don't await so auth finishes fast
+              // load coach profile async, don't await so auth finishes fast
               setTimeout(() => get().loadCoachProfile(clientProfile.coachId), 0)
             }
           }
@@ -280,7 +280,7 @@ const useStore = create(
 
         set(update)
 
-        // Keep session in sync across tabs — subscribe exactly once even if
+        // Keep session in sync across tabs, subscribe exactly once even if
         // initAuth re-runs (HMR, re-mount), otherwise listeners accumulate
         if (!get()._authListenerAttached) {
           set({ _authListenerAttached: true })
@@ -362,7 +362,7 @@ const useStore = create(
       loadAllData: async () => {
         // food_log is fetched separately and PAGINATED: Supabase caps every
         // response (including embedded arrays) at 1000 rows, so an embedded
-        // food_log(*) silently drops entries once an account logs enough —
+        // food_log(*) silently drops entries once an account logs enough -
         // new saves "disappear" on reload. Page until a short page comes back.
         const fetchAllFoodLog = async () => {
           const all = []
@@ -391,7 +391,7 @@ const useStore = create(
           fetchAllFoodLog(),
         ])
 
-        // client_id → [rows] — replaces the old embedded food_log(*)
+        // client_id → [rows], replaces the old embedded food_log(*)
         const foodLogByClient = {}
         ;(foodLogRows || []).forEach((r) => {
           if (!foodLogByClient[r.client_id]) foodLogByClient[r.client_id] = []
@@ -405,7 +405,7 @@ const useStore = create(
           waterByClient[r.client_id][r.date] = r.ml
         })
 
-        // Graceful fallbacks while newer migrations haven't run yet — don't
+        // Graceful fallbacks while newer migrations haven't run yet, don't
         // let a missing table take down all client data.
         if (clientRes.error) {
           clientRes = await supabase.from('clients')
@@ -460,7 +460,7 @@ const useStore = create(
         }))
 
         // Coach Portal view for a superadmin: scope to only their own clients.
-        // (Superadmin Portal / regular coaches are unaffected — RLS already
+        // (Superadmin Portal / regular coaches are unaffected, RLS already
         // scopes real coaches to their own roster.)
         const me = get().currentUser
         if (me?.role === 'superadmin' && get().portalMode === 'coach') {
@@ -510,7 +510,7 @@ const useStore = create(
             const msg = dbToMessage(row)
             set((s) => {
               const thread = s.messages[row.client_id] || []
-              // Our own optimistic sends share the same id — skip duplicates
+              // Our own optimistic sends share the same id, skip duplicates
               if (thread.some((m) => m.id === msg.id)) return {}
               return { messages: { ...s.messages, [row.client_id]: [...thread, msg] } }
             })
@@ -570,7 +570,7 @@ const useStore = create(
       },
 
       // ── SUBSCRIPTIONS ─────────────────────────────────────────────────────
-      // True while a fresh signup is being sent to Stripe checkout — App holds
+      // True while a fresh signup is being sent to Stripe checkout, App holds
       // the redirect screen instead of rendering the app (not persisted).
       checkoutRedirect: false,
       setCheckoutRedirect: (v) => set({ checkoutRedirect: v }),
@@ -590,7 +590,7 @@ const useStore = create(
             ? { ...s.currentUser, ...profileToUser(profile, s.currentUser.email) }
             : s.currentUser,
         }))
-        // Reload client records too — a fresh subscription auto-links the user
+        // Reload client records too, a fresh subscription auto-links the user
         // to their coach (server-side), so coach_id may have just changed.
         await get().loadAllData()
         const me = get()
@@ -684,7 +684,7 @@ const useStore = create(
           return { ok: true }
         } catch {
           // Network-level failure: function unreachable / not deployed / CORS
-          return { ok: false, error: 'Could not reach checkout. Subscriptions may not be set up yet — please try again later or contact support.' }
+          return { ok: false, error: 'Could not reach checkout. Subscriptions may not be set up yet, please try again later or contact support.' }
         }
       },
 
@@ -760,7 +760,7 @@ const useStore = create(
 
       // Superadmin portal mode: 'superadmin' = full access to everything;
       // 'coach' = scoped coach experience (own clients only, no admin tools).
-      // Session-only (not persisted) — chosen fresh each login via RoleSelector.
+      // Session-only (not persisted), chosen fresh each login via RoleSelector.
       portalMode: 'superadmin',
       setPortalMode: async (mode) => {
         set({ portalMode: mode, activePage: 'dashboard' })
@@ -781,7 +781,7 @@ const useStore = create(
       setViewingClientId: (id, tab = null) => set({ viewingClientId: id, viewingClientTab: tab }),
 
       addClient: async (data) => {
-        // Tier-based client cap — enforced here in the data layer (not just
+        // Tier-based client cap, enforced here in the data layer (not just
         // hidden in UI) so the limit can't be clicked past. A DB trigger
         // enforces the same limit server-side for every other path.
         const me = get().currentUser
@@ -1025,7 +1025,7 @@ const useStore = create(
           console.error('food_log insert:', error)
           // Roll back the optimistic entry and surface the failure
           set((s) => ({
-            logSaveError: `Couldn't save "${entry.name}" — ${/JWT|token|401/i.test(error.message) ? 'your session expired. Sign out and back in.' : error.message}`,
+            logSaveError: `Couldn't save "${entry.name}", ${/JWT|token|401/i.test(error.message) ? 'your session expired. Sign out and back in.' : error.message}`,
             clients: s.clients.map((c) => {
               if (c.id !== clientId) return c
               return { ...c, log: { ...c.log, [date]: (c.log[date] || []).filter((e) => e.id !== id) } }
@@ -1176,7 +1176,7 @@ const useStore = create(
           energy:      data.energy ?? null,
           notes:       data.notes || '',
         }
-        // answers/photos — retry progressively if newer migrations haven't run.
+        // answers/photos, retry progressively if newer migrations haven't run.
         let { data: row, error } = await supabase.from('checkins')
           .insert({ ...base, answers: data.answers || [], photo_urls: photoUrls }).select().single()
         if (error) {
@@ -1453,7 +1453,7 @@ const useStore = create(
         if (error) {
           const cap = /CLIENT_LIMIT_REACHED/.test(error.message)
           return { ok: false, capReached: cap, error: cap
-            ? 'Your tier is full — upgrade or archive another client before restoring this one.'
+            ? 'Your tier is full, upgrade or archive another client before restoring this one.'
             : error.message }
         }
         set((s) => ({ clients: s.clients.map((c) => c.id === clientId ? { ...c, status } : c) }))
@@ -1590,7 +1590,7 @@ const useStore = create(
         }
       },
 
-      // Client pays their coach — creates a Stripe checkout for the coach's price.
+      // Client pays their coach, creates a Stripe checkout for the coach's price.
       startCoachPayment: async () => {
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) return { ok: false, error: 'Not signed in.' }
@@ -1720,20 +1720,20 @@ const useStore = create(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               max_tokens: 1024,
-              system: `You are Kay — a Nutrition Expert with deep knowledge in sports dietetics, nutritional biochemistry, and evidence-based coaching. You give clients concise, evidence-based nutrition coaching through a mobile chat app.
+              system: `You are Kay, a Nutrition Expert with deep knowledge in sports dietetics, nutritional biochemistry, and evidence-based coaching. You give clients concise, evidence-based nutrition coaching through a mobile chat app.
 
-Your voice: knowledgeable, warm, direct. Skip preambles — lead with the answer.
+Your voice: knowledgeable, warm, direct. Skip preambles, lead with the answer.
 
 Rules:
 - Stay in character as Kay at all times. Never break persona.
 - Answer nutrition questions with specific, actionable guidance.
 - If asked who you are: say "I'm Kay, your nutrition coach" and move on.
-- Never open with "As an AI…", "As a language model…", or any AI disclaimer — you are Kay, a nutrition expert.
-- Keep replies short — this is mobile chat, not a blog post.
+- Never open with "As an AI…", "As a language model…", or any AI disclaimer, you are Kay, a nutrition expert.
+- Keep replies short, this is mobile chat, not a blog post.
 - Work within the client's existing macro targets set by their coach.
 - Do not diagnose medical conditions; refer to a doctor for medical issues.
 - If asked something off-topic, briefly acknowledge and redirect to nutrition.
-- Use **bold** to highlight 2–4 key terms or numbers per reply (e.g. **protein**, **30g**, **post-workout window**). Keep it selective — only the most important words.`,
+- Use **bold** to highlight 2–4 key terms or numbers per reply (e.g. **protein**, **30g**, **post-workout window**). Keep it selective, only the most important words.`,
               messages: history,
             }),
           })
@@ -1836,7 +1836,7 @@ Rules:
                 senderRole:     'coach',
                 preview:        text.slice(0, 120),
               }),
-            }).catch(() => {}) // swallow errors — notification is best-effort
+            }).catch(() => {}) // swallow errors, notification is best-effort
           } else if (from === 'client' && currentUser?.email) {
             // Client messaged the coach → notify the coach
             // (currentUser here is the client; coach email comes from their own session)
@@ -1852,7 +1852,7 @@ Rules:
         if (!supabase) return { ok: false, error: 'Supabase not configured' }
         const cleanEmail = email.trim()
 
-        // Finalize once a session exists — shared by both signup paths.
+        // Finalize once a session exists, shared by both signup paths.
         const finalize = async () => {
           const { data: profileRows } = await supabase.rpc('get_my_profile')
           const profile = profileRows?.[0] ?? null
@@ -1904,7 +1904,7 @@ Rules:
             if (signInErr) return { ok: false, error: signInErr.message }
             return finalize()
           }
-          // Real, actionable error (e.g. already registered) — surface it.
+          // Real, actionable error (e.g. already registered), surface it.
           if (res.status === 409 || json.already) {
             return { ok: false, error: json.error || 'An account with this email already exists.' }
           }
@@ -1987,14 +1987,14 @@ Rules:
           client_email: currentUser.email || '',
           coach_id: coachId,
         })
-        // 23505 = already requested this coach — treat as success, UI shows state
+        // 23505 = already requested this coach, treat as success, UI shows state
         if (error && error.code !== '23505') return { ok: false, error: error.message }
         await get().fetchMyCoachRequests()
         return { ok: true }
       },
 
       // Coach: reply to a marketplace request with the connection code instead
-      // of direct-accepting — the user links themselves when ready.
+      // of direct-accepting, the user links themselves when ready.
       sendCodeToRequest: async (requestId) => {
         const { currentUser } = get()
         const { error } = await supabase.from('coach_requests').update({
@@ -2022,7 +2022,7 @@ Rules:
         if (!request) return { ok: false }
 
         if (accept) {
-          // Tier cap — same limit the DB trigger enforces (archived don't count)
+          // Tier cap, same limit the DB trigger enforces (archived don't count)
           const limit = coachClientLimit(currentUser)
           const activeCount = get().clients.filter((c) => c.status !== 'archived').length
           if (limit !== null && activeCount >= limit) {
@@ -2071,7 +2071,7 @@ Rules:
           .eq(field, false)
       },
 
-      // ── SAVED MEALS — private per-user bundles of log entries ─────────────
+      // ── SAVED MEALS, private per-user bundles of log entries ─────────────
       myMeals: [],
 
       fetchMyMeals: async () => {
@@ -2162,7 +2162,7 @@ Rules:
 
       addScannedFood: (food) => {
         const { scannedFoods, customFoods, currentUser } = get()
-        // Scans join the SHARED catalog — dedupe against the whole community pool
+        // Scans join the SHARED catalog, dedupe against the whole community pool
         const pool = [...scannedFoods, ...customFoods]
 
         // Dedup by UPC
@@ -2183,7 +2183,7 @@ Rules:
         const newFood = formatFood({ ...food, id, addedByRole: roleTag })
         set((s) => ({ scannedFoods: [...s.scannedFoods, newFood] }))
 
-        // Fire-and-forget write (caller can't await — it uses the sync return value)
+        // Fire-and-forget write (caller can't await, it uses the sync return value)
         const row = {
           id, name: food.name, brand: food.brand || '',
           serving_size: food.servingSize || null, serving_unit: food.servingUnit || null,
@@ -2315,7 +2315,7 @@ Rules:
       // ── COACH PROFILE ─────────────────────────────────────────────────────
       coachProfile: null,  // { id, name, bio, specialties, credentials, website }
 
-      // Called on client login — loads their coach's public profile
+      // Called on client login, loads their coach's public profile
       loadCoachProfile: async (coachId) => {
         if (!supabase || !coachId) return
         const { data, error } = await supabase.rpc('get_coach_profile', { p_coach_id: coachId })
@@ -2352,7 +2352,7 @@ Rules:
       // the ocean-dark default. Future theme choices persist under this key.
       name: 'macrostack-ui-dark2',
       version: 2,
-      // Only persist UI preferences — all data comes from Supabase
+      // Only persist UI preferences, all data comes from Supabase
       partialize: (state) => ({ theme: state.theme }),
     }
   )

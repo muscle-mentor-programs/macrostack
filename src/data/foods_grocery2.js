@@ -1,6 +1,6 @@
 // ─── Grocery Expansion 2 ─────────────────────────────────────────────────────
 // Canned goods · More produce · Low-carb · Low-fat · Sugar-free
-// All values per one serving — sourced from USDA FoodData Central,
+// All values per one serving, sourced from USDA FoodData Central,
 // official brand nutrition panels, and FDA label databases.
 
 export const FOODS_GROCERY2 = [
@@ -199,7 +199,7 @@ export const FOODS_GROCERY2 = [
   { id: 'g2_mtn_dew_zero',         name: 'Mountain Dew Zero Sugar',          brand: 'PepsiCo', category: 'Beverages', servingSize: 355, servingUnit: '12 fl oz can', calories: 0, protein: 0, carbs: 0, fiber: 0, sugar: 0, fat: 0, saturatedFat: 0, sodium: 45 },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // ADDITIONAL SPICES, HERBS & SEASONINGS (negligible calories — accurate labels)
+  // ADDITIONAL SPICES, HERBS & SEASONINGS (negligible calories, accurate labels)
   // ══════════════════════════════════════════════════════════════════════════
   { id: 'g2_salt',                 name: 'Table Salt',                       brand: '', category: 'Condiments & Sauces', servingSize: 6, servingUnit: '1 tsp', calories: 0, protein: 0, carbs: 0, fiber: 0, sugar: 0, fat: 0, saturatedFat: 0, sodium: 2325 },
   { id: 'g2_black_pepper',         name: 'Black Pepper (Ground)',            brand: '', category: 'Condiments & Sauces', servingSize: 2, servingUnit: '1 tsp', calories: 5,   protein: 0,  carbs: 1,   fiber: 1,  sugar: 0,  fat: 0,    saturatedFat: 0,   sodium: 0    },

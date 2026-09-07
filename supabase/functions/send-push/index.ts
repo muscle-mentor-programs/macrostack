@@ -6,7 +6,7 @@ import webpush from 'npm:web-push@3.6.7'
 // WEB PUSH
 // Sends a push notification to every subscription of a target profile.
 // Callers must be authenticated AND related to the target (their coach or
-// their client) — verified server-side. Dead subscriptions are pruned.
+// their client), verified server-side. Dead subscriptions are pruned.
 // Also invoked with the service role by scheduled functions (reminders).
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -58,7 +58,7 @@ serve(async (req) => {
         )
         sent++
       } catch (e) {
-        // 404/410 = subscription is dead — prune it
+        // 404/410 = subscription is dead, prune it
         const code = (e as { statusCode?: number }).statusCode
         if (code === 404 || code === 410) {
           await admin.from('push_subscriptions').delete().eq('id', s.id)

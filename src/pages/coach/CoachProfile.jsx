@@ -71,7 +71,7 @@ export default function CoachProfile() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header — locked */}
+      {/* Header, locked */}
       <div className="app-page-gutter relative px-4 md:px-8 pt-mobile-header md:pt-6 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -113,7 +113,7 @@ export default function CoachProfile() {
         </div>
       </div>
 
-      {/* Scrollable content — main column + sticky rail (code + live preview) */}
+      {/* Scrollable content, main column + sticky rail (code + live preview) */}
       <div className="flex-1 overflow-y-auto">
         <div className="app-page-gutter px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto anim-fade-in grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
           <div className="space-y-5 min-w-0">
@@ -146,7 +146,7 @@ export default function CoachProfile() {
                   </div>
                 ) : (
                   <>
-                    <p className="font-display font-black text-3xl text-cream leading-tight truncate">{currentUser?.name || '—'}</p>
+                    <p className="font-display font-black text-3xl text-cream leading-tight truncate">{currentUser?.name || '-'}</p>
                     <p className="font-mono text-sm text-muted mt-2 truncate">{currentUser?.email || ''}</p>
                     <span
                       className="inline-block mt-3 font-mono text-[10px] tracking-[0.2em] px-2.5 py-1 rounded-full"
@@ -160,14 +160,14 @@ export default function CoachProfile() {
             </div>
           </div>
 
-          {/* Detail fields — consistent premium cards */}
+          {/* Detail fields, consistent premium cards */}
           <div className="glass-card border border-border rounded-2xl p-5 card-dim">
             <label className="flex items-center gap-2 font-display text-xs text-muted tracking-widest mb-3">
               <BookOpen size={12} style={{ color: ACCENT }} /> BIO
             </label>
             {editing ? (
               <textarea rows={4} value={form.bio} onChange={f('bio')}
-                placeholder="Tell users about yourself — your approach, philosophy, and background…"
+                placeholder="Tell users about yourself, your approach, philosophy, and background…"
                 className={`${inputCls} resize-y`} />
             ) : (
               <p className="font-mono text-sm text-cream leading-relaxed">
@@ -236,10 +236,10 @@ export default function CoachProfile() {
 
           </div>
 
-          {/* Right rail — coach code + live preview, always in view on lg+ */}
+          {/* Right rail, coach code + live preview, always in view on lg+ */}
           <div className="space-y-5 lg:sticky lg:top-6">
 
-          {/* Coach code — premium accent card */}
+          {/* Coach code, premium accent card */}
           <div
             className="rounded-2xl border p-5"
             style={{ borderColor: accentA(28), background: `linear-gradient(160deg, ${accentA(12)}, ${accentA(3)})` }}
@@ -247,7 +247,7 @@ export default function CoachProfile() {
             <p className="font-mono text-[10px] tracking-[0.3em] mb-2" style={{ color: accentA(75) }}>COACH CODE</p>
             <div className="flex items-center gap-3">
               <span className="font-display font-black text-2xl tracking-[0.28em] flex-1 min-w-0 truncate" style={{ color: ACCENT }}>
-                {currentUser?.coachCode || '—'}
+                {currentUser?.coachCode || '-'}
               </span>
               {currentUser?.coachCode && (
                 <button

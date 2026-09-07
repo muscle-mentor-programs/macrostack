@@ -11,18 +11,18 @@ const BASE_NAV = [
   { id: 'forms',     label: 'FORMS',     icon: ClipboardList   },
   { id: 'profile',   label: 'PROFILE',   icon: User            },
 ]
-// Coach plan management (superadmins have override access — they get the
+// Coach plan management (superadmins have override access, they get the
 // admin panels instead)
 const UPGRADE_NAV = { id: 'upgrade', label: 'UPGRADE', icon: Zap }
 // Superadmin-only panels appended after profile
 const COACHES_NAV = { id: 'coaches', label: 'COACHES', icon: UserCog }
 const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }
-// TEMPORARILY DISABLED — re-add LEADS_NAV to ADMIN_NAV to re-enable Lead Finder
+// TEMPORARILY DISABLED, re-add LEADS_NAV to ADMIN_NAV to re-enable Lead Finder
 // eslint-disable-next-line no-unused-vars
 const LEADS_NAV   = { id: 'leads',   label: 'LEAD FINDER', icon: Radar }
 const ADMIN_NAV   = [COACHES_NAV, BILLING_NAV]
 
-/* Nav geometry — items are fixed-height so the active pill can slide
+/* Nav geometry, items are fixed-height so the active pill can slide
    between them with spring physics (same easing as the login toggle). */
 const ITEM_H   = 46
 const ITEM_GAP = 6
@@ -50,7 +50,7 @@ export default function Sidebar({ width }) {
     <aside className="product-sidebar flex-shrink-0 flex flex-col h-full relative z-10 my-4 ml-4 rounded-3xl glass-sidebar border border-border overflow-hidden"
       style={{ width: width ?? 256, borderRight: '1px solid var(--color-border)' }}
     >
-      {/* Ambient accent glow — landing hero language */}
+      {/* Ambient accent glow, landing hero language */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -72,7 +72,7 @@ export default function Sidebar({ width }) {
         </div>
       </div>
 
-      {/* Quick stats — live numbers, landing finale language */}
+      {/* Quick stats, live numbers, landing finale language */}
       <div className="grid grid-cols-2 border-b border-border relative">
         <div className="px-6 py-3 border-r border-border">
           <p className="font-display font-black text-xl leading-none" style={{ color: 'var(--color-accent)' }}>
@@ -88,9 +88,9 @@ export default function Sidebar({ width }) {
         </div>
       </div>
 
-      {/* Nav — spring-sliding active pill */}
+      {/* Nav, spring-sliding active pill */}
       <nav className="flex-1 px-3 pt-4 relative">
-        {/* The pill — one element that springs between items */}
+        {/* The pill, one element that springs between items */}
         <div
           className="absolute left-3 right-3 rounded-xl pointer-events-none"
           style={{
@@ -181,7 +181,7 @@ export default function Sidebar({ width }) {
         </div>
       </div>
 
-      {/* Portal switcher — superadmin only. Red = full Superadmin Portal. */}
+      {/* Portal switcher, superadmin only. Red = full Superadmin Portal. */}
       {isSuperAcct && (
         <button
           onClick={() => setPortalMode(portalMode === 'superadmin' ? 'coach' : 'superadmin')}
@@ -204,7 +204,7 @@ export default function Sidebar({ width }) {
         </button>
       )}
 
-      {/* Controls — compact icon row */}
+      {/* Controls, compact icon row */}
       <div className="px-3 pb-5 flex items-center gap-1.5 relative">
         <ThemeToggle compact />
         <button

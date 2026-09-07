@@ -1,5 +1,5 @@
 // ─── Grocery Staples ─────────────────────────────────────────────────────────
-// Nutritional values per serving — sourced from USDA FoodData Central.
+// Nutritional values per serving, sourced from USDA FoodData Central.
 // All macros (calories, protein, carbs, fiber, sugar, fat, saturatedFat) are
 // per ONE serving (servingSize / servingUnit).  Sodium is in milligrams.
 

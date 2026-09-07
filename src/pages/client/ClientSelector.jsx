@@ -9,7 +9,7 @@ export default function ClientSelector() {
 
   return (
     <div className="software-ui software-entry flex flex-col h-screen bg-bg px-6 pt-12 pb-8">
-      {/* Back button — coaches only; client users skip this row entirely */}
+      {/* Back button, coaches only; client users skip this row entirely */}
       {!isClientUser && (
         <div className="mb-10 anim-fade-in-down">
           <button
@@ -43,7 +43,7 @@ export default function ClientSelector() {
           </p>
         </div>
       ) : (
-        /* Scrolls independently — rosters grow past the fold */
+        /* Scrolls independently, rosters grow past the fold */
         <div className="flex-1 min-h-0 overflow-y-auto space-y-3 -mx-2 px-2 pb-6">
           {clients.map((client, ci) => (
             <button

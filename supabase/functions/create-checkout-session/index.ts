@@ -7,14 +7,14 @@ const cors = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// ── User (client) Pro prices — cadence based. Set as function secrets. ──
+// ── User (client) Pro prices, cadence based. Set as function secrets. ──
 const USER_PRICE_IDS: Record<string, string | undefined> = {
   weekly:  Deno.env.get('STRIPE_PRICE_USER_WEEKLY'),
   monthly: Deno.env.get('STRIPE_PRICE_USER_MONTHLY'),
   annual:  Deno.env.get('STRIPE_PRICE_USER_ANNUAL'),
 }
 
-// ── Coach prices — tiered by active client count (monthly). Price IDs are
+// ── Coach prices, tiered by active client count (monthly). Price IDs are
 // not secrets, so they live here directly; an env var override wins if set
 // (handy for swapping test ↔ live). Keys must match the client's tier keys. ──
 const COACH_TIER_PRICE_IDS: Record<string, string> = {
@@ -61,8 +61,8 @@ serve(async (req) => {
       .eq('id', user.id)
       .single()
 
-    // Audience is derived from the account's real role — never trusted from the
-    // client — so a user can't check out at the wrong plan/price.
+    // Audience is derived from the account's real role, never trusted from the
+    // client, so a user can't check out at the wrong plan/price.
     const audience = profile?.role === 'client' ? 'user' : 'coach'
 
     let priceId: string | undefined

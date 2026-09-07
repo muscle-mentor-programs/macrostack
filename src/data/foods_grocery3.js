@@ -103,7 +103,7 @@ export const FOODS_GROCERY3 = [
   { id: 'g3_french_onion_dip',       name: 'French Onion Dip',                    brand: 'Heluva Good!',      category: 'Snacks', servingSize: 31, servingUnit: '2 tbsp',       calories: 50,  protein: 1,  carbs: 2,  fiber: 0,  sugar: 2,  fat: 4.5, saturatedFat: 3,  sodium: 170  },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // SNACKS — NEW VARIETIES
+  // SNACKS, NEW VARIETIES
   // Source: pepperidgefarm.com, nabisco.com, Target, brand official panels
   // ══════════════════════════════════════════════════════════════════════════
   { id: 'g3_goldfish_cheddar',       name: 'Goldfish Cheddar Crackers',           brand: 'Pepperidge Farm',   category: 'Snacks', servingSize: 30, servingUnit: '55 pieces',    calories: 140, protein: 3,  carbs: 20, fiber: 1,  sugar: 0,  fat: 5,  saturatedFat: 1,   sodium: 250  },
@@ -142,7 +142,7 @@ export const FOODS_GROCERY3 = [
   { id: 'g3_apple_chips',            name: 'Baked Cinnamon Apple Chips',          brand: 'Bare Snacks',       category: 'Snacks', servingSize: 28, servingUnit: '1 oz',         calories: 110, protein: 0,  carbs: 27, fiber: 4,  sugar: 20, fat: 0,  saturatedFat: 0,   sodium: 0    },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // DAIRY — EXPANDED VARIETIES
+  // DAIRY, EXPANDED VARIETIES
   // Source: lifewaykefir.com, boarshead.com, sargento.com,
   //         daisybrand.com, lactaid.com, reddiwip.com, trumoo.com, Target
   // ══════════════════════════════════════════════════════════════════════════
@@ -185,7 +185,7 @@ export const FOODS_GROCERY3 = [
   { id: 'g3_grits_yellow',           name: 'Quick Grits (Cooked)',                brand: 'Quaker',            category: 'Cereals & Oats', servingSize: 242, servingUnit: '1 cup',   calories: 150, protein: 4,  carbs: 32, fiber: 1,  sugar: 0,  fat: 0.5, saturatedFat: 0,  sodium: 0    },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CEREALS — ADDITIONAL
+  // CEREALS, ADDITIONAL
   // Source: General Mills SmartLabel, Kellogg's SmartLabel, Quaker, Post brand pages
   // ══════════════════════════════════════════════════════════════════════════
   { id: 'g3_cinnamon_toast_crunch',  name: 'Cinnamon Toast Crunch',               brand: 'General Mills',     category: 'Cereals & Oats', servingSize: 41, servingUnit: '1 cup',     calories: 170, protein: 2,  carbs: 33, fiber: 3,  sugar: 12, fat: 4,  saturatedFat: 0,   sodium: 230  },
@@ -201,7 +201,7 @@ export const FOODS_GROCERY3 = [
   { id: 'g3_muesli',                 name: 'Old Country Style Muesli',            brand: "Bob's Red Mill",    category: 'Cereals & Oats', servingSize: 56, servingUnit: '1/2 cup',   calories: 210, protein: 7,  carbs: 41, fiber: 5,  sugar: 11, fat: 3,  saturatedFat: 0,   sodium: 5    },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // BREAD — ADDITIONAL VARIETIES
+  // BREAD, ADDITIONAL VARIETIES
   // Source: pepperidgefarm.com, saralee.com, daveskillerbread.com,
   //         stonefire.com (via Target), superpretzel.com (via Target)
   // ══════════════════════════════════════════════════════════════════════════
@@ -218,7 +218,7 @@ export const FOODS_GROCERY3 = [
   { id: 'g3_pretzel_soft',           name: 'Original Soft Pretzels',              brand: 'SuperPretzel',      category: 'Bread & Grains', servingSize: 64, servingUnit: '1 pretzel', calories: 190, protein: 5,  carbs: 32, fiber: 1,  sugar: 2,  fat: 4,  saturatedFat: 0.5, sodium: 150  },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // PROTEIN PASTA — ALT-GRAIN
+  // PROTEIN PASTA, ALT-GRAIN
   // Source: banza.com, explorecuisine.com, barilla.com product pages
   // ══════════════════════════════════════════════════════════════════════════
   { id: 'g3_banza_penne',            name: 'Chickpea Penne Pasta (Dry)',           brand: 'Banza',             category: 'Bread & Grains', servingSize: 56, servingUnit: '2 oz dry',  calories: 190, protein: 11, carbs: 35, fiber: 5,  sugar: 1,  fat: 3,  saturatedFat: 0,   sodium: 20   },
@@ -231,7 +231,7 @@ export const FOODS_GROCERY3 = [
   // ══════════════════════════════════════════════════════════════════════════
   // INTERNATIONAL STAPLES
   // Source: Thai Kitchen, Maesri, Hikari, CJ, Nasoya, Bibigo, La Costeña,
-  //         Huy Fong, A Taste of Thai — Target / Walmart / brand sites
+  //         Huy Fong, A Taste of Thai, Target / Walmart / brand sites
   // ══════════════════════════════════════════════════════════════════════════
   { id: 'g3_miso_paste',             name: 'Organic White Miso Paste',            brand: 'Hikari',            category: 'Condiments & Sauces', servingSize: 18, servingUnit: '1 tbsp', calories: 35,  protein: 2,  carbs: 4,  fiber: 0.5,sugar: 2,  fat: 1,  saturatedFat: 0,   sodium: 820  },
   { id: 'g3_gochujang',              name: 'Gochujang Korean Chili Paste',        brand: 'CJ Haechandle',     category: 'Condiments & Sauces', servingSize: 20, servingUnit: '1 tbsp', calories: 40,  protein: 1,  carbs: 9,  fiber: 1,  sugar: 5,  fat: 0,  saturatedFat: 0,   sodium: 540  },
@@ -266,7 +266,7 @@ export const FOODS_GROCERY3 = [
   { id: 'g3_walnut_oil',             name: 'Roasted Walnut Oil',                  brand: 'La Tourangelle',    category: 'Oils & Fats', servingSize: 14, servingUnit: '1 tbsp', calories: 120, protein: 0, carbs: 0, fiber: 0, sugar: 0, fat: 14, saturatedFat: 1,   sodium: 0    },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // BEVERAGES — EXPANDED
+  // BEVERAGES, EXPANDED
   // Source: vitacoco.com, harmlessharvest.com, gtslivingfoods.com,
   //         monsterenergy.com, drinkprime.com, alaninu.com, oatly.com,
   //         ripplefoods.com, silk.com, fairlife.com, chameleoncoffee.com,

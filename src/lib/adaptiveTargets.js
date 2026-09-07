@@ -1,6 +1,6 @@
 /**
- * Estimate a client's maintenance calories from what they ACTUALLY did —
- * average logged intake vs. their weight trend — using energy balance:
+ * Estimate a client's maintenance calories from what they ACTUALLY did -
+ * average logged intake vs. their weight trend, using energy balance:
  *
  *   maintenance ≈ avgИntake − (weeklyWeightChange × kcalPerUnit / 7)
  *
@@ -22,7 +22,7 @@ const mean  = (arr) => arr.reduce((s, n) => s + n, 0) / arr.length
 /**
  * @returns null if there isn't enough data, otherwise:
  *   { estMaintenance, avgIntake, weeklyChange, unit, spanDays, loggedDays,
- *     currentTarget, delta }  — delta = current target − estimate (kcal)
+ *     currentTarget, delta } , delta = current target − estimate (kcal)
  */
 export function estimateMaintenance(client) {
   const log = client?.log || {}

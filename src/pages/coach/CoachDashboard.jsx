@@ -73,7 +73,7 @@ function QuickEditModal({ client, onClose }) {
   )
 }
 
-// ─── Compose modal — email OR in-app broadcast, with saved templates ─────────
+// ─── Compose modal, email OR in-app broadcast, with saved templates ─────────
 function EmailModal({ clients, preselectedId, onClose }) {
   const { currentUser, broadcastMessage, messageTemplates, fetchMessageTemplates, saveMessageTemplate, deleteMessageTemplate } = useStore()
   const [mode, setMode]         = useState('inapp') // 'inapp' | 'email'
@@ -215,7 +215,7 @@ function EmailModal({ clients, preselectedId, onClose }) {
             </div>
           </div>
 
-          {/* Subject — email only */}
+          {/* Subject, email only */}
           {mode === 'email' && (
             <div>
               <label className="font-display text-xs text-muted tracking-widest block mb-1.5">SUBJECT</label>
@@ -384,7 +384,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onRev
         >
           <ClipboardCheck size={13} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
           <span className="font-mono text-[10px] truncate" style={{ color: 'var(--color-accent)' }}>
-            New check-in — tap to review
+            New check-in, tap to review
           </span>
         </button>
       )}
@@ -398,12 +398,12 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onRev
         >
           <ClipboardList size={13} style={{ color: 'var(--color-accent)' }} className="flex-shrink-0" />
           <span className="font-mono text-[10px] truncate" style={{ color: 'var(--color-accent)' }}>
-            {newForms === 1 ? 'New form response' : `${newForms} new form responses`} — tap to view
+            {newForms === 1 ? 'New form response' : `${newForms} new form responses`}, tap to view
           </span>
         </button>
       )}
 
-      {/* Auto-adjust nudge — targets may need review */}
+      {/* Auto-adjust nudge, targets may need review */}
       {nudge && (
         <button
           onClick={() => onReview(client.id)}
@@ -411,7 +411,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onRev
           title={nudge.detail}
         >
           <Gauge size={13} className="text-amber-300 flex-shrink-0" />
-          <span className="font-mono text-[10px] text-amber-300 truncate">{nudge.title} — review targets</span>
+          <span className="font-mono text-[10px] text-amber-300 truncate">{nudge.title}, review targets</span>
         </button>
       )}
 
@@ -594,7 +594,7 @@ export default function CoachDashboard() {
 
   const nudges = computeRosterNudges(active)
 
-  // Onboarding checklist — derived live; disappears once everything's done
+  // Onboarding checklist, derived live; disappears once everything's done
   const { coachForms, checkinQuestions } = useStore()
   const checklist = [
     { done: !!currentUser?.bio, label: 'Fill in your coach profile', go: () => setActivePage('profile') },
@@ -657,7 +657,7 @@ export default function CoachDashboard() {
         </div>
       </div>
 
-      {/* Onboarding checklist — new-coach guide, dismissible */}
+      {/* Onboarding checklist, new-coach guide, dismissible */}
       {checklistOpen && (
         <div className="app-page-gutter px-8 pt-4 pb-0 flex-shrink-0">
           <div className="glass-card border rounded-2xl p-4 card-dim"
@@ -711,7 +711,7 @@ export default function CoachDashboard() {
             <p className="font-mono text-[10px] text-dim leading-relaxed">
               ACCEPT links them to your roster instantly; SEND CODE replies with your connection
               code so they can link themselves. Coaching payment is arranged directly between you
-              and your clients — MacroStack doesn't collect coaching fees on your behalf.
+              and your clients, MacroStack doesn't collect coaching fees on your behalf.
             </p>
             {reqError && (
               <button
@@ -740,7 +740,7 @@ export default function CoachDashboard() {
                     </button>
                     <button
                       onClick={() => sendCodeToRequest(req.id)}
-                      title="Reply with your connection code — they link themselves"
+                      title="Reply with your connection code, they link themselves"
                       className="font-display font-bold text-xs tracking-widest px-3 py-1.5 rounded-lg bg-brown/15 hover:bg-brown/30 text-brown-light border border-brown/30 transition-colors"
                     >
                       SEND CODE
@@ -759,7 +759,7 @@ export default function CoachDashboard() {
         </div>
       )}
 
-      {/* Auto-adjust nudges — clients whose targets deserve a look */}
+      {/* Auto-adjust nudges, clients whose targets deserve a look */}
       {nudges.length > 0 && (
         <div className="app-page-gutter px-8 pt-4 pb-0 flex-shrink-0">
           <div className="bg-card border border-amber-400/25 rounded-xl p-4 space-y-3 card-dim">

@@ -1,4 +1,4 @@
-/* MacroStack service worker — web push notifications. */
+/* MacroStack service worker, web push notifications. */
 
 self.addEventListener('push', (event) => {
   let data = {}

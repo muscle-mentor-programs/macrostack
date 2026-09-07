@@ -21,7 +21,7 @@ export default function useSubscription() {
   const isSubscribed = status === 'active' || status === 'trialing'
   const audience     = user?.role === 'client' ? 'user' : 'coach'
 
-  // Clients connected to a coach get Pro included while linked — the coach's
+  // Clients connected to a coach get Pro included while linked, the coach's
   // tier covers them. An explicit superadmin 'locked' override still wins.
   const viaCoach =
     user?.role === 'client' &&

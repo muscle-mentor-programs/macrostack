@@ -59,7 +59,7 @@ export default function SetPasswordScreen({ onDone }) {
           <div className="flex flex-col items-center gap-3 anim-fade-in">
             <CheckCircle size={40} className="text-olive-light" />
             <p className="font-display font-bold text-sm tracking-widest text-olive-light">
-              PASSWORD SET — WELCOME!
+              PASSWORD SET, WELCOME!
             </p>
           </div>
         ) : (

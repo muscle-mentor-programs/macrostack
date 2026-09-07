@@ -228,7 +228,7 @@ const FOODS_RAW = [
   { id: 'pure_shake_banana_pudding', name: 'Banana Pudding Protein Shake', brand: 'Pure Protein', category: 'RTD Shake', servingSize: 325, servingUnit: 'bottle', calories: 140, protein: 30, carbs: 6, fiber: 3, sugar: 0.5, fat: 1.5, saturatedFat: 0.5, sodium: 250 },
 
   // ============================================================
-  // RETAIL GROCERY — MEAT
+  // RETAIL GROCERY, MEAT
   // ============================================================
   { id: 'kirkland_chicken_breast', name: 'Boneless Skinless Chicken Breast', brand: 'Kirkland Signature', category: 'Meat', servingSize: 112, servingUnit: '4 oz', calories: 130, protein: 28, carbs: 0, fiber: 0, sugar: 0, fat: 2, saturatedFat: 0.5, sodium: 75 },
   { id: 'tyson_chicken_breast', name: 'Boneless Skinless Chicken Breasts', brand: 'Tyson', category: 'Meat', servingSize: 112, servingUnit: '4 oz', calories: 110, protein: 26, carbs: 0, fiber: 0, sugar: 0, fat: 1, saturatedFat: 0, sodium: 65 },
@@ -245,7 +245,7 @@ const FOODS_RAW = [
   { id: 'heb_chicken_breast', name: 'Boneless Skinless Chicken Breast', brand: 'H-E-B', category: 'Meat', servingSize: 112, servingUnit: '4 oz', calories: 120, protein: 27, carbs: 0, fiber: 0, sugar: 0, fat: 1.5, saturatedFat: 0, sodium: 60 },
 
   // ============================================================
-  // RETAIL GROCERY — DAIRY
+  // RETAIL GROCERY, DAIRY
   // ============================================================
   { id: 'great_value_large_eggs', name: 'Large White Eggs', brand: 'Great Value', category: 'Dairy', servingSize: 50, servingUnit: '1 egg', calories: 70, protein: 6, carbs: 0, fiber: 0, sugar: 0, fat: 5, saturatedFat: 1.5, sodium: 65 },
   { id: 'kirkland_large_eggs', name: 'Large Grade AA Eggs', brand: 'Kirkland Signature', category: 'Dairy', servingSize: 50, servingUnit: '1 egg', calories: 70, protein: 6, carbs: 0, fiber: 0, sugar: 0, fat: 5, saturatedFat: 1.5, sodium: 65 },
@@ -263,7 +263,7 @@ const FOODS_RAW = [
   { id: 'heb_plain_greek_yogurt', name: 'Plain Nonfat Greek Yogurt', brand: 'H-E-B', category: 'Dairy', servingSize: 227, servingUnit: '8 oz', calories: 120, protein: 22, carbs: 8, fiber: 0, sugar: 7, fat: 0, saturatedFat: 0, sodium: 85 },
 
   // ============================================================
-  // RETAIL GROCERY — CANNED GOODS
+  // RETAIL GROCERY, CANNED GOODS
   // ============================================================
   { id: 'kirkland_albacore_tuna', name: 'Albacore Solid White Tuna in Water', brand: 'Kirkland Signature', category: 'Canned Goods', servingSize: 56, servingUnit: '2 oz', calories: 70, protein: 16, carbs: 0, fiber: 0, sugar: 0, fat: 1, saturatedFat: 0, sodium: 180 },
   { id: 'starkist_chunk_light_tuna', name: 'Chunk Light Tuna in Water', brand: 'StarKist', category: 'Canned Goods', servingSize: 56, servingUnit: '2 oz', calories: 50, protein: 12, carbs: 0, fiber: 0, sugar: 0, fat: 0.5, saturatedFat: 0, sodium: 200 },
@@ -274,7 +274,7 @@ const FOODS_RAW = [
   { id: 'del_monte_diced_tomatoes', name: 'Diced Tomatoes', brand: 'Del Monte', category: 'Canned Goods', servingSize: 121, servingUnit: '1/2 cup', calories: 25, protein: 1, carbs: 6, fiber: 1, sugar: 4, fat: 0, saturatedFat: 0, sodium: 310 },
 
   // ============================================================
-  // RETAIL GROCERY — BEVERAGES
+  // RETAIL GROCERY, BEVERAGES
   // ============================================================
   { id: 'core_power_chocolate_26g', name: 'Elite Chocolate Protein Shake 26g', brand: 'Core Power', category: 'RTD Shake', servingSize: 414, servingUnit: '14 fl oz', calories: 230, protein: 26, carbs: 25, fiber: 0, sugar: 22, fat: 4.5, saturatedFat: 3, sodium: 220 },
   { id: 'core_power_vanilla_42g', name: 'Elite Vanilla Protein Shake 42g', brand: 'Core Power', category: 'RTD Shake', servingSize: 414, servingUnit: '14 fl oz', calories: 300, protein: 42, carbs: 25, fiber: 0, sugar: 22, fat: 6, saturatedFat: 3.5, sodium: 280 },
@@ -282,7 +282,7 @@ const FOODS_RAW = [
   { id: 'oatly_oat_milk_original', name: 'Original Oat Milk', brand: 'Oatly', category: 'Beverages', servingSize: 240, servingUnit: '1 cup', calories: 120, protein: 3, carbs: 16, fiber: 2, sugar: 7, fat: 5, saturatedFat: 0.5, sodium: 100 },
 
   // ============================================================
-  // RETAIL GROCERY — BREAD / GRAINS
+  // RETAIL GROCERY, BREAD / GRAINS
   // ============================================================
   { id: 'daves_killer_21_whole_grains', name: '21 Whole Grains and Seeds Bread', brand: "Dave's Killer Bread", category: 'Bread/Grains', servingSize: 45, servingUnit: '1 slice', calories: 120, protein: 5, carbs: 22, fiber: 3, sugar: 5, fat: 2, saturatedFat: 0, sodium: 160 },
   { id: 'daves_killer_powerseed', name: 'Powerseed Bread', brand: "Dave's Killer Bread", category: 'Bread/Grains', servingSize: 45, servingUnit: '1 slice', calories: 120, protein: 5, carbs: 21, fiber: 3, sugar: 5, fat: 2.5, saturatedFat: 0, sodium: 170 },
@@ -296,7 +296,7 @@ const FOODS_RAW = [
   { id: 'winco_bulk_quinoa', name: 'Organic Quinoa', brand: 'WinCo Bulk', category: 'Bread/Grains', servingSize: 45, servingUnit: '1/4 cup dry', calories: 160, protein: 6, carbs: 29, fiber: 3, sugar: 0, fat: 2.5, saturatedFat: 0, sodium: 10 },
 
   // ============================================================
-  // RETAIL GROCERY — NUT BUTTERS
+  // RETAIL GROCERY, NUT BUTTERS
   // ============================================================
   { id: 'jif_creamy_peanut_butter', name: 'Creamy Peanut Butter', brand: 'Jif', category: 'Nut Butters', servingSize: 32, servingUnit: '2 tbsp', calories: 190, protein: 7, carbs: 8, fiber: 1, sugar: 3, fat: 16, saturatedFat: 3, sodium: 140 },
   { id: 'skippy_creamy_peanut_butter', name: 'Creamy Peanut Butter', brand: 'Skippy', category: 'Nut Butters', servingSize: 32, servingUnit: '2 tbsp', calories: 190, protein: 7, carbs: 7, fiber: 1, sugar: 3, fat: 16, saturatedFat: 3.5, sodium: 150 },
@@ -305,7 +305,7 @@ const FOODS_RAW = [
   { id: 'kirkland_almond_butter', name: 'Creamy Almond Butter', brand: 'Kirkland Signature', category: 'Nut Butters', servingSize: 32, servingUnit: '2 tbsp', calories: 200, protein: 7, carbs: 6, fiber: 3, sugar: 2, fat: 18, saturatedFat: 1.5, sodium: 150 },
 
   // ============================================================
-  // RETAIL GROCERY — FROZEN MEALS
+  // RETAIL GROCERY, FROZEN MEALS
   // ============================================================
   { id: 'jimmy_dean_sausage_egg_cheese_croissant', name: 'Sausage Egg & Cheese Croissant', brand: 'Jimmy Dean', category: 'Frozen Meals', servingSize: 136, servingUnit: '1 sandwich', calories: 430, protein: 16, carbs: 27, fiber: 1, sugar: 3, fat: 28, saturatedFat: 12, sodium: 820 },
   { id: 'jimmy_dean_turkey_sausage_egg_white_muffin', name: 'Turkey Sausage Egg White & Cheese Muffin', brand: 'Jimmy Dean', category: 'Frozen Meals', servingSize: 120, servingUnit: '1 sandwich', calories: 250, protein: 18, carbs: 28, fiber: 2, sugar: 3, fat: 7, saturatedFat: 2.5, sodium: 670 },
@@ -314,7 +314,7 @@ const FOODS_RAW = [
   { id: 'kodiak_cakes_frozen_waffles', name: 'Buttermilk Power Waffles', brand: 'Kodiak Cakes', category: 'Frozen Meals', servingSize: 80, servingUnit: '2 waffles', calories: 220, protein: 14, carbs: 34, fiber: 2, sugar: 5, fat: 4, saturatedFat: 1, sodium: 430 },
 
   // ============================================================
-  // RETAIL GROCERY — SNACKS / BARS
+  // RETAIL GROCERY, SNACKS / BARS
   // ============================================================
   { id: 'kind_bar_dark_choc_nuts_sea_salt', name: 'Dark Chocolate Nuts & Sea Salt Bar', brand: 'KIND', category: 'Snacks', servingSize: 40, servingUnit: '1 bar', calories: 200, protein: 6, carbs: 16, fiber: 7, sugar: 5, fat: 15, saturatedFat: 3, sodium: 125 },
   { id: 'kind_bar_almond_coconut', name: 'Almond & Coconut Bar', brand: 'KIND', category: 'Snacks', servingSize: 40, servingUnit: '1 bar', calories: 200, protein: 5, carbs: 15, fiber: 5, sugar: 7, fat: 15, saturatedFat: 5, sodium: 25 },
@@ -326,7 +326,7 @@ const FOODS_RAW = [
   { id: 'kirkland_protein_bar_choc_chip', name: 'Chocolate Chip Cookie Dough Protein Bar', brand: 'Kirkland Signature', category: 'Snacks', servingSize: 55, servingUnit: '1 bar', calories: 190, protein: 21, carbs: 22, fiber: 2, sugar: 8, fat: 4, saturatedFat: 2, sodium: 270 },
 
   // ============================================================
-  // GREAT VALUE — PROTEINS
+  // GREAT VALUE, PROTEINS
   // ============================================================
   { id: 'great_value_chicken_breast', name: 'Boneless Skinless Chicken Breast', brand: 'Great Value', category: 'Meat', servingSize: 112, servingUnit: '4 oz', calories: 120, protein: 26, carbs: 0, fiber: 0, sugar: 0, fat: 1.5, saturatedFat: 0, sodium: 60 },
   { id: 'great_value_chicken_thighs', name: 'Boneless Skinless Chicken Thighs', brand: 'Great Value', category: 'Meat', servingSize: 112, servingUnit: '4 oz', calories: 170, protein: 22, carbs: 0, fiber: 0, sugar: 0, fat: 9, saturatedFat: 2.5, sodium: 80 },
@@ -337,7 +337,7 @@ const FOODS_RAW = [
   { id: 'great_value_80_lean_ground_beef', name: '80% Lean Ground Beef', brand: 'Great Value', category: 'Meat', servingSize: 112, servingUnit: '4 oz', calories: 280, protein: 19, carbs: 0, fiber: 0, sugar: 0, fat: 22, saturatedFat: 8, sodium: 75 },
 
   // ============================================================
-  // GREAT VALUE — DAIRY
+  // GREAT VALUE, DAIRY
   // ============================================================
   { id: 'great_value_skim_milk', name: 'Fat Free Skim Milk', brand: 'Great Value', category: 'Dairy', servingSize: 240, servingUnit: '1 cup', calories: 90, protein: 8, carbs: 13, fiber: 0, sugar: 12, fat: 0, saturatedFat: 0, sodium: 130 },
   { id: 'great_value_1percent_milk', name: '1% Low Fat Milk', brand: 'Great Value', category: 'Dairy', servingSize: 240, servingUnit: '1 cup', calories: 110, protein: 8, carbs: 13, fiber: 0, sugar: 12, fat: 2.5, saturatedFat: 1.5, sodium: 125 },
@@ -351,7 +351,7 @@ const FOODS_RAW = [
   { id: 'great_value_sour_cream', name: 'Sour Cream', brand: 'Great Value', category: 'Dairy', servingSize: 30, servingUnit: '2 tbsp', calories: 60, protein: 1, carbs: 2, fiber: 0, sugar: 2, fat: 5, saturatedFat: 3, sodium: 20 },
 
   // ============================================================
-  // GREAT VALUE — CANNED GOODS
+  // GREAT VALUE, CANNED GOODS
   // ============================================================
   { id: 'great_value_chicken_broth', name: 'Chicken Broth', brand: 'Great Value', category: 'Canned Goods', servingSize: 240, servingUnit: '1 cup', calories: 10, protein: 1, carbs: 1, fiber: 0, sugar: 0, fat: 0, saturatedFat: 0, sodium: 860 },
   { id: 'great_value_diced_tomatoes', name: 'Diced Tomatoes', brand: 'Great Value', category: 'Canned Goods', servingSize: 121, servingUnit: '1/2 cup', calories: 25, protein: 1, carbs: 5, fiber: 1, sugar: 3, fat: 0, saturatedFat: 0, sodium: 300 },
@@ -363,7 +363,7 @@ const FOODS_RAW = [
   { id: 'great_value_great_northern_beans', name: 'Great Northern Beans', brand: 'Great Value', category: 'Canned Goods', servingSize: 130, servingUnit: '1/2 cup', calories: 100, protein: 7, carbs: 19, fiber: 5, sugar: 1, fat: 0.5, saturatedFat: 0, sodium: 300 },
 
   // ============================================================
-  // GREAT VALUE — GRAINS & BREAD
+  // GREAT VALUE, GRAINS & BREAD
   // ============================================================
   { id: 'great_value_white_rice', name: 'Long Grain Enriched White Rice', brand: 'Great Value', category: 'Bread/Grains', servingSize: 45, servingUnit: '1/4 cup dry', calories: 160, protein: 3, carbs: 36, fiber: 0, sugar: 0, fat: 0, saturatedFat: 0, sodium: 0 },
   { id: 'great_value_pasta_spaghetti', name: 'Enriched Spaghetti', brand: 'Great Value', category: 'Bread/Grains', servingSize: 56, servingUnit: '2 oz dry', calories: 200, protein: 7, carbs: 41, fiber: 2, sugar: 2, fat: 1, saturatedFat: 0, sodium: 0 },
@@ -374,7 +374,7 @@ const FOODS_RAW = [
   { id: 'great_value_elbow_macaroni', name: 'Enriched Elbow Macaroni', brand: 'Great Value', category: 'Bread/Grains', servingSize: 56, servingUnit: '2 oz dry', calories: 200, protein: 7, carbs: 41, fiber: 2, sugar: 2, fat: 1, saturatedFat: 0, sodium: 0 },
 
   // ============================================================
-  // GREAT VALUE — FROZEN
+  // GREAT VALUE, FROZEN
   // ============================================================
   { id: 'great_value_frozen_broccoli', name: 'Frozen Broccoli Florets', brand: 'Great Value', category: 'Frozen Meals', servingSize: 85, servingUnit: '1 cup', calories: 25, protein: 2, carbs: 5, fiber: 2, sugar: 2, fat: 0, saturatedFat: 0, sodium: 25 },
   { id: 'great_value_frozen_mixed_veg', name: 'Frozen Mixed Vegetables', brand: 'Great Value', category: 'Frozen Meals', servingSize: 85, servingUnit: '2/3 cup', calories: 50, protein: 2, carbs: 10, fiber: 2, sugar: 3, fat: 0, saturatedFat: 0, sodium: 55 },
@@ -384,7 +384,7 @@ const FOODS_RAW = [
   { id: 'great_value_frozen_green_beans', name: 'Frozen Cut Green Beans', brand: 'Great Value', category: 'Frozen Meals', servingSize: 85, servingUnit: '2/3 cup', calories: 25, protein: 1, carbs: 5, fiber: 2, sugar: 1, fat: 0, saturatedFat: 0, sodium: 0 },
 
   // ============================================================
-  // GREAT VALUE — CONDIMENTS / OILS / OTHER
+  // GREAT VALUE, CONDIMENTS / OILS / OTHER
   // ============================================================
   { id: 'great_value_peanut_butter', name: 'Creamy Peanut Butter', brand: 'Great Value', category: 'Nut Butters', servingSize: 32, servingUnit: '2 tbsp', calories: 190, protein: 7, carbs: 8, fiber: 1, sugar: 3, fat: 16, saturatedFat: 3, sodium: 140 },
   { id: 'great_value_peanut_butter_natural', name: 'Natural Creamy Peanut Butter', brand: 'Great Value', category: 'Nut Butters', servingSize: 32, servingUnit: '2 tbsp', calories: 190, protein: 8, carbs: 7, fiber: 2, sugar: 1, fat: 16, saturatedFat: 3, sodium: 75 },
@@ -398,7 +398,7 @@ const FOODS_RAW = [
   { id: 'great_value_granola_bar', name: 'Chewy Chocolate Chip Granola Bar', brand: 'Great Value', category: 'Snacks', servingSize: 28, servingUnit: '1 bar', calories: 100, protein: 1, carbs: 18, fiber: 1, sugar: 8, fat: 3.5, saturatedFat: 0.5, sodium: 75 },
 
   // ============================================================
-  // KIRKLAND SIGNATURE — PROTEINS (expanding)
+  // KIRKLAND SIGNATURE, PROTEINS (expanding)
   // ============================================================
   { id: 'kirkland_sockeye_salmon', name: 'Wild Sockeye Salmon Fillet', brand: 'Kirkland Signature', category: 'Meat', servingSize: 140, servingUnit: '5 oz', calories: 260, protein: 37, carbs: 0, fiber: 0, sugar: 0, fat: 12, saturatedFat: 2.5, sodium: 75 },
   { id: 'kirkland_tilapia', name: 'Tilapia Fillets', brand: 'Kirkland Signature', category: 'Meat', servingSize: 112, servingUnit: '4 oz', calories: 110, protein: 22, carbs: 0, fiber: 0, sugar: 0, fat: 2.5, saturatedFat: 0.5, sodium: 60 },
@@ -411,7 +411,7 @@ const FOODS_RAW = [
   { id: 'kirkland_wild_salmon_canned', name: 'Wild Alaskan Pink Salmon Canned', brand: 'Kirkland Signature', category: 'Canned Goods', servingSize: 56, servingUnit: '2 oz drained', calories: 60, protein: 13, carbs: 0, fiber: 0, sugar: 0, fat: 1, saturatedFat: 0, sodium: 220 },
 
   // ============================================================
-  // KIRKLAND SIGNATURE — DAIRY (expanding)
+  // KIRKLAND SIGNATURE, DAIRY (expanding)
   // ============================================================
   { id: 'kirkland_whole_milk', name: 'Organic Whole Milk', brand: 'Kirkland Signature', category: 'Dairy', servingSize: 240, servingUnit: '1 cup', calories: 150, protein: 8, carbs: 12, fiber: 0, sugar: 12, fat: 8, saturatedFat: 5, sodium: 120 },
   { id: 'kirkland_2percent_milk', name: 'Organic 2% Reduced Fat Milk', brand: 'Kirkland Signature', category: 'Dairy', servingSize: 240, servingUnit: '1 cup', calories: 130, protein: 8, carbs: 12, fiber: 0, sugar: 12, fat: 5, saturatedFat: 3, sodium: 120 },
@@ -424,7 +424,7 @@ const FOODS_RAW = [
   { id: 'kirkland_sour_cream', name: 'Sour Cream', brand: 'Kirkland Signature', category: 'Dairy', servingSize: 30, servingUnit: '2 tbsp', calories: 60, protein: 1, carbs: 2, fiber: 0, sugar: 2, fat: 5, saturatedFat: 3, sodium: 15 },
 
   // ============================================================
-  // KIRKLAND SIGNATURE — GRAINS, BREAD & SNACKS (expanding)
+  // KIRKLAND SIGNATURE, GRAINS, BREAD & SNACKS (expanding)
   // ============================================================
   { id: 'kirkland_organic_quinoa', name: 'Organic Quinoa', brand: 'Kirkland Signature', category: 'Bread/Grains', servingSize: 42, servingUnit: '1/4 cup dry', calories: 160, protein: 6, carbs: 30, fiber: 3, sugar: 0, fat: 2.5, saturatedFat: 0, sodium: 0 },
   { id: 'kirkland_organic_brown_rice', name: 'Organic Long Grain Brown Rice', brand: 'Kirkland Signature', category: 'Bread/Grains', servingSize: 45, servingUnit: '1/4 cup dry', calories: 170, protein: 4, carbs: 36, fiber: 2, sugar: 0, fat: 1.5, saturatedFat: 0, sodium: 0 },
@@ -443,7 +443,7 @@ const FOODS_RAW = [
   { id: 'kirkland_walnuts', name: 'Walnuts', brand: 'Kirkland Signature', category: 'Snacks', servingSize: 28, servingUnit: '1 oz', calories: 190, protein: 4, carbs: 4, fiber: 2, sugar: 1, fat: 18, saturatedFat: 1.5, sodium: 0 },
 
   // ============================================================
-  // MEMBER'S MARK — PROTEINS (expanding)
+  // MEMBER'S MARK, PROTEINS (expanding)
   // ============================================================
   { id: 'member_mark_large_eggs', name: 'Large Grade A Eggs', brand: "Member's Mark", category: 'Dairy', servingSize: 50, servingUnit: '1 egg', calories: 70, protein: 6, carbs: 0, fiber: 0, sugar: 0, fat: 5, saturatedFat: 1.5, sodium: 65 },
   { id: 'member_mark_atlantic_salmon', name: 'Atlantic Salmon Fillet', brand: "Member's Mark", category: 'Meat', servingSize: 140, servingUnit: '5 oz', calories: 230, protein: 32, carbs: 0, fiber: 0, sugar: 0, fat: 11, saturatedFat: 2.5, sodium: 65 },
@@ -458,7 +458,7 @@ const FOODS_RAW = [
   { id: 'member_mark_salmon_canned', name: 'Wild Alaskan Pink Salmon Canned', brand: "Member's Mark", category: 'Canned Goods', servingSize: 56, servingUnit: '2 oz drained', calories: 60, protein: 12, carbs: 0, fiber: 0, sugar: 0, fat: 1, saturatedFat: 0, sodium: 230 },
 
   // ============================================================
-  // MEMBER'S MARK — DAIRY & GRAINS
+  // MEMBER'S MARK, DAIRY & GRAINS
   // ============================================================
   { id: 'member_mark_whole_milk', name: 'Whole Milk', brand: "Member's Mark", category: 'Dairy', servingSize: 240, servingUnit: '1 cup', calories: 150, protein: 8, carbs: 12, fiber: 0, sugar: 12, fat: 8, saturatedFat: 5, sodium: 125 },
   { id: 'member_mark_2percent_milk', name: '2% Reduced Fat Milk', brand: "Member's Mark", category: 'Dairy', servingSize: 240, servingUnit: '1 cup', calories: 130, protein: 8, carbs: 12, fiber: 0, sugar: 12, fat: 5, saturatedFat: 3, sodium: 125 },
@@ -478,7 +478,7 @@ const FOODS_RAW = [
   { id: 'member_mark_frozen_broccoli', name: 'Frozen Broccoli Florets', brand: "Member's Mark", category: 'Frozen Meals', servingSize: 85, servingUnit: '1 cup', calories: 30, protein: 2, carbs: 6, fiber: 2, sugar: 2, fat: 0, saturatedFat: 0, sodium: 10 },
 
   // ============================================================
-  // FOOD CLUB — PROTEINS & DAIRY
+  // FOOD CLUB, PROTEINS & DAIRY
   // ============================================================
   { id: 'food_club_large_eggs', name: 'Large Grade A Eggs', brand: 'Food Club', category: 'Dairy', servingSize: 50, servingUnit: '1 egg', calories: 70, protein: 6, carbs: 0, fiber: 0, sugar: 0, fat: 5, saturatedFat: 1.5, sodium: 65 },
   { id: 'food_club_whole_milk', name: 'Whole Milk', brand: 'Food Club', category: 'Dairy', servingSize: 240, servingUnit: '1 cup', calories: 150, protein: 8, carbs: 12, fiber: 0, sugar: 12, fat: 8, saturatedFat: 5, sodium: 125 },
@@ -494,7 +494,7 @@ const FOODS_RAW = [
   { id: 'food_club_chunk_light_tuna', name: 'Chunk Light Tuna in Water', brand: 'Food Club', category: 'Canned Goods', servingSize: 56, servingUnit: '2 oz drained', calories: 50, protein: 11, carbs: 0, fiber: 0, sugar: 0, fat: 0.5, saturatedFat: 0, sodium: 190 },
 
   // ============================================================
-  // FOOD CLUB — CANNED GOODS
+  // FOOD CLUB, CANNED GOODS
   // ============================================================
   { id: 'food_club_black_beans', name: 'Black Beans', brand: 'Food Club', category: 'Canned Goods', servingSize: 130, servingUnit: '1/2 cup', calories: 110, protein: 7, carbs: 19, fiber: 7, sugar: 0, fat: 0.5, saturatedFat: 0, sodium: 390 },
   { id: 'food_club_kidney_beans', name: 'Dark Red Kidney Beans', brand: 'Food Club', category: 'Canned Goods', servingSize: 130, servingUnit: '1/2 cup', calories: 110, protein: 8, carbs: 20, fiber: 6, sugar: 0, fat: 0.5, saturatedFat: 0, sodium: 370 },
@@ -507,7 +507,7 @@ const FOODS_RAW = [
   { id: 'food_club_chickpeas', name: 'Garbanzo Beans (Chickpeas)', brand: 'Food Club', category: 'Canned Goods', servingSize: 130, servingUnit: '1/2 cup', calories: 120, protein: 7, carbs: 22, fiber: 6, sugar: 1, fat: 0.5, saturatedFat: 0, sodium: 270 },
 
   // ============================================================
-  // FOOD CLUB — GRAINS, BREAD & CONDIMENTS
+  // FOOD CLUB, GRAINS, BREAD & CONDIMENTS
   // ============================================================
   { id: 'food_club_white_bread', name: 'Enriched White Bread', brand: 'Food Club', category: 'Bread/Grains', servingSize: 26, servingUnit: '1 slice', calories: 70, protein: 2, carbs: 14, fiber: 0, sugar: 2, fat: 1, saturatedFat: 0, sodium: 130 },
   { id: 'food_club_wheat_bread', name: 'Whole Wheat Bread', brand: 'Food Club', category: 'Bread/Grains', servingSize: 30, servingUnit: '1 slice', calories: 80, protein: 3, carbs: 14, fiber: 2, sugar: 2, fat: 1, saturatedFat: 0, sodium: 140 },
@@ -522,7 +522,7 @@ const FOODS_RAW = [
   { id: 'food_club_saltines', name: 'Original Saltine Crackers', brand: 'Food Club', category: 'Snacks', servingSize: 14, servingUnit: '5 crackers', calories: 60, protein: 1, carbs: 11, fiber: 0, sugar: 0, fat: 1.5, saturatedFat: 0, sodium: 150 },
 
   // ============================================================
-  // FOOD CLUB — FROZEN
+  // FOOD CLUB, FROZEN
   // ============================================================
   { id: 'food_club_frozen_broccoli', name: 'Frozen Broccoli Florets', brand: 'Food Club', category: 'Frozen Meals', servingSize: 85, servingUnit: '1 cup', calories: 25, protein: 2, carbs: 5, fiber: 2, sugar: 2, fat: 0, saturatedFat: 0, sodium: 20 },
   { id: 'food_club_frozen_peas', name: 'Frozen Sweet Peas', brand: 'Food Club', category: 'Frozen Meals', servingSize: 85, servingUnit: '2/3 cup', calories: 70, protein: 5, carbs: 13, fiber: 4, sugar: 5, fat: 0, saturatedFat: 0, sodium: 95 },
@@ -536,18 +536,18 @@ const FOODS_RAW = [
   ...FOODS_GROCERY,
 
   // ============================================================
-  // GROCERY EXPANSION — Canned · More Produce · Low-Carb · Low-Fat · Sugar-Free
+  // GROCERY EXPANSION, Canned · More Produce · Low-Carb · Low-Fat · Sugar-Free
   // ============================================================
   ...FOODS_GROCERY2,
 
   // ============================================================
-  // GROCERY EXPANSION 3 — Frozen · Plant-Based · Bars/Shakes · Dressings
+  // GROCERY EXPANSION 3, Frozen · Plant-Based · Bars/Shakes · Dressings
   // Dips · Snacks · Dried Fruit · Dairy · Breakfast · International · Pasta
   // ============================================================
   ...FOODS_GROCERY3,
 
   // ============================================================
-  // RESTAURANT ITEMS — Original (McDonald's · Chick-fil-A · Chipotle · Costa Vida
+  // RESTAURANT ITEMS, Original (McDonald's · Chick-fil-A · Chipotle · Costa Vida
   //   Taco Bell · Wendy's · Panda Express · Subway · Starbucks · Popeyes
   //   Shake Shack · Panera · Olive Garden · Jack in the Box · Five Guys
   //   Burger King · Wingstop · Sonic · Pizza Hut · IHOP)
@@ -555,59 +555,59 @@ const FOODS_RAW = [
   ...FOODS_RESTAURANT,
 
   // ============================================================
-  // RESTAURANT ITEMS — Batch 2 (KFC · Arby's · Dairy Queen · Whataburger
+  // RESTAURANT ITEMS, Batch 2 (KFC · Arby's · Dairy Queen · Whataburger
   //   In-N-Out · Raising Cane's · Carl's Jr. · Del Taco · El Pollo Loco)
   // ============================================================
   ...FOODS_RESTAURANT2,
 
   // ============================================================
-  // RESTAURANT ITEMS — Batch 3 (Domino's · Papa John's · Little Caesars
+  // RESTAURANT ITEMS, Batch 3 (Domino's · Papa John's · Little Caesars
   //   Bojangles · Church's Chicken · Checkers/Rally's · Slim Chickens · Wawa)
   // ============================================================
   ...FOODS_RESTAURANT3,
 
   // ============================================================
-  // RESTAURANT ITEMS — Batch 4 (Jersey Mike's · Jimmy John's · Firehouse Subs
+  // RESTAURANT ITEMS, Batch 4 (Jersey Mike's · Jimmy John's · Firehouse Subs
   //   Potbelly · Moe's · Qdoba · Jason's Deli · McAlister's Deli)
   // ============================================================
   ...FOODS_RESTAURANT4,
 
   // ============================================================
-  // RESTAURANT ITEMS — Batch 5 (Chili's · Applebee's · Buffalo Wild Wings
+  // RESTAURANT ITEMS, Batch 5 (Chili's · Applebee's · Buffalo Wild Wings
   //   Denny's · Texas Roadhouse · Outback · TGI Friday's · Red Robin)
   // ============================================================
   ...FOODS_RESTAURANT5,
 
   // ============================================================
-  // RESTAURANT ITEMS — Batch 6 (Dunkin' · Dutch Bros · Einstein Bros
+  // RESTAURANT ITEMS, Batch 6 (Dunkin' · Dutch Bros · Einstein Bros
   //   Smoothie King · Jamba · Tropical Smoothie · Sweetgreen · Cava
   //   Noodles & Company)
   // ============================================================
   ...FOODS_RESTAURANT6,
 
   // ============================================================
-  // GROCERY BRANDS — Batch 4 (Trader Joe's · Good & Gather · Boar's Head
+  // GROCERY BRANDS, Batch 4 (Trader Joe's · Good & Gather · Boar's Head
   //   Applegate · Tillamook · Wild Planet · Kodiak · Magic Spoon · Siggi's
   //   Noosa · Chomps · EPIC · Wilde · Hippeas · Banza)
   // ============================================================
   ...FOODS_GROCERY4,
 
   // ============================================================
-  // SUPPLEMENT BRANDS — Batch 2 (Ghost · Transparent Labs · Legion · 1st Phorm
+  // SUPPLEMENT BRANDS, Batch 2 (Ghost · Transparent Labs · Legion · 1st Phorm
   //   Rule 1 · BSN · MusclePharm · MuscleTech · Kaged · Redcon1 · Ascent
   //   Muscle Milk RTD · Orgain RTD · OWYN · Slate Milk)
   // ============================================================
   ...FOODS_SUPPLEMENTS2,
 
   // ============================================================
-  // PROTEIN BARS — Batch 2 (Clif Builder's · KIND Protein · Perfect Bar
+  // PROTEIN BARS, Batch 2 (Clif Builder's · KIND Protein · Perfect Bar
   //   GoMacro · No Cow · Grenade · thinkThin · ALOHA · Vega · Munk Pack
   //   Detour · Power Crunch · Atlas · Rise · IQ Bar · Combat Crunch)
   // ============================================================
   ...FOODS_BARS2,
 
   // ============================================================
-  // USDA FOODDATA CENTRAL — generic whole foods, lab-analyzed
+  // USDA FOODDATA CENTRAL, generic whole foods, lab-analyzed
   //   (Foundation Foods · SR Legacy · FNDDS survey foods)
   //   13,321 foods · macros per one serving · imported 2026-07
   // ============================================================
@@ -623,7 +623,7 @@ const FOODS_RAW = [
 // Display style: Title Case names, ALL-CAPS brands (all sources)
 export const FOODS = FOODS_RAW.map(formatFood)
 
-/** Total number of foods in the database — used by Landing page stats. */
+/** Total number of foods in the database, used by Landing page stats. */
 export const FOOD_COUNT = FOODS.length
 
 export const CATEGORIES = [

@@ -3,11 +3,11 @@
  * Shows the client's profile photo if one exists, falls back to their name initial.
  *
  * Props
- *   name         string   — client name (used for initial fallback + alt text)
- *   avatarUrl    string?  — public URL from Supabase storage
- *   className    string   — Tailwind size classes e.g. "w-10 h-10"
- *   textClassName string  — Tailwind text size for the initial e.g. "text-base"
- *   color        'brown'|'olive'  — colour scheme for the initial fallback
+ *   name         string  , client name (used for initial fallback + alt text)
+ *   avatarUrl    string? , public URL from Supabase storage
+ *   className    string  , Tailwind size classes e.g. "w-10 h-10"
+ *   textClassName string , Tailwind text size for the initial e.g. "text-base"
+ *   color        'brown'|'olive' , colour scheme for the initial fallback
  */
 
 const COLORS = {

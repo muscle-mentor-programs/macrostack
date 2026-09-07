@@ -1,4 +1,4 @@
-// ─── Restaurant Menu Items — Batch 6 ─────────────────────────────────────────
+// ─── Restaurant Menu Items, Batch 6 ─────────────────────────────────────────
 // Chains: Dunkin' · Dutch Bros · Einstein Bros Bagels · Smoothie King · Jamba
 //         Tropical Smoothie Cafe · Sweetgreen · Cava · Noodles & Company
 // Nutrition data from official restaurant nutrition pages / posted guides.
@@ -104,7 +104,7 @@ export const FOODS_RESTAURANT6 = [
   { id: 'r_sg_ranch_cobb',                    name: 'Ranch Cobb',                              brand: 'Sweetgreen', category: 'Restaurant', servingSize: 430, servingUnit: '1 salad', calories: 640, protein: 38, carbs: 24, fiber: 8, sugar: 11, fat: 44, saturatedFat: 11, sodium: 1240 },
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CAVA — Mediterranean Fast Casual (individual components)
+  // CAVA, Mediterranean Fast Casual (individual components)
   // ══════════════════════════════════════════════════════════════════════════
   { id: 'r_cava_grilled_chicken',             name: 'Grilled Chicken',                         brand: 'Cava', category: 'Restaurant', servingSize: 113, servingUnit: '1 serving',  calories: 130, protein: 25, carbs: 1,  fiber: 0, sugar: 0,  fat: 3,   saturatedFat: 0.5,sodium: 480  },
   { id: 'r_cava_falafel',                     name: 'Falafel (4 pieces)',                      brand: 'Cava', category: 'Restaurant', servingSize: 120, servingUnit: '4 pieces',   calories: 270, protein: 8,  carbs: 28, fiber: 4, sugar: 1,  fat: 14,  saturatedFat: 1.5,sodium: 390  },

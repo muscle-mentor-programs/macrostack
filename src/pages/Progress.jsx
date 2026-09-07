@@ -89,23 +89,23 @@ export default function Progress() {
           {[
             {
               label: 'CURRENT WEIGHT',
-              val: latestWeight ? `${latestWeight.weight} ${latestWeight.unit}` : '—',
+              val: latestWeight ? `${latestWeight.weight} ${latestWeight.unit}` : '-',
               color: 'text-cream',
             },
             {
               label: 'TOTAL CHANGE',
-              val: delta !== null ? `${delta > 0 ? '+' : ''}${delta.toFixed(1)}` : '—',
+              val: delta !== null ? `${delta > 0 ? '+' : ''}${delta.toFixed(1)}` : '-',
               color: delta === null ? 'text-muted' : delta < 0 ? 'text-olive-light' : 'text-brown-light',
             },
             {
               label: '30D AVG CALORIES',
-              val: loggedDays > 0 ? `${avgCal.toFixed(0)}` : '—',
+              val: loggedDays > 0 ? `${avgCal.toFixed(0)}` : '-',
               color: 'text-cream',
               sub: `goal: ${goals.calories}`,
             },
             {
               label: '30D AVG PROTEIN',
-              val: loggedDays > 0 ? `${avgPro.toFixed(0)}g` : '—',
+              val: loggedDays > 0 ? `${avgPro.toFixed(0)}g` : '-',
               color: 'text-olive-light',
               sub: `goal: ${goals.protein}g`,
             },

@@ -1,4 +1,4 @@
-// ─── Restaurant Menu Items — Batch 3 ─────────────────────────────────────────
+// ─── Restaurant Menu Items, Batch 3 ─────────────────────────────────────────
 // Chains: Domino's · Papa John's · Little Caesars · Bojangles · Church's Chicken
 //         Checkers/Rally's · Slim Chickens · Wawa
 // Sources: Official nutrition PDFs, CalorieKing, fastfoodnutrition.org,
@@ -21,12 +21,12 @@ export const FOODS_RESTAURANT3 = [
 
   { id: 'r_dom_veggie_pizza_sl', name: 'Pacific Veggie Pizza Slice (Hand Tossed, Large)', brand: "Domino's", category: 'Restaurant', servingSize: 131, servingUnit: '1 slice (1/8 pizza)', calories: 310, protein: 12, carbs: 34, fiber: 2, sugar: 4, fat: 13, saturatedFat: 6, sodium: 650 },
 
-  // Thin Crust Large (14", 1/8 slice) — ~74g cheese, ~80g pepperoni (USDA/CalorieKing)
+  // Thin Crust Large (14", 1/8 slice), ~74g cheese, ~80g pepperoni (USDA/CalorieKing)
   { id: 'r_dom_thin_cheese_sl', name: 'Cheese Pizza Slice (Thin Crust, Large)', brand: "Domino's", category: 'Restaurant', servingSize: 74, servingUnit: '1 slice (1/8 pizza)', calories: 210, protein: 10, carbs: 22, fiber: 1, sugar: 2, fat: 9, saturatedFat: 4, sodium: 490 },
 
   { id: 'r_dom_thin_pepperoni_sl', name: 'Pepperoni Pizza Slice (Thin Crust, Large)', brand: "Domino's", category: 'Restaurant', servingSize: 80, servingUnit: '1 slice (1/8 pizza)', calories: 260, protein: 11, carbs: 20, fiber: 1, sugar: 2, fat: 15, saturatedFat: 5, sodium: 480 },
 
-  // Pan (Handmade Pan) — Domino's only offers pan up to medium in most markets;
+  // Pan (Handmade Pan), Domino's only offers pan up to medium in most markets;
   // nutrition below is per 1/8 of a medium (12") pan pizza as listed on CalorieKing.
   { id: 'r_dom_pan_cheese_sl', name: 'Cheese Pizza Slice (Handmade Pan, Medium)', brand: "Domino's", category: 'Restaurant', servingSize: 91, servingUnit: '1 slice (1/8 pizza)', calories: 290, protein: 10, carbs: 28, fiber: 1, sugar: 1, fat: 15, saturatedFat: 8, sodium: 410 },
 

@@ -1,7 +1,7 @@
-# Stripe Subscriptions — Setup Checklist
+# Stripe Subscriptions, Setup Checklist
 
 The code is built. These steps wire it to your live Stripe account. **Claude cannot
-do these** — they require your Stripe credentials and DB access.
+do these**, they require your Stripe credentials and DB access.
 
 ## 1. Apply the database migration
 The migration adds subscription columns + RPCs to `profiles`.
@@ -41,7 +41,7 @@ supabase functions deploy create-checkout-session
 supabase functions deploy create-portal-session
 supabase functions deploy stripe-webhook --no-verify-jwt
 ```
-> `stripe-webhook` MUST be `--no-verify-jwt` — Stripe calls it without a Supabase
+> `stripe-webhook` MUST be `--no-verify-jwt`, Stripe calls it without a Supabase
 > JWT; it authenticates via the Stripe signature instead.
 
 ## 5. Register the webhook (Stripe dashboard → Developers → Webhooks)
@@ -60,10 +60,10 @@ Stripe dashboard → Settings → Billing → Customer portal → activate.
 - **User free tier:** food search/logging, weight logging, goals, profile.
   Gated: barcode scanner, weight trends, coach connection + messaging, meal plans.
 - **Superadmin override** (BILLING tab in the coach sidebar): lock/unlock any
-  account. Override **always beats** Stripe status — a webhook can't undo it.
+  account. Override **always beats** Stripe status, a webhook can't undo it.
   Clear the override to fall back to Stripe.
 
 ## Testing without going live
 Use Stripe **test mode** keys + `stripe listen --forward-to` for the webhook, or
-just use the **superadmin BILLING panel** to unlock/lock accounts — that path
+just use the **superadmin BILLING panel** to unlock/lock accounts, that path
 needs no Stripe at all and exercises the entire gating system.

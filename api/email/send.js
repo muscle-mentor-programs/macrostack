@@ -1,7 +1,7 @@
 import { requireUser } from '../_auth.js'
 /**
  * POST /api/email/send
- * Coach broadcast email — sends to one or more client email addresses.
+ * Coach broadcast email, sends to one or more client email addresses.
  *
  * Body: { to: string[], subject: string, body: string, coachName?: string, clientNames?: Record<string,string> }
  */

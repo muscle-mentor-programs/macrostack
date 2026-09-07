@@ -1,4 +1,4 @@
-// ─── Grocery Brands — Batch 4 ─────────────────────────────────────────────────
+// ─── Grocery Brands, Batch 4 ─────────────────────────────────────────────────
 // Brands: Trader Joe's · Good & Gather · Boar's Head · Applegate · Tillamook
 //         Wild Planet · Kodiak Cakes · Magic Spoon · Siggi's · Noosa
 //         Chomps · EPIC · Wilde · Hippeas · Banza
@@ -171,7 +171,7 @@ export const FOODS_GROCERY4 = [
 
 
   // ══ MAGIC SPOON CEREAL ═══════════════════════════════════════════════════════════
-  // High-protein, grain-free, 0g added sugar cereal — all per 1 cup (38g) serving
+  // High-protein, grain-free, 0g added sugar cereal, all per 1 cup (38g) serving
 
   { id: 'magic_spoon_fruity', name: 'Fruity Cereal', brand: 'Magic Spoon', category: 'Breakfast', servingSize: 38, servingUnit: '1 cup', calories: 150, protein: 13, carbs: 15, fiber: 1, sugar: 0, fat: 8, saturatedFat: 1, sodium: 160 },
 

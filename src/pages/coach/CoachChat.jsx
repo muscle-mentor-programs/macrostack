@@ -175,7 +175,7 @@ export default function CoachChat() {
       {/* ── Right: thread ────────────────────────────────────────────────── */}
       {selectedClient ? (
         <div key={selectedId} className="coach-chat-thread flex-1 min-w-0 flex flex-col overflow-hidden anim-fade-in">
-          {/* Thread header — identity + live nutrition context */}
+          {/* Thread header, identity + live nutrition context */}
           <div className="app-page-gutter flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0 glass-panel">
             <button className="chat-back" onClick={() => setSelectedId(null)} aria-label="Back to conversations"><ChevronLeft size={20} /></button>
             <div className="relative">
@@ -206,7 +206,7 @@ export default function CoachChat() {
             </button>
           </div>
 
-          {/* Messages — flex-col-reverse anchors newest at bottom */}
+          {/* Messages, flex-col-reverse anchors newest at bottom */}
           <div className="chat-message-canvas app-page-gutter flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse">
             {threadItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
@@ -248,7 +248,7 @@ export default function CoachChat() {
             )}
           </div>
 
-          {/* Composer — attachments, quick replies, auto-growing input */}
+          {/* Composer, attachments, quick replies, auto-growing input */}
           <div className="app-page-gutter px-6 py-4 border-t border-border flex-shrink-0 glass-panel">
             <Composer
               clientId={selectedClient.id}
@@ -260,7 +260,7 @@ export default function CoachChat() {
           </div>
         </div>
       ) : (
-        /* Empty state — pick a conversation */
+        /* Empty state, pick a conversation */
         <div className="coach-chat-empty flex-1 flex flex-col items-center justify-center text-center anim-fade-in relative">
           <div
             className="pointer-events-none absolute inset-0"

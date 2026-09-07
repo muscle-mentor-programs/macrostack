@@ -1,6 +1,6 @@
 import { requireUser } from '../_auth.js'
 /**
- * Vercel serverless function — proxies POST /api/ai/messages → Anthropic Messages API
+ * Vercel serverless function, proxies POST /api/ai/messages → Anthropic Messages API
  *
  * Model selection priority:
  *   1. ANTHROPIC_MODEL env var (Vercel → Settings → Environment Variables)
@@ -44,7 +44,7 @@ function scoreModel(id) {
 }
 
 async function resolveModel(apiKey) {
-  // 1. Hard override via env var — always wins
+  // 1. Hard override via env var, always wins
   if (process.env.ANTHROPIC_MODEL) return process.env.ANTHROPIC_MODEL
 
   // 2. Return cached result if still fresh

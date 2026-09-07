@@ -1,5 +1,5 @@
 /**
- * Food search utilities — multi-word relevance ranking + recency boost.
+ * Food search utilities, multi-word relevance ranking + recency boost.
  *
  * Brand and product name are BOTH first-class search terms in the one search
  * bar. A query word matches against either field; brand matches score just
@@ -25,7 +25,7 @@
  *
  *   Recency boost (decays with days since last log): up to ~1200 + freq bonus.
  *
- * ALL query words must match somewhere (name OR brand) — AND logic.
+ * ALL query words must match somewhere (name OR brand), AND logic.
  * With an empty query every food passes; recency score still sorts recent first.
  */
 
@@ -46,7 +46,7 @@ function scoreFoodItem(food, queryWords, fullQuery, recentScores) {
   let score = 0
 
   if (queryWords.length > 0) {
-    // ── Full-query bonuses — name and brand each evaluated ──
+    // ── Full-query bonuses, name and brand each evaluated ──
     if (nameL === fullQuery) score += 1000
     else if (brandL === fullQuery) score += 700
 
@@ -55,7 +55,7 @@ function scoreFoodItem(food, queryWords, fullQuery, recentScores) {
     else if (nameL.includes(fullQuery)) score += 30
     else if (brandL.includes(fullQuery)) score += 25
 
-    // ── Per-word bonuses — name and brand both searched; best match wins ──
+    // ── Per-word bonuses, name and brand both searched; best match wins ──
     const nameWords  = tokenize(nameL)
     const brandWords = tokenize(brandL)
 
@@ -69,7 +69,7 @@ function scoreFoodItem(food, queryWords, fullQuery, recentScores) {
     }
   }
 
-  // ── Recency boost — Map<foodId, score> from getRecentFoodIds ─────────
+  // ── Recency boost, Map<foodId, score> from getRecentFoodIds ─────────
   // Supports legacy Set for backward compat (flat +800 fallback).
   if (recentScores) {
     if (typeof recentScores.get === 'function') {

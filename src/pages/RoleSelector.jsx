@@ -35,9 +35,9 @@ export default function RoleSelector() {
           </p>
         </div>
 
-        {/* Role cards — stacked vertically, full-width rows */}
+        {/* Role cards, stacked vertically, full-width rows */}
         <div className="flex flex-col gap-4">
-          {/* Superadmin Portal — full access (superadmin only) */}
+          {/* Superadmin Portal, full access (superadmin only) */}
           {isSuperadmin && (
             <button
               onClick={enterSuperadmin}
@@ -52,7 +52,7 @@ export default function RoleSelector() {
                   SUPERADMIN PORTAL
                 </h2>
                 <p className="font-mono text-xs text-muted leading-relaxed mt-0.5">
-                  Full access — every account, coach & user
+                  Full access, every account, coach & user
                 </p>
               </div>
               <span className="font-display font-bold text-xs tracking-widest text-red-400 flex-shrink-0">

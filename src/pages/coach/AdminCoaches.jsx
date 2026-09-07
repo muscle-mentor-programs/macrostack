@@ -56,7 +56,7 @@ function InfoRow({ icon: Icon, label, value }) {
     <div className="flex items-center gap-2.5">
       <Icon size={13} className="text-dim flex-shrink-0" />
       <span className="font-mono text-[10px] tracking-widest text-dim w-24 flex-shrink-0">{label}</span>
-      <span className="font-mono text-xs text-cream truncate">{value || '—'}</span>
+      <span className="font-mono text-xs text-cream truncate">{value || '-'}</span>
     </div>
   )
 }
@@ -109,7 +109,7 @@ export default function AdminCoaches() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header — locked */}
+      {/* Header, locked */}
       <div className="app-page-gutter relative px-5 md:px-8 pt-mobile-header md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
           <div>
@@ -173,7 +173,7 @@ export default function AdminCoaches() {
             return (
               <div key={coach.id} style={{ animationDelay: `${Math.min(i, 16) * 25}ms` }}
                 className="anim-fade-in-up glass-card border border-border rounded-2xl card-dim overflow-hidden">
-                {/* Header — minimize/maximize */}
+                {/* Header, minimize/maximize */}
                 <button onClick={() => setExpandedId(expanded ? null : coach.id)} className="w-full px-5 py-4 flex items-center gap-4 text-left">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: `linear-gradient(135deg, ${accentA(28)}, ${accentA(10)})`, border: `1px solid ${accentA(32)}` }}>

@@ -29,7 +29,7 @@ export default function ThemeToggle({ compact = false }) {
     )
   }
 
-  /* Sidebar non-compact — matches SWITCH ROLE / LOG OUT button style */
+  /* Sidebar non-compact, matches SWITCH ROLE / LOG OUT button style */
   return (
     <button
       onClick={toggle}

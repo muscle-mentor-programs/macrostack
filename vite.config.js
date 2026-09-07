@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
-// Read API key directly from .env — bypasses Vite's loadEnv entirely
+// Read API key directly from .env, bypasses Vite's loadEnv entirely
 function readEnvKey(key) {
   try {
     const file = readFileSync(resolve(process.cwd(), '.env'), 'utf8')

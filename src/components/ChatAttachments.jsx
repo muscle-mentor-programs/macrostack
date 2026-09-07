@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { ImagePlus, Mic, Square, Loader2 } from 'lucide-react'
 import useStore from '../store'
 
-/* ── Chat attachments — image picker + voice notes ────────────────────────────
+/* ── Chat attachments, image picker + voice notes ────────────────────────────
    AttachmentButtons sits in a chat composer; onSend(attachment) fires with
    { url, type } after upload. MessageAttachment renders one in a bubble. */
 
@@ -51,7 +51,7 @@ export function AttachmentButtons({ clientId, onSend, disabled }) {
       rec.start()
       setRecording(true)
     } catch {
-      /* mic permission denied — nothing to do */
+      /* mic permission denied, nothing to do */
     }
   }
 

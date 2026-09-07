@@ -7,7 +7,7 @@ import { enablePush, pushPermission } from '../lib/push'
 /* ── Notification center ──────────────────────────────────────────────────────
    One inbox for everything unactioned: new check-ins, new form responses,
    pending client requests, and target-review nudges. Derived live from store
-   data — items disappear as they're handled. */
+   data, items disappear as they're handled. */
 export default function NotificationBell() {
   const {
     clients, coachRequests, setActivePage, setViewingClientId,
@@ -31,7 +31,7 @@ export default function NotificationBell() {
     if (newSubs.length) {
       items.push({
         key: `fm-${c.id}`, Icon: ClipboardList,
-        title: `${c.name} — ${newSubs.length === 1 ? `${newSubs[0].formTitle || 'form'} response` : `${newSubs.length} form responses`}`,
+        title: `${c.name}, ${newSubs.length === 1 ? `${newSubs[0].formTitle || 'form'} response` : `${newSubs.length} form responses`}`,
         go: () => { setViewingClientId(c.id, 'forms'); setActivePage('clients') },
       })
     }
@@ -39,7 +39,7 @@ export default function NotificationBell() {
     if (nudge) {
       items.push({
         key: `ng-${c.id}`, Icon: Gauge,
-        title: `${c.name} — ${nudge.title.toLowerCase()}, review targets`,
+        title: `${c.name}, ${nudge.title.toLowerCase()}, review targets`,
         go: () => { setViewingClientId(c.id, 'checkin'); setActivePage('clients') },
       })
     }

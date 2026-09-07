@@ -1,21 +1,21 @@
 import { useEffect } from 'react'
 import { isNativeApp } from '../lib/platform'
 
-// Installed PWA / native shell — the intro is the app's boot screen there,
+// Installed PWA / native shell, the intro is the app's boot screen there,
 // so it renders big; in a browser it stays half-size ahead of the landing page.
 const IS_STANDALONE =
   window.matchMedia('(display-mode: standalone)').matches ||
   window.navigator.standalone === true ||
   isNativeApp
 
-/* ── LogoSplash — full-screen MacroStack logo animation (/intro.mp4) ──────────
+/* ── LogoSplash, full-screen MacroStack logo animation (/intro.mp4) ──────────
    Two modes:
    - intro:   plays the full animation to the end (no skip), then calls
-              onDone. A generous safety timer — longer than the video —
+              onDone. A generous safety timer, longer than the video -
               rescues a stalled/blocked playback; it never cuts it short.
    - loading: loops silently for full-screen loading splashes.               */
 export default function LogoSplash({ loop = false, onDone, fading = false }) {
-  // Safety net only: the video runs ~1.8s at 1.5x — this fires well after its
+  // Safety net only: the video runs ~1.8s at 1.5x, this fires well after its
   // natural end, so the animation always finishes unless playback is broken.
   useEffect(() => {
     if (loop || !onDone) return
@@ -36,7 +36,7 @@ export default function LogoSplash({ loop = false, onDone, fading = false }) {
       {/* The video is trimmed to end the moment the logo completes (S meets
           the apple, ~2.7s source / ~1.8s at 1.5x). Intro renders at half
           size; the PWA/loading splash is full-screen scaled to 3.75x
-          (logo sits small in the frame — the scale crops dead space). */}
+          (logo sits small in the frame, the scale crops dead space). */}
       <video
         src="/intro.mp4"
         autoPlay

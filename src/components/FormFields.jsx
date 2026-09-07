@@ -1,4 +1,4 @@
-/* Shared question renderers — used by the weekly check-in, the intro
+/* Shared question renderers, used by the weekly check-in, the intro
    questionnaire, and custom coach forms. */
 
 export function ScaleField({ low, high, value, onChange }) {

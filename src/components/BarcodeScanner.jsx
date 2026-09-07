@@ -117,7 +117,7 @@ export default function BarcodeScanner({ onScan, onClose }) {
           return
         }
       } catch (_) {
-        // NotFoundException is normal (no barcode in frame) — keep looping
+        // NotFoundException is normal (no barcode in frame), keep looping
       }
 
       rafRef.current = requestAnimationFrame(tick)
@@ -175,7 +175,7 @@ export default function BarcodeScanner({ onScan, onClose }) {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Off-screen canvas for decoding — never shown */}
+      {/* Off-screen canvas for decoding, never shown */}
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Green success flash */}
@@ -200,13 +200,13 @@ export default function BarcodeScanner({ onScan, onClose }) {
           boxShadow: '0 0 0 9999px rgba(0,0,0,0.72)',
         }}
       >
-        {/* Corner bracket — top-left */}
+        {/* Corner bracket, top-left */}
         <div className="absolute top-0 left-0 w-9 h-9 border-t-[3px] border-l-[3px] border-brown rounded-tl" />
-        {/* Corner bracket — top-right */}
+        {/* Corner bracket, top-right */}
         <div className="absolute top-0 right-0 w-9 h-9 border-t-[3px] border-r-[3px] border-brown rounded-tr" />
-        {/* Corner bracket — bottom-left */}
+        {/* Corner bracket, bottom-left */}
         <div className="absolute bottom-0 left-0 w-9 h-9 border-b-[3px] border-l-[3px] border-brown rounded-bl" />
-        {/* Corner bracket — bottom-right */}
+        {/* Corner bracket, bottom-right */}
         <div className="absolute bottom-0 right-0 w-9 h-9 border-b-[3px] border-r-[3px] border-brown rounded-br" />
 
         {/* Animated horizontal scan line */}

@@ -3,7 +3,7 @@
 The Supabase SMTP is not configured, which prevents automatic account creation via the API.
 Follow these steps to manually create Grayson's account:
 
-## Step 1 — Create the auth account
+## Step 1, Create the auth account
 
 1. Open the [Supabase Dashboard](https://supabase.com/dashboard/project/ryvsbidtwhxfmashwsqt)
 2. Go to **Authentication → Users**
@@ -14,7 +14,7 @@ Follow these steps to manually create Grayson's account:
    - Check **"Auto Confirm User"** (bypasses email confirmation)
 5. Click **Create User**
 
-## Step 2 — Run the migration SQL
+## Step 2, Run the migration SQL
 
 1. In the Supabase dashboard, go to **SQL Editor**
 2. Open `supabase/migrations/20260510_coach_profile.sql` and paste its contents

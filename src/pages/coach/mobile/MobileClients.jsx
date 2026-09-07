@@ -78,7 +78,7 @@ function AddClientScreen({ onClose }) {
     if (!age || !weightLbs || !heightFt) { setCalcError('Fill in age, weight, and height.'); return }
     setCalcError('')
     const result = calcTDEE({ sex, age: Number(age), weightLbs: Number(weightLbs), heightIn: totalIn, activityIdx: Number(activityIdx), goalIdx: Number(goalIdx) })
-    if (!result) { setCalcError('Calculation failed — check inputs.'); return }
+    if (!result) { setCalcError('Calculation failed, check inputs.'); return }
     setCalcResult(result)
     setTargets({ calories: String(result.calories), protein: String(result.protein), carbs: String(result.carbs), fat: String(result.fat) })
   }
@@ -670,7 +670,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
               )}
             </div>
 
-            {/* Adaptive target — maintenance estimate from real data */}
+            {/* Adaptive target, maintenance estimate from real data */}
             {maint && (
               <div>
                 <p className="font-display text-xs text-muted tracking-widest mb-3">MAINTENANCE ESTIMATE</p>
@@ -689,11 +689,11 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
                       {Math.abs(maint.delta) < 100
                         ? `Current target (${maint.currentTarget.toLocaleString()}) sits about at maintenance.`
                         : maint.delta < 0
-                        ? `Current target is ~${Math.abs(maint.delta).toLocaleString()} kcal below maintenance — a deficit.`
-                        : `Current target is ~${maint.delta.toLocaleString()} kcal above maintenance — a surplus.`}
+                        ? `Current target is ~${Math.abs(maint.delta).toLocaleString()} kcal below maintenance, a deficit.`
+                        : `Current target is ~${maint.delta.toLocaleString()} kcal above maintenance, a surplus.`}
                     </p>
                   )}
-                  <p className="font-mono text-[9px] text-dim mt-2">Estimate only — adjust targets above as you see fit.</p>
+                  <p className="font-mono text-[9px] text-dim mt-2">Estimate only, adjust targets above as you see fit.</p>
                 </div>
               </div>
             )}
@@ -779,7 +779,7 @@ export default function MobileClients() {
 
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
-      {/* Header — starts at y=0, background covers status bar */}
+      {/* Header, starts at y=0, background covers status bar */}
       <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 flex items-center justify-between px-4 pt-mobile-header pb-4 border-b border-border anim-fade-in-down flex-shrink-0">
         <div>
           <h2 className="font-display font-black text-3xl tracking-wide text-cream">

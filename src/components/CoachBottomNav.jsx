@@ -10,7 +10,7 @@ const BASE_NAV = [
   { id: 'profile',   label: 'PROFILE', icon: User            },
 ]
 // Coaches get an UPGRADE tab (plan management); superadmins get COACHES +
-// BILLING instead (they have override access — mirrors the desktop sidebar).
+// BILLING instead (they have override access, mirrors the desktop sidebar).
 const UPGRADE_NAV = { id: 'upgrade', label: 'UPGRADE', icon: Zap }
 const COACHES_NAV = { id: 'coaches', label: 'COACHES', icon: UserCog }
 const BILLING_NAV = { id: 'billing', label: 'BILLING', icon: CreditCard }

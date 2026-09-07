@@ -3,11 +3,11 @@ import BottomNav from '../components/BottomNav'
 import ThemeToggle from '../components/ThemeToggle'
 import useStore from '../store'
 
-/* ── Minimal ambient background — grain + grid + directional depth ── */
+/* ── Minimal ambient background, grain + grid + directional depth ── */
 function AmbientBackground() {
   return (
     <>
-      {/* Film grain — tactile texture without visual noise */}
+      {/* Film grain, tactile texture without visual noise */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -16,7 +16,7 @@ function AmbientBackground() {
           backgroundSize: '200px 200px',
         }}
       />
-      {/* Faint grid — structural techy detail */}
+      {/* Faint grid, structural techy detail */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.018]"
         style={{
@@ -25,7 +25,7 @@ function AmbientBackground() {
           backgroundSize: '40px 40px',
         }}
       />
-      {/* Directional top fade — adds depth without color bleeding */}
+      {/* Directional top fade, adds depth without color bleeding */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -67,7 +67,7 @@ export default function ClientLayout({ children }) {
         </button>
       </div>
 
-      {/* Scrollable page content — MotionPage (in App) choreographs entrances
+      {/* Scrollable page content, MotionPage (in App) choreographs entrances
           and binds scroll reveals to this scroller via data-scroller */}
       <main data-scroller className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pb-nav">
         <div key={activePage} className="min-h-full">

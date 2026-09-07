@@ -6,7 +6,7 @@ const MAX_PER_CAT = 10
 // Units that allow arbitrary decimal quantities (weight / liquid volume).
 const CONTINUOUS_UNITS = ['oz', ' g', 'ml', 'fl oz', ' lb', ' kg']
 
-// Units that are strictly countable — must stay whole numbers (1, 2, 3…).
+// Units that are strictly countable, must stay whole numbers (1, 2, 3…).
 const WHOLE_UNITS = [
   'bar', 'bottle', 'can', 'cookie', 'donut', 'bag', 'sandwich', 'waffle',
   'egg', 'slice', 'piece', 'packet', 'patty', 'burger', 'nugget', 'strip',
@@ -66,7 +66,7 @@ function resolveFood(foodId, customFoods = []) {
 }
 
 // Safety net: scale every item proportionally so total calories land within ±5%.
-// Scaling is proportional, so macro ratios are preserved — if Kay picked the right
+// Scaling is proportional, so macro ratios are preserved, if Kay picked the right
 // macro split the scaled day will also hit the macro targets.
 function scaleDayToTarget(mealsObj, calTarget) {
   const allItems = Object.values(mealsObj).flat()
@@ -120,13 +120,13 @@ export async function generateMealPlan({ goals, days = 7, preferences = '', clie
 
   const r = (n) => Math.round(n)
 
-  // Macro split as % of total calories — helps Kay pick the right food balance
+  // Macro split as % of total calories, helps Kay pick the right food balance
   const proPct   = Math.round((pro   * 4) / cal * 100)
   const carbsPct = Math.round((carbs * 4) / cal * 100)
   const fatPct   = Math.round((fat   * 9) / cal * 100)
 
   const systemPrompt = `You are a professional sports nutritionist and meal-plan builder.
-You MUST ONLY use foods from the exact list provided — do not invent any new foods.
+You MUST ONLY use foods from the exact list provided, do not invent any new foods.
 Respond with ONLY valid JSON, no markdown, no commentary.`
 
   const userPrompt = `Build a ${days}-day meal plan for ${clientName}.
@@ -151,7 +151,7 @@ Sanity check: (protein×4) + (carbs×4) + (fat×9) ≈ ${cal} kcal
   carbs    = food.carbs × quantity
   fat      = food.fat   × quantity
 
-SERVING QUANTITY RULES — follow strictly:
+SERVING QUANTITY RULES, follow strictly:
 • Countable packaged items (sv contains: bar, bottle, can, egg, slice, sandwich,
   waffle, cookie, bag, piece, packet, patty, wrap, roll, bun, etc.)
   → WHOLE NUMBERS ONLY: 1, 2, 3. Never 1.18 bars or 0.8 eggs.
@@ -169,7 +169,7 @@ expense of carbs and fat, or vice-versa.
 ━━━ RULES ━━━
 1. ALL FOUR targets must land within their ±5% allowed ranges EVERY day.
 2. If a food choice pushes one macro out of range, swap it or adjust the quantity.
-3. Each day: 4 meals — Breakfast, Lunch, Dinner, Snack.
+3. Each day: 4 meals, Breakfast, Lunch, Dinner, Snack.
 4. Each item must reference a valid "foodId" from the list below.
 5. Vary foods across days; avoid repeating the same item daily.
 6. Apply dietary restrictions from COACH PREFERENCES.
@@ -180,7 +180,7 @@ ${foodJson}
 
 Respond with ONLY this JSON (no markdown):
 {
-  "planName": "string — descriptive name for the plan",
+  "planName": "string, descriptive name for the plan",
   "days": [
     {
       "label": "Day 1",

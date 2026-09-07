@@ -3,7 +3,7 @@
 
 export function titleCaseName(name = '') {
   let s = String(name)
-  // Barcode scans often arrive fully SHOUTING — convert those to lowercase
+  // Barcode scans often arrive fully SHOUTING, convert those to lowercase
   // first so Title Case can apply. Mixed-case names are left as-typed so
   // acronyms like "BBQ Chips" survive.
   if (s.length > 3 && s === s.toUpperCase() && /[A-Z]/.test(s)) s = s.toLowerCase()

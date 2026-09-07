@@ -3,7 +3,7 @@ import { ArrowLeft, Search, Users, Award, Globe, Check, Loader2, Send } from 'lu
 import useStore from '../store'
 import { successHaptic } from '../utils/haptics'
 
-/* ── Coach marketplace — browse registered coaches, request a connection ──────
+/* ── Coach marketplace, browse registered coaches, request a connection ──────
    Full-screen overlay (same pattern as the food selector). The coach sees the
    request on their dashboard and either accepts directly or sends their
    connection code back, which surfaces here and on the profile tab. */
@@ -25,7 +25,7 @@ export default function CoachMarketplace({ onClose }) {
     fetchMyCoachRequests()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // My request per coach id (latest wins — list is created_at desc)
+  // My request per coach id (latest wins, list is created_at desc)
   const requestByCoach = useMemo(() => {
     const m = {}
     for (const r of [...myCoachRequests].reverse()) m[r.coach_id] = r
@@ -57,7 +57,7 @@ export default function CoachMarketplace({ onClose }) {
     else { successHaptic(); setLinked(res.coachName || coach.name) }
   }
 
-  /* Linked — success state, then back to profile */
+  /* Linked, success state, then back to profile */
   if (linked) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg px-6 anim-fade-in">
@@ -67,7 +67,7 @@ export default function CoachMarketplace({ onClose }) {
         </div>
         <h2 className="font-display font-black text-2xl tracking-widest text-cream text-center">LINKED!</h2>
         <p className="font-mono text-xs text-muted mt-2 text-center max-w-xs leading-relaxed">
-          You're connected to <span className="text-cream">{linked}</span> — every Pro feature
+          You're connected to <span className="text-cream">{linked}</span>, every Pro feature
           is now unlocked while you're linked.
         </p>
         <button
@@ -113,7 +113,7 @@ export default function CoachMarketplace({ onClose }) {
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {/* Payments are between coach and client */}
         <p className="font-mono text-[10px] text-dim leading-relaxed px-1">
-          Coaching rates and payment are arranged directly between you and your coach —
+          Coaching rates and payment are arranged directly between you and your coach -
           MacroStack doesn't broker or guarantee coaching fees.
         </p>
 
@@ -166,11 +166,11 @@ export default function CoachMarketplace({ onClose }) {
                 </p>
               )}
 
-              {/* Action — depends on my request state for this coach */}
+              {/* Action, depends on my request state for this coach */}
               <div className="mt-3.5">
                 {req?.status === 'pending' ? (
                   <div className="w-full flex items-center justify-center gap-2 border border-border rounded-xl py-3 font-display font-bold text-xs tracking-widest text-muted">
-                    <Check size={13} /> REQUEST SENT — WAITING ON COACH
+                    <Check size={13} /> REQUEST SENT, WAITING ON COACH
                   </div>
                 ) : req?.status === 'code_sent' && req.coach_code ? (
                   <button
@@ -179,7 +179,7 @@ export default function CoachMarketplace({ onClose }) {
                     className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-xs tracking-widest py-3 rounded-xl transition-colors disabled:opacity-50"
                   >
                     {busy ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
-                    COACH SENT A CODE — TAP TO LINK
+                    COACH SENT A CODE, TAP TO LINK
                   </button>
                 ) : req?.status === 'rejected' ? (
                   <div className="w-full flex items-center justify-center border border-border rounded-xl py-3 font-display font-bold text-xs tracking-widest text-dim">

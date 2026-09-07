@@ -8,7 +8,7 @@ import './coach-dashboard.css'
 import App from './App.jsx'
 import * as Sentry from '@sentry/react'
 
-// Error monitoring — no-op until VITE_SENTRY_DSN is set in Vercel env
+// Error monitoring, no-op until VITE_SENTRY_DSN is set in Vercel env
 if (import.meta.env.VITE_SENTRY_DSN) {
  Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN, sendDefaultPii: false, tracesSampleRate: 0 })
 }

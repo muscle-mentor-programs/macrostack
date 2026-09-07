@@ -3,12 +3,12 @@ import useStore from './store'
 import useIsMobile from './hooks/useIsMobile'
 import { isNativeApp } from './lib/platform'
 
-// Layouts (small — keep eager so the shell paints instantly)
+// Layouts (small, keep eager so the shell paints instantly)
 import CoachLayout from './layouts/CoachLayout'
 import ClientLayout from './layouts/ClientLayout'
 import MotionPage from './components/MotionPage'
 
-// ── Code-split pages — each loads on demand, keeping the initial bundle
+// ── Code-split pages, each loads on demand, keeping the initial bundle
 //    small (Landing, the 1900-item food DB, and recharts are the heavy ones)
 const Landing           = lazy(() => import('./pages/Landing'))
 const LoginScreen       = lazy(() => import('./pages/LoginScreen'))
@@ -19,7 +19,7 @@ const SetPasswordScreen = lazy(() => import('./pages/SetPasswordScreen'))
 const RoleSelector   = lazy(() => import('./pages/RoleSelector'))
 const ClientSelector = lazy(() => import('./pages/client/ClientSelector'))
 
-// Coach pages — desktop
+// Coach pages, desktop
 const CoachDashboard = lazy(() => import('./pages/coach/CoachDashboard'))
 const CoachChat      = lazy(() => import('./pages/coach/CoachChat'))
 const CoachProfile   = lazy(() => import('./pages/coach/CoachProfile'))
@@ -27,7 +27,7 @@ const MyFoods        = lazy(() => import('./pages/MyFoods'))
 const Clients        = lazy(() => import('./pages/coach/Clients'))
 const CoachForms     = lazy(() => import('./pages/coach/CoachForms'))
 
-// Coach pages — mobile (auto-selected when viewport < 768 px)
+// Coach pages, mobile (auto-selected when viewport < 768 px)
 const MobileCoachDashboard = lazy(() => import('./pages/coach/mobile/MobileCoachDashboard'))
 const MobileClients        = lazy(() => import('./pages/coach/mobile/MobileClients'))
 const MobileChat           = lazy(() => import('./pages/coach/mobile/MobileChat'))
@@ -47,7 +47,7 @@ const AdminBilling = lazy(() => import('./pages/coach/AdminBilling'))
 const AdminCoaches = lazy(() => import('./pages/coach/AdminCoaches'))
 const LeadFinder = lazy(() => import('./pages/coach/LeadFinder'))
 
-// Shared suspense fallback — branded skeleton so page swaps feel intentional,
+// Shared suspense fallback, branded skeleton so page swaps feel intentional,
 // not like a loading failure. Mirrors the typical page anatomy.
 function PageLoader() {
   return (
@@ -104,15 +104,15 @@ const CLIENT_PAGES = {
 }
 
 // Every page id that gets a real URL path (/chat, /foods, /billing, …).
-// Union of coach + client page maps — the active role renders its own page.
+// Union of coach + client page maps, the active role renders its own page.
 const ROUTABLE = new Set([
   ...Object.keys(COACH_PAGES_DESKTOP),
   ...Object.keys(CLIENT_PAGES),
 ])
 
 // True when running as an installed PWA (homescreen shortcut) or inside the
-// native iOS shell — both should boot straight to sign-in, never the
-// marketing landing. Checked once at module load — doesn't change during a session.
+// native iOS shell, both should boot straight to sign-in, never the
+// marketing landing. Checked once at module load, doesn't change during a session.
 const IS_PWA =
   window.matchMedia('(display-mode: standalone)').matches ||
   window.navigator.standalone === true ||
@@ -185,7 +185,7 @@ export default function App() {
       return
     }
     if (ROUTABLE.has(seg)) setActivePage(seg)
-    initialPathRef.current = '/'   // consumed — don't re-apply on later auth flips
+    initialPathRef.current = '/'   // consumed, don't re-apply on later auth flips
   }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 2. Keep the address bar in sync with in-app navigation
@@ -242,11 +242,11 @@ export default function App() {
       if (!raw) return
       const { plan } = JSON.parse(raw)
       if (plan) setActivePage('upgrade')
-      else localStorage.removeItem('ms-pending-plan') // free tier — nothing to buy
+      else localStorage.removeItem('ms-pending-plan') // free tier, nothing to buy
     } catch { /* ignore malformed value */ }
   }, [isAuthenticated])
 
-  // A fresh signup is on its way to Stripe checkout — hold this screen so the
+  // A fresh signup is on its way to Stripe checkout, hold this screen so the
   // app (role/dashboard views) never renders before the payment page opens.
   if (checkoutRedirect) {
     return (
@@ -277,7 +277,7 @@ export default function App() {
     )
   }
 
-  // Invited client just confirmed their email — make them set a password first
+  // Invited client just confirmed their email, make them set a password first
   if (postInvite) {
     return (
       <Suspense fallback={<PageLoader />}>
@@ -315,7 +315,7 @@ export default function App() {
     )
   }
 
-  // Coach mode — serve mobile or desktop pages based on real-time viewport width
+  // Coach mode, serve mobile or desktop pages based on real-time viewport width
   const coachPages = isMobile ? COACH_PAGES_MOBILE : COACH_PAGES_DESKTOP
   const fallback   = isMobile ? MobileCoachDashboard : CoachDashboard
   const CoachPage  = coachPages[activePage] || fallback

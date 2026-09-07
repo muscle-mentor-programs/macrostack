@@ -28,7 +28,7 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await admin.auth.getUser(token)
     if (userError || !user) throw new Error('Unauthorized')
 
-    // Caller must be a superadmin — checked with the service role, not RLS
+    // Caller must be a superadmin, checked with the service role, not RLS
     const { data: caller } = await admin.from('profiles').select('role').eq('id', user.id).single()
     if (caller?.role !== 'superadmin') throw new Error('Superadmin only.')
 
@@ -47,7 +47,7 @@ serve(async (req) => {
       .update({ status: 'pending' })
       .eq('profile_id', profileId)
 
-    // Remove login access — profile row cascades away with the auth user.
+    // Remove login access, profile row cascades away with the auth user.
     const { error: delErr } = await admin.auth.admin.deleteUser(profileId)
     if (delErr) throw new Error(delErr.message)
 

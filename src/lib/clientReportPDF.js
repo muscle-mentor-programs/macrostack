@@ -1,5 +1,5 @@
 /**
- * Branded client-file PDF export — profile, targets, weight trend, compliance,
+ * Branded client-file PDF export, profile, targets, weight trend, compliance,
  * recent check-ins. Returns the jsPDF doc; caller saves/downloads.
  */
 import { jsPDF } from 'jspdf'
@@ -41,7 +41,7 @@ export function generateClientReportPDF(client, coachName = '') {
     if (y > 740) { doc.addPage(); header() }
     doc.setFont('helvetica', 'normal'); doc.setFontSize(10)
     doc.setTextColor(...C.muted); doc.text(label, 40, y)
-    doc.setTextColor(30, 30, 30); doc.text(String(value ?? '—'), 210, y)
+    doc.setTextColor(30, 30, 30); doc.text(String(value ?? '-'), 210, y)
     y += 16
   }
 
@@ -49,9 +49,9 @@ export function generateClientReportPDF(client, coachName = '') {
 
   // ── Profile ──
   sectionTitle('PROFILE')
-  row('Email', client.email || '—')
-  row('Height', client.height || '—')
-  row('Phone', client.phone || '—')
+  row('Email', client.email || '-')
+  row('Height', client.height || '-')
+  row('Phone', client.phone || '-')
   if (client.tags?.length) row('Tags', client.tags.join(', '))
   y += 6
 
@@ -78,7 +78,7 @@ export function generateClientReportPDF(client, coachName = '') {
   y += 6
 
   // ── Compliance (last 30 days) ──
-  sectionTitle('LOGGING — LAST 30 DAYS')
+  sectionTitle('LOGGING, LAST 30 DAYS')
   let logged = 0, cals = 0
   for (let i = 0; i < 30; i++) {
     const d = format(subDays(new Date(), i), 'yyyy-MM-dd')
@@ -86,7 +86,7 @@ export function generateClientReportPDF(client, coachName = '') {
     if (entries.length) { logged++; cals += entries.reduce((s, e) => s + (e.calories || 0), 0) }
   }
   row('Days logged', `${logged} / 30`)
-  row('Avg intake (logged days)', logged ? `${Math.round(cals / logged)} kcal` : '—')
+  row('Avg intake (logged days)', logged ? `${Math.round(cals / logged)} kcal` : '-')
   y += 6
 
   // ── Recent check-ins ──
@@ -100,8 +100,8 @@ export function generateClientReportPDF(client, coachName = '') {
     y += 14
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...C.muted)
     const answers = k.answers?.length
-      ? k.answers.map((a) => `${a.label}: ${a.type === 'scale' ? (a.value ? a.value + '/5' : '—') : a.type === 'yesno' ? (a.value == null ? '—' : a.value ? 'Yes' : 'No') : (a.value || '—')}`)
-      : [`Adherence: ${k.adherence ?? '—'}/5`, `Hunger: ${k.hunger ?? '—'}/5`, `Energy: ${k.energy ?? '—'}/5`, k.notes ? `Notes: ${k.notes}` : null].filter(Boolean)
+      ? k.answers.map((a) => `${a.label}: ${a.type === 'scale' ? (a.value ? a.value + '/5' : '-') : a.type === 'yesno' ? (a.value == null ? '-' : a.value ? 'Yes' : 'No') : (a.value || '-')}`)
+      : [`Adherence: ${k.adherence ?? '-'}/5`, `Hunger: ${k.hunger ?? '-'}/5`, `Energy: ${k.energy ?? '-'}/5`, k.notes ? `Notes: ${k.notes}` : null].filter(Boolean)
     for (const line of answers) {
       const wrapped = doc.splitTextToSize(line, W - 100)
       if (y + wrapped.length * 11 > 760) { doc.addPage(); header() }

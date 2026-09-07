@@ -86,7 +86,7 @@ export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
         </button>
       </div>
 
-      {/* Cropper canvas — fills remaining space */}
+      {/* Cropper canvas, fills remaining space */}
       <div className="relative flex-1 bg-black">
         <Cropper
           image={imageSrc}

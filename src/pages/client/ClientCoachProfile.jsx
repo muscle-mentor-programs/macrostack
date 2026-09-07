@@ -8,7 +8,7 @@ import { QuestionField, countAnswered, ScaleField as Scale, YesNoField as YesNo 
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
-/* Pay-your-coach card — shows when the coach has Stripe connected + a price. */
+/* Pay-your-coach card, shows when the coach has Stripe connected + a price. */
 function PayCoachCard({ coachName, billing }) {
   const startCoachPayment = useStore((s) => s.startCoachPayment)
   const [busy, setBusy]   = useState(false)
@@ -38,7 +38,7 @@ function PayCoachCard({ coachName, billing }) {
       {paid ? (
         <div className="flex items-center gap-2 text-olive-light py-1">
           <Check size={15} />
-          <span className="font-display font-bold text-xs tracking-widest">SUBSCRIPTION ACTIVE — THANK YOU</span>
+          <span className="font-display font-bold text-xs tracking-widest">SUBSCRIPTION ACTIVE, THANK YOU</span>
         </div>
       ) : (
         <>
@@ -52,7 +52,7 @@ function PayCoachCard({ coachName, billing }) {
             className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors glow-hover press disabled:opacity-50"
           >
             {busy ? <Loader2 size={14} className="animate-spin" /> : null}
-            {busy ? 'OPENING CHECKOUT…' : `SUBSCRIBE — $${billing.price}/MO`}
+            {busy ? 'OPENING CHECKOUT…' : `SUBSCRIBE, $${billing.price}/MO`}
           </button>
           <p className="font-mono text-[10px] text-dim mt-2.5 text-center">Secure payment via Stripe · paid directly to your coach</p>
           {error && <p className="font-mono text-xs text-red-400 mt-2 anim-shake">{error}</p>}
@@ -62,7 +62,7 @@ function PayCoachCard({ coachName, billing }) {
   )
 }
 
-/* A form from the coach (intro questionnaire / custom) awaiting completion —
+/* A form from the coach (intro questionnaire / custom) awaiting completion -
    collapsed card that expands into the full form. */
 function PendingFormCard({ form, clientId }) {
   const submitClientForm = useStore((s) => s.submitClientForm)
@@ -151,7 +151,7 @@ function PendingFormCard({ form, clientId }) {
   )
 }
 
-// Weekly check-in form — coach-customized questions, due tracking, optional
+// Weekly check-in form, coach-customized questions, due tracking, optional
 // photo uploads, and a success summary. Own state so hooks stay above the
 // parent's early returns.
 function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
@@ -182,7 +182,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
     return () => { alive = false }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Due status — weekly cadence from the last submission
+  // Due status, weekly cadence from the last submission
   const daysSince = lastCheckin?.createdAt
     ? Math.floor((Date.now() - new Date(lastCheckin.createdAt).getTime()) / 86_400_000)
     : null
@@ -239,7 +239,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
         <p className="font-mono text-xs text-muted mt-1.5">
           {answeredCount} answer{answeredCount === 1 ? '' : 's'}{weight ? ` + weight (${weight} ${unit})` : ''} sent to your coach.
         </p>
-        <p className="font-mono text-[10px] text-dim mt-2">Next check-in is due in 7 days — we'll remind you.</p>
+        <p className="font-mono text-[10px] text-dim mt-2">Next check-in is due in 7 days, we'll remind you.</p>
       </div>
     )
   }
@@ -477,7 +477,7 @@ export default function ClientCoachProfile() {
           {/* Coaching payment (when the coach has billing set up) */}
           <PayCoachCard coachName={profile.name} billing={coachBilling} />
 
-          {/* Forms from the coach — shown until completed */}
+          {/* Forms from the coach, shown until completed */}
           {pendingForms.map((f) => (
             <PendingFormCard key={f.id} form={f} clientId={activeClientId} />
           ))}

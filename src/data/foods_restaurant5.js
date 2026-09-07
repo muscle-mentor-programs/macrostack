@@ -1,4 +1,4 @@
-// ─── Restaurant Menu Items — Batch 5 ─────────────────────────────────────────
+// ─── Restaurant Menu Items, Batch 5 ─────────────────────────────────────────
 // Chains: Chili's · Applebee's · Buffalo Wild Wings · Denny's
 //         Texas Roadhouse · Outback Steakhouse · TGI Friday's · Red Robin
 //
@@ -154,7 +154,7 @@ export const FOODS_RESTAURANT5 = [
 
   { id: 'r_outback_grilled_chicken_barbie', name: 'Grilled Chicken on the Barbie', brand: 'Outback Steakhouse', category: 'Restaurant', servingSize: 227, servingUnit: '1 entree', calories: 410, protein: 62, carbs: 0, fiber: 0, sugar: 0, fat: 14, saturatedFat: 3, sodium: 540 },
 
-  { id: 'r_outback_bloomin_onion', name: "Bloomin' Onion (whole — appetizer)", brand: 'Outback Steakhouse', category: 'Restaurant', servingSize: 700, servingUnit: '1 whole appetizer', calories: 1950, protein: 18, carbs: 123, fiber: 17, sugar: 24, fat: 154, saturatedFat: 33, sodium: 3840 },
+  { id: 'r_outback_bloomin_onion', name: "Bloomin' Onion (whole, appetizer)", brand: 'Outback Steakhouse', category: 'Restaurant', servingSize: 700, servingUnit: '1 whole appetizer', calories: 1950, protein: 18, carbs: 123, fiber: 17, sugar: 24, fat: 154, saturatedFat: 33, sodium: 3840 },
 
   { id: 'r_outback_bread_butter', name: 'Bread (1 piece with butter)', brand: 'Outback Steakhouse', category: 'Restaurant', servingSize: 90, servingUnit: '1 piece with butter', calories: 370, protein: 10, carbs: 51, fiber: 4, sugar: 10, fat: 15, saturatedFat: 7, sodium: 420 },
 

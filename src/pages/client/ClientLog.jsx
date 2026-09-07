@@ -38,7 +38,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
     clients, currentUser, setActivePage,
     myMeals, fetchMyMeals, deleteMeal,
   } = useStore()
-  // Effective access via the hook — includes Pro-included-with-a-coach
+  // Effective access via the hook, includes Pro-included-with-a-coach
   const { hasAccess: canScan } = useSubscription()
 
   const [query,       setQuery]       = useState('')
@@ -48,7 +48,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const [meal,        setMeal]        = useState(defaultMeal || 'Breakfast')
   const [showScanner, setShowScanner] = useState(false)
   const [scannedUPC,  setScannedUPC]  = useState(null)
-  // Quick add — log raw calories/macros without a database food
+  // Quick add, log raw calories/macros without a database food
   const [quickAdd, setQuickAdd] = useState(null) // { name, cal, pro, carb, fat }
 
   useEffect(() => { fetchMyMeals() }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -60,7 +60,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
     return myMeals.filter((m) => (m.name || '').toLowerCase().includes(q))
   }, [myMeals, query])
 
-  // One tap re-logs every item in the meal — exact portions, current meal slot
+  // One tap re-logs every item in the meal, exact portions, current meal slot
   const handleLogMeal = (m) => {
     for (const it of (m.items || [])) {
       addClientEntry(clientId, { ...it, meal, date: logDate })
@@ -87,7 +87,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const filtered = useMemo(() => rankFoods(allFoods, query, recentFoodIds),
     [allFoods, query, recentFoodIds])
 
-  // Top recently-logged foods — one-tap chips above the list (empty query only)
+  // Top recently-logged foods, one-tap chips above the list (empty query only)
   const recentChips = useMemo(() => {
     if (!recentFoodIds?.size) return []
     return [...recentFoodIds.entries()]
@@ -118,7 +118,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   }) : null
 
   // With the 'last' serving preference, foods open at the amount they were
-  // last logged at — repeat eaters skip re-entering their usual portions.
+  // last logged at, repeat eaters skip re-entering their usual portions.
   const servingPref = clients.find((c) => c.id === clientId)?.servingPref || 'default'
   const lastLoggedQty = (foodId) => {
     if (!foodId) return null
@@ -179,7 +179,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
   const handleScan      = (upc) => { setShowScanner(false); setScannedUPC(upc) }
   const handleAfterSave = (food) => { setScannedUPC(null); handleSelectFood(food) }
 
-  // ── Quick add — raw strings while typing (allows blank + decimals) ──
+  // ── Quick add, raw strings while typing (allows blank + decimals) ──
   const qaClean = (v) => {
     const s = String(v).replace(/[^0-9.]/g, '')
     const i = s.indexOf('.')
@@ -238,7 +238,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         </div>
         <button
           onClick={() => { if (canScan) { setShowScanner(true) } else { onClose(); setActivePage('upgrade') } }}
-          title={canScan ? 'Scan barcode' : 'Premium — scan barcodes'}
+          title={canScan ? 'Scan barcode' : 'Premium, scan barcodes'}
           className="relative w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-surface transition-colors flex-shrink-0"
         >
           <Scan size={20} />
@@ -268,14 +268,14 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         </div>
       </div>
 
-      {/* ── Food list — capped to avoid freezing on 15,000+ items ── */}
+      {/* ── Food list, capped to avoid freezing on 15,000+ items ── */}
       {(() => {
         const limit    = query.trim() ? 100 : 40
         const visible  = filtered.slice(0, limit)
         const overflow = filtered.length - limit
         return (
       <div className="flex-1 overflow-y-auto">
-        {/* Quick add — log calories/macros directly, no database food needed */}
+        {/* Quick add, log calories/macros directly, no database food needed */}
         <div className="app-page-gutter px-4 pt-3">
           <button
             onClick={() => setQuickAdd({ name: '', cal: '', pro: '', carb: '', fat: '' })}
@@ -291,7 +291,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
             </span>
           </button>
         </div>
-        {/* My meals — private saved bundles, one tap logs every item */}
+        {/* My meals, private saved bundles, one tap logs every item */}
         {mealMatches.length > 0 && (
           <div className="px-4 pt-3 anim-fade-in">
             <p className="font-mono text-[9px] tracking-[0.3em] text-dim mb-2">MY MEALS</p>
@@ -327,7 +327,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
             </div>
           </div>
         )}
-        {/* Quick-add chips — most-logged foods, one tap to open serving popup */}
+        {/* Quick-add chips, most-logged foods, one tap to open serving popup */}
         {!query.trim() && recentChips.length > 0 && (
           <div className="px-4 pt-3 pb-1 anim-fade-in">
             <p className="font-mono text-[9px] tracking-[0.3em] text-dim mb-2">FREQUENT</p>
@@ -387,14 +387,14 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         )}
         {overflow > 0 && (
           <p className="text-center py-5 font-mono text-xs text-dim">
-            +{overflow} more — type to refine
+            +{overflow} more, type to refine
           </p>
         )}
       </div>
         )
       })()}
 
-      {/* ── Serving popup — centered modal overlay ── */}
+      {/* ── Serving popup, centered modal overlay ── */}
       {selected && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center px-5"
@@ -478,7 +478,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
         </div>
       )}
 
-      {/* ── Quick-add popup — same centered overlay as the serving popup ── */}
+      {/* ── Quick-add popup, same centered overlay as the serving popup ── */}
       {quickAdd && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center px-5"
@@ -543,7 +543,7 @@ function FoodSelectorPage({ onClose, clientId, logDate, defaultMeal }) {
               disabled={!qaValid}
               className="w-full btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover disabled:opacity-40"
             >
-              ADD TO LOG{qaValid ? ` — ${Math.round(qaCal)} KCAL` : ''}
+              ADD TO LOG{qaValid ? `, ${Math.round(qaCal)} KCAL` : ''}
             </button>
           </div>
         </div>
@@ -572,7 +572,7 @@ export default function ClientLog() {
     logSaveError, clearLogSaveError,
   } = useStore()
 
-  // A failed save rolled back its entry — show why, then auto-dismiss
+  // A failed save rolled back its entry, show why, then auto-dismiss
   useEffect(() => {
     if (!logSaveError) return
     const t = setTimeout(clearLogSaveError, 8000)
@@ -584,10 +584,10 @@ export default function ClientLog() {
   const [copyFrom, setCopyFrom] = useState('')
   // editState: { id, qty, grams, servingSize, perQty: { cal, pro, carb, fat } }
   const [editState, setEditState] = useState(null)
-  // "Make this a meal" — { meal, items, name, saving, done }
+  // "Make this a meal", { meal, items, name, saving, done }
   const [mealSave, setMealSave] = useState(null)
 
-  // Hide BottomNav while food selector is open — prevents accidental HOME taps
+  // Hide BottomNav while food selector is open, prevents accidental HOME taps
   // on iOS Safari where fixed children are trapped inside overflow-y-auto containers
   useEffect(() => {
     setNavHidden(!!modalMeal)
@@ -614,7 +614,7 @@ export default function ClientLog() {
   )]
   const allSections = [...PRIMARY_MEALS, ...extraMeals]
 
-  // Recent days that already have entries (before the current day) — offered
+  // Recent days that already have entries (before the current day), offered
   // in the "copy a previous day" dropdown when today is empty.
   const clientLog = client?.log || {}
   const recentLoggedDays = Object.keys(clientLog)
@@ -732,7 +732,7 @@ export default function ClientLog() {
         </button>
       </div>
 
-      {/* Save failure — the optimistic entry was rolled back */}
+      {/* Save failure, the optimistic entry was rolled back */}
       {logSaveError && (
         <button
           onClick={clearLogSaveError}
@@ -759,7 +759,7 @@ export default function ClientLog() {
         ))}
       </div>
 
-      {/* Copy a previous day — slim row, only when today is empty and there's history */}
+      {/* Copy a previous day, slim row, only when today is empty and there's history */}
       {entries.length === 0 && recentLoggedDays.length > 0 && (
         <div className="app-page-inset mb-5 flex items-center gap-2 glass-card border border-border rounded-xl px-3 py-2.5 anim-fade-in-up card-dim">
           <Copy size={13} className="text-brown-light flex-shrink-0" />
@@ -817,7 +817,7 @@ export default function ClientLog() {
                   {items.length > 0 && (
                     <button
                       onClick={() => setMealSave({ meal, items, name: '', saving: false, done: false })}
-                      title="Make this a meal — save these exact portions to reuse"
+                      title="Make this a meal, save these exact portions to reuse"
                       className="w-7 h-7 flex items-center justify-center rounded-lg bg-olive/15 text-olive-light hover:bg-olive hover:text-bg transition-colors"
                     >
                       <BookmarkPlus size={14} strokeWidth={2.5} />
@@ -839,7 +839,7 @@ export default function ClientLog() {
                   className="w-full px-4 py-4 text-center group"
                 >
                   <p className="font-mono text-xs text-dim group-hover:text-muted transition-colors">
-                    Nothing logged — tap to add
+                    Nothing logged, tap to add
                   </p>
                 </button>
               ) : (
@@ -848,7 +848,7 @@ export default function ClientLog() {
                     const isEditing = editState?.id === entry.id
                     return (
                       <div key={entry.id}>
-                        {/* Entry row — tap to expand / collapse edit */}
+                        {/* Entry row, tap to expand / collapse edit */}
                         <button
                           onClick={() => openEdit(entry)}
                           className={`w-full flex items-center px-4 py-3 gap-3 text-left transition-colors ${
@@ -965,7 +965,7 @@ export default function ClientLog() {
 
       </div>{/* end page content wrapper */}
 
-      {/* ── Full-screen food selector — rendered via portal to document.body
+      {/* ── Full-screen food selector, rendered via portal to document.body
            so that fixed inset-0 is relative to the viewport (not the
            overflow-y-auto <main> container), covering BottomNav on iOS ── */}
       {modalMeal && createPortal(
@@ -978,7 +978,7 @@ export default function ClientLog() {
         document.body
       )}
 
-      {/* ── Make this a meal — snapshot the card's exact portions ── */}
+      {/* ── Make this a meal, snapshot the card's exact portions ── */}
       {mealSave && createPortal(
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center px-5"
@@ -996,7 +996,7 @@ export default function ClientLog() {
                 </div>
                 <p className="font-display font-bold text-sm tracking-widest text-cream">MEAL SAVED</p>
                 <p className="font-mono text-xs text-muted mt-1.5 leading-relaxed">
-                  Find it under MY MEALS when adding food — one tap logs all {mealSave.items.length} item{mealSave.items.length === 1 ? '' : 's'}.
+                  Find it under MY MEALS when adding food, one tap logs all {mealSave.items.length} item{mealSave.items.length === 1 ? '' : 's'}.
                 </p>
               </div>
             ) : (
@@ -1027,7 +1027,7 @@ export default function ClientLog() {
                   />
                 </div>
 
-                {/* What's going in — exact portions */}
+                {/* What's going in, exact portions */}
                 <div className="max-h-36 overflow-y-auto space-y-1.5 border border-border/50 rounded-xl p-2.5 card-inset">
                   {mealSave.items.map((e) => (
                     <div key={e.id} className="flex items-center justify-between gap-2">
@@ -1054,7 +1054,7 @@ export default function ClientLog() {
                 </div>
 
                 <p className="font-mono text-[10px] text-dim leading-relaxed">
-                  Saved privately to your account only — exact portions included.
+                  Saved privately to your account only, exact portions included.
                 </p>
 
                 <button

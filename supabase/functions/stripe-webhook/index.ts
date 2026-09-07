@@ -9,7 +9,7 @@ function toISO(ts: number | null | undefined): string | null {
 }
 
 // current_period_end lived on the subscription in older API versions and moved
-// to the subscription item in newer ones — read whichever is present.
+// to the subscription item in newer ones, read whichever is present.
 function periodEnd(sub: Stripe.Subscription): string | null {
   // deno-lint-ignore no-explicit-any
   const top = (sub as any).current_period_end
@@ -19,7 +19,7 @@ function periodEnd(sub: Stripe.Subscription): string | null {
 }
 
 // Map a Stripe subscription onto the profile row. The webhook NEVER touches
-// admin_override — a superadmin's manual lock/unlock always wins.
+// admin_override, a superadmin's manual lock/unlock always wins.
 async function syncSubscription(stripe: Stripe, admin: ReturnType<typeof createClient>, sub: Stripe.Subscription) {
   let userId = sub.metadata?.supabase_user_id
   if (!userId) {

@@ -5,7 +5,7 @@ import Stripe from 'https://esm.sh/stripe@14?target=deno'
 // ════════════════════════════════════════════════════════════════════════════
 // PAY COACH (client → coach monthly coaching subscription via Stripe Connect)
 // The signed-in client is looked up server-side; the coach's price and Connect
-// account come from the DB — nothing about money is trusted from the browser.
+// account come from the DB, nothing about money is trusted from the browser.
 // Funds route to the coach's Express account (destination charge).
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -54,7 +54,7 @@ serve(async (req) => {
           currency: 'usd',
           unit_amount: Math.round(price * 100),
           recurring: { interval: 'month' },
-          product_data: { name: `Coaching with ${coach.name || 'your coach'} — MacroStack` },
+          product_data: { name: `Coaching with ${coach.name || 'your coach'}, MacroStack` },
         },
       }],
       subscription_data: {

@@ -1,4 +1,4 @@
-// ─── Protein Bars — Batch 2 ──────────────────────────────────────────────────
+// ─── Protein Bars, Batch 2 ──────────────────────────────────────────────────
 // Brands: Clif Builder's · KIND Protein · Perfect Bar · GoMacro · No Cow
 //         Grenade Carb Killa · thinkThin · ALOHA · Vega · Munk Pack
 //         Detour · Power Crunch · Atlas · Rise · IQ Bar · Combat Crunch

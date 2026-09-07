@@ -4,7 +4,7 @@ import { QUESTION_TYPES } from '../lib/checkinQuestions'
 
 /* ── Shared form/question editor modal ────────────────────────────────────────
    Used for the weekly check-in question set, the intro questionnaire, and
-   custom forms. Purely presentational — the parent decides how to persist via
+   custom forms. Purely presentational, the parent decides how to persist via
    onSave. withMeta adds title/description fields (custom + intro forms). */
 export default function FormEditor({
   heading, subtitle, initialQuestions = [], withMeta = false,

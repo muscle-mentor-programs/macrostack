@@ -4,7 +4,7 @@ import apiFetch from '../lib/apiFetch'
  *
  * Feeds the client's last-7-days logged data, weight trend, current targets,
  * and their submitted check-in form into the AI, and gets back a coach-facing
- * summary plus recommended target adjustments (suggest-only — the coach applies).
+ * summary plus recommended target adjustments (suggest-only, the coach applies).
  *
  * @param {object} p
  * @param {string} p.clientName
@@ -24,7 +24,7 @@ export async function generateCheckinReview({ clientName = 'the client', goals, 
 
   const scale = (n) => (n ? `${n}/5` : 'not reported')
 
-  // Custom question answers (new check-ins) — falls back to the legacy
+  // Custom question answers (new check-ins), falls back to the legacy
   // structured fields for older submissions.
   const answerBlock = (checkin?.answers || [])
     .map((a) => {
@@ -62,7 +62,7 @@ ${answerBlock || `  Adherence: ${scale(checkin?.adherence)}
 
 Consider: if adherence is low, fix adherence before changing numbers. If weight isn't
 moving toward the goal and adherence is solid, adjust calories. Keep protein high.
-Only change targets when the data justifies it — otherwise keep them and say why.
+Only change targets when the data justifies it, otherwise keep them and say why.
 
 Respond with ONLY this JSON:
 {

@@ -132,7 +132,7 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
       onAfterSave?.(result.food)
       onClose()
     } else {
-      // Race condition — show duplicate UI
+      // Race condition, show duplicate UI
       setDuplicate(result.existing)
       setStatus('duplicate')
     }
@@ -221,7 +221,7 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
                 <div className="flex items-center gap-3 bg-surface border border-border rounded-lg px-4 py-3 card-dim">
                   <AlertCircle size={15} className="text-muted flex-shrink-0" />
                   <p className="font-mono text-xs text-muted">
-                    Product not found in Open Food Facts — fill in the details manually.
+                    Product not found in Open Food Facts, fill in the details manually.
                   </p>
                 </div>
               </div>

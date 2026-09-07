@@ -13,7 +13,7 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) throw new Error('Missing authorization header')
 
-    // Use the service-role client for everything — this bypasses RLS entirely,
+    // Use the service-role client for everything, this bypasses RLS entirely,
     // so we never hit the recursive policy issue that can block profile reads.
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL')!,

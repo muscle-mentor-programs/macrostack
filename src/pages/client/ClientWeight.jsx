@@ -66,7 +66,7 @@ export default function ClientWeight() {
     avg:    w.ma,
   }))
 
-  // Trend insight — interpret the 7-day moving average over the recent window
+  // Trend insight, interpret the 7-day moving average over the recent window
   // (anchored to the latest weigh-in, so it's independent of "now"). Matches
   // the app convention: loss = olive, gain = red, flat = muted.
   const trend = (() => {
@@ -140,7 +140,7 @@ export default function ClientWeight() {
           </button>
         </div>
 
-        {/* Date picker — shown when toggled */}
+        {/* Date picker, shown when toggled */}
         {showDate && (
           <div className="mb-3 anim-fade-in">
             <div className="overflow-hidden rounded-xl">
@@ -155,7 +155,7 @@ export default function ClientWeight() {
             </div>
             {isBackfill && (
               <p className="font-mono text-[10px] text-brown-light mt-1.5 ml-1">
-                Backfilling for {format(parseISO(logDate), 'MMMM d')} — 7-day avg will update automatically
+                Backfilling for {format(parseISO(logDate), 'MMMM d')}, 7-day avg will update automatically
               </p>
             )}
           </div>
@@ -192,27 +192,27 @@ export default function ClientWeight() {
         <div className="glass-card border border-border rounded-2xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '120ms' }}>
           <Scale size={14} className="text-muted mb-2" />
           <p className="font-display font-black text-2xl text-cream leading-none data-flicker">
-            {currentWeight ?? '—'}
+            {currentWeight ?? '-'}
           </p>
           <p className="font-mono text-[10px] text-muted mt-1">{currentUnit} now</p>
         </div>
         <div className="glass-card border border-border rounded-2xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '180ms' }}>
           <div className="w-4 h-0.5 bg-brown rounded-full mb-[9px] mt-[3px]" />
           <p className="font-display font-black text-2xl text-brown-light leading-none data-flicker">
-            {currentMA ?? '—'}
+            {currentMA ?? '-'}
           </p>
           <p className="font-mono text-[10px] text-muted mt-1">7-day avg</p>
         </div>
         <div className="glass-card border border-border rounded-2xl p-3 anim-fade-in-up card-dim" style={{ animationDelay: '240ms' }}>
           <ChangeIcon size={14} className={`${changeColor} mb-2`} />
           <p className={`font-display font-black text-2xl leading-none ${changeColor} data-flicker`}>
-            {change30 !== null ? `${change30 > 0 ? '+' : ''}${change30}` : '—'}
+            {change30 !== null ? `${change30 > 0 ? '+' : ''}${change30}` : '-'}
           </p>
           <p className="font-mono text-[10px] text-muted mt-1">30d change</p>
         </div>
       </div>
 
-      {/* Trend insight — premium */}
+      {/* Trend insight, premium */}
       {hasAccess && trend && (
         <div className="app-page-inset mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim">
           <div className="flex items-start gap-3">
@@ -227,7 +227,7 @@ export default function ClientWeight() {
         </div>
       )}
 
-      {/* Chart — premium analytics */}
+      {/* Chart, premium analytics */}
       {!hasAccess && chartData.length > 1 && (
         <div className="mx-5 mb-5">
           <PremiumGate title="WEIGHT TRENDS" blurb="See your weight trend, 7-day moving average, and 30-day change." inline />
@@ -278,7 +278,7 @@ export default function ClientWeight() {
                 name="Weight"
                 connectNulls
               />
-              {/* 7-day moving average — recalculated to include any backfilled entries */}
+              {/* 7-day moving average, recalculated to include any backfilled entries */}
               <Line
                 type="monotone"
                 dataKey="avg"

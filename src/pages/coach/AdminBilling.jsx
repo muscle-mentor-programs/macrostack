@@ -83,7 +83,7 @@ function InfoRow({ icon: Icon, label, value }) {
     <div className="flex items-center gap-2.5">
       <Icon size={13} className="text-dim flex-shrink-0" />
       <span className="font-mono text-[10px] tracking-widest text-dim w-24 flex-shrink-0">{label}</span>
-      <span className="font-mono text-xs text-cream truncate">{value || '—'}</span>
+      <span className="font-mono text-xs text-cream truncate">{value || '-'}</span>
     </div>
   )
 }
@@ -119,7 +119,7 @@ function DeleteLoginControl({ account }) {
       ) : (
         <div className="rounded-xl border border-red-400/30 bg-red-400/5 p-3 space-y-2.5">
           <p className="font-mono text-[10px] text-red-400 leading-relaxed">
-            Removes {account.name || 'this user'}'s login — they'll need to create a new account.
+            Removes {account.name || 'this user'}'s login, they'll need to create a new account.
             All their data (logs, check-ins, photos) is kept and re-links automatically if they
             sign up again with the same email.
           </p>
@@ -177,7 +177,7 @@ export default function AdminBilling() {
     return m
   }, [clients])
 
-  // Invited users without an account yet — no profile, so no real billing row.
+  // Invited users without an account yet, no profile, so no real billing row.
   const pendingRows = useMemo(() => {
     const accountEmails = new Set(adminAccounts.map((a) => (a.email || '').toLowerCase()))
     return (clients || [])
@@ -218,7 +218,7 @@ export default function AdminBilling() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header — locked */}
+      {/* Header, locked */}
       <div className="app-page-gutter relative px-6 md:px-8 pt-mobile-header md:pt-7 pb-5 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div className="flex items-center gap-2 mb-1.5">
           <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
@@ -297,7 +297,7 @@ export default function AdminBilling() {
                 style={{ animationDelay: `${Math.min(i, 16) * 25}ms` }}
                 className={`anim-fade-in-up glass-card border rounded-2xl card-dim overflow-hidden ${pending ? 'border-brown/25' : 'border-border'}`}
               >
-                {/* Header row — click to minimize/maximize */}
+                {/* Header row, click to minimize/maximize */}
                 <button
                   onClick={() => setExpandedId(expanded ? null : a.id)}
                   className="w-full px-5 py-4 flex items-center gap-4 text-left"
@@ -369,7 +369,7 @@ export default function AdminBilling() {
 
                     {/* Controls */}
                     {pending ? (
-                      <p className="font-mono text-[10px] text-dim tracking-widest">AWAITING SIGN-UP — nothing to manage until they create an account.</p>
+                      <p className="font-mono text-[10px] text-dim tracking-widest">AWAITING SIGN-UP, nothing to manage until they create an account.</p>
                     ) : (
                       <div className="space-y-2">
                         <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>MANAGE ACCESS</p>

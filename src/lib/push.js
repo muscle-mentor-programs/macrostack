@@ -41,7 +41,7 @@ export async function enablePush(registerPushSubscription) {
 }
 
 /* Silently re-sync an existing subscription (called on app load when
-   permission was already granted — keeps the DB row fresh). */
+   permission was already granted, keeps the DB row fresh). */
 export async function resyncPush(registerPushSubscription) {
   try {
     if (!pushSupported() || Notification.permission !== 'granted') return

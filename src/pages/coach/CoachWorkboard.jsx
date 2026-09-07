@@ -28,7 +28,7 @@ export default function CoachWorkboard({ renderClient }) {
   const visibleRows = rows.filter(r => `${r.client.name} ${r.client.email} ${(r.client.tags || []).join(' ')}`.toLowerCase().includes(search.toLowerCase()))
     .filter(r => filter === 'all' || (filter === 'attention' ? r.unread + r.checkins + r.tasks > 0 : r[filter] > 0))
   return <div className="dashboard-workboard">
-    <div className="cw-stats">{[['Unread messages',rows.reduce((n,r)=>n+r.unread,0)],['Check-ins to review',rows.reduce((n,r)=>n+r.checkins,0)],['Tasks due',recordsUnavailable ? '—' : rows.reduce((n,r)=>n+r.tasks,0)]].map(([label,value])=><div className="cw-panel cw-stat" key={label}><strong>{value}</strong><span className="cw-muted">{label}</span></div>)}</div>
+    <div className="cw-stats">{[['Unread messages',rows.reduce((n,r)=>n+r.unread,0)],['Check-ins to review',rows.reduce((n,r)=>n+r.checkins,0)],['Tasks due',recordsUnavailable ? '-' : rows.reduce((n,r)=>n+r.tasks,0)]].map(([label,value])=><div className="cw-panel cw-stat" key={label}><strong>{value}</strong><span className="cw-muted">{label}</span></div>)}</div>
     {loading && <p role="status">Loading follow-ups…</p>}
     {error && <p className="cw-error" role="alert">{error} Task counts are unavailable. Your existing client data and dashboard are still available.</p>}
     <nav className="cw-tabs" aria-label="Coach quick actions">{[['clients','Manage clients'],['chat','Messages'],['foods','Food library'],['forms','Forms & check-ins'],['profile','Coach profile'],['upgrade','Your plan']].map(([id,label])=><button key={id} onClick={()=>setActivePage(id)}>{label}</button>)}</nav>

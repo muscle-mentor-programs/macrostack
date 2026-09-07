@@ -4,7 +4,7 @@ import { Send, Zap, X } from 'lucide-react'
 import useStore from '../store'
 import { AttachmentButtons, MessageAttachment } from './ChatAttachments'
 
-/* ── ChatKit — shared premium chat primitives ─────────────────────────────────
+/* ── ChatKit, shared premium chat primitives ─────────────────────────────────
    Used by CoachChat (desktop), MobileChat (coach mobile) and ClientMessages
    (user app) so every chat surface gets the same treatment:
    - iMessage-style grouping of consecutive same-sender messages (<6 min apart)
@@ -142,7 +142,7 @@ export function Bubble({ msg, isSelf, first, last, avatar, senderLabel, seen, ma
   )
 }
 
-/* Find the id of your newest message that the other side has read —
+/* Find the id of your newest message that the other side has read -
    the classic single "Seen" receipt spot. */
 export function lastSeenSelfId(thread, selfFrom) {
   for (let i = thread.length - 1; i >= 0; i--) {
@@ -154,7 +154,7 @@ export function lastSeenSelfId(thread, selfFrom) {
   return null
 }
 
-/* Quick-reply popover — saved message_templates, insert-on-tap. Coach only. */
+/* Quick-reply popover, saved message_templates, insert-on-tap. Coach only. */
 function QuickReplies({ onPick, onClose }) {
   const templates = useStore((s) => s.messageTemplates)
   const fetchMessageTemplates = useStore((s) => s.fetchMessageTemplates)
@@ -198,7 +198,7 @@ function QuickReplies({ onPick, onClose }) {
   )
 }
 
-/* Premium composer — auto-growing textarea, Enter to send (Shift+Enter for a
+/* Premium composer, auto-growing textarea, Enter to send (Shift+Enter for a
    newline), attachment buttons, optional quick-reply templates. Keeps focus
    after sending so mobile keyboards stay up. */
 export function Composer({

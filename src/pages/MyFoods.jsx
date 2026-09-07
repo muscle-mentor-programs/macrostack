@@ -134,7 +134,7 @@ function FoodModal({ initial = null, onSave, onClose }) {
             </div>
           </div>
 
-          {/* Serving — number input grows, unit stays a fixed width */}
+          {/* Serving, number input grows, unit stays a fixed width */}
           <div>
             <label className={lbl}>SERVING SIZE *</label>
             <div className="flex gap-3">
@@ -252,7 +252,7 @@ function AISearchPanel({ onAdded }) {
   const [results,   setResults]   = useState([])
   const [loading,   setLoading]   = useState(false)
   const [error,     setError]     = useState(null)
-  const [added,     setAdded]     = useState({}) // { [idx]: true } — tracks which results were added
+  const [added,     setAdded]     = useState({}) // { [idx]: true }, tracks which results were added
 
   const existingNames = useMemo(
     () => new Set(customFoods.map((f) => f.name.toLowerCase().trim())),
@@ -296,7 +296,7 @@ function AISearchPanel({ onAdded }) {
         <Sparkles size={15} className="text-brown-light flex-shrink-0" />
         <div className="flex-1">
           <p className="font-display font-bold text-sm tracking-widest text-cream">AI FOOD SEARCH</p>
-          <p className="font-mono text-xs text-muted">Superadmin — search &amp; add foods to the shared database</p>
+          <p className="font-mono text-xs text-muted">Superadmin, search &amp; add foods to the shared database</p>
         </div>
       </div>
 
@@ -417,7 +417,7 @@ export default function MyFoods() {
   const customIds   = useMemo(() => new Set(customFoods.map((f) => f.id)), [customFoods])
   const scannedIds  = useMemo(() => new Set(scannedFoods.map((f) => f.id)), [scannedFoods])
 
-  // Community provenance — who contributed each shared food (superadmin view)
+  // Community provenance, who contributed each shared food (superadmin view)
   const fromUsers   = useMemo(
     () => [...customFoods, ...scannedFoods].filter((f) => f.addedByRole === 'user').length,
     [customFoods, scannedFoods]
@@ -440,7 +440,7 @@ export default function MyFoods() {
     [customFoods, scannedFoods, overrideFoods, overrideIds, hiddenIds]
   )
 
-  // Deleted built-ins — only shown under the DELETED filter so they can be restored
+  // Deleted built-ins, only shown under the DELETED filter so they can be restored
   const deletedFoods = useMemo(
     () => [...FOODS].reverse().filter((f) => hiddenIds.has(f.id)),
     [hiddenIds]
@@ -463,7 +463,7 @@ export default function MyFoods() {
     return hasQuery ? rankFoods(base, query) : base
   }, [allFoods, deletedFoods, query, filter, customIds, scannedIds])
 
-  // Render incrementally — dumping all 15k+ rows into the DOM at once
+  // Render incrementally, dumping all 15k+ rows into the DOM at once
   // freezes the tab. Reset the window whenever the query/filter changes.
   const PAGE = 200
   const [visibleCount, setVisibleCount] = useState(PAGE)
@@ -658,7 +658,7 @@ export default function MyFoods() {
                   <span className="font-display font-bold text-sm text-slategray-light">{food.fat.toFixed(1)}g</span>
 
                   {filter === 'deleted' ? (
-                    /* Deleted view — restore the built-in back into the database */
+                    /* Deleted view, restore the built-in back into the database */
                     <button onClick={() => restoreBuiltinFood(food.id)} title="Restore to database"
                       className="text-dim hover:text-olive-light transition-colors opacity-0 group-hover:opacity-100 p-1 font-display text-[9px] tracking-widest">
                       RESTORE
@@ -711,7 +711,7 @@ export default function MyFoods() {
                 SHOW 500 MORE
               </button>
               <p className="font-mono text-xs text-dim">
-                Showing {visibleCount.toLocaleString()} of {filtered.length.toLocaleString()} — search to narrow results
+                Showing {visibleCount.toLocaleString()} of {filtered.length.toLocaleString()}, search to narrow results
               </p>
             </div>
           )}

@@ -30,13 +30,13 @@ Search across Reddit (r/personaltraining, r/fitnesscareers, r/OnlineCoaching, r/
 const SYSTEM = `You are a lead-generation researcher for MacroStack, a nutrition-tracking and coaching platform. You find real, recent, public posts by people who match the target profile, with DIRECT links to each post.
 
 Rules for your FINAL answer:
-- You have a limited search budget. After at most 4-5 searches, STOP searching and write the final answer from the results you have — NEVER end the turn without producing it, even if coverage feels incomplete.
-- The final answer is a valid JSON array wrapped in sentinel tags, exactly like: <leads>[ {...}, {...} ]</leads> — no markdown fences, nothing else after the closing tag.
+- You have a limited search budget. After at most 4-5 searches, STOP searching and write the final answer from the results you have, NEVER end the turn without producing it, even if coverage feels incomplete.
+- The final answer is a valid JSON array wrapped in sentinel tags, exactly like: <leads>[ {...}, {...} ]</leads>, no markdown fences, nothing else after the closing tag.
 - 4 to 12 items, best leads first.
 - Each item has exactly these fields:
   {
     "title":   string,  // short title of the post or a 5-10 word summary of it
-    "url":     string,  // DIRECT link to the specific post/thread/reply — must be a real URL from your search results, never invented
+    "url":     string,  // DIRECT link to the specific post/thread/reply, must be a real URL from your search results, never invented
     "source":  string,  // e.g. "Reddit · r/loseit", "X / Twitter", "Bodybuilding.com forum"
     "date":    string,  // when it was posted, as best known, e.g. "3 days ago" or "Jun 2026"; "" if unknown
     "snippet": string,  // 1-2 sentence quote or faithful paraphrase of what the person said
@@ -54,18 +54,18 @@ function friendlyAnthropicError(errText, status) {
     return 'The Anthropic account is out of API credits. Top up at console.anthropic.com → Plans & Billing, then retry.'
   }
   if (status === 429 || /rate limit/i.test(msg)) {
-    return 'Anthropic rate limit hit — wait a minute and retry.'
+    return 'Anthropic rate limit hit, wait a minute and retry.'
   }
   if (status === 401) {
-    return 'Anthropic API key is invalid — check ANTHROPIC_API_KEY in Vercel env settings.'
+    return 'Anthropic API key is invalid, check ANTHROPIC_API_KEY in Vercel env settings.'
   }
   if (status === 529 || /overloaded/i.test(msg)) {
-    return 'Anthropic API is temporarily overloaded — retry in a moment.'
+    return 'Anthropic API is temporarily overloaded, retry in a moment.'
   }
   return msg || `Anthropic API error (${status})`
 }
 
-// TEMPORARILY DISABLED — flip to false (or delete this block) to re-enable
+// TEMPORARILY DISABLED, flip to false (or delete this block) to re-enable
 const DISABLED = true
 
 export default async function handler(req, res) {
@@ -93,13 +93,13 @@ export default async function handler(req, res) {
     const messages = [{ role: 'user', content: PROMPTS[kind] }]
     const body = {
       // Sonnet 5: near-Opus quality on search/agentic work with much higher
-      // rate limits — this org's Opus tier (10k input tokens/min) can't absorb
+      // rate limits, this org's Opus tier (10k input tokens/min) can't absorb
       // the token volume web search generates. Override via LEADS_MODEL after
       // a rate-tier upgrade to run on claude-opus-4-8.
       model: process.env.LEADS_MODEL || 'claude-sonnet-5',
       max_tokens: 8000,
       thinking: { type: 'adaptive' },
-      // medium effort: the task is search + summarize — keeps the scan well
+      // medium effort: the task is search + summarize, keeps the scan well
       // inside the serverless time budget without hurting lead quality
       output_config: { effort: 'medium' },
       system: SYSTEM,
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
     }
 
     // Server-side web search runs a sampling loop that can return
-    // stop_reason "pause_turn" — resume by re-sending with the assistant turn.
+    // stop_reason "pause_turn", resume by re-sending with the assistant turn.
     let data = null
     let retriedRateLimit = false
     for (let i = 0; i < 5; i++) {
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({ ...body, messages }),
       })
-      // Per-minute token limits recover quickly — wait out one window and retry
+      // Per-minute token limits recover quickly, wait out one window and retry
       if (upstream.status === 429 && !retriedRateLimit) {
         retriedRateLimit = true
         await new Promise((r) => setTimeout(r, 45000))
@@ -190,7 +190,7 @@ export default async function handler(req, res) {
       }))
       .filter((l) => l.title && /^https?:\/\//.test(l.url))
 
-    // Surface diagnostics on empty results — this endpoint is superadmin-only
+    // Surface diagnostics on empty results, this endpoint is superadmin-only
     // and empty scans are otherwise impossible to debug from the client
     const debug = leads.length === 0
       ? { stop_reason: data?.stop_reason, blocks: (data?.content || []).map((b) => b.type), sample: rawText.slice(0, 600) }

@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     await resend.emails.send({
       from:    FROM,
       to,
-      subject: `Your MacroStack weekly report — ${rangeLabel || 'last 7 days'}`,
+      subject: `Your MacroStack weekly report, ${rangeLabel || 'last 7 days'}`,
       html:    weeklyReportTemplate({
         clientName, rangeLabel, avgCal, avgProtein, daysLogged,
         weightChange, weightUnit, calAdherencePct, streak, coachName,

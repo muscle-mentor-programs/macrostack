@@ -1,6 +1,6 @@
 /**
  * Client-side PDF generation for a client's weekly progress report using jsPDF.
- * Premium (Pro) feature — surfaced from the client Profile page.
+ * Premium (Pro) feature, surfaced from the client Profile page.
  *
  * Mirrors the styling of generateMealPlanPDF.js so the two exports feel like
  * one product.
@@ -162,7 +162,7 @@ export function generateProgressReportPDF(client) {
     { val: `${Math.round(s.avgProtein)}g`,          unit: 'avg protein / day' },
     { val: `${s.daysLogged}/7`,                     unit: 'days logged' },
     {
-      val:  s.weight.change === null ? '—' : `${s.weight.change > 0 ? '+' : ''}${s.weight.change}`,
+      val:  s.weight.change === null ? '-' : `${s.weight.change > 0 ? '+' : ''}${s.weight.change}`,
       unit: `${s.weight.unit} change`,
     },
   ]
@@ -233,11 +233,11 @@ export function generateProgressReportPDF(client) {
       let text
       if (c.key === 'label')      { setTxt(doc, COLORS.cream); text = d.label }
       else if (c.key === 'vs') {
-        if (diff === null) { setTxt(doc, COLORS.dim); text = '—' }
+        if (diff === null) { setTxt(doc, COLORS.dim); text = '-' }
         else { setTxt(doc, diff > 0 ? COLORS.red : COLORS.olive); text = `${diff > 0 ? '+' : ''}${diff}` }
       } else {
         setTxt(doc, logged ? COLORS.cream : COLORS.dim)
-        text = logged ? Math.round(d[c.key]).toString() : '—'
+        text = logged ? Math.round(d[c.key]).toString() : '-'
       }
       if (c.align === 'left') doc.text(text, colX(i), y + 9)
       else doc.text(text, colRight(i), y + 9, { align: 'right' })

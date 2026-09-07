@@ -1,6 +1,6 @@
 /**
  * Branded HTML email templates for MacroStack.
- * All styles are inline — required for email client compatibility.
+ * All styles are inline, required for email client compatibility.
  */
 
 const BRAND = {
@@ -136,7 +136,7 @@ export function weeklyReportTemplate({
       <div style="font-size:10px;letter-spacing:1px;color:${BRAND.muted};margin-top:4px;">${label}</div>
     </td>`
   const changeStr = weightChange === null || weightChange === undefined
-    ? '—'
+    ? '-'
     : `${weightChange > 0 ? '+' : ''}${weightChange}`
 
   return shell(`
@@ -190,7 +190,7 @@ export function reminderTemplate({ recipientName, coachName, missedLog, missedCh
   const items = []
   if (missedLog) items.push({
     title: 'LOG TODAY’S MEALS',
-    body:  'You haven’t logged anything today. Even a quick estimate keeps your data — and your coaching — accurate.',
+    body:  'You haven’t logged anything today. Even a quick estimate keeps your data, and your coaching, accurate.',
   })
   if (missedWeighIn) items.push({
     title: 'LOG A WEIGH-IN',
@@ -253,7 +253,7 @@ export function welcomeTemplate({ name, role, loginUrl }) {
   `)
 }
 
-// ── Template: Password reset (for Supabase dashboard — plain HTML) ────────────
+// ── Template: Password reset (for Supabase dashboard, plain HTML) ────────────
 export const passwordResetTemplate = shell(`
   <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;color:#9A7B55;">ACCOUNT SECURITY</p>
   <h1 style="margin:0 0 8px;font-family:Impact,'Arial Black',sans-serif;font-size:26px;letter-spacing:4px;color:#E8E4DC;">RESET YOUR PASSWORD</h1>

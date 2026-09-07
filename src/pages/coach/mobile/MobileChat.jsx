@@ -69,7 +69,7 @@ function ThreadScreen({ client, onBack }) {
         <button className="chat-workspace-link" onClick={() => { setViewingClientId(client.id, 'workspace'); setActivePage('clients') }}>Workspace<ChevronRight size={14} /></button>
       </div>
 
-      {/* Messages — flex-col-reverse anchors newest at bottom */}
+      {/* Messages, flex-col-reverse anchors newest at bottom */}
       <div className="chat-message-canvas app-page-gutter flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse">
         {threadItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
@@ -98,7 +98,7 @@ function ThreadScreen({ client, onBack }) {
         )}
       </div>
 
-      {/* Input bar — padding-bottom clears home indicator when keyboard is down */}
+      {/* Input bar, padding-bottom clears home indicator when keyboard is down */}
       <div
         className="mobile-coach-composer px-4 border-t border-border bg-surface flex-shrink-0"
         style={{
@@ -208,7 +208,7 @@ export default function MobileChat() {
                   <p className={`font-mono text-xs truncate ${unread > 0 ? 'text-cream' : 'text-muted'}`}>
                     {lastMsg
                       ? `${lastMsg.from === 'coach' ? 'You: ' : ''}${msgPreview(lastMsg)}`
-                      : 'No messages yet — tap to start'}
+                      : 'No messages yet, tap to start'}
                   </p>
 
                   {/* Email */}

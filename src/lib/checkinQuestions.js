@@ -57,7 +57,7 @@ export const DEFAULT_QUESTIONS = [
 
 /* Format a stored answer for display. */
 export function formatAnswer(a) {
-  if (a.value === null || a.value === undefined || a.value === '') return '—'
+  if (a.value === null || a.value === undefined || a.value === '') return '-'
   if (a.type === 'scale') return `${a.value}/5`
   if (a.type === 'yesno') return a.value ? 'Yes' : 'No'
   return String(a.value)

@@ -1,5 +1,5 @@
 /**
- * Haptic feedback helpers — fire-and-forget, safe everywhere.
+ * Haptic feedback helpers, fire-and-forget, safe everywhere.
  * Uses the Vibration API (Android Chrome / PWA). iOS Safari ignores it
  * silently, so callers never need to feature-check.
  */

@@ -6,7 +6,7 @@ import Stripe from 'https://esm.sh/stripe@14?target=deno'
 // CHANGE COACH TIER (upgrade / downgrade on the existing subscription)
 // - Upgrades are always allowed (prorated immediately).
 // - Downgrades are refused unless the coach's current roster fits the lower
-//   tier — verified HERE with the service role, not trusted from the client.
+//   tier, verified HERE with the service role, not trusted from the client.
 // ════════════════════════════════════════════════════════════════════════════
 
 const cors = {
@@ -55,11 +55,11 @@ serve(async (req) => {
       .eq('id', user.id)
       .single()
     if (!profile || profile.role === 'client') throw new Error('Only coach accounts can change coach tiers.')
-    if (!profile.stripe_subscription_id) throw new Error('No active subscription to change — subscribe first.')
+    if (!profile.stripe_subscription_id) throw new Error('No active subscription to change, subscribe first.')
     if (plan === profile.subscription_plan) throw new Error('You are already on that tier.')
 
     // Downgrade guard: the roster must fit the new tier. Count every client
-    // attached to this coach (pending invites included — they become active).
+    // attached to this coach (pending invites included, they become active).
     if (target.limit !== null) {
       const { count } = await admin
         .from('clients')
@@ -68,7 +68,7 @@ serve(async (req) => {
       if ((count ?? 0) > target.limit) {
         const excess = (count ?? 0) - target.limit
         throw new Error(
-          `You have ${count} clients — the ${target.label} tier allows ${target.limit}. ` +
+          `You have ${count} clients, the ${target.label} tier allows ${target.limit}. ` +
           `Remove ${excess} client${excess === 1 ? '' : 's'} to downgrade.`
         )
       }
@@ -77,7 +77,7 @@ serve(async (req) => {
     // Swap the subscription's price in place, prorated from today.
     const sub = await stripe.subscriptions.retrieve(profile.stripe_subscription_id)
     if (!['active', 'trialing', 'past_due'].includes(sub.status)) {
-      throw new Error('Your subscription is not active — manage it from the billing portal instead.')
+      throw new Error('Your subscription is not active, manage it from the billing portal instead.')
     }
     await stripe.subscriptions.update(sub.id, {
       items: [{ id: sub.items.data[0].id, price: target.priceId }],

@@ -1,4 +1,4 @@
-// ─── Restaurant Menu Items — Batch 4 ─────────────────────────────────────────
+// ─── Restaurant Menu Items, Batch 4 ─────────────────────────────────────────
 // Chains: Jersey Mike's · Jimmy John's · Firehouse Subs · Potbelly
 //         Moe's Southwest Grill · Qdoba · Jason's Deli · McAlister's Deli
 //
@@ -58,7 +58,7 @@ export const FOODS_RESTAURANT4 = [
 
   { id: 'r_jj_club_lulu_reg', name: '#16 Club Lulu (Regular 8")', brand: "Jimmy John's", category: 'Restaurant', servingSize: 270, servingUnit: '1 regular sub', calories: 690, protein: 35, carbs: 71, fiber: 6, sugar: 2, fat: 26, saturatedFat: 5, sodium: 1760 },
 
-  { id: 'r_jj_italian_night_club_unwich', name: '#9 Italian Night Club (Unwich — Lettuce Wrap)', brand: "Jimmy John's", category: 'Restaurant', servingSize: 150, servingUnit: '1 unwich', calories: 600, protein: 33, carbs: 9, fiber: 1, sugar: 6, fat: 48, saturatedFat: 14, sodium: 2160 },
+  { id: 'r_jj_italian_night_club_unwich', name: '#9 Italian Night Club (Unwich, Lettuce Wrap)', brand: "Jimmy John's", category: 'Restaurant', servingSize: 150, servingUnit: '1 unwich', calories: 600, protein: 33, carbs: 9, fiber: 1, sugar: 6, fat: 48, saturatedFat: 14, sodium: 2160 },
 
   { id: 'r_jj_gargantuan_reg', name: 'J.J. Gargantuan (Regular 8")', brand: "Jimmy John's", category: 'Restaurant', servingSize: 340, servingUnit: '1 regular sub', calories: 1080, protein: 78, carbs: 83, fiber: 5, sugar: 4, fat: 49, saturatedFat: 16, sodium: 3200 },
 
@@ -107,7 +107,7 @@ export const FOODS_RESTAURANT4 = [
   // Skinny = same fillings on thin-sliced multigrain bread
   { id: 'r_pb_skinny_reg', name: 'Skinny Turkey (T-K-Y Skinny)', brand: 'Potbelly', category: 'Restaurant', servingSize: 150, servingUnit: '1 skinny sandwich', calories: 301, protein: 24, carbs: 41, fiber: 3, sugar: 3, fat: 7, saturatedFat: 3, sodium: 875 },
 
-  // Grilled Chicken & Hummus (Mediterranean) — grilled chicken, hummus, feta, cucumbers, peppers on multigrain
+  // Grilled Chicken & Hummus (Mediterranean), grilled chicken, hummus, feta, cucumbers, peppers on multigrain
   { id: 'r_pb_grilled_chkn_hummus_reg', name: 'Grilled Chicken & Hummus (Regular)', brand: 'Potbelly', category: 'Restaurant', servingSize: 270, servingUnit: '1 regular sandwich', calories: 621, protein: 45, carbs: 55, fiber: 7, sugar: 5, fat: 23, saturatedFat: 6, sodium: 1290 },
 
 
@@ -213,7 +213,7 @@ export const FOODS_RESTAURANT4 = [
   // Famous Sweet Tea 16 oz
   { id: 'r_mca_sweet_tea_16oz', name: "McAlister's Famous Sweet Tea (16 oz)", brand: "McAlister's Deli", category: 'Restaurant', servingSize: 473, servingUnit: '16 fl oz', calories: 150, protein: 0, carbs: 39, fiber: 0, sugar: 39, fat: 0, saturatedFat: 0, sodium: 15 },
 
-  // Harvest Chicken Salad (contains pecans) — half sandwich
+  // Harvest Chicken Salad (contains pecans), half sandwich
   { id: 'r_mca_pecan_chicken_salad_half', name: 'Pecan Chicken Salad Sandwich (Half)', brand: "McAlister's Deli", category: 'Restaurant', servingSize: 175, servingUnit: '1 half sandwich', calories: 341, protein: 11, carbs: 26, fiber: 2, sugar: 8, fat: 22, saturatedFat: 6, sodium: 356 },
 
 ]

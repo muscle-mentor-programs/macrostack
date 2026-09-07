@@ -4,7 +4,7 @@ import { format, subDays, parseISO } from 'date-fns'
 import { Sparkles, Send, X, Loader2 } from 'lucide-react'
 import useStore from '../store'
 
-/* ── Kay for coaches — roster-aware Q&A ───────────────────────────────────────
+/* ── Kay for coaches, roster-aware Q&A ───────────────────────────────────────
    Builds a compact snapshot of the whole roster (targets, compliance, weight
    trend, last check-in) and lets the coach interrogate it: "who's slipping?",
    "summarize Emma's month", "who should I check on today?". */
@@ -40,7 +40,7 @@ function rosterSnapshot(clients, getTotals) {
 export default function KayCoachChat({ onClose }) {
   const { clients, getClientTotalsForDate, currentUser } = useStore()
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: `Hey ${currentUser?.name?.split(' ')[0] || 'coach'} — ask me anything about your roster. Who's slipping, who's crushing it, what to focus on today.` },
+    { role: 'assistant', content: `Hey ${currentUser?.name?.split(' ')[0] || 'coach'}, ask me anything about your roster. Who's slipping, who's crushing it, what to focus on today.` },
   ])
   const [input, setInput]     = useState('')
   const [loading, setLoading] = useState(false)
@@ -62,7 +62,7 @@ export default function KayCoachChat({ onClose }) {
         body: JSON.stringify({
           max_tokens: 900,
           system: `You are Kay, the sharp and practical nutrition-coaching assistant inside MacroStack.
-You are talking to the COACH about their client roster. Be specific, concise, and actionable —
+You are talking to the COACH about their client roster. Be specific, concise, and actionable -
 name names, cite the numbers below, and suggest concrete next steps. Today is ${format(new Date(), 'MMM d, yyyy')}.
 
 ROSTER SNAPSHOT:
@@ -72,7 +72,7 @@ ${rosterSnapshot(clients, getClientTotalsForDate)}`,
       })
       if (!res.ok) throw new Error('Kay is unavailable right now.')
       const data = await res.json()
-      const text = data.content?.[0]?.text || 'Hmm, I came up empty — try rephrasing?'
+      const text = data.content?.[0]?.text || 'Hmm, I came up empty, try rephrasing?'
       setMessages((m) => [...m, { role: 'assistant', content: text }])
     } catch (e) {
       setMessages((m) => [...m, { role: 'assistant', content: e.message || 'Something went wrong.' }])

@@ -140,7 +140,7 @@ export default function ClientMessages() {
       className="fixed inset-x-0 top-0 flex flex-col bg-bg z-10"
       style={{ bottom: overlayBottom }}
     >
-      {/* Header — the coach's real identity */}
+      {/* Header, the coach's real identity */}
       <div className="app-page-gutter flex items-center gap-3 px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div
           className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 font-display font-black text-base"
@@ -156,14 +156,14 @@ export default function ClientMessages() {
         </div>
       </div>
 
-      {/* Messages — flex-col-reverse anchors newest at bottom */}
+      {/* Messages, flex-col-reverse anchors newest at bottom */}
       <div className="app-page-gutter flex-1 min-h-0 overflow-y-auto px-5 py-4 flex flex-col-reverse">
         {threadItems.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             <MessageCircle size={36} className="text-dim mb-3 anim-pop" />
             <p className="font-display font-bold text-xl text-muted tracking-widest">NO MESSAGES YET</p>
             <p className="font-mono text-xs text-dim mt-1.5">
-              Say hi to {coachFirst} — they'll get a notification
+              Say hi to {coachFirst}, they'll get a notification
             </p>
           </div>
         ) : (
