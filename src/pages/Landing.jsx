@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { Smartphone, Share, PlusSquare, Sun, Moon, Utensils, ScanBarcode, LayoutDashboard, Bot, CalendarDays, ChartNoAxesCombined, Target, ArrowRight } from 'lucide-react'
+import { Smartphone, Share, PlusSquare, Sun, Moon, ScanBarcode, LayoutDashboard, Bot, CalendarDays, ChartNoAxesCombined, Target, ArrowRight } from 'lucide-react'
 import useStore from '../store'
 import { splatToggleTheme } from '../lib/themeSplat'
 import { FOOD_COUNT } from '../data/foodCount'
@@ -50,26 +50,6 @@ const HERO_LINES = [
 
 const STATEMENT =
   'Every gram counts. Every meal matters. This is nutrition engineered for performance.'
-
-const STORY_STEPS = [
-  {
-    n: '01', icon: Utensils, tag: 'LOG', title: 'LOG MEALS IN SECONDS',
-    body: 'Your most-logged foods surface first. One tap, macros counted. The fastest food log you have ever used.',
-  },
-  {
-    n: '02', icon: ScanBarcode, tag: 'SCAN', title: 'SCAN ANY BARCODE',
-    body: 'Point your camera at a label and get instant, verified macros from a database of 15,000+ foods.',
-  },
-  {
-    n: '03', icon: LayoutDashboard, tag: 'COACH', title: 'YOUR COACH SEES EVERYTHING',
-    body: 'Daily intake, 7-day compliance, weight trends — live on your coach’s dashboard, with real-time messaging built in.',
-  },
-  {
-    n: '04', icon: Bot, tag: 'COMING SOON', title: 'MEET KAY — AI NUTRITIONIST',
-    body: 'Kay is on the way: a built-in AI nutritionist that suggests meals to fit your remaining macros. Launching soon.',
-  },
-]
-
 
 const CARDS = [
   { icon: Target, title: 'PRECISION TRACKING', body: 'Exact macros for every meal. Custom foods, serving math, gram-level control.' },
@@ -223,7 +203,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
       const q = gsap.utils.selector(root)
       gsap.from(q('.hero-word'), { yPercent: 110, duration: 1, stagger: .12, ease: 'power4.out' })
       gsap.from(q('.hero-sub, .hero-ctas, .hero-mockup'), { y: 28, opacity: 0, duration: 1, stagger: .14, delay: .3 })
-      q('.coach-reveal, .story-step, .showcase .snap-start').forEach((el) => {
+      q('.coach-reveal, .showcase .snap-start').forEach((el) => {
         gsap.from(el, { y: 32, opacity: 0, duration: .75, ease: 'power2.out',
           scrollTrigger: { trigger: el, start: 'top 94%', once: true } })
       })
@@ -255,9 +235,10 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
       >
         <button
           onClick={() => window.lenis ? window.lenis.scrollTo(0, { duration: 1.2 }) : window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="font-display font-black text-lg tracking-widest text-cream"
+          className="landing-nav-brand font-display font-black text-lg tracking-widest text-cream"
         >
-          MACRO<span style={{ color: ACCENT }}>STACK</span>
+          <img src="/macrostack-mark-transparent.png" alt="" width="36" height="36" />
+          <span>MACRO<span style={{ color: ACCENT }}>STACK</span></span>
         </button>
 
         {/* Section links — jump straight to each section (hidden on mobile) */}
@@ -321,18 +302,6 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         <div className="hero-inner relative w-full max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 md:gap-10 items-center">
           {/* Left — copy */}
           <div className="text-center md:text-left">
-            {/* App icon — signals this is an installable app at first glance */}
-            <img
-              src="/macrostack-logo.jpg"
-              alt="MacroStack app icon"
-              width="64"
-              height="64"
-              className="w-14 h-14 md:w-16 md:h-16 rounded-[22%] mx-auto md:mx-0 mb-5 border"
-              style={{
-                borderColor: 'color-mix(in srgb, var(--color-accent) 28%, transparent)',
-                boxShadow: `0 8px 28px color-mix(in srgb, var(--color-accent) 22%, transparent)`,
-              }}
-            />
             <p className="font-mono text-[11px] md:text-xs tracking-[0.35em] text-muted mb-6">
               PRECISION NUTRITION PLATFORM
             </p>
@@ -467,37 +436,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           </div>
         </section>
 
-        {/* How-it-works heading — dark block INSIDE the guide-wrap so the line
-            weaves through it (dark backdrop behind the line, content above it) */}
-        <section className="relative px-6 pt-24 md:pt-28 pb-16 md:pb-20">
-          {/* dark backdrop sits behind the guide line */}
-          <div className="absolute inset-0" style={{ background: 'var(--color-bg)' }} />
-          <div className="relative z-[2] max-w-5xl mx-auto">
-            <div className="flex items-center gap-3 mb-5">
-              <span className="w-8 h-px" style={{ background: accentA(60) }} />
-              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">HOW IT WORKS</p>
-            </div>
-            <h2 className="font-display font-black text-5xl md:text-7xl tracking-wide leading-[1.02] text-cream">
-              HOW MACROSTACK
-              <br />
-              <span style={{ color: ACCENT }}>KEEPS YOU ON TRACK.</span>
-            </h2>
-          </div>
-        </section>
       </div>
-
-      {/* ══ 5. PINNED STORY (theme dark) ═════════════════════════════════════ */}
-      <section className="story bg-bg">
-        <div className="landing-story-grid">
-          {STORY_STEPS.map((s) => (
-            <article key={s.n} className="story-step">
-              <div className="landing-step-top"><span className="landing-card-icon"><s.icon size={22} strokeWidth={1.5} aria-hidden="true" /></span><span>{s.n} / {s.tag}</span></div>
-              <h3 className="font-display">{s.title}</h3>
-              <p>{s.body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
 
       {/* ══ 6. SHOWCASE (inverted theme section) — square cards, compact ═════ */}
       <section id="features" className="showcase relative py-20 md:py-28 overflow-hidden" style={{ background: 'var(--color-bg)', color: 'var(--color-cream)' }}>

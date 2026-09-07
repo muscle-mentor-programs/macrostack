@@ -60,7 +60,6 @@ export default function Sidebar({ width }) {
 
       {/* Brand */}
       <div className="product-brand px-6 pt-7 pb-6 border-b border-border relative scanline-parent">
-        <img src="/icon-192.png" alt="" className="product-brand-mark" width="38" height="38" />
         <h1 className="font-display font-black text-2xl tracking-widest text-cream uppercase leading-none">
           <ScrambleText text="MACRO" duration={900} delay={0} />
           <span style={{ color: 'var(--color-accent)' }}>

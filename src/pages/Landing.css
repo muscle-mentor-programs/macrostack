@@ -5,6 +5,8 @@
 .landing-redesign button:focus-visible, .landing-redesign a:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 5px; }
 .landing-redesign h1, .landing-redesign h2, .landing-redesign h3 { text-wrap: balance; letter-spacing: -.025em; }
 .landing-redesign nav { top: 18px; left: 24px; right: 24px; border: 1px solid var(--color-border); border-radius: 16px; padding: 15px 24px; box-shadow: 0 12px 50px #00000014; }
+.landing-redesign .landing-nav-brand { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.landing-nav-brand img { width:36px; height:36px; object-fit:contain; }
 .landing-redesign .hero { min-height: 880px; padding: 150px 0 100px; }
 .landing-redesign .hero-inner { max-width: 1400px; padding-inline: 6vw; grid-template-columns: 1.2fr 1fr; gap: 0; }
 .landing-redesign .hero-inner > div:first-child { text-align: left; z-index: 2; }
@@ -80,6 +82,8 @@
 @media (max-width: 640px) {
   .landing-redesign nav { top: 10px; left: 10px; right: 10px; padding: 12px; border-radius: 10px; }
   .landing-redesign nav > button { font-size: 13px; letter-spacing: .06em; }
+  .landing-redesign .landing-nav-brand { gap:4px; }
+  .landing-nav-brand img { width:26px; height:26px; }
   .landing-redesign nav > div:last-child { gap: 5px; }
   .landing-redesign nav > div:last-child > button { font-size: 10px; padding-inline: 8px; }
   .landing-redesign .hero { padding-top: 125px; padding-bottom: 70px; }
