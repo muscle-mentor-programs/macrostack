@@ -132,10 +132,12 @@ const APP_SHOWCASE = [
   { src: '/mockups/user-report-2026.jpg', eyebrow: 'WEEKLY REPORT', title: 'CONSISTENCY, MADE CLEAR', body: 'Review calorie adherence, protein goals, and your logging streak. Download your weekly report or send it to your inbox.' },
 ]
 const COACH_SHOWCASE = [
-  { src: '/mockups/coach-dashboard.png', eyebrow: 'DASHBOARD', title: 'YOUR ROSTER, LIVE',      body: "Every client's intake, compliance, and streaks on one screen, spot who's on track in seconds." },
-  { src: '/mockups/coach-users.png',     eyebrow: 'USERS',     title: 'EVERY CLIENT, TRACKED',  body: "See who's dialed in and who needs a nudge at a glance, then drill into anyone." },
-  { src: '/mockups/coach-chat.png',      eyebrow: 'MESSAGING', title: 'MESSAGE ANY CLIENT',     body: 'Direct chat with your whole roster, unread badges so nothing slips.' },
-  { src: '/mockups/coach-profile.png',   eyebrow: 'YOUR BRAND', title: "A PROFILE THAT'S YOURS", body: 'Clients see your code, bio, credentials, and specialties, your brand, front and center.' },
+  { src: '/mockups/coach-dashboard-2026.jpg', eyebrow: 'DASHBOARD', title: 'YOUR ROSTER, LIVE', body: "Every client's intake, compliance, and streaks on one screen, spot who's on track in seconds." },
+  { src: '/mockups/coach-users-2026.jpg', eyebrow: 'USERS', title: 'EVERY CLIENT, TRACKED', body: "See who's dialed in and who needs a nudge at a glance, then drill into anyone." },
+  { src: '/mockups/coach-chat-2026.jpg', eyebrow: 'MESSAGING', title: 'MESSAGE ANY CLIENT', body: 'Direct chat with your whole roster, unread badges so nothing slips.' },
+  { src: '/mockups/coach-foods-2026.jpg', eyebrow: 'FOOD LIBRARY', title: 'NUTRITION, WITH THE DETAILS', body: 'Search built-in, custom, and scanned foods with serving sizes and macros in one place.' },
+  { src: '/mockups/coach-forms-2026.jpg', eyebrow: 'FORMS & CHECK-INS', title: 'ASK BETTER. COACH BETTER.', body: 'Customize your intro questionnaire and weekly check-in, track responses, and collect progress photos.' },
+  { src: '/mockups/coach-profile-2026.jpg', eyebrow: 'YOUR BRAND', title: "A PROFILE THAT'S YOURS", body: 'Clients see your code, bio, credentials, and specialties, your brand, front and center.' },
 ]
 
 /* Fill-vessel geometry (SVG user units). Bottom edge sits at y = VESSEL_BOTTOM;
