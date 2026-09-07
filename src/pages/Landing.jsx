@@ -123,10 +123,13 @@ const COACH_FEATURES = [
 /* Product mockups, large phones alternate left/right beside feature copy as
    you scroll. Files live in public/mockups/. */
 const APP_SHOWCASE = [
-  { src: '/mockups/app-home.png',   eyebrow: 'YOUR DAY',  title: 'EVERY GRAM, AT A GLANCE',  body: 'Calories, macros, and your streak the second you open the app, no digging required.' },
-  { src: '/mockups/app-search.png', eyebrow: 'LOG FAST',  title: '15,000+ FOODS, ONE TAP',    body: 'Search the database or scan any barcode for verified macros. Your go-to foods surface first.' },
-  { src: '/mockups/app-weight.png', eyebrow: 'PROGRESS',  title: 'WATCH THE REAL TREND',     body: '7-day moving averages cut the daily scale noise so you see actual change, not water weight.' },
-  { src: '/mockups/app-chat.png',   eyebrow: 'COACHING',  title: 'YOUR COACH, ONE TAP AWAY', body: 'Message your coach and submit weekly check-ins right inside the app.' },
+  { src: '/mockups/user-home-2026.jpg', eyebrow: 'YOUR DAY', title: 'EVERY GRAM, AT A GLANCE', body: 'Calories, macros, and your streak the second you open the app, no digging required.' },
+  { src: '/mockups/user-log-2026.jpg', eyebrow: 'LOG FAST', title: '15,000+ FOODS, ONE TAP', body: 'Search the database or scan any barcode for verified macros. Your go-to foods surface first.' },
+  { src: '/mockups/user-weight-2026.jpg', eyebrow: 'PROGRESS', title: 'WATCH THE REAL TREND', body: '7-day moving averages cut the daily scale noise so you see actual change, not water weight.' },
+  { src: '/mockups/user-chat-2026.jpg', eyebrow: 'COACHING', title: 'YOUR COACH, ONE TAP AWAY', body: 'Message your coach and submit weekly check-ins right inside the app.' },
+  { src: '/mockups/user-progress-2026.jpg', eyebrow: 'THE BIG PICTURE', title: 'YOUR MONTH IN FOCUS', body: 'See your average daily intake, days logged, and calorie trends together in your profile.' },
+  { src: '/mockups/user-targets-2026.jpg', eyebrow: 'YOUR TARGETS', title: 'A PLAN THAT FITS YOU', body: 'Keep your calorie and macro targets close, with your coach connected to your progress.' },
+  { src: '/mockups/user-report-2026.jpg', eyebrow: 'WEEKLY REPORT', title: 'CONSISTENCY, MADE CLEAR', body: 'Review calorie adherence, protein goals, and your logging streak. Download your weekly report or send it to your inbox.' },
 ]
 const COACH_SHOWCASE = [
   { src: '/mockups/coach-dashboard.png', eyebrow: 'DASHBOARD', title: 'YOUR ROSTER, LIVE',      body: "Every client's intake, compliance, and streaks on one screen, spot who's on track in seconds." },
@@ -345,13 +348,13 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           {/* Product composition */}
           <div className="hero-mockup relative flex justify-center md:justify-end">
             <div className="hero-orbit" aria-hidden="true" />
-            <img className="hero-secondary" src="/mockups/app-weight.png" alt="MacroStack weight trends screen" />
+            <img className="hero-secondary" src="/mockups/user-weight-2026.jpg" alt="MacroStack weight trends screen" />
             <div
               className="pointer-events-none absolute inset-0 -z-10"
               style={{ background: `radial-gradient(ellipse 55% 55% at 55% 45%, ${accentA(22)}, transparent 65%)` }}
             />
             <img
-              src="/mockups/app-home.png"
+              src="/mockups/user-home-2026.jpg"
               alt="MacroStack home screen"
               className="w-[42vw] max-w-[150px] md:w-full md:max-w-[300px] h-auto"
               style={{ filter: 'drop-shadow(0 34px 70px rgba(0,0,0,0.55))' }}
