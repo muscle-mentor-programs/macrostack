@@ -17,8 +17,8 @@ html:is(.light, .forest-light, .ocean-light) .software-coach {
 }
 .software-coach[data-coach-page=foods],
 .software-coach [data-coach-section=Journal] { --coach-tone: var(--coach-sage); }
-.software-coach[data-coach-page=chat],
-.software-coach[data-coach-page=profile] { --coach-tone: var(--coach-teal); }
+.software-coach[data-coach-page=chat] { --coach-tone: var(--coach-teal); }
+.software-coach[data-coach-page=profile] { --coach-tone: var(--coach-lavender); }
 .software-coach[data-coach-page=forms],
 .software-coach [data-coach-section=Notes],
 .software-coach [data-coach-section=Reviews],
