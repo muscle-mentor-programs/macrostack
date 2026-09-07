@@ -1,3 +1,4 @@
+import CoachWorkboard from './CoachWorkboard'
 import apiFetch from '../../lib/apiFetch'
 import { useState, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
@@ -296,7 +297,7 @@ function EmailModal({ clients, preselectedId, onClose }) {
 }
 
 // ─── Individual client card ───────────────────────────────────────────────────
-function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onReview, onFormsReview }) {
+function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onReview, onFormsReview, onOpen }) {
   const { getClientTotalsForDate, messages } = useStore()
   const today  = format(new Date(), 'yyyy-MM-dd')
   const totals = getClientTotalsForDate(client.id, today)
@@ -324,14 +325,16 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onRev
   return (
     <div
       className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4 anim-fade-in-up hover:border-brown/30 transition-colors card-hover card-dim"
+      data-client-card={client.id}
+      onClick={e => { if (!e.target.closest('button,a,input,select,textarea')) onOpen() }}
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Header row */}
-      <div className="flex items-start justify-between gap-2">
+      <div className="dashboard-card-header flex items-start justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0">
           <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
           <div className="min-w-0">
-            <p className="font-display font-bold text-base text-cream truncate">{client.name}</p>
+            <button onClick={onOpen} className="font-display font-bold text-base text-cream truncate text-left hover:underline" aria-label={`Open ${client.name} workspace`}>{client.name}</button>
             <p className="font-mono text-xs text-muted truncate">{client.email || 'No email'}</p>
           </div>
         </div>
@@ -602,7 +605,7 @@ export default function CoachDashboard() {
   const checklistOpen = !checklistHidden && checklist.some((c) => !c.done)
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
       <div className="app-page-gutter relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
@@ -823,31 +826,14 @@ export default function CoachDashboard() {
         ))}
       </div>
 
-      {/* Client cards */}
-      <div className="app-page-gutter flex-1 overflow-y-auto px-8 py-6">
-        {active.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
-            <Users size={40} className="text-dim mb-4" />
-            <p className="font-display font-bold text-2xl text-muted tracking-widest">NO USERS YET</p>
-            <p className="font-mono text-sm text-dim mt-2">Add users from the Users page</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 xl:grid-cols-3 gap-5">
-            {active.map((client, i) => (
-              <ClientCard
-                key={client.id}
-                client={client}
-                delay={i * 65 + 80}
-                onEdit={setEditClient}
-                onEmail={(id) => { setEmailPreselect(id); setEmailModal(true) }}
-                onChat={handleChat}
-                onMealPlans={handleMealPlans}
-                onReview={handleReview}
-                onFormsReview={handleFormsReview}
-              />
-            ))}
-          </div>
-        )}
+      <div className="app-page-gutter px-8 py-6">
+        <CoachWorkboard renderClient={(client, i, onOpen) => (
+          <ClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
+            onOpen={onOpen} onEdit={setEditClient}
+            onEmail={(id) => { setEmailPreselect(id); setEmailModal(true) }}
+            onChat={handleChat} onMealPlans={handleMealPlans}
+            onReview={handleReview} onFormsReview={handleFormsReview} />
+        )} />
       </div>
 
       {editClient && (

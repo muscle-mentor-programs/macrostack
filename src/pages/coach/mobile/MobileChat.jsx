@@ -10,7 +10,7 @@ import {
 
 // ── Thread screen ─────────────────────────────────────────────────────────────
 function ThreadScreen({ client, onBack }) {
-  const { messages, sendMessage, markMessagesRead, setNavHidden } = useStore()
+  const { messages, sendMessage, markMessagesRead, setNavHidden, setViewingClientId, setActivePage } = useStore()
   const [kbHeight, setKbHeight] = useState(0)
   const inputRef = useRef(null)
   const thread = messages[client.id] || []
@@ -49,26 +49,28 @@ function ThreadScreen({ client, onBack }) {
 
   return (
     <div
-      className="fixed inset-x-0 top-0 bg-surface z-40 flex flex-col overflow-hidden anim-slide-right"
+      className="coach-chat-thread fixed inset-x-0 top-0 bg-surface z-40 flex flex-col overflow-hidden anim-slide-right"
       style={{ bottom: kbHeight > 0 ? `${kbHeight}px` : '0px' }}
     >
       {/* Header */}
       <div className="app-page-gutter flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
         <button
+          aria-label="Back to conversations"
           onClick={onBack}
           className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0"
         >
           <ChevronLeft size={22} />
         </button>
         <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-9 h-9" textClassName="text-sm" />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-display font-bold text-base text-cream truncate">{client.name}</p>
-          <p className="font-mono text-xs text-muted">{client.email || 'No email on file'}</p>
+          <p className="font-mono text-xs text-muted truncate">{client.email || 'No email on file'}</p>
         </div>
+        <button className="chat-workspace-link" onClick={() => { setViewingClientId(client.id, 'workspace'); setActivePage('clients') }}>Workspace<ChevronRight size={14} /></button>
       </div>
 
       {/* Messages — flex-col-reverse anchors newest at bottom */}
-      <div className="app-page-gutter flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse">
+      <div className="chat-message-canvas app-page-gutter flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse">
         {threadItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <MessageCircle size={36} className="text-dim mb-3" />
@@ -98,7 +100,7 @@ function ThreadScreen({ client, onBack }) {
 
       {/* Input bar — padding-bottom clears home indicator when keyboard is down */}
       <div
-        className="px-4 border-t border-border bg-surface flex-shrink-0"
+        className="mobile-coach-composer px-4 border-t border-border bg-surface flex-shrink-0"
         style={{
           paddingTop:    '12px',
           paddingBottom: kbHeight > 0 ? '12px' : 'env(safe-area-inset-bottom, 12px)',
@@ -122,6 +124,8 @@ function ThreadScreen({ client, onBack }) {
 export default function MobileChat() {
   const { clients, messages, pendingChatClientId, setPendingChatClientId } = useStore()
   const [selectedId, setSelectedId] = useState(null)
+  const [search, setSearch] = useState('')
+  const [unreadOnly, setUnreadOnly] = useState(false)
 
   // If coach tapped the chat icon on a specific client card, open that thread immediately
   useEffect(() => {
@@ -138,8 +142,12 @@ export default function MobileChat() {
 
   const totalUnread = clients.reduce((n, c) => n + unreadFor(c.id), 0)
 
+  const roster = clients.filter(c => `${c.name} ${c.email || ''}`.toLowerCase().includes(search.trim().toLowerCase()))
+    .filter(c => !unreadOnly || unreadFor(c.id) > 0)
+    .sort((a,b) => Number(unreadFor(b.id) > 0) - Number(unreadFor(a.id) > 0) || ((messages[b.id] || []).at(-1)?.timestamp || '').localeCompare((messages[a.id] || []).at(-1)?.timestamp || ''))
+
   return (
-    <div className="flex flex-col min-h-full w-full overflow-x-hidden">
+    <div className="coach-chat-mobile flex flex-col min-h-full w-full overflow-x-hidden">
       {/* Header */}
       <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 px-4 pt-mobile-header pb-3 border-b border-border anim-fade-in-down">
         <div className="flex items-center gap-3">
@@ -157,6 +165,8 @@ export default function MobileChat() {
         </p>
       </div>
 
+      <div className="app-page-gutter chat-search"><label className="sr-only" htmlFor="mobile-chat-search">Search conversations</label><input id="mobile-chat-search" type="search" placeholder="Search name or email…" value={search} onChange={e => setSearch(e.target.value)} /><div className="chat-filters"><button aria-pressed={!unreadOnly} onClick={() => setUnreadOnly(false)}>All conversations</button><button aria-pressed={unreadOnly} onClick={() => setUnreadOnly(true)}>Unread · {totalUnread}</button></div></div>
+      {!!clients.length && !roster.length && <p className="app-page-gutter py-8 text-muted">No conversations match your filters.</p>}
       {/* Client list */}
       {clients.length === 0 ? (
         <div className="app-page-gutter flex flex-col items-center justify-center py-24 text-center px-8 anim-fade-in">
@@ -165,8 +175,8 @@ export default function MobileChat() {
           <p className="font-mono text-sm text-dim mt-1">Add users to start chatting</p>
         </div>
       ) : (
-        <div className="app-page-gutter px-4 py-4 space-y-3 pb-20">
-          {clients.map((client, i) => {
+        <div className="chat-conversations app-page-gutter px-4 py-4 space-y-3 pb-20">
+          {roster.map((client, i) => {
             const lastMsg = (messages[client.id] || []).slice(-1)[0]
             const unread  = unreadFor(client.id)
             return (

@@ -1,10 +1,9 @@
-import { LayoutDashboard, Users, MessageCircle, Utensils, User, CreditCard, UserCog, Zap, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, MessageCircle, Utensils, User, CreditCard, UserCog, Zap, ClipboardList } from 'lucide-react'
 import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
 
 const BASE_NAV = [
-  { id: 'dashboard', label: 'HOME',    icon: LayoutDashboard },
-  { id: 'clients',   label: 'CLIENTS', icon: Users           },
+  { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
   { id: 'chat',      label: 'CHAT',    icon: MessageCircle   },
   { id: 'foods',     label: 'FOODS',   icon: Utensils        },
   { id: 'forms',     label: 'FORMS',   icon: ClipboardList   },
@@ -34,9 +33,9 @@ export default function CoachBottomNav() {
         navHidden ? 'translate-y-full opacity-0 pointer-events-none' : ''
       }`}
     >
-      <div className={`grid ${isSuperadmin ? 'grid-cols-8' : 'grid-cols-7'}`}>
+      <div className={`grid ${isSuperadmin ? 'grid-cols-7' : 'grid-cols-6'}`}>
         {NAV.map(({ id, label, icon: Icon }) => {
-          const active = activePage === id
+          const active = activePage === id || (id === 'dashboard' && ['clients', 'insights'].includes(activePage))
           const badge  = id === 'chat' && totalUnread > 0 ? totalUnread : 0
           return (
             <button

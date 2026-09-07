@@ -2,11 +2,10 @@ import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
 import ScrambleText from './ScrambleText'
 import ThemeToggle from './ThemeToggle'
-import { LayoutDashboard, Utensils, Users, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap, ClipboardList, Radar } from 'lucide-react'
+import { LayoutDashboard, Utensils, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap, ClipboardList, Radar } from 'lucide-react'
 
 const BASE_NAV = [
-  { id: 'dashboard', label: 'WORKBOARD', icon: LayoutDashboard },
-  { id: 'clients',   label: 'CLIENTS',   icon: Users           },
+  { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
   { id: 'chat',      label: 'CHAT',      icon: MessageCircle   },
   { id: 'foods',     label: 'MY FOODS',  icon: Utensils        },
   { id: 'forms',     label: 'FORMS',     icon: ClipboardList   },
@@ -116,7 +115,7 @@ export default function Sidebar({ width }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: ITEM_GAP }}>
           {NAV.map(({ id, n, label, icon: Icon }, i) => {
-            const active = activePage === id
+            const active = activePage === id || (id === 'dashboard' && ['clients', 'insights'].includes(activePage))
             const badge  = id === 'chat' && totalUnread > 0 ? totalUnread : 0
             return (
               <button

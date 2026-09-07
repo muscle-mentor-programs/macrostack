@@ -1,3 +1,4 @@
+import CoachWorkboard from '../CoachWorkboard'
 import { useState, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
 import {
@@ -167,7 +168,7 @@ function EmailSheet({ clients, preselectedId, onClose }) {
 }
 
 // ── Compact client card ───────────────────────────────────────────────────────
-function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onReview, onFormsReview }) {
+function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onReview, onFormsReview, onOpen }) {
   const { getClientTotalsForDate, messages, setActivePage } = useStore()
   const today  = format(new Date(), 'yyyy-MM-dd')
   const totals = getClientTotalsForDate(client.id, today)
@@ -192,6 +193,8 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
   return (
     <div
       className="bg-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim"
+      data-client-card={client.id}
+      onClick={e => { if (!e.target.closest('button,a,input,select,textarea')) onOpen() }}
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* New (unreviewed) weekly check-in */}
@@ -223,21 +226,21 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="dashboard-card-header flex items-center justify-between mb-3">
         <div className="flex items-center gap-3 min-w-0">
           <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
           <div className="min-w-0">
-            <p className="font-display font-bold text-base text-cream truncate">{client.name}</p>
+            <button onClick={onOpen} className="font-display font-bold text-base text-cream truncate text-left hover:underline" aria-label={`Open ${client.name} workspace`}>{client.name}</button>
             <p className="font-mono text-xs text-muted truncate">{client.email || 'No email'}</p>
           </div>
         </div>
         {/* Action icons */}
         <div className="flex gap-0.5 flex-shrink-0">
-          <button onClick={() => onMealPlans(client.id)}
+          <button aria-label="Meal plans" onClick={() => onMealPlans(client.id)}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-dim hover:text-brown-light hover:bg-brown/10 transition-colors">
             <BookOpen size={14} />
           </button>
-          <button onClick={() => onChat(client.id)}
+          <button aria-label="Chat" onClick={() => onChat(client.id)}
             className="relative w-8 h-8 flex items-center justify-center rounded-lg text-dim hover:text-brown-light hover:bg-brown/10 transition-colors">
             <MessageCircle size={14} />
             {unread > 0 && (
@@ -246,11 +249,11 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
               </span>
             )}
           </button>
-          <button onClick={() => onEmail(client.id)}
+          <button aria-label="Email client" onClick={() => onEmail(client.id)}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-dim hover:text-brown-light hover:bg-brown/10 transition-colors">
             <Mail size={14} />
           </button>
-          <button onClick={() => onEdit(client)}
+          <button aria-label="Edit targets" onClick={() => onEdit(client)}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-dim hover:text-cream hover:bg-surface transition-colors">
             <Edit2 size={14} />
           </button>
@@ -560,37 +563,15 @@ export default function MobileCoachDashboard() {
         COMPOSE EMAIL TO USERS
       </button>
 
-      {/* Client cards */}
-      {clients.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center anim-fade-in">
-          <Users size={36} className="text-dim mb-3" />
-          <p className="font-display font-bold text-xl text-muted tracking-widest">NO USERS YET</p>
-          <p className="font-mono text-sm text-dim mt-1">Add users from the Users tab</p>
-          <button
-            onClick={() => setActivePage('clients')}
-            className="mt-5 flex items-center gap-2 bg-brown/20 border border-brown/30 text-brown-light font-display font-bold text-sm tracking-widest px-5 py-3 rounded-xl hover:bg-brown/30 transition-colors"
-          >
-            <ChevronRight size={14} />
-            GO TO USERS
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {activeClients.map((client, i) => (
-            <MobileClientCard
-              key={client.id}
-              client={client}
-              delay={i * 60 + 80}
-              onEdit={setEditClient}
-              onEmail={(id) => { setEmailPreselect(id); setShowEmail(true) }}
-              onChat={handleChat}
-              onMealPlans={handleMealPlans}
-              onReview={handleReview}
-              onFormsReview={handleFormsReview}
-            />
-          ))}
-        </div>
-      )}
+      <div>
+        <CoachWorkboard renderClient={(client, i, onOpen) => (
+          <MobileClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
+            onOpen={onOpen} onEdit={setEditClient}
+            onEmail={(id) => { setEmailPreselect(id); setShowEmail(true) }}
+            onChat={handleChat} onMealPlans={handleMealPlans}
+            onReview={handleReview} onFormsReview={handleFormsReview} />
+        )} />
+      </div>
 
       </div>{/* end content wrapper */}
 

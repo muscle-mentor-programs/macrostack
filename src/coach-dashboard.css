@@ -1,0 +1,33 @@
+/* Coach-only dashboard and inbox surfaces; no shared client styling. */
+.dashboard-workboard { container-type:inline-size; width:100%; color:var(--color-cream); }
+.dashboard-workboard .cw-header h3 { font-family:var(--font-display); font-size:26px; font-weight:800; margin:6px 0; }
+.dashboard-workboard .cw-stats { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.dashboard-workboard .cw-tabs { flex-wrap:wrap; overflow:visible; margin-bottom:20px; }
+.dashboard-workboard > .cw-tabs button, .dashboard-workboard > section button { padding:10px 14px; border:1px solid var(--color-border); border-radius:10px; background:var(--color-card); font-size:12px; }
+.dashboard-workboard input, .dashboard-workboard select { display:block; width:100%; margin-top:8px; padding:12px; border:1px solid var(--color-border); border-radius:10px; background:var(--color-card); color:var(--color-cream); font-size:14px; }
+.dashboard-client-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin:24px 0; align-items:start; }
+.dashboard-client-grid > [data-client-card] { min-width:0; cursor:pointer; }
+.dashboard-client-grid > [data-client-card]:hover { border-color:var(--coach-tone,var(--color-accent)); }
+.dashboard-client-grid .dashboard-card-header { flex-wrap:wrap; gap:8px; }
+.dashboard-client-grid button[aria-label^="Open "] { display:block; max-width:100%; }
+.dashboard-workboard button:focus-visible, .software-coach .coach-chat button:focus-visible, .software-coach .coach-chat-mobile button:focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
+@container (min-width:1200px) { .dashboard-client-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@container (max-width:620px) { .dashboard-client-grid, .dashboard-workboard > .cw-grid { grid-template-columns:1fr; } .dashboard-workboard input, .dashboard-workboard select { font-size:16px; } .dashboard-workboard .cw-stat { padding:12px 8px; } .dashboard-workboard .cw-stat strong { font-size:25px; } }
+.software-coach .coach-chat { container-type:inline-size; background:var(--color-bg); }
+.software-coach .coach-chat-roster { width:clamp(260px,30%,350px); background:var(--color-surface); min-height:0; }
+.software-coach .chat-filters { display:flex; flex-wrap:wrap; gap:6px; padding:14px 12px 8px; }
+.software-coach .chat-filters button { border:1px solid var(--color-border); border-radius:9px; padding:9px 12px; font-size:12px; color:var(--color-muted); background:var(--color-card); }
+.software-coach .chat-filters button[aria-pressed=true] { color:var(--coach-tone); border-color:color-mix(in srgb,var(--coach-tone) 45%,var(--color-border)); background:color-mix(in srgb,var(--coach-tone) 12%,var(--color-card)); }
+.software-coach .chat-conversations > button { border:1px solid var(--color-border); background:var(--color-card); box-shadow:0 3px 12px #00000008; }
+.software-coach .chat-conversations > button:hover { border-color:var(--coach-tone); }
+.software-coach .chat-message-canvas { background:radial-gradient(ellipse at top right,color-mix(in srgb,var(--coach-tone) 7%,transparent),transparent 65%),var(--color-bg); }
+.software-coach .chat-back { display:none; padding:8px; border:1px solid var(--color-border); border-radius:10px; }
+.software-coach .chat-search { padding-top:16px; }
+.software-coach .chat-search input { width:100%; border:1px solid var(--color-border); background:var(--color-card); border-radius:12px; padding:12px; color:var(--color-cream); font-size:16px; }
+.software-coach .chat-search .chat-filters { padding-left:0; padding-right:0; }
+.software-coach .chat-workspace-link { display:flex; align-items:center; gap:3px; padding:10px 6px; font-size:11px; color:var(--coach-tone); flex-shrink:0; }
+.software-coach .mobile-coach-composer > div { display:grid; grid-template-columns:minmax(0,1fr) 44px; }
+.software-coach .mobile-coach-composer > div > textarea { grid-column:1; grid-row:1; width:100%; }
+.software-coach .mobile-coach-composer > div > button { grid-column:2; grid-row:1; }
+.software-coach .mobile-coach-composer > div > div.flex { grid-column:1 / -1; grid-row:2; }
+@container (max-width:700px) { .coach-chat .coach-chat-roster { width:100%; } .coach-chat[data-thread-open=true] .coach-chat-roster { display:none; } .coach-chat .coach-chat-empty { display:none; } .software-coach .coach-chat .chat-back { display:flex; } }

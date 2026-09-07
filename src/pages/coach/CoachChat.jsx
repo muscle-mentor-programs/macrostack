@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { format } from 'date-fns'
-import { MessageCircle, Search, ChevronRight } from 'lucide-react'
+import { MessageCircle, Search, ChevronRight, ChevronLeft } from 'lucide-react'
 import useStore from '../../store'
 import ClientAvatar from '../../components/ClientAvatar'
 import ScrambleText from '../../components/ScrambleText'
@@ -16,6 +16,7 @@ export default function CoachChat() {
     getClientTotalsForDate, setViewingClientId, setActivePage,
   } = useStore()
   const [selectedId, setSelectedId] = useState(null)
+  const [unreadOnly, setUnreadOnly] = useState(false)
   const [search, setSearch]         = useState('')
 
   // Auto-open thread when arriving from coach dashboard message icon
@@ -41,7 +42,7 @@ export default function CoachChat() {
 
   const handleViewProfile = () => {
     if (!selectedClient) return
-    setViewingClientId(selectedClient.id, 'overview')
+    setViewingClientId(selectedClient.id, 'workspace')
     setActivePage('clients')
   }
 
@@ -49,11 +50,12 @@ export default function CoachChat() {
   const roster = useMemo(() => {
     const q = search.trim().toLowerCase()
     return clients
-      .filter((c) => !q || c.name.toLowerCase().includes(q))
+      .filter((c) => !q || `${c.name} ${c.email || ''}`.toLowerCase().includes(q))
       .map((c) => {
         const lastMsg = (messages[c.id] || []).slice(-1)[0]
         return { client: c, lastMsg, unread: unreadFor(c.id) }
       })
+      .filter(r => !unreadOnly || r.unread > 0)
       .sort((a, b) => {
         if ((b.unread > 0) !== (a.unread > 0)) return b.unread > 0 ? 1 : -1
         const ta = a.lastMsg?.timestamp || ''
@@ -61,7 +63,7 @@ export default function CoachChat() {
         return tb.localeCompare(ta)
       })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clients, messages, search])
+  }, [clients, messages, search, unreadOnly])
 
   /* Thread with day separators + sender grouping, built forward then reversed
      for flex-col-reverse rendering (newest anchored at the bottom) */
@@ -77,9 +79,9 @@ export default function CoachChat() {
   const selLogged = selectedClient ? (selectedClient.log?.[todayStr] || []).length > 0 : false
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="coach-chat flex h-full overflow-hidden" data-thread-open={!!selectedClient}>
       {/* ── Left: roster ─────────────────────────────────────────────────── */}
-      <div className="w-80 flex-shrink-0 border-r border-border flex flex-col">
+      <div className="coach-chat-roster w-80 flex-shrink-0 border-r border-border flex flex-col">
         <div className="app-page-gutter relative px-6 pt-7 pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
@@ -103,7 +105,8 @@ export default function CoachChat() {
             <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
             <input
               type="text"
-              placeholder="Search conversations…"
+              aria-label="Search conversations"
+              placeholder="Search name or email…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-surface border border-border rounded-xl pl-8 pr-3 py-2 font-mono text-xs text-cream placeholder:text-dim focus:outline-none focus:border-brown transition-colors"
@@ -111,11 +114,12 @@ export default function CoachChat() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+        <div className="chat-filters"><button aria-pressed={!unreadOnly} onClick={() => setUnreadOnly(false)}>All conversations</button><button aria-pressed={unreadOnly} onClick={() => setUnreadOnly(true)}>Unread · {totalUnread}</button></div>
+        <div className="chat-conversations flex-1 overflow-y-auto p-3 space-y-1.5">
           {roster.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-center px-4 anim-fade-in">
               <MessageCircle size={24} className="text-dim mb-2" />
-              <p className="font-mono text-xs text-dim">{search ? 'No matches' : 'No users yet'}</p>
+              <p className="font-mono text-xs text-dim">{search || unreadOnly ? 'No conversations match' : 'No clients yet'}</p>
             </div>
           ) : (
             roster.map(({ client, lastMsg, unread }, i) => {
@@ -170,9 +174,10 @@ export default function CoachChat() {
 
       {/* ── Right: thread ────────────────────────────────────────────────── */}
       {selectedClient ? (
-        <div key={selectedId} className="flex-1 flex flex-col overflow-hidden anim-fade-in">
+        <div key={selectedId} className="coach-chat-thread flex-1 min-w-0 flex flex-col overflow-hidden anim-fade-in">
           {/* Thread header — identity + live nutrition context */}
           <div className="app-page-gutter flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0 glass-panel">
+            <button className="chat-back" onClick={() => setSelectedId(null)} aria-label="Back to conversations"><ChevronLeft size={20} /></button>
             <div className="relative">
               <ClientAvatar name={selectedClient.name} avatarUrl={selectedClient.avatarUrl} className="w-10 h-10" textClassName="text-sm" />
               <span
@@ -196,13 +201,13 @@ export default function CoachChat() {
               onClick={handleViewProfile}
               className="flex items-center gap-1 h-9 px-3 rounded-xl border border-border text-muted hover:text-cream hover:border-muted transition-colors flex-shrink-0"
             >
-              <span className="font-display font-bold text-[10px] tracking-widest">PROFILE</span>
+              <span className="font-display font-bold text-[10px] tracking-widest">WORKSPACE</span>
               <ChevronRight size={12} />
             </button>
           </div>
 
           {/* Messages — flex-col-reverse anchors newest at bottom */}
-          <div className="app-page-gutter flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse">
+          <div className="chat-message-canvas app-page-gutter flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse">
             {threadItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
                 <div
@@ -256,7 +261,7 @@ export default function CoachChat() {
         </div>
       ) : (
         /* Empty state — pick a conversation */
-        <div className="flex-1 flex flex-col items-center justify-center text-center anim-fade-in relative">
+        <div className="coach-chat-empty flex-1 flex flex-col items-center justify-center text-center anim-fade-in relative">
           <div
             className="pointer-events-none absolute inset-0"
             style={{ background: `radial-gradient(ellipse 40% 35% at 50% 45%, ${accentA(6)}, transparent 65%)` }}
@@ -272,8 +277,8 @@ export default function CoachChat() {
             <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MESSAGES</p>
             <span className="w-5 h-px" style={{ background: accentA(50) }} />
           </div>
-          <p className="font-display font-black text-3xl text-cream tracking-wide">SELECT A USER</p>
-          <p className="font-mono text-sm text-dim mt-2">Choose a conversation from the left to start chatting</p>
+          <p className="font-display font-black text-3xl text-cream tracking-wide">YOUR COACHING INBOX</p>
+          <p className="font-mono text-sm text-dim mt-2">Keep advice, follow-ups, and client conversations together.</p>
         </div>
       )}
     </div>

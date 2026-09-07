@@ -21,7 +21,6 @@ const ClientSelector = lazy(() => import('./pages/client/ClientSelector'))
 
 // Coach pages — desktop
 const CoachDashboard = lazy(() => import('./pages/coach/CoachDashboard'))
-const CoachWorkboard = lazy(() => import('./pages/coach/CoachWorkboard'))
 const CoachChat      = lazy(() => import('./pages/coach/CoachChat'))
 const CoachProfile   = lazy(() => import('./pages/coach/CoachProfile'))
 const MyFoods        = lazy(() => import('./pages/MyFoods'))
@@ -67,7 +66,7 @@ function PageLoader() {
 }
 
 const COACH_PAGES_DESKTOP = {
-  dashboard: CoachWorkboard,
+  dashboard: CoachDashboard,
   insights:  CoachDashboard,
   clients:   Clients,
   chat:      CoachChat,
@@ -81,7 +80,7 @@ const COACH_PAGES_DESKTOP = {
 }
 
 const COACH_PAGES_MOBILE = {
-  dashboard: CoachWorkboard,
+  dashboard: MobileCoachDashboard,
   insights:  MobileCoachDashboard,
   clients:   MobileClients,
   chat:      MobileChat,
