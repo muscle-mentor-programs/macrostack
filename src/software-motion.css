@@ -1,0 +1,81 @@
+/* Interaction polish only. No delayed visibility, layout animation, or remounting
+   of forms. Existing page choreography and tech-style effects remain in charge. */
+:root {
+  --motion-settle: cubic-bezier(.22, 1, .36, 1);
+  --motion-feedback: 180ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Controls that previously snapped between neutral, selected and focus states. */
+  body:has(.software-ui) :is(.cw-tabs, .cw-toolbar, .cw-row, .cw-queue, .chat-filters) button,
+  body:has(.software-ui) .coach-workspace button,
+  body:has(.software-ui) .chat-conversations > button {
+    transition: background-color var(--motion-feedback) ease,
+                border-color var(--motion-feedback) ease,
+                color var(--motion-feedback) ease,
+                box-shadow 240ms ease,
+                transform var(--motion-feedback) var(--motion-settle);
+  }
+
+  body:has(.software-ui) :is(input:not([type]), input[type=text], input[type=search],
+    input[type=email], input[type=password], input[type=number], textarea, select) {
+    transition: border-color var(--motion-feedback) ease, box-shadow 240ms ease;
+  }
+
+  body:has(.software-ui) :is(.dashboard-client-grid > [data-client-card], .cw-journal-day) {
+    transition: border-color 220ms ease, box-shadow 260ms ease;
+  }
+
+  body:has(.software-ui) .cw-journal-day summary {
+    transition: background-color var(--motion-feedback) ease;
+  }
+
+  /* Opacity-only entrances cannot trap fixed overlays or shift the scroll area.
+     Every frame stays readable if a mobile/PWA animation ticker is suspended. */
+  body:has(.software-ui) :is(.cw-section-intro, .cw-panel, .cw-empty, .cw-status, .cw-error) {
+    animation: workspace-settle 280ms var(--motion-settle);
+  }
+
+  body:has(.software-ui) .cw-journal-day[open] > .cw-journal-body {
+    animation: workspace-settle 240ms var(--motion-settle);
+  }
+
+  body:has(.software-ui) .coach-chat-thread.anim-fade-in {
+    animation: workspace-settle 240ms var(--motion-settle);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    body:has(.software-ui) .dashboard-client-grid > [data-client-card]:is(:hover, :focus-within) {
+      box-shadow: 0 8px 24px color-mix(in srgb, var(--coach-tone, var(--color-accent)) 12%, transparent);
+    }
+    body:has(.software-ui) .cw-journal-day:is(:hover, :focus-within) {
+      border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border));
+    }
+    body:has(.software-ui) :is(.cw-tabs, .cw-queue) button:not(:disabled):hover > svg {
+      transform: translateY(-1px);
+    }
+    body:has(.software-ui) :is(.cw-tabs, .cw-queue) button > svg {
+      transition: transform 220ms var(--motion-settle);
+    }
+  }
+}
+
+@keyframes workspace-settle {
+  from { opacity: .88; }
+  to { opacity: 1; }
+}
+
+/* The older shared CSS utilities did not all honor this preference. This also
+   covers dialogs rendered outside the application shell through portals. */
+@media (prefers-reduced-motion: reduce) {
+  body:has(.software-ui) *,
+  body:has(.software-ui) *::before,
+  body:has(.software-ui) *::after {
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

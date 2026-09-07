@@ -5,6 +5,7 @@ import './software.css'
 import './light-depth.css'
 import './coach-colors.css'
 import './coach-dashboard.css'
+import './software-motion.css'
 import App from './App.jsx'
 import * as Sentry from '@sentry/react'
 

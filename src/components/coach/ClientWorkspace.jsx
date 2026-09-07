@@ -164,7 +164,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
     </header>
     <details className="cw-privacy"><summary><LockKeyhole size={12} aria-hidden="true" /> Private records & draft storage</summary><p className="cw-muted">Internal records are not sent to the client. Drafts survive workspace navigation in this session, not a browser restart.</p></details>
     <nav className="cw-tabs" aria-label="Client coaching workspace">{tabs.map(t => { const Icon = sectionMeta[t][0]; const count = t === 'Notes' ? notes.length : t === 'Tasks' ? openTasks.length : t === 'Reviews' ? reviews.length : null; return <button key={t} aria-label={t} aria-pressed={section === t} onClick={() => navigate(t)}><Icon size={15} aria-hidden="true" /><span>{t}</span>{count !== null && <span className="cw-nav-count" aria-hidden="true">{loading ? '-' : count}</span>}</button> })}</nav>
-    <div className="cw-section-intro"><h3>{sectionMeta[section][1]}</h3><p className="cw-muted">{sectionMeta[section][2]}</p></div>
+    <div key={section} className="cw-section-intro"><h3>{sectionMeta[section][1]}</h3><p className="cw-muted">{sectionMeta[section][2]}</p></div>
     {loading && <p role="status">Loading coaching records…</p>}
     {error && <div role="alert" className="cw-error">{error} Existing client tools and records remain available. <button onClick={() => { setLoading(true); loadWorkspace(client.id).then(rows => { setEntries(rows); setError('') }).catch(e => setError(e.message)).finally(() => setLoading(false)) }}>Retry loading</button></div>}
     {status && <p role="status" className="cw-status">{status}</p>}
