@@ -120,7 +120,7 @@ export default function CoachProfile() {
 
           {/* Identity hero */}
           <div
-            className="relative overflow-hidden rounded-3xl border p-6 md:p-7"
+            className="coach-card relative overflow-hidden rounded-3xl border p-6 md:p-7"
             style={{ borderColor: accentA(22), background: `linear-gradient(150deg, ${accentA(12)}, transparent 72%)` }}
           >
             <div
@@ -241,7 +241,7 @@ export default function CoachProfile() {
 
           {/* Coach code, premium accent card */}
           <div
-            className="rounded-2xl border p-5"
+            className="coach-card rounded-2xl border p-5"
             style={{ borderColor: accentA(28), background: `linear-gradient(160deg, ${accentA(12)}, ${accentA(3)})` }}
           >
             <p className="font-mono text-[10px] tracking-[0.3em] mb-2" style={{ color: accentA(75) }}>COACH CODE</p>

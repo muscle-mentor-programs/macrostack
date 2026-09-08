@@ -1,0 +1,54 @@
+/* Coach-only card language mirrors the public feature cards. Body scoping also
+   reaches client workspaces rendered in portals, without restyling client mode. */
+body:has(.software-coach) {
+  --coach-card-fill: var(--color-card);
+  --coach-card-shadow: 0 2px 4px #00000018, 0 10px 24px #00000020;
+}
+html:is(.light, .forest-light, .ocean-light) body:has(.software-coach) {
+  --coach-card-fill: #fff;
+  --coach-card-shadow: var(--light-raised);
+}
+
+html body:has(.software-coach) :is(.glass-card, .card-dim, .cw-panel, .coach-card, [data-client-card], .cw-client-header, .cw-toolbar, .cw-empty):not(input):not(select):not(textarea):not(.card-inset) {
+  background: var(--coach-card-fill) !important;
+  background-image: none !important;
+  border-color: var(--color-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--coach-card-shadow) !important;
+}
+
+/* Keep nested data visually subordinate, without the old deep inset bevel. */
+html body:has(.software-coach) .card-inset {
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--coach-card-fill)) !important;
+  box-shadow: none !important;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+/* Preserve the semantic cues for the active editor and pinned records. */
+html body:has(.software-coach) .cw-panel.cw-composer {
+  border-color: var(--color-accent) !important;
+}
+html body:has(.software-coach) .cw-panel.cw-record-pinned {
+  border-top-color: var(--color-accent) !important;
+}
+
+/* Conversation buttons retain their existing active fill and border. */
+html body:has(.software-coach) .chat-conversations > button {
+  border-radius: 8px;
+  box-shadow: var(--coach-card-shadow);
+}
+
+/* Neutral card headings match the landing hierarchy. Colored page headers,
+   macro values, warnings, and status badges stay independent. */
+html body:has(.software-coach) :is(.glass-card, .card-dim, .cw-panel) > h3 {
+  color: var(--color-cream) !important;
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+@media (hover: hover) and (pointer: fine) {
+  html body:has(.software-coach) :is([data-client-card], .card-hover):hover {
+    border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-border)) !important;
+    box-shadow: 0 3px 6px #00000010, 0 14px 30px color-mix(in srgb, var(--color-accent) 15%, transparent) !important;
+  }
+}
