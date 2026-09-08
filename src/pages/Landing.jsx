@@ -242,7 +242,11 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           onClick={() => window.lenis ? window.lenis.scrollTo(0, { duration: 1.2 }) : window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="landing-nav-brand font-display font-black text-lg tracking-widest text-cream"
         >
-          <img src="/macrostack-mark-transparent.png" alt="" width="36" height="36" />
+          <img
+            src={theme === 'ocean-light' ? '/macrostack-mark-light-shadow.png' : '/macrostack-mark-transparent.png'}
+            className={theme === 'ocean-light' ? 'landing-mark-shadow' : undefined}
+            alt="" width="36" height="36"
+          />
           <span>MACRO<span style={{ color: ACCENT }}>STACK</span></span>
         </button>
 

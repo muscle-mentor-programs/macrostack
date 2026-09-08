@@ -7,6 +7,8 @@
 .landing-redesign nav { top: 18px; left: 24px; right: 24px; border: 1px solid var(--color-border); border-radius: 16px; padding: 15px 24px; box-shadow: 0 12px 50px #00000014; }
 .landing-redesign .landing-nav-brand { display:flex; align-items:center; gap:8px; flex-shrink:0; }
 .landing-nav-brand img { width:36px; height:36px; object-fit:contain; }
+/* Match the visible mark size without trimming the supplied PNG or its shadow. */
+.landing-nav-brand img.landing-mark-shadow { transform:translateY(6%) scale(1.5); }
 .landing-redesign .hero { min-height: 880px; padding: 150px 0 100px; }
 .landing-redesign .hero-inner { max-width: 1400px; padding-inline: 6vw; grid-template-columns: 1.2fr 1fr; gap: 0; }
 .landing-redesign .hero-inner > div:first-child { text-align: left; z-index: 2; }
