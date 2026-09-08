@@ -64,7 +64,9 @@
 /* Preserve the supplied screenshots; mask only their white outer margins. */
 .landing-redesign img[src^="/mockups/user-"],
 .landing-redesign img[src^="/mockups/coach-"][src$="-2026.jpg"] {
-  clip-path: inset(3.5% 4.5% round 22% / 10%);
+  /* Keep the complete metal frame and side buttons inside the mask. The old
+     inset and oversized corner radii sliced through all four phone edges. */
+  clip-path: inset(3% 3% round 17% / 8.3%);
 }
 /* Updated screenshots show the complete phone, including bottom navigation. */
 .landing-redesign :is(#app, #coach) .landing-product-card > div:first-child {
