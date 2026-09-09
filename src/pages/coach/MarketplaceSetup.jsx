@@ -33,7 +33,7 @@ export default function MarketplaceSetup() {
       else setMessage('Stripe is connected. Save your profile to verify publishing eligibility.')
     } catch (e) { setError(e.message) } finally { setBusy(false) }
   }
-  return <main className="marketplace-page app-page-gutter px-5 pt-mobile-header md:pt-8 pb-28 text-cream">
+  return <main className="marketplace-page app-page-gutter md:h-full md:min-h-0 md:overflow-y-auto md:overscroll-contain px-5 pt-mobile-header md:pt-8 pb-28 text-cream">
     <header className="mb-6"><p className="font-mono text-xs tracking-widest text-muted mb-2">COACH PORTAL</p><h1 className="font-display text-4xl">MARKETPLACE</h1><p className="text-muted mt-2">Build your public coaching profile. You stay private until you choose to publish.</p></header>
     {loading ? <p role="status">Loading your profile...</p> : <form onSubmit={save} className="grid lg:grid-cols-[2fr_1fr] gap-6">
       <section className="glass-card p-6 space-y-5">
