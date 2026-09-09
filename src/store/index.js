@@ -1940,8 +1940,7 @@ Rules:
         return { ok: true, coachName }
       },
 
-      // Unlink from the current coach. Coach loses access to new data and any
-      // Pro-included-via-coach access ends (enforced by useSubscription).
+      // Unlink from the current coach without changing subscription access.
       unlinkFromCoach: async () => {
         const { currentUser } = get()
         if (!currentUser) return { ok: false, error: 'Not logged in' }
