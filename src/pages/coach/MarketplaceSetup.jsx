@@ -28,7 +28,15 @@ export default function MarketplaceSetup() {
     setBusy(true); setError('')
     try {
       const { data, error: failure } = await supabase.functions.invoke('connect-onboard', { body: { marketplace: true } })
-      if (failure || data?.error) throw new Error(data?.error || failure.message)
+      if (failure) {
+        let detail = ''
+        try {
+          const response = await failure.context.clone().json()
+          detail = response.error || response.message || ''
+        } catch { /* Network failures may not contain a JSON response. */ }
+        throw new Error(detail || 'Could not reach Stripe setup. Check your connection and sign in again, then retry.')
+      }
+      if (data?.error) throw new Error(data.error)
       if (data.url) window.location.assign(data.url)
       else setMessage('Stripe is connected. Save your profile to verify publishing eligibility.')
     } catch (e) { setError(e.message) } finally { setBusy(false) }
