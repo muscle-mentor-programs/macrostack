@@ -8,6 +8,7 @@ const BASE_NAV = [
   { id: 'foods',     label: 'FOODS',   icon: Utensils        },
   { id: 'forms',     label: 'FORMS',   icon: ClipboardList   },
   { id: 'profile',   label: 'PROFILE', icon: User            },
+  { id: 'feedback',  label: 'FEEDBACK', icon: MessageCircle  },
 ]
 // Coaches get an UPGRADE tab (plan management); superadmins get COACHES +
 // BILLING instead (they have override access, mirrors the desktop sidebar).
@@ -33,7 +34,7 @@ export default function CoachBottomNav() {
         navHidden ? 'translate-y-full opacity-0 pointer-events-none' : ''
       }`}
     >
-      <div className={`grid ${isSuperadmin ? 'grid-cols-7' : 'grid-cols-6'}`}>
+      <div className="flex overflow-x-auto">
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = activePage === id || (id === 'dashboard' && ['clients', 'insights'].includes(activePage))
           const badge  = id === 'chat' && totalUnread > 0 ? totalUnread : 0
@@ -42,7 +43,7 @@ export default function CoachBottomNav() {
               key={id}
               aria-current={active ? 'page' : undefined}
               onClick={() => setActivePage(id)}
-              className={`relative flex flex-col items-center justify-center py-3 gap-1 transition-all duration-200 ${
+              className={`relative flex flex-1 min-w-[60px] flex-col items-center justify-center py-3 gap-1 transition-all duration-200 ${
                 active ? 'text-brown-light' : 'text-muted hover:text-cream'
               }`}
             >

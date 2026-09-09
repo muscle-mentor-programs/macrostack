@@ -772,6 +772,12 @@ export default function ClientProfile() {
       </div>
     </div>
 
+    <div className="mx-5 mb-8 glass-card rounded-lg p-5">
+      <h2 className="font-display font-bold text-xl">FEATURES & BUGS</h2>
+      <p className="text-muted text-sm mt-2 mb-4">Share ideas, report bugs, and upvote feedback with other users.</p>
+      <button className="btn-accent rounded-lg px-5 py-3" onClick={() => useStore.getState().setActivePage('feedback')}>Open user forum</button>
+    </div>
+
     {/* Crop modal, portaled so it sits above everything */}
     {cropSrc && createPortal(
       <AvatarCropModal

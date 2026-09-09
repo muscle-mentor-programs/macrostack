@@ -10,6 +10,7 @@ const BASE_NAV = [
   { id: 'foods',     label: 'MY FOODS',  icon: Utensils        },
   { id: 'forms',     label: 'FORMS',     icon: ClipboardList   },
   { id: 'profile',   label: 'PROFILE',   icon: User            },
+  { id: 'feedback',  label: 'FEEDBACK',  icon: MessageCircle   },
 ]
 // Coach plan management (superadmins have override access, they get the
 // admin panels instead)

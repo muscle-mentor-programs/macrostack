@@ -46,6 +46,7 @@ const UpgradePage = lazy(() => import('./pages/UpgradePage'))
 const AdminBilling = lazy(() => import('./pages/coach/AdminBilling'))
 const AdminCoaches = lazy(() => import('./pages/coach/AdminCoaches'))
 const LeadFinder = lazy(() => import('./pages/coach/LeadFinder'))
+const FeedbackForum = lazy(() => import('./pages/FeedbackForum'))
 
 // Shared suspense fallback, branded skeleton so page swaps feel intentional,
 // not like a loading failure. Mirrors the typical page anatomy.
@@ -77,6 +78,7 @@ const COACH_PAGES_DESKTOP = {
   coaches:   AdminCoaches,
   billing:   AdminBilling,
   leads:     LeadFinder,
+  feedback:  FeedbackForum,
 }
 
 const COACH_PAGES_MOBILE = {
@@ -91,6 +93,7 @@ const COACH_PAGES_MOBILE = {
   coaches:   AdminCoaches,
   billing:   AdminBilling,
   leads:     LeadFinder,
+  feedback:  FeedbackForum,
 }
 
 const CLIENT_PAGES = {
@@ -100,6 +103,7 @@ const CLIENT_PAGES = {
   messages:  ClientMessages,
   profile:   ClientProfile,
   coach:     ClientCoachProfile,
+  feedback:  FeedbackForum,
   upgrade:   UpgradePage,
 }
 
