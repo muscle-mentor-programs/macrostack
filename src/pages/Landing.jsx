@@ -243,8 +243,8 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           className="landing-nav-brand font-display font-black text-lg tracking-widest text-cream"
         >
           <img
-            src={theme === 'ocean-light' ? '/macrostack-mark-light-shadow.png' : '/macrostack-mark-transparent.png'}
-            className={theme === 'ocean-light' ? 'landing-mark-shadow' : undefined}
+            src="/macrostack-mark-light-shadow.png"
+            className="landing-mark-shadow"
             alt="" width="36" height="36"
           />
           <span>MACRO<span style={{ color: ACCENT }}>STACK</span></span>
