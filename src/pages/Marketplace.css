@@ -1,0 +1,19 @@
+.marketplace-page .font-display { font-weight: 900; }
+.marketplace-page .glass-card { border-radius: 12px; }
+.marketplace-page .btn-primary, .marketplace-page .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+.marketplace-page .btn-primary { background: var(--color-accent); color: #fff; }
+.marketplace-page .btn-ghost { background: var(--color-surface); }
+.marketplace-page button:hover:not(:disabled) { border-color: var(--color-accent); }
+.marketplace-page button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.marketplace-page button:disabled { opacity: .55; cursor: wait; }
+@media (prefers-reduced-motion: reduce) { .marketplace-page button { transition: none; } }

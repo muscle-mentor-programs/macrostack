@@ -31,8 +31,9 @@ serve(async (req) => {
       .select('role, name, stripe_connect_id').eq('id', user.id).single()
     if (!profile || profile.role === 'client') throw new Error('Only coach accounts can set up client billing.')
 
-    const { returnUrl } = await req.json().catch(() => ({}))
-    const base = returnUrl || Deno.env.get('SITE_URL') || 'https://www.getmacrostack.com'
+    const { marketplace: marketplaceReturn } = await req.json().catch(() => ({}))
+    const base = new URL(Deno.env.get('SITE_URL') || 'https://www.getmacrostack.com').origin
+    const returnPath = marketplaceReturn === true ? '/marketplace' : '/'
 
     let accountId = profile.stripe_connect_id
     if (!accountId) {
@@ -53,7 +54,7 @@ serve(async (req) => {
       updated_at: new Date().toISOString(),
     }, { onConflict: 'coach_id', ignoreDuplicates: false })
 
-    if (account.charges_enabled) {
+    if (account.charges_enabled && account.payouts_enabled && account.capabilities?.transfers === 'active') {
       return new Response(JSON.stringify({ ok: true, ready: true }), {
         headers: { ...cors, 'Content-Type': 'application/json' },
       })
@@ -61,8 +62,8 @@ serve(async (req) => {
 
     const link = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${base}/?connect=refresh`,
-      return_url:  `${base}/?connect=return`,
+      refresh_url: `${base}${returnPath}?connect=refresh`,
+      return_url:  `${base}${returnPath}?connect=return`,
       type: 'account_onboarding',
     })
 

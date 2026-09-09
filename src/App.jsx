@@ -47,6 +47,8 @@ const AdminBilling = lazy(() => import('./pages/coach/AdminBilling'))
 const AdminCoaches = lazy(() => import('./pages/coach/AdminCoaches'))
 const LeadFinder = lazy(() => import('./pages/coach/LeadFinder'))
 const FeedbackForum = lazy(() => import('./pages/FeedbackForum'))
+const Marketplace = lazy(() => import('./pages/Marketplace'))
+const MarketplaceSetup = lazy(() => import('./pages/coach/MarketplaceSetup'))
 
 // Shared suspense fallback, branded skeleton so page swaps feel intentional,
 // not like a loading failure. Mirrors the typical page anatomy.
@@ -79,6 +81,7 @@ const COACH_PAGES_DESKTOP = {
   billing:   AdminBilling,
   leads:     LeadFinder,
   feedback:  FeedbackForum,
+  marketplace: MarketplaceSetup,
 }
 
 const COACH_PAGES_MOBILE = {
@@ -94,6 +97,7 @@ const COACH_PAGES_MOBILE = {
   billing:   AdminBilling,
   leads:     LeadFinder,
   feedback:  FeedbackForum,
+  marketplace: MarketplaceSetup,
 }
 
 const CLIENT_PAGES = {
@@ -105,6 +109,7 @@ const CLIENT_PAGES = {
   coach:     ClientCoachProfile,
   feedback:  FeedbackForum,
   upgrade:   UpgradePage,
+  marketplace: Marketplace,
 }
 
 // Every page id that gets a real URL path (/chat, /foods, /billing, …).
@@ -186,9 +191,11 @@ export default function App() {
     if (!isAuthenticated) {
       if (seg === 'login')  setAuthView('login')
       if (seg === 'signup') setAuthView('signup')
+      if (seg === 'marketplace') setAuthView('marketplace')
       return
     }
     if (ROUTABLE.has(seg)) setActivePage(seg)
+    if (sessionStorage.getItem('ms-marketplace-coach')) setActivePage('marketplace')
     initialPathRef.current = '/'   // consumed, don't re-apply on later auth flips
   }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -199,6 +206,7 @@ export default function App() {
       ? `/${activePage || 'dashboard'}`
       : authView === 'login' ? '/login'
       : authView === 'signup' ? '/signup'
+      : authView === 'marketplace' ? '/marketplace'
       : '/'
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path + window.location.search)
@@ -210,7 +218,7 @@ export default function App() {
     const onPop = () => {
       const seg = window.location.pathname.replace(/^\/+|\/+$/g, '')
       if (!isAuthenticated) {
-        setAuthView(seg === 'login' ? 'login' : seg === 'signup' ? 'signup' : (IS_PWA ? 'login' : null))
+        setAuthView(seg === 'marketplace' ? 'marketplace' : seg === 'login' ? 'login' : seg === 'signup' ? 'signup' : (IS_PWA ? 'login' : null))
       } else if (ROUTABLE.has(seg)) {
         setActivePage(seg)
       }
@@ -272,11 +280,13 @@ export default function App() {
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<PageLoader />}>
-        {authView === 'login'
+        {authView === 'marketplace'
+          ? <Marketplace onBack={() => setAuthView(null)} onSignIn={() => { localStorage.removeItem('ms-pending-plan'); setAuthView('signup') }} />
+          : authView === 'login'
           ? <LoginScreen onBack={IS_PWA ? null : () => setAuthView(null)} />
           : authView === 'signup'
           ? <SignupCheckout onBack={() => setAuthView(null)} onSignIn={() => setAuthView('login')} />
-          : <Landing onGetStarted={() => setAuthView('login')} onSignUp={() => setAuthView('signup')} />}
+          : <Landing onMarketplace={() => setAuthView('marketplace')} onGetStarted={() => setAuthView('login')} onSignUp={() => setAuthView('signup')} />}
       </Suspense>
     )
   }

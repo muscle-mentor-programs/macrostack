@@ -177,7 +177,7 @@ function FeatureRow({ src, eyebrow, title, body, flip, textColor, softColor }) {
 
 /* ── Component ────────────────────────────────────────────────────────────── */
 
-export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
+export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarketplace }) {
   const theme = useStore((s) => s.theme)
   const toggleTheme = useStore((s) => s.toggleTheme)
   const rootRef      = useRef(null)
@@ -235,7 +235,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
 
       {/* ── Nav ── */}
       <nav
-        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 md:px-10 py-4 backdrop-blur-xl border-b border-border"
+        className="fixed top-0 left-0 right-0 z-40 flex flex-wrap gap-2 items-center justify-between px-5 md:px-10 py-4 backdrop-blur-xl border-b border-border"
         style={{ background: 'color-mix(in srgb, var(--color-bg) 72%, transparent)' }}
       >
         <button
@@ -251,7 +251,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
         </button>
 
         {/* Section links, jump straight to each section (hidden on mobile) */}
-        <div className="hidden md:flex items-center gap-7 absolute left-1/2 -translate-x-1/2">
+        <div className="hidden xl:flex items-center gap-7 absolute left-1/2 -translate-x-1/2">
           {NAV_LINKS.map(({ id, label }) => (
             <button
               key={id}
@@ -263,7 +263,8 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted }) {
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <button onClick={onMarketplace} className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-2 py-2">MARKETPLACE</button>
           <button
             onClick={(e) => splatToggleTheme(e, toggleTheme)}
             title={theme === 'ocean-dark' ? 'Switch to light mode' : 'Switch to dark mode'}

@@ -9,6 +9,7 @@ const BASE_NAV = [
   { id: 'forms',     label: 'FORMS',   icon: ClipboardList   },
   { id: 'profile',   label: 'PROFILE', icon: User            },
   { id: 'feedback',  label: 'FEEDBACK', icon: MessageCircle  },
+  { id: 'marketplace', label: 'MARKETPLACE', icon: UserCog },
 ]
 // Coaches get an UPGRADE tab (plan management); superadmins get COACHES +
 // BILLING instead (they have override access, mirrors the desktop sidebar).

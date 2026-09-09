@@ -1,6 +1,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
+import { fulfillMarketplace, syncMarketplaceSubscription } from '../_shared/marketplace-payments.ts'
+import { stripeReady } from '../_shared/marketplace-rules.ts'
 
 // Safely convert a Stripe unix timestamp to ISO. Returns null if absent/invalid
 // (avoids `new Date(NaN).toISOString()` throwing and 500-ing the webhook).
@@ -21,6 +23,11 @@ function periodEnd(sub: Stripe.Subscription): string | null {
 // Map a Stripe subscription onto the profile row. The webhook NEVER touches
 // admin_override, a superadmin's manual lock/unlock always wins.
 async function syncSubscription(stripe: Stripe, admin: ReturnType<typeof createClient>, sub: Stripe.Subscription) {
+  if (sub.metadata?.kind === 'marketplace_coaching') {
+    await syncMarketplaceSubscription(stripe, admin, sub.id)
+    return
+  }
+  if (sub.metadata?.kind === 'coach_payment') return
   let userId = sub.metadata?.supabase_user_id
   if (!userId) {
     // Fall back to customer metadata lookup
@@ -78,6 +85,11 @@ serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
+        if (session.metadata?.kind === 'marketplace_coaching') {
+          await fulfillMarketplace(stripe, admin, session)
+          break
+        }
+        if (session.metadata?.kind === 'coach_payment') break
         if (session.subscription) {
           const sub = await stripe.subscriptions.retrieve(session.subscription as string)
           // carry the checkout metadata onto the subscription if missing
@@ -92,6 +104,41 @@ serve(async (req) => {
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
         await syncSubscription(stripe, admin, event.data.object as Stripe.Subscription)
+        break
+      }
+      case 'invoice.paid':
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice
+        if (invoice.subscription) await syncMarketplaceSubscription(stripe, admin, invoice.subscription as string)
+        break
+      }
+      case 'account.updated': {
+        const account = event.data.object as Stripe.Account
+        const owner = await admin.from('profiles').select('id').eq('stripe_connect_id', account.id).maybeSingle()
+        if (owner.error) throw owner.error
+        if (owner.data) {
+          const listing = await admin.from('marketplace_profiles').update({ stripe_ready: stripeReady(account) }).eq('coach_id', owner.data.id)
+          if (listing.error) throw listing.error
+        }
+        break
+      }
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge
+        if (!charge.refunded || !charge.payment_intent) break
+        const intent = await stripe.paymentIntents.retrieve(charge.payment_intent as string)
+        let orderId = intent.metadata?.marketplace_order_id
+        if (!orderId && charge.invoice) {
+          const invoice = await stripe.invoices.retrieve(charge.invoice as string)
+          if (invoice.subscription) {
+            const sub = await stripe.subscriptions.retrieve(invoice.subscription as string)
+            if (sub.metadata?.kind === 'marketplace_coaching') orderId = sub.metadata.marketplace_order_id
+          }
+        }
+        if (!orderId) break
+        const order = await admin.from('marketplace_orders').update({ state: 'refunded' }).eq('id', orderId)
+        if (order.error) throw order.error
+        const access = await admin.from('marketplace_access').update({ disabled: true }).eq('order_id', orderId)
+        if (access.error) throw access.error
         break
       }
       default:
