@@ -65,12 +65,14 @@ export default function Marketplace({ onBack, onSignIn }) {
       <label className="flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3"><Search size={18} className="text-muted shrink-0" /><input aria-label="Search coaches" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search name or specialty" className="bg-transparent outline-none w-full min-w-0" /></label>
       {loading ? <p role="status">Loading coaches...</p> : error && coaches.length === 0 ? null : filtered.length === 0 ? <div className="glass-card rounded-xl p-8 text-muted">{coaches.length ? 'No coaches match your search.' : 'Coaches are preparing their profiles. Check back soon.'}</div> : <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
         {filtered.map(coach => <article key={coach.coach_id} className="glass-card rounded-xl p-6 flex flex-col gap-4">
+          {coach.cover_url && <img src={coach.cover_url} alt="" loading="lazy" className="w-full aspect-[3/1] object-cover rounded-lg" />}
           <div className="flex items-center gap-3">{coach.photo_url ? <img src={coach.photo_url} alt="" className="w-14 h-14 rounded-full object-cover" /> : <UserRound size={30} className="text-brown" />}<h2 className="font-display text-2xl break-words">{coach.name}</h2></div>
           <p>{coach.headline}</p><p className="text-sm text-muted break-words">{coach.specialties}</p><p className="font-display text-xl mt-auto">{coachingPrice(coach)}</p>
           <button type="button" className="btn-primary w-full" onClick={() => setSelected(coach)}>View coaching profile</button>
         </article>)}
       </div>}
       {selected && <section className="glass-card rounded-xl p-6 md:p-8 space-y-4" aria-label={`${selected.name} coaching details`}>
+        {selected.cover_url && <img src={selected.cover_url} alt="" className="w-full aspect-[3/1] object-cover rounded-lg" />}
         <div className="flex justify-between gap-4"><h2 className="font-display text-3xl">{selected.name}</h2><button type="button" className="btn-ghost" onClick={() => setSelected(null)}>Close</button></div>
         <p className="text-xl">{selected.headline}</p><p className="whitespace-pre-wrap break-words text-muted">{selected.bio}</p>
         {selected.credentials && <p className="text-sm break-words">Credentials: {selected.credentials}</p>}

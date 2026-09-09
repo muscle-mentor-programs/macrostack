@@ -5,7 +5,7 @@ import {validateListing,stripeReady,accessActive} from '../_shared/marketplace-r
 import {fulfillMarketplace,syncMarketplaceSubscription} from '../_shared/marketplace-payments.ts'
 
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization,x-client-info,apikey,content-type'}
-const fields='coach_id,name,headline,bio,specialties,credentials,photo_url,price_cents,billing_mode,duration_days'
+const fields='coach_id,name,headline,bio,specialties,credentials,photo_url,cover_url,price_cents,billing_mode,duration_days'
 serve(async req=>{
   if(req.method==='OPTIONS') return new Response('ok',{headers:cors})
   const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{...cors,'Content-Type':'application/json'}})

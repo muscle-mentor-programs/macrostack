@@ -9,9 +9,11 @@ export function validateListing(input: Record<string, unknown>) {
   if (!['monthly','one_time'].includes(String(input.billing_mode))) throw new Error('Choose a billing option.')
   if (input.billing_mode === 'one_time' && (!Number.isInteger(days) || days < 1 || days > 730)) throw new Error('Choose 1 to 730 access days.')
   const photo = text('photo_url',0,1000)
+  const cover = text('cover_url',0,1000)
+  if (cover && new URL(cover).protocol !== 'https:') throw new Error('Cover URL must use HTTPS.')
   if (photo && new URL(photo).protocol !== 'https:') throw new Error('Photo URL must use HTTPS.')
   return {name:text('name',2,100),headline:text('headline',5,160),bio:text('bio',20,5000),
-    specialties:text('specialties',0,500),credentials:text('credentials',0,1000),photo_url:photo,
+    specialties:text('specialties',0,500),credentials:text('credentials',0,1000),photo_url:photo,cover_url:cover,
     price_cents:price,billing_mode:input.billing_mode,duration_days:input.billing_mode==='one_time'?days:null,
     published:input.published===true}
 }

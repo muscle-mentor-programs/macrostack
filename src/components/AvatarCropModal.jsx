@@ -9,7 +9,7 @@ import Cropper from 'react-easy-crop'
 import { Check, X } from 'lucide-react'
 
 /** Turn the pixel crop from react-easy-crop into a Blob via canvas. */
-async function cropToBlob(imageSrc, pixelCrop, mimeType = 'image/jpeg') {
+async function cropToBlob(imageSrc, pixelCrop, aspect = 1) {
   const img = await new Promise((resolve, reject) => {
     const i = new Image()
     i.addEventListener('load', () => resolve(i))
@@ -18,8 +18,8 @@ async function cropToBlob(imageSrc, pixelCrop, mimeType = 'image/jpeg') {
   })
 
   const canvas = document.createElement('canvas')
-  canvas.width  = 512
-  canvas.height = 512
+  canvas.width  = aspect === 1 ? 512 : 1500
+  canvas.height = Math.round(canvas.width / aspect)
   const ctx = canvas.getContext('2d')
 
   if (!ctx) throw new Error('Photo editing is unavailable in this browser.')
@@ -29,13 +29,13 @@ async function cropToBlob(imageSrc, pixelCrop, mimeType = 'image/jpeg') {
     pixelCrop.x, pixelCrop.y,
     pixelCrop.width, pixelCrop.height,
     0, 0,
-    512, 512,
+    canvas.width, canvas.height,
   )
 
-  return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not prepare this photo. Please choose another image.')), mimeType, 0.88))
+  return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not prepare this photo. Please choose another image.')), 'image/jpeg', 0.88))
 }
 
-export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
+export default function AvatarCropModal({ imageSrc, onConfirm, onCancel, aspect = 1 }) {
   const [crop,       setCrop]       = useState({ x: 0, y: 0 })
   const [zoom,       setZoom]       = useState(1)
   const [croppedArea, setCroppedArea] = useState(null)
@@ -51,7 +51,7 @@ export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
     setConfirming(true)
     setError('')
     try {
-      const blob = await cropToBlob(imageSrc, croppedArea)
+      const blob = await cropToBlob(imageSrc, croppedArea, aspect)
       await onConfirm(blob)
     } catch (err) {
       setError(err.message || 'Could not save your photo. Please try again.')
@@ -61,7 +61,7 @@ export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
   }
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Crop profile photo" aria-busy={confirming} className="fixed inset-0 z-[200] flex flex-col bg-bg anim-fade-in">
+    <div role="dialog" aria-modal="true" aria-label={aspect === 1 ? 'Crop profile photo' : 'Crop cover photo'} aria-busy={confirming} className="fixed inset-0 z-[200] flex flex-col bg-bg anim-fade-in">
 
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border glass-panel flex-shrink-0">
@@ -92,8 +92,8 @@ export default function AvatarCropModal({ imageSrc, onConfirm, onCancel }) {
           image={imageSrc}
           crop={crop}
           zoom={zoom}
-          aspect={1}
-          cropShape="round"
+          aspect={aspect}
+          cropShape={aspect === 1 ? 'round' : 'rect'}
           showGrid={false}
           onCropChange={setCrop}
           onZoomChange={setZoom}

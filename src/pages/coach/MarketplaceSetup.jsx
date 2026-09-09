@@ -3,6 +3,7 @@ import useStore from '../../store'
 import { supabase } from '../../lib/supabase'
 import { marketplace, coachingPrice } from '../../lib/marketplace'
 import '../Marketplace.css'
+import MarketplacePhotoUpload from '../../components/MarketplacePhotoUpload'
 
 const inputClass = 'w-full bg-surface border border-border rounded-lg px-4 py-3 text-cream focus:outline-none focus:ring-2 focus:ring-brown/40'
 export default function MarketplaceSetup() {
@@ -36,7 +37,10 @@ export default function MarketplaceSetup() {
     <header className="mb-6"><p className="font-mono text-xs tracking-widest text-muted mb-2">COACH PORTAL</p><h1 className="font-display text-4xl">MARKETPLACE</h1><p className="text-muted mt-2">Build your public coaching profile. You stay private until you choose to publish.</p></header>
     {loading ? <p role="status">Loading your profile...</p> : <form onSubmit={save} className="grid lg:grid-cols-[2fr_1fr] gap-6">
       <section className="glass-card p-6 space-y-5">
-        {[['name', 'Public name', 100], ['headline', 'Coaching headline', 160], ['specialties', 'Specialties', 500], ['credentials', 'Credentials', 1000], ['photo_url', 'Profile photo HTTPS URL (optional)', 1000]].map(([key, label, max]) => <label key={key} className="block text-sm space-y-2"><span>{label}</span><input className={inputClass} value={form[key]} maxLength={max} required={key === 'name' || key === 'headline'} onChange={e => change(key, e.target.value)} /></label>)}
+        <MarketplacePhotoUpload userId={user?.id} cover value={form.cover_url || ''} onChange={value => change('cover_url', value)} disabled={busy} />
+        <MarketplacePhotoUpload userId={user?.id} value={form.photo_url} onChange={value => change('photo_url', value)} disabled={busy} />
+        <p className="text-xs text-muted">Marketplace photos are public. Choose JPG, PNG, or WebP, up to 20 MB. Crop and save your profile to apply changes.</p>
+        {[['name', 'Public name', 100], ['headline', 'Coaching headline', 160], ['specialties', 'Specialties', 500], ['credentials', 'Credentials', 1000]].map(([key, label, max]) => <label key={key} className="block text-sm space-y-2"><span>{label}</span><input className={inputClass} value={form[key]} maxLength={max} required={key === 'name' || key === 'headline'} onChange={e => change(key, e.target.value)} /></label>)}
         <label className="block text-sm space-y-2"><span>About your coaching and what clients receive</span><textarea className={inputClass} rows={7} minLength={20} maxLength={5000} required value={form.bio} onChange={e => change('bio', e.target.value)} /></label>
       </section>
       <section className="glass-card p-6 space-y-5 self-start">
