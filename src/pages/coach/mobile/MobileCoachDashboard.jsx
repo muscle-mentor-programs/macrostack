@@ -7,6 +7,7 @@ import {
   Copy, Check as CheckIcon, Bell, Gauge, ClipboardCheck, ClipboardList,
 } from 'lucide-react'
 import useStore from '../../../store'
+import { macroTargetCalories } from '../../../lib/macroTargetCalories'
 import { computeRosterNudges } from '../../../lib/goalNudges'
 import ClientAvatar from '../../../components/ClientAvatar'
 import AnimatedNumber from '../../../components/AnimatedNumber'
@@ -16,10 +17,12 @@ import ScrambleText from '../../../components/ScrambleText'
 function QuickEditSheet({ client, onClose }) {
   const { updateClientGoals } = useStore()
   const [goals, setGoals] = useState({ ...client.goals })
+  const calories = macroTargetCalories(goals)
 
   const save = () => {
+    if (calories === null) return
     updateClientGoals(client.id, {
-      calories: Number(goals.calories),
+      calories,
       protein:  Number(goals.protein),
       carbs:    Number(goals.carbs),
       fat:      Number(goals.fat),
@@ -51,7 +54,11 @@ function QuickEditSheet({ client, onClose }) {
               <label className={`font-display text-xs tracking-widest block mb-1.5 ${color}`}>{label}</label>
               <input
                 type="number"
-                value={goals[key]}
+                aria-label={key === 'calories' ? 'Calories, automatically calculated' : `${label} in grams`}
+                min="0"
+                step="any"
+                readOnly={key === 'calories'}
+                value={key === 'calories' ? (calories ?? '') : goals[key]}
                 onChange={(e) => setGoals((p) => ({ ...p, [key]: e.target.value }))}
                 className="w-full bg-surface border border-border rounded-xl px-3 py-3 font-mono text-sm text-cream focus:outline-none focus:border-brown"
               />
@@ -60,10 +67,14 @@ function QuickEditSheet({ client, onClose }) {
         </div>
         <button
           onClick={save}
+          disabled={calories === null}
           className="w-full bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest py-4 rounded-xl transition-colors"
         >
           SAVE TARGETS
         </button>
+        <p className="text-xs text-muted mt-3" role="status">
+          {calories === null ? 'Enter a non-negative number for each macro before saving.' : 'Calories calculated automatically: protein × 4 + carbs × 4 + fat × 9. Macros are in grams.'}
+        </p>
       </div>
     </div>
   )
