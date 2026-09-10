@@ -1641,7 +1641,8 @@ const useStore = create(
         if (updates.planName !== undefined) dbUpdates.plan_name = updates.planName
         if (updates.days     !== undefined) dbUpdates.days      = updates.days
 
-        await supabase.from('meal_plans').update(dbUpdates).eq('id', planId)
+        const { data: savedPlan, error } = await supabase.from('meal_plans').update(dbUpdates).eq('id', planId).select('id').single()
+        if (error || !savedPlan) throw new Error(error?.message || 'Could not save meal plan.')
         set((s) => ({
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c

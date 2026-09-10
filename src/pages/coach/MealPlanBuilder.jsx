@@ -1,6 +1,8 @@
 import apiFetch from '../../lib/apiFetch'
-import { useState, useMemo, useEffect } from 'react'
-import { X, Plus, Trash2, Search, Check, ChevronLeft, ChevronRight, Mail, Download, ArrowLeft } from 'lucide-react'
+import { useState, useMemo, useEffect, useDeferredValue } from 'react'
+import { createPortal } from 'react-dom'
+import { X, Plus, Trash2, Search, Check, Mail, Download, ArrowLeft } from 'lucide-react'
+import './MealPlanBuilder.css'
 import useStore from '../../store'
 import useIsMobile from '../../hooks/useIsMobile'
 import { FOODS } from '../../data/foods'
@@ -59,7 +61,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     return () => setNavHidden(false)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const allFoods = useMemo(
-    () => [...FOODS.filter((f) => !(hiddenFoodIds || []).includes(f.id)), ...customFoods],
+    () => [...FOODS.filter((f) => !(hiddenFoodIds || []).includes(f.id)), ...(customFoods || [])],
     [customFoods, hiddenFoodIds]
   )
 
@@ -85,9 +87,18 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const [emailStatus, setEmailStatus] = useState('idle') // 'idle' | 'sending' | 'sent' | 'error'
   const [downloading, setDownloading] = useState(false)
   const [showFoodPanel, setShowFoodPanel] = useState(false) // mobile: toggle food search panel
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [visibleCount, setVisibleCount] = useState(50)
+  const deferredQuery = useDeferredValue(query)
+  const validQuantity = Number.isFinite(Number(quantity)) && Number(quantity) > 0
+  const dirty = planName !== (initialPlan?.planName || '') || JSON.stringify(days) !== JSON.stringify(initialPlan?.days || [])
+  const closeEditor = () => {
+    if (!saving && (!dirty || window.confirm('Discard your unsaved meal plan changes?'))) onClose()
+  }
 
-  const filtered = useMemo(() => rankFoods(allFoods, query, recentFoodIds),
-    [allFoods, query, recentFoodIds])
+  const filtered = useMemo(() => rankFoods(allFoods, deferredQuery, recentFoodIds),
+    [allFoods, deferredQuery, recentFoodIds])
 
   const scaledPreview = selectedFood
     ? {
@@ -100,9 +111,9 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
 
   // ── Mutations ─────────────────────────────────────────────────
   const addItem = () => {
-    if (!selectedFood) return
+    if (!selectedFood || !validQuantity) return
     const entry = {
-      id:          Math.random().toString(36).slice(2),
+      id:          crypto.randomUUID(),
       foodId:      selectedFood.id,
       name:        selectedFood.name,
       brand:       selectedFood.brand || '',
@@ -156,15 +167,24 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
 
   const removeDay = (idx) => {
     if (days.length <= 1) return
+    if (!window.confirm(`Delete ${days[idx].label} and its meals from this draft?`)) return
     setDays((prev) => prev.filter((_, i) => i !== idx))
     setActiveDayIdx((prev) => Math.min(prev, days.length - 2))
   }
 
-  const handleSave = () => {
-    if (!planName.trim()) return
-    onSave({ planName: planName.trim(), days, aiGenerated: initialPlan?.aiGenerated || false })
-    setSaved(true)
-    setTimeout(() => { setSaved(false); onClose() }, 800)
+  const handleSave = async () => {
+    if (!planName.trim() || saving) return
+    setSaving(true)
+    setSaveError('')
+    try {
+      await onSave({ planName: planName.trim(), days, aiGenerated: initialPlan?.aiGenerated || false })
+      setSaved(true)
+      onClose()
+    } catch (error) {
+      setSaveError(error.message || 'Could not save. Your draft is still here; please retry.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleDownloadPDF = () => {
@@ -213,18 +233,20 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const totals  = dayTotals(activeDay)
   const goals   = client?.goals || { calories: 2000, protein: 150, carbs: 200, fat: 65 }
 
-  return (
-    <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in">
+  return createPortal(
+    <div className="mp-editor bg-bg anim-fade-in" role="dialog" aria-modal="true" aria-label="Meal plan editor" aria-busy={saving}>
+      <fieldset disabled={saving} className="mp-fieldset">
       {/* ── Top bar ─────────────────────────────────────────── */}
       <div
-        className="flex items-center gap-4 px-6 border-b border-border/50 glass-panel flex-shrink-0"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 56px)', paddingBottom: '16px' }}
+        className="mp-toolbar border-b border-border/50 glass-panel"
       >
-        <button onClick={onClose} className="text-muted hover:text-cream transition-colors">
+        <button onClick={closeEditor} aria-label="Close meal plan editor" className="text-muted hover:text-cream transition-colors">
           <X size={18} />
         </button>
-        <div className="flex-1 min-w-0">
+        <div className="mp-title min-w-0">
+          <label htmlFor="meal-plan-name" className="block text-xs text-muted mb-1">MEAL PLAN · {client?.name}</label>
           <input
+            id="meal-plan-name"
             type="text"
             value={planName}
             onChange={(e) => setPlanName(e.target.value)}
@@ -267,31 +289,34 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
         {/* Save */}
         <button
           onClick={handleSave}
-          disabled={!planName.trim()}
+          disabled={!planName.trim() || saving}
           className={`flex items-center gap-2 font-display font-bold text-sm tracking-widest px-5 py-2 rounded-lg transition-all disabled:opacity-40 ${
             saved
               ? 'bg-olive text-bg'
               : 'bg-brown hover:bg-brown-light text-bg glow-hover'
           }`}
         >
-          {saved ? <><Check size={14} /> SAVED</> : 'SAVE PLAN'}
+          {saving ? 'SAVING…' : saved ? <><Check size={14} /> SAVED</> : 'SAVE PLAN'}
         </button>
       </div>
+      {saveError && <p className="px-4 py-3 text-red-400" role="alert">{saveError}</p>}
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="mp-body">
         {/* ── Left: day tabs + meal sections ──────────────── */}
-        <div className={`flex flex-col border-r border-border overflow-hidden ${
+        <div className={`mp-plan flex flex-col border-r border-border overflow-hidden ${
           isMobile
             ? showFoodPanel ? 'hidden' : 'flex w-full'
-            : 'w-[480px]'
+            : ''
         }`}>
           {/* Day tabs, fixed 7 days, distributed evenly */}
-          <div className="flex items-center px-3 py-3 gap-1.5 border-b border-border flex-shrink-0">
+          <div className="mp-days border-b border-border">
+            <div className="mp-day-scroll" aria-label="Plan days">
             {days.map((d, i) => (
               <button
                 key={d.id}
                 onClick={() => setActiveDayIdx(i)}
-                className={`flex-1 font-display font-bold text-xs tracking-widest py-1.5 rounded-lg whitespace-nowrap transition-colors ${
+                aria-pressed={i === activeDayIdx}
+                className={`shrink-0 px-3 font-display font-bold text-xs tracking-widest py-1.5 rounded-lg whitespace-nowrap transition-colors ${
                   i === activeDayIdx
                     ? 'bg-brown text-bg'
                     : 'bg-surface border border-border text-muted hover:text-cream'
@@ -300,9 +325,12 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                 {d.label}
               </button>
             ))}
+            </div>
+            <button onClick={addDay} aria-label="Add day" className="text-brown-light"><Plus size={18} /></button>
             {days.length > 1 && (
               <button
                 onClick={() => removeDay(activeDayIdx)}
+                aria-label="Delete selected day"
                 className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-dim hover:text-red-400 transition-colors"
               >
                 <Trash2 size={13} />
@@ -333,7 +361,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
           </div>
 
           {/* Meal sections */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-nav">
+          <div className="mp-meals flex-1 overflow-y-auto p-4 space-y-3">
             {MEALS.map((meal) => {
               const items = activeDay?.meals[meal] || []
               const mTotal = items.reduce(
@@ -356,6 +384,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                     </div>
                     <button
                       onClick={() => { setTargetMeal(meal); if (isMobile) setShowFoodPanel(true) }}
+                      aria-label={`Add food to ${meal}`}
                       className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
                         targetMeal === meal
                           ? 'bg-brown text-bg'
@@ -393,7 +422,8 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                           </div>
                           <button
                             onClick={() => removeItem(meal, entry.id)}
-                            className="text-dim hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1 flex-shrink-0"
+                            aria-label={`Remove ${entry.name}`}
+                            className="text-muted hover:text-red-400 transition-colors p-1 flex-shrink-0"
                           >
                             <Trash2 size={11} />
                           </button>
@@ -408,21 +438,22 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
         </div>
 
         {/* ── Right: food search ───────────────────────────── */}
-        <div className={`flex-1 flex-col overflow-hidden ${
+        <div className={`mp-foods flex-1 flex-col overflow-hidden ${
           isMobile ? (showFoodPanel ? 'flex' : 'hidden') : 'flex'
         }`}>
           {/* Search + filter */}
           <div className="px-4 py-3 border-b border-border space-y-3 flex-shrink-0 bg-card">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center flex-wrap gap-2">
               {isMobile && (
                 <button
                   onClick={() => setShowFoodPanel(false)}
+                  aria-label="Back to plan"
                   className="text-muted hover:text-cream transition-colors mr-1"
                 >
                   <ArrowLeft size={16} />
                 </button>
               )}
-              <p className="font-display font-bold text-xs text-muted tracking-widest">ADDING TO:</p>
+              <p className="font-display font-bold text-xs text-muted tracking-widest">{activeDay?.label} · ADD TO:</p>
               {MEALS.map((m) => (
                 <button
                   key={m}
@@ -442,16 +473,17 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
               <input
                 type="text"
                 placeholder="Search foods or brands..."
+                aria-label="Search foods or brands"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => { setQuery(e.target.value); setVisibleCount(50) }}
                 className="w-full bg-surface border border-border rounded-lg pl-8 pr-3 py-2 font-mono text-sm text-cream placeholder-muted focus:outline-none focus:border-brown"
               />
             </div>
           </div>
 
           {/* Food list */}
-          <div className="flex-1 overflow-y-auto">
-            {filtered.map((food) => (
+          <div className="mp-results flex-1 overflow-y-auto" aria-busy={query !== deferredQuery}>
+            {filtered.slice(0, visibleCount).map((food) => (
               <button
                 key={food.id}
                 onClick={() => { setSelectedFood(food); setQuantity('1') }}
@@ -475,6 +507,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                 </div>
               </button>
             ))}
+            {filtered.length > visibleCount && <button className="w-full p-4 text-brown-light" onClick={() => setVisibleCount(n => n + 50)}>Show more foods ({filtered.length - visibleCount} remaining)</button>}
             {filtered.length === 0 && (
               <div className="flex items-center justify-center h-40">
                 <p className="font-display text-lg text-muted tracking-widest">NO RESULTS</p>
@@ -484,15 +517,16 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
 
           {/* Selected food config */}
           {selectedFood && (
-            <div className="border-t border-border/50 bg-white/[0.04] px-5 py-4 space-y-3 anim-sheet flex-shrink-0">
+            <div className="mp-portion border-t border-border/50 bg-card px-4 py-4 space-y-3 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <p className="font-mono text-sm text-cream truncate flex-1">{selectedFood.name}</p>
                 <span className="font-mono text-xs text-muted ml-2">{servingLabel(selectedFood)}</span>
               </div>
-              <div className="flex gap-3 items-end">
+              <div className="mp-portion-controls">
                 <div className="flex-1">
-                  <label className="font-display text-xs text-muted tracking-widest block mb-1.5">QUANTITY</label>
+                  <label htmlFor="meal-food-quantity" className="font-display text-xs text-muted tracking-widest block mb-1.5">SERVINGS</label>
                   <input
+                    id="meal-food-quantity"
                     type="text"
                     inputMode="decimal"
                     value={quantity}
@@ -517,15 +551,17 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
                 )}
                 <button
                   onClick={addItem}
+                  disabled={!validQuantity}
                   className="bg-brown hover:bg-brown-light text-bg font-display font-bold text-sm tracking-widest px-4 py-2.5 rounded-lg transition-colors glow-hover flex-shrink-0"
                 >
-                  ADD
+                  ADD TO {targetMeal.toUpperCase()}
                 </button>
               </div>
             </div>
           )}
         </div>
       </div>
-    </div>
+      </fieldset>
+    </div>, document.body
   )
 }

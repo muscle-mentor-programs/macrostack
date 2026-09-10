@@ -289,9 +289,12 @@ function MealPlansTab({ clientId }) {
   const plans       = client.mealPlans || []
   const activePlanId = client.activeMealPlanId
 
-  const handleSavePlan = (planData) => {
-    if (editingPlan?.id) updateMealPlan(client.id, editingPlan.id, planData)
-    else addMealPlan(client.id, planData)
+  const handleSavePlan = async (planData) => {
+    if (editingPlan?.id) await updateMealPlan(client.id, editingPlan.id, planData)
+    else {
+      const id = await addMealPlan(client.id, planData)
+      if (!id) throw new Error('Could not save meal plan. Please retry; your draft has been kept.')
+    }
   }
 
   const handleGenerate = async () => {

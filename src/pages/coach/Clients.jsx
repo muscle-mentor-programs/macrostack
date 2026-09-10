@@ -437,13 +437,14 @@ function MealPlansTab({ clientId }) {
   const plans = client.mealPlans || []
   const activePlanId = client.activeMealPlanId
 
-  const handleSavePlan = (planData) => {
+  const handleSavePlan = async (planData) => {
     if (editingPlan?.id) {
       // Editing an existing saved plan (has a real id)
-      updateMealPlan(client.id, editingPlan.id, planData)
+      await updateMealPlan(client.id, editingPlan.id, planData)
     } else {
       // New plan OR AI-generated plan (editingPlan may be truthy but id is null)
-      addMealPlan(client.id, planData)
+      const id = await addMealPlan(client.id, planData)
+      if (!id) throw new Error('Could not save meal plan. Please retry; your draft has been kept.')
     }
     // Don't close here, let MealPlanBuilder show the "SAVED" animation
     // then call onClose() itself after 800 ms
