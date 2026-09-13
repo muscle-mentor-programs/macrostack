@@ -1,4 +1,24 @@
 .marketplace-page .font-display { font-weight: 900; }
+/* The public page sits directly inside the scroll-locked application root.
+   Signed-in users already have a scroller in ClientLayout: keep that single
+   scroll owner, but size its shell to the browser viewport, not screen.height. */
+.marketplace-standalone {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+}
+.software-client:has(.marketplace-embedded) {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+}
+.marketplace-browser {
+  overflow-wrap: anywhere;
+  padding-bottom: max(7rem, calc(2rem + env(safe-area-inset-bottom)));
+}
 .marketplace-page .glass-card { border-radius: 12px; }
 .marketplace-page .btn-primary, .marketplace-page .btn-ghost {
   display: inline-flex;

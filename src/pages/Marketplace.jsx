@@ -55,7 +55,7 @@ export default function Marketplace({ onBack, onSignIn }) {
   }
 
   const filtered = coaches.filter(c => `${c.name} ${c.specialties} ${c.headline}`.toLowerCase().includes(query.toLowerCase()))
-  return <main className="marketplace-page min-h-full bg-bg text-cream px-5 py-8 md:px-8 pb-28">
+  return <main className={`marketplace-page marketplace-browser ${authenticated ? 'marketplace-embedded' : 'marketplace-standalone'} min-h-full bg-bg text-cream px-5 py-8 md:px-8 pb-28`}>
     <div className="max-w-6xl mx-auto space-y-6">
       {onBack && <button type="button" onClick={onBack} className="btn-ghost flex items-center gap-2"><ArrowLeft size={16} /> Back</button>}
       <header><p className="font-mono text-xs tracking-widest text-muted mb-3">MACROSTACK COACHING</p><h1 className="font-display text-4xl md:text-5xl">FIND YOUR COACH</h1><p className="text-muted mt-3 max-w-2xl">Explore coaching that fits your goals. Choose your coach, review their package, and connect after secure checkout.</p></header>
