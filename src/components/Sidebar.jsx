@@ -2,6 +2,7 @@ import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
 import ScrambleText from './ScrambleText'
 import ThemeToggle from './ThemeToggle'
+import CoachNotifications from './CoachNotifications'
 import { LayoutDashboard, Utensils, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap, ClipboardList, Radar } from 'lucide-react'
 
 const BASE_NAV = [
@@ -75,6 +76,7 @@ export default function Sidebar({ width }) {
       </div>
 
       {/* Quick stats, live numbers, landing finale language */}
+      <div className="px-4 py-3 relative"><CoachNotifications /></div>
       <div className="grid grid-cols-2 border-b border-border relative">
         <div className="px-6 py-3 border-r border-border">
           <p className="font-display font-black text-xl leading-none" style={{ color: 'var(--color-accent)' }}>

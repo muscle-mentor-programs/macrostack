@@ -3,6 +3,7 @@ import { Smartphone, LogOut, ShieldAlert } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import CoachBottomNav from '../components/CoachBottomNav'
 import ThemeToggle from '../components/ThemeToggle'
+import CoachNotifications from '../components/CoachNotifications'
 import useStore from '../store'
 import useIsMobile from '../hooks/useIsMobile'
 
@@ -91,6 +92,7 @@ export default function CoachLayout({ children }) {
 
         {/* Floating top-right controls */}
         <div className="product-controls fixed top-safe right-4 z-30 flex items-center gap-1.5">
+          <CoachNotifications compact />
           {isSuperAcct && (
             <button
               onClick={() => setPortalMode(portalMode === 'superadmin' ? 'coach' : 'superadmin')}
