@@ -19,13 +19,6 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/stripe-connect/callback",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "Referrer-Policy", "value": "no-referrer" }
-      ]
-    },
-    {
       "source": "/(.*)",
       "headers": [
         {
@@ -48,6 +41,13 @@
           "key": "Permissions-Policy",
           "value": "camera=(self), microphone=(self), geolocation=()"
         }
+      ]
+    },
+    {
+      "source": "/stripe-connect/callback",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
       ]
     }
   ]
