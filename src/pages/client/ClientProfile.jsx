@@ -16,6 +16,7 @@ import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
 import CoachMarketplace from '../../components/CoachMarketplace'
+import CycleTracking from '../../components/CycleTracking'
 
 /* Enable browser push, new messages from the coach ping the home screen. */
 function PushToggle() {
@@ -771,6 +772,8 @@ export default function ClientProfile() {
         </button>
       </div>
     </div>
+
+    <CycleTracking client={client} />
 
     <div className="mx-5 mb-8 glass-card rounded-lg p-5">
       <h2 className="font-display font-bold text-xl">FEATURES & BUGS</h2>

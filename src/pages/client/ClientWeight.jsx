@@ -8,6 +8,8 @@ import { successHaptic } from '../../utils/haptics'
 import PremiumGate from '../../components/PremiumGate'
 import useSubscription from '../../hooks/useSubscription'
 import ProgressPhotos from '../../components/ProgressPhotos'
+import useCycleTracking from '../../hooks/useCycleTracking'
+import { isPeriodDay } from '../../lib/cycleTracking'
 
 // Compute 7-day moving average keyed by calendar date so backfilled entries
 // slot into the correct window automatically.
@@ -23,6 +25,8 @@ export default function ClientWeight() {
   const { activeClientId, clients, addClientWeight, removeClientWeight } = useStore()
   const { hasAccess } = useSubscription()
   const client = clients.find((c) => c.id === activeClientId)
+  const userId = useStore(state => state.currentUser?.id)
+  const cycle = useCycleTracking(client?.profileId === userId ? userId : null)
   const weightLog = client?.weightLog || []
 
   const todayStr = format(new Date(), 'yyyy-MM-dd')
@@ -64,6 +68,7 @@ export default function ClientWeight() {
     date:   format(parseISO(w.date), 'M/d'),
     weight: w.value,
     avg:    w.ma,
+    period: cycle.enabled && isPeriodDay(w.date, cycle.periods),
   }))
 
   // Trend insight, interpret the 7-day moving average over the recent window
@@ -246,6 +251,7 @@ export default function ClientWeight() {
               <span className="font-mono text-[10px] text-muted">7-day avg</span>
             </div>
           </div>
+          {cycle.enabled && <p className="text-xs text-muted mb-3">Blue dots mark weigh-ins on logged period days. Temporary fluid changes may affect weight; focus on your longer-term trend.</p>}
           <ResponsiveContainer width="100%" height={160}>
             <ComposedChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
               <XAxis
@@ -273,7 +279,7 @@ export default function ClientWeight() {
                 dataKey="weight"
                 stroke="#6B7A52"
                 strokeWidth={0}
-                dot={{ fill: '#6B7A52', r: 3, strokeWidth: 0 }}
+                dot={({ cx, cy, payload, index }) => <circle key={index} cx={cx} cy={cy} r={payload.period ? 5 : 3} fill={payload.period ? 'var(--color-accent)' : '#6B7A52'} />}
                 activeDot={{ r: 5, fill: '#849663' }}
                 name="Weight"
                 connectNulls
