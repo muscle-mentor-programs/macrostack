@@ -8,6 +8,7 @@ import './coach-dashboard.css'
 import './software-motion.css'
 import './coach-cards.css'
 import App from './App.jsx'
+import StripeConnectCallback from './pages/StripeConnectCallback.jsx'
 import * as Sentry from '@sentry/react'
 
 // Error monitoring, no-op until VITE_SENTRY_DSN is set in Vercel env
@@ -34,6 +35,6 @@ if (window.location.hash.includes('type=invite')) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    {window.location.pathname === '/stripe-connect/callback' ? <StripeConnectCallback /> : <App />}
   </StrictMode>,
 )

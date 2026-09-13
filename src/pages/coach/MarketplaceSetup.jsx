@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import useStore from '../../store'
-import { supabase } from '../../lib/supabase'
+import { startStripeConnection } from '../../lib/stripeConnect'
 import { marketplace, coachingPrice } from '../../lib/marketplace'
 import '../Marketplace.css'
 import MarketplacePhotoUpload from '../../components/MarketplacePhotoUpload'
@@ -27,18 +27,8 @@ export default function MarketplaceSetup() {
   async function connect() {
     setBusy(true); setError('')
     try {
-      const { data, error: failure } = await supabase.functions.invoke('connect-onboard', { body: { marketplace: true } })
-      if (failure) {
-        let detail = ''
-        try {
-          const response = await failure.context.clone().json()
-          detail = response.error || response.message || ''
-        } catch { /* Network failures may not contain a JSON response. */ }
-        throw new Error(detail || 'Could not reach Stripe setup. Check your connection and sign in again, then retry.')
-      }
-      if (data?.error) throw new Error(data.error)
-      if (data.url) window.location.assign(data.url)
-      else setMessage('Stripe is connected. Save your profile to verify publishing eligibility.')
+      const data = await startStripeConnection('marketplace')
+      if (!data.url) setMessage('Stripe is connected. Save your profile to verify publishing eligibility.')
     } catch (e) { setError(e.message) } finally { setBusy(false) }
   }
   return <main className="marketplace-page app-page-gutter md:h-full md:min-h-0 md:overflow-y-auto md:overscroll-contain px-5 pt-mobile-header md:pt-8 pb-28 text-cream">

@@ -3,6 +3,7 @@ import { Check, Loader2, Settings, Users, ArrowUpRight, ArrowDownRight, Lock, Ba
 import useStore from '../store'
 import useSubscription from '../hooks/useSubscription'
 import { isNativeIOS } from '../lib/platform'
+import { stripeConnectRequest } from '../lib/stripeConnect'
 // Coach tiers, shared with the landing page, client-limit gates, and edge functions
 import { COACH_TIERS, coachClientLimit, coachTierLabel } from '../lib/coachTiers'
 
@@ -335,7 +336,7 @@ export default function UpgradePage() {
 }
 
 /* ── Client billing, coaches charge their clients through MacroStack ─────────
-   Stripe Connect Express: connect once, set a monthly price, clients get a
+   Stripe account authorization: connect once, set a monthly price, clients get a
    PAY COACH button on their coach tab. Money goes straight to the coach. */
 export function ClientBillingCard() {
   const { coachBilling, fetchCoachBilling, saveCoachBillingPrice, startConnectOnboarding } = useStore()
@@ -344,8 +345,11 @@ export function ClientBillingCard() {
   const [busy, setBusy]     = useState(false)
   const [error, setError]   = useState('')
 
+  const [stripeReady, setStripeReady] = useState(false)
+
   useEffect(() => {
     fetchCoachBilling().then((cb) => { if (cb?.price) setPrice(String(cb.price)) })
+    stripeConnectRequest({ action: 'status' }).then(data => setStripeReady(data.ready)).catch(e => setError(e.message))
     // Returning from Stripe onboarding → re-sync readiness
     const params = new URLSearchParams(window.location.search)
     if (params.get('connect')) {
@@ -355,7 +359,7 @@ export function ClientBillingCard() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const ready = !!coachBilling?.connectReady
+  const ready = stripeReady
 
   const handleConnect = async () => {
     setBusy(true); setError('')
@@ -364,6 +368,7 @@ export function ClientBillingCard() {
     else if (!res.url) {
       // Already ready, refresh state
       await fetchCoachBilling()
+      setStripeReady(!!res.ready)
       setBusy(false)
     }
     // otherwise the browser is redirecting to Stripe

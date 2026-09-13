@@ -82,6 +82,9 @@ serve(async (req) => {
   }
 
   try {
+    // Coach-account events belong to the separate Connect endpoint and must
+    // never update a user's MacroStack subscription from seller metadata.
+    if (event.account) return new Response(JSON.stringify({ received: true }), { headers: { 'Content-Type': 'application/json' } })
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session

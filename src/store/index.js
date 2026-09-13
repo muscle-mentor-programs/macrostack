@@ -5,6 +5,7 @@ import { persist } from 'zustand/middleware'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { coachClientLimit } from '../lib/coachTiers'
+import { startStripeConnection } from '../lib/stripeConnect'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 
@@ -1573,20 +1574,10 @@ const useStore = create(
 
       // Start / continue Stripe Connect onboarding → returns a URL to open.
       startConnectOnboarding: async () => {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) return { ok: false, error: 'Not signed in.' }
         try {
-          const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/connect-onboard`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-            body: JSON.stringify({ returnUrl: window.location.origin }),
-          })
-          const json = await res.json().catch(() => ({}))
-          if (!res.ok || !json.url) return { ok: false, error: json.error || 'Could not start Stripe onboarding.' }
-          window.location.href = json.url
-          return { ok: true }
-        } catch {
-          return { ok: false, error: 'Could not reach the billing service.' }
+          return await startStripeConnection('upgrade')
+        } catch (error) {
+          return { ok: false, error: error.message || 'Could not reach the billing service.' }
         }
       },
 
