@@ -90,35 +90,33 @@ function StoryPreview({ story, onClose }) {
   }
   return <dialog ref={dialog} className="story-share-dialog" aria-labelledby="story-preview-title" onCancel={onClose} onClick={event => { if (event.target === event.currentTarget) onClose() }}>
     <div className="story-share-shell">
-      <header><div><h2 id="story-preview-title">{story.kind === 'meal' ? 'SHARE MEAL' : 'SHARE DAILY TOTALS'}</h2><p>1080 × 1920 · Story image</p></div><button type="button" className="story-share-trigger" aria-label="Close share preview" onClick={onClose}><X size={20} /></button></header>
+      <header><div><h2 id="story-preview-title">{story.kind === 'meal' ? 'SHARE MEAL' : 'SHARE DAILY TOTALS'}</h2>{story.kind === 'daily' && <p>1080 × 1920 · Story image</p>}</div><button type="button" className="story-share-trigger" aria-label="Close share preview" onClick={onClose}><X size={20} /></button></header>
       <div className="story-share-content">
         {story.kind === 'meal' && <div className="story-photo-controls">
-          <p>A food photo is required. Keep the food centered; the numbers sit below it. Photos stay on your device.</p>
           <div className="story-share-actions">
             <button className="story-share-trigger" disabled={sharing || photoLoading} onClick={() => camera.current.click()}><Camera size={16} />{photo ? 'Retake photo' : 'Take photo'}</button>
             <button className="story-share-trigger" disabled={sharing || photoLoading} onClick={() => gallery.current.click()}><ImagePlus size={16} />{photo ? 'Change photo' : 'Choose photo'}</button>
           </div>
           <input ref={camera} aria-label="Take food photo" type="file" accept="image/*" capture="environment" hidden onChange={choosePhoto} />
           <input ref={gallery} aria-label="Choose food photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden onChange={choosePhoto} />
-          <p>Your phone may open its camera or photo picker. If camera access is unavailable, choose an existing photo.</p>
         </div>}
         {(photoLoading || ((photo || story.kind === 'daily') && !previewReady && !error)) && <p role="status">{photoLoading ? 'Opening photo…' : 'Creating your Story image…'}</p>}
         {error && <div role="alert"><p>{error}</p>{(photo || story.kind === 'daily') && <button className="story-share-trigger" onClick={() => { setError(''); setAttempt(value => value + 1) }}>Retry</button>}</div>}
         <canvas ref={preview} hidden={!previewReady} role="img" width="1080" height="1920" aria-label={`${story.kind === 'meal' ? story.meal : 'Daily totals'} nutrition Story preview for ${story.date}`} />
         {photo && <fieldset className="story-photo-position" disabled={sharing}>
-          <legend>Position the food in the clear center</legend>
+          <legend>Adjust photo</legend>
           <label>Left / right<input aria-label="Photo horizontal position" type="range" min="0" max="100" value={position.x} onChange={event => reposition('x', event.target.value)} /></label>
           <label>Up / down<input aria-label="Photo vertical position" type="range" min="0" max="100" value={position.y} onChange={event => reposition('y', event.target.value)} /></label>
         </fieldset>}
       </div>
-      <footer>
-        <p>Review before sharing. Choose Instagram if offered, or download and add the image to your Story. Nothing is posted automatically.</p>
+      {(previewReady || message || story.kind === 'daily') && <footer>
+        {story.kind === 'daily' && <p>Review before sharing. Choose Instagram if offered, or download and add the image to your Story. Nothing is posted automatically.</p>}
         {previewReady && <div className="story-share-actions">
           {canShareImage(generated?.file) && <button className="story-share-trigger story-share-primary" disabled={sharing || !asset} onClick={share}><Share2 size={16} />{sharing ? 'Sharing…' : 'Share image'}</button>}
           <a className="story-share-trigger" aria-disabled={!asset} href={asset?.url} download={asset?.file.name} onClick={event => { if (!asset) event.preventDefault() }}><Download size={16} />Download image</a>
         </div>}
         <p role="status">{message}</p>
-      </footer>
+      </footer>}
     </div>
   </dialog>
 }
