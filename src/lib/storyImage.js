@@ -149,8 +149,9 @@ export async function renderStoryCanvas(story, photo, position) {
   })
   line(ctx, 1630)
   }
-  ctx.drawImage(logo, 75, 1630, 100, 100)
-  text(ctx, 'MACROSTACK', 184, 1660, 37, colors.muted)
+  const brandingOffset = story.kind === 'meal' ? 30 : 0
+  ctx.drawImage(logo, 75, 1630 + brandingOffset, 100, 100)
+  text(ctx, 'MACROSTACK', 184, 1660 + brandingOffset, 37, colors.muted)
   return canvas
 }
 
