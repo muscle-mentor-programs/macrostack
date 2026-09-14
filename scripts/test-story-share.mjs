@@ -53,12 +53,32 @@ try {
       }
       const preview = page.getByRole('img')
       await preview.waitFor()
-      assert.deepEqual(await preview.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1080, 1920])
+      assert.deepEqual(await preview.evaluate(image => [image.width, image.height]), [1080, 1920])
+      await page.locator('a[download][href]').waitFor()
+      if (kind === 'meal') {
+        const slider = page.getByLabel('Photo horizontal position')
+        await slider.focus()
+        const before = await slider.boundingBox()
+        await page.evaluate(() => {
+          window.previewNode = document.querySelector('canvas[role="img"]')
+          window.encodeCount = 0
+          window.originalToBlob = HTMLCanvasElement.prototype.toBlob
+          HTMLCanvasElement.prototype.toBlob = function(...args) { window.encodeCount++; return window.originalToBlob.apply(this, args) }
+        })
+        for (let step = 0; step < 12; step++) {
+          await slider.press('ArrowRight')
+          assert.equal(await preview.evaluate(node => node === window.previewNode && !node.hidden), true)
+          assert.equal((await slider.boundingBox()).y, before.y)
+        }
+        await page.locator('a[download][href]').waitFor()
+        assert.equal(await page.evaluate(() => window.encodeCount), 1, 'Only one PNG encoding after rapid positioning')
+        await page.evaluate(() => { HTMLCanvasElement.prototype.toBlob = window.originalToBlob })
+      }
       const download = page.getByRole('link', { name: 'Download image' })
       const box = await download.boundingBox()
       assert.ok(box.y >= 0 && box.y + box.height <= 850)
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false)
-      const bytes = await preview.evaluate(async image => Array.from(new Uint8Array(await (await fetch(image.src)).arrayBuffer())))
+      const bytes = await preview.evaluate(async image => Array.from(new Uint8Array(await (await new Promise(resolve => image.toBlob(resolve, 'image/png'))).arrayBuffer())))
       await writeFile(`outputs/story-share/${kind}-${width}.png`, new Uint8Array(bytes))
       await page.screenshot({ path: `outputs/story-share/preview-${kind}-${width}.png` })
       const downloaded = page.waitForEvent('download')
@@ -121,6 +141,7 @@ try {
   await fallback.getByLabel('Photo horizontal position').focus()
   await fallback.getByLabel('Photo horizontal position').press('Home')
   await fallback.getByRole('img').waitFor()
+  await fallback.locator('a[download][href]').waitFor()
   assert.equal(await fallback.getByRole('button', { name: 'Share image', exact: true }).count(), 0)
   const smallButton = await fallback.getByRole('link', { name: 'Download image' }).boundingBox()
   assert.ok(smallButton.y + smallButton.height <= 568)

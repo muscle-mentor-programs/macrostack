@@ -52,6 +52,8 @@ allowlisting and long text. They never sign in or publish anything. Actual mobil
 Safari, the Capacitor webview, and Instagram posting need a physical-device check.
 Generated QA images use fictional food/goal values in `outputs/story-share/`.
 
+Positioning redraws a persistent canvas on animation frames instead of removing the preview and encoding a PNG for every slider input. PNG encoding waits for 250 ms of settled input; Share/Download cannot export an older position while the latest export is pending. Meal KCAL placement follows the measured calorie-number width.
+
 No database migration or production deployment is part of this change.
 # Daily totals versus meals
 

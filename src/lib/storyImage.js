@@ -86,7 +86,7 @@ export function photoCrop(width, height, position = { x: 50, y: 50 }) {
     y: (height - cropHeight) * Math.max(0, Math.min(100, position.y)) / 100, width: cropWidth, height: cropHeight }
 }
 
-export async function generateStoryImage(story, photo, position) {
+export async function renderStoryCanvas(story, photo, position) {
   if (story.kind === 'meal' && !photo) throw new Error('Add a food photo before sharing.')
   // Generation happens before the user's final Share tap to preserve iOS activation.
   let timeout
@@ -136,7 +136,8 @@ export async function generateStoryImage(story, photo, position) {
   text(ctx, story.kind === 'daily' ? 'DAILY TOTALS' : story.meal.toUpperCase(), 90, 285, 104, colors.ink, 900)
   ctx.fillStyle = colors.blue; ctx.fillRect(90, 420, 70, 6)
   text(ctx, number(story.totals.calories), 90, 1270, 112, colors.ink, 620)
-  text(ctx, 'KCAL', 770, 1330, 38, colors.ink, 220)
+  const calorieWidth = ctx.measureText(number(story.totals.calories)).width
+  text(ctx, 'KCAL', 90 + calorieWidth + 24, 1330, 38, colors.ink, 220)
   if (story.kind === 'daily') {
     text(ctx, `${number(story.goals.calories)} KCAL GOAL`, 90, 1390, 26, colors.muted, 900, 'StoryBody')
   }
@@ -150,5 +151,10 @@ export async function generateStoryImage(story, photo, position) {
   }
   ctx.drawImage(logo, 75, 1630, 100, 100)
   text(ctx, 'MACROSTACK', 184, 1660, 37, colors.muted)
+  return canvas
+}
+
+export async function generateStoryImage(story, photo, position) {
+  const canvas = await renderStoryCanvas(story, photo, position)
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create the image. Please retry.')), 'image/png'))
 }

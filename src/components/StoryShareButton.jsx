@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Share2, X, Download, Camera, ImagePlus } from 'lucide-react'
-import { canShareImage, generateStoryImage, readStoryPhoto, storySnapshot } from '../lib/storyImage'
+import { canShareImage, renderStoryCanvas, readStoryPhoto, storySnapshot } from '../lib/storyImage'
 import './StoryShareButton.css'
 
 export default function StoryShareButton({ getStory, label = 'Share', compact = false, disabled = false }) {
@@ -22,6 +22,8 @@ function StoryPreview({ story, onClose }) {
   const dialog = useRef(null)
   const camera = useRef(null)
   const gallery = useRef(null)
+  const preview = useRef(null)
+  const [previewReady, setPreviewReady] = useState(false)
   const selection = useRef({ version: 0 })
   const [photo, setPhoto] = useState(null)
   const [photoLoading, setPhotoLoading] = useState(false)
@@ -41,20 +43,31 @@ function StoryPreview({ story, onClose }) {
   useEffect(() => {
     let alive = true
     let url
+    let timer
+    let frame
     if (story.kind === 'meal' && !photo) return
-    generateStoryImage(story, photo, position).then(blob => {
-      if (!alive) return
-      url = URL.createObjectURL(blob)
-      setAsset({ url, photo, position, file: new File([blob], `macrostack-${story.kind}-${story.date}.png`, { type: 'image/png' }) })
-    }).catch(failure => { if (alive) setError(failure.message || 'Image generation failed. Please retry.') })
-    return () => { alive = false; if (url) URL.revokeObjectURL(url) }
+    frame = requestAnimationFrame(() => {
+      renderStoryCanvas(story, photo, position).then(canvas => {
+        if (!alive) return
+        preview.current.getContext('2d').drawImage(canvas, 0, 0)
+        setPreviewReady(true)
+        // Keep the preview mounted while dragging; encode only after input settles.
+        timer = setTimeout(() => canvas.toBlob(blob => {
+          if (!alive) return
+          if (!blob) { setError('Could not create the image. Please retry.'); return }
+          url = URL.createObjectURL(blob)
+          setAsset({ url, photo, position, file: new File([blob], `macrostack-${story.kind}-${story.date}.png`, { type: 'image/png' }) })
+        }, 'image/png'), 250)
+      }).catch(failure => { if (alive) setError(failure.message || 'Image generation failed. Please retry.') })
+    })
+    return () => { alive = false; cancelAnimationFrame(frame); clearTimeout(timer); if (url) URL.revokeObjectURL(url) }
   }, [story, attempt, photo, position])
   async function choosePhoto(event) {
     const file = event.target.files?.[0]
     event.target.value = ''
     if (!file) return // Camera/picker cancellation preserves the current photo.
     const version = ++selection.current.version
-    setAsset(null); setPhoto(null); setError(''); setMessage(''); setPhotoLoading(true)
+    setAsset(null); setPhoto(null); setPreviewReady(false); setError(''); setMessage(''); setPhotoLoading(true)
     try {
       const decoded = await readStoryPhoto(file)
       if (version === selection.current.version) { setPhoto(decoded); setPosition({ x: 50, y: 50 }) }
@@ -62,7 +75,7 @@ function StoryPreview({ story, onClose }) {
     finally { if (version === selection.current.version) setPhotoLoading(false) }
   }
   function reposition(key, value) {
-    setAsset(null); setError(''); setPosition(current => ({ ...current, [key]: Number(value) }))
+    setError(''); setPosition(current => ({ ...current, [key]: Number(value) }))
   }
   const supported = canShareImage(asset?.file)
   async function share() {
@@ -89,9 +102,9 @@ function StoryPreview({ story, onClose }) {
           <input ref={gallery} aria-label="Choose food photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden onChange={choosePhoto} />
           <p>Your phone may open its camera or photo picker. If camera access is unavailable, choose an existing photo.</p>
         </div>}
-        {(photoLoading || ((photo || story.kind === 'daily') && !asset && !error)) && <p role="status">{photoLoading ? 'Opening photo…' : 'Creating your Story image…'}</p>}
+        {(photoLoading || ((photo || story.kind === 'daily') && !previewReady && !error)) && <p role="status">{photoLoading ? 'Opening photo…' : 'Creating your Story image…'}</p>}
         {error && <div role="alert"><p>{error}</p>{(photo || story.kind === 'daily') && <button className="story-share-trigger" onClick={() => { setError(''); setAttempt(value => value + 1) }}>Retry</button>}</div>}
-        {asset && <img src={asset.url} width="1080" height="1920" alt={`${story.kind === 'meal' ? story.meal : 'Daily totals'} nutrition Story preview for ${story.date}`} />}
+        <canvas ref={preview} hidden={!previewReady} role="img" width="1080" height="1920" aria-label={`${story.kind === 'meal' ? story.meal : 'Daily totals'} nutrition Story preview for ${story.date}`} />
         {photo && <fieldset className="story-photo-position" disabled={sharing}>
           <legend>Position the food in the clear center</legend>
           <label>Left / right<input aria-label="Photo horizontal position" type="range" min="0" max="100" value={position.x} onChange={event => reposition('x', event.target.value)} /></label>
@@ -100,9 +113,9 @@ function StoryPreview({ story, onClose }) {
       </div>
       <footer>
         <p>Review before sharing. Choose Instagram if offered, or download and add the image to your Story. Nothing is posted automatically.</p>
-        {asset && <div className="story-share-actions">
-          {supported && <button className="story-share-trigger story-share-primary" disabled={sharing} onClick={share}><Share2 size={16} />{sharing ? 'Sharing…' : 'Share image'}</button>}
-          <a className="story-share-trigger" href={asset.url} download={asset.file.name}><Download size={16} />Download image</a>
+        {previewReady && <div className="story-share-actions">
+          {canShareImage(generated?.file) && <button className="story-share-trigger story-share-primary" disabled={sharing || !asset} onClick={share}><Share2 size={16} />{sharing ? 'Sharing…' : 'Share image'}</button>}
+          <a className="story-share-trigger" aria-disabled={!asset} href={asset?.url} download={asset?.file.name} onClick={event => { if (!asset) event.preventDefault() }}><Download size={16} />Download image</a>
         </div>}
         <p role="status">{message}</p>
       </footer>
