@@ -218,7 +218,7 @@ function dbToFood(row) {
   })
 }
 
-const calcTotals = (entries = []) =>
+export const calcTotals = (entries = []) =>
   entries.reduce(
     (acc, e) => ({
       calories: acc.calories + (e.calories || 0),

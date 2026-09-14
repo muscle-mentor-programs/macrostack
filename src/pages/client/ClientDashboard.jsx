@@ -5,6 +5,7 @@ import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from '
 import useStore from '../../store'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
+import StoryShareButton from '../../components/StoryShareButton'
 
 function CalorieRing({ current, goal }) {
   const theme = useStore((s) => s.theme)
@@ -327,6 +328,9 @@ export default function ClientDashboard() {
       </div>
 
       {/* Calorie ring */}
+      <div className="app-page-inset mt-3 flex justify-end">
+        <StoryShareButton label="Share daily totals" disabled={!client} getStory={() => ({ kind: 'daily', date: logDate, totals, goals: client?.goals })} />
+      </div>
       <div className="client-energy flex flex-col items-center py-6 px-5 anim-fade-in" style={{ animationDelay: '100ms' }}>
         <CalorieRing current={totals.calories} goal={client?.goals?.calories || 2000} />
         <div className="flex gap-8 mt-4">
