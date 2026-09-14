@@ -87,7 +87,7 @@ export function photoCrop(width, height, position = { x: 50, y: 50 }) {
 }
 
 export async function generateStoryImage(story, photo, position) {
-  if (!photo) throw new Error('Add a food photo before sharing.')
+  if (story.kind === 'meal' && !photo) throw new Error('Add a food photo before sharing.')
   // Generation happens before the user's final Share tap to preserve iOS activation.
   let timeout
   const logo = await Promise.race([loadAssets(), new Promise((_, reject) => {
@@ -98,6 +98,29 @@ export async function generateStoryImage(story, photo, position) {
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Image export is not available in this browser.')
   ctx.fillStyle = colors.bg; ctx.fillRect(0, 0, 1080, 1920)
+  if (story.kind === 'daily') {
+    ctx.textBaseline = 'top'
+    ctx.strokeStyle = '#101824'; ctx.lineWidth = 1
+    for (let x = 0; x < 1080; x += 120) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1920); ctx.stroke() }
+    for (let y = 0; y < 1920; y += 120) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1080, y); ctx.stroke() }
+    const date = new Date(`${story.date}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()
+    text(ctx, date, 90, 240, 26, colors.muted, 900, 'StoryBody')
+    ctx.fillStyle = colors.blue; ctx.fillRect(90, 306, 70, 6)
+    text(ctx, 'THE DAILY', 90, 355, 118)
+    text(ctx, 'STACK.', 90, 474, 118, colors.blue)
+    line(ctx, 645)
+    text(ctx, number(story.totals.calories), 90, 685, 174, colors.ink, 620)
+    text(ctx, 'KCAL', 750, 770, 42, colors.muted, 240)
+    text(ctx, `${number(story.goals.calories)} KCAL GOAL`, 90, 875, 30, colors.muted, 900, 'StoryBody')
+    ;[['protein', 'PROTEIN', colors.protein], ['carbs', 'CARBS', colors.blue], ['fat', 'FAT', colors.fat]].forEach(([key, label, color], index) => {
+      const y = 990 + index * 184
+      text(ctx, label, 90, y, 34, color)
+      ctx.textAlign = 'right'; text(ctx, `${number(story.totals[key])} / ${number(story.goals[key])} g`, 990, y, 38, colors.ink, 570, 'StoryBody'); ctx.textAlign = 'left'
+      ctx.fillStyle = colors.line; ctx.fillRect(90, y + 75, 900, 9)
+      if (story.goals[key] > 0) { ctx.fillStyle = color; ctx.fillRect(90, y + 75, 900 * Math.min(1, story.totals[key] / story.goals[key]), 9) }
+    })
+    line(ctx, 1600)
+  } else {
   const crop = photoCrop(photo.width || photo.naturalWidth, photo.height || photo.naturalHeight, position)
   ctx.drawImage(photo, crop.x, crop.y, crop.width, crop.height, 0, 0, 1080, 1920)
   ctx.textBaseline = 'top'
@@ -124,6 +147,7 @@ export async function generateStoryImage(story, photo, position) {
     if (story.kind === 'daily') text(ctx, `/ ${number(story.goals[key])}g goal`, x, 1580, 23, colors.muted, 280, 'StoryBody')
   })
   line(ctx, 1630)
+  }
   ctx.drawImage(logo, 75, 1630, 100, 100)
   text(ctx, 'MACROSTACK', 184, 1660, 37, colors.muted)
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create the image. Please retry.')), 'image/png'))

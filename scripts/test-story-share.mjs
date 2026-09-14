@@ -14,7 +14,7 @@ assert.throws(() => storySnapshot({ ...data, kind: 'meal', items: [] }))
 assert.throws(() => storySnapshot({ ...data, totals: {} }))
 assert.equal(canShareImage({}, {}), false)
 assert.equal(canShareImage({}, { share() {}, canShare() { throw Error() } }), false)
-await assert.rejects(generateStoryImage(snapshot), /food photo/)
+await assert.rejects(generateStoryImage({ ...snapshot, kind: 'meal' }), /food photo/)
 assert.deepEqual(photoCrop(1080, 1920), { x: 0, y: 0, width: 1080, height: 1920 })
 assert.ok(photoCrop(1920,1080,{x:100,y:50}).x > photoCrop(1920,1080,{x:0,y:50}).x)
 await mkdir('outputs/story-share', { recursive: true })
@@ -43,9 +43,14 @@ try {
     await page.goto('http://127.0.0.1:5198/__story-qa')
     for (const [label, kind] of [['Share lunch', 'meal'], ['Share daily totals', 'daily']]) {
       await page.getByRole('button', { name: label, exact: true }).click()
-      assert.equal(await page.getByRole('link', { name: 'Download image' }).count(), 0)
-      assert.equal(await page.getByLabel('Take food photo', { exact: true }).getAttribute('capture'), 'environment')
-      await addPhoto(page)
+      if (kind === 'meal') {
+        assert.equal(await page.getByRole('link', { name: 'Download image' }).count(), 0)
+        assert.equal(await page.getByLabel('Take food photo', { exact: true }).getAttribute('capture'), 'environment')
+        await addPhoto(page)
+      } else {
+        assert.equal(await page.locator('input[type="file"]').count(), 0)
+        assert.equal(await page.locator('.story-photo-position').count(), 0)
+      }
       const preview = page.getByRole('img')
       await preview.waitFor()
       assert.deepEqual(await preview.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1080, 1920])

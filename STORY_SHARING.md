@@ -53,3 +53,6 @@ Safari, the Capacitor webview, and Instagram posting need a physical-device chec
 Generated QA images use fictional food/goal values in `outputs/story-share/`.
 
 No database migration or production deployment is part of this change.
+# Daily totals versus meals
+
+Daily totals use the original photo-free THE DAILY STACK graphic, including calorie goal and macro progress bars. No camera or photo controls appear. Only meal sharing requires a food photo and uses the photo-overlay layout described below.

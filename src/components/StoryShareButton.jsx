@@ -41,7 +41,7 @@ function StoryPreview({ story, onClose }) {
   useEffect(() => {
     let alive = true
     let url
-    if (!photo) return
+    if (story.kind === 'meal' && !photo) return
     generateStoryImage(story, photo, position).then(blob => {
       if (!alive) return
       url = URL.createObjectURL(blob)
@@ -79,7 +79,7 @@ function StoryPreview({ story, onClose }) {
     <div className="story-share-shell">
       <header><div><h2 id="story-preview-title">{story.kind === 'meal' ? 'SHARE MEAL' : 'SHARE DAILY TOTALS'}</h2><p>1080 × 1920 · Story image</p></div><button type="button" className="story-share-trigger" aria-label="Close share preview" onClick={onClose}><X size={20} /></button></header>
       <div className="story-share-content">
-        <div className="story-photo-controls">
+        {story.kind === 'meal' && <div className="story-photo-controls">
           <p>A food photo is required. Keep the food centered; the numbers sit below it. Photos stay on your device.</p>
           <div className="story-share-actions">
             <button className="story-share-trigger" disabled={sharing || photoLoading} onClick={() => camera.current.click()}><Camera size={16} />{photo ? 'Retake photo' : 'Take photo'}</button>
@@ -88,9 +88,9 @@ function StoryPreview({ story, onClose }) {
           <input ref={camera} aria-label="Take food photo" type="file" accept="image/*" capture="environment" hidden onChange={choosePhoto} />
           <input ref={gallery} aria-label="Choose food photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden onChange={choosePhoto} />
           <p>Your phone may open its camera or photo picker. If camera access is unavailable, choose an existing photo.</p>
-        </div>
-        {(photoLoading || (photo && !asset && !error)) && <p role="status">{photoLoading ? 'Opening photo…' : 'Creating your Story image…'}</p>}
-        {error && <div role="alert"><p>{error}</p>{photo && <button className="story-share-trigger" onClick={() => { setError(''); setAttempt(value => value + 1) }}>Retry</button>}</div>}
+        </div>}
+        {(photoLoading || ((photo || story.kind === 'daily') && !asset && !error)) && <p role="status">{photoLoading ? 'Opening photo…' : 'Creating your Story image…'}</p>}
+        {error && <div role="alert"><p>{error}</p>{(photo || story.kind === 'daily') && <button className="story-share-trigger" onClick={() => { setError(''); setAttempt(value => value + 1) }}>Retry</button>}</div>}
         {asset && <img src={asset.url} width="1080" height="1920" alt={`${story.kind === 'meal' ? story.meal : 'Daily totals'} nutrition Story preview for ${story.date}`} />}
         {photo && <fieldset className="story-photo-position" disabled={sharing}>
           <legend>Position the food in the clear center</legend>
