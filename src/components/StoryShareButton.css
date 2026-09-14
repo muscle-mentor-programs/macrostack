@@ -15,4 +15,9 @@
 .story-share-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
 .story-share-actions > * { flex:1; }
 .story-share-primary { background:var(--color-accent); color:#fff; }
+.story-photo-controls { padding:4px 0 14px; }
+.story-photo-controls p:last-child { margin-top:8px; }
+.story-photo-position { padding:12px 0; font-size:12px; color:var(--color-muted); }
+.story-photo-position label { display:flex; align-items:center; gap:12px; min-height:44px; }
+.story-photo-position input { flex:1; min-width:0; accent-color:var(--color-accent); }
 @media (max-height:500px) { .story-share-shell { overflow:auto; } .story-share-content { flex-shrink:0; overflow:visible; } }

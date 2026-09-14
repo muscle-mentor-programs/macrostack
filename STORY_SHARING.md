@@ -6,12 +6,25 @@ used (including historical dates), not the device date. Meal slots are the app's
 existing logged-meal grouping; saved-meal bundle names are not retained by the log.
 
 `StoryShareButton` snapshots an explicit allowlist of nutrition fields. It opens
-a native dialog and generates a 1080 × 1920 PNG with Canvas 2D, local Barlow
+a native dialog and requires a food photo for both meal and daily-total shares.
+Take Photo requests the rear camera via the system file input (`capture=environment`);
+Choose Photo is the gallery/desktop fallback. Camera availability and permission
+UI depend on the browser/OS. No camera stream or native plugin is added.
+It generates a 1080 × 1920 PNG with Canvas 2D, local Barlow
 Condensed / Space Grotesk fonts, and the existing shaded logo. No screenshots,
 server rendering, uploads, referrals, account details, or analytics are involved.
+Photos are decoded locally, bounded to 2400px, cropped to fill 9:16, and can be
+repositioned horizontally/vertically. The center y=540–1180 is left untouched;
+title/date are above it and nutrition/branding below. Edge shading ensures text
+contrast. Ingredients are omitted to preserve photo space. The exported PNG
+does not include the original photo's EXIF/location metadata. Files over 20MB,
+unsupported formats and failed decoding produce a recoverable error. Camera
+cancellation preserves the previous photo. Share/download stay unavailable until
+the current photo and crop have finished rendering. Object URLs are revoked.
+
 Font licenses are alongside the font assets. Display values are rounded to whole
 units; the underlying totals helper and calculations are unchanged. Missing goals
-display a dash. Long food lists show four items and an additional-item count.
+display a dash.
 
 Native sharing uses `navigator.canShare({files})` and `navigator.share({files})`.
 The PNG is prepared before the final tap so no asset-loading await precedes the
