@@ -761,9 +761,6 @@ export default function ClientLog() {
       </div>
 
       {/* Copy a previous day, slim row, only when today is empty and there's history */}
-      <div className="app-page-inset mb-4">
-        <StoryShareButton label="Share daily totals" disabled={!client} getStory={() => ({ kind: 'daily', date: logDate, totals, goals: client?.goals })} />
-      </div>
       {entries.length === 0 && recentLoggedDays.length > 0 && (
         <div className="app-page-inset mb-5 flex items-center gap-2 glass-card border border-border rounded-xl px-3 py-2.5 anim-fade-in-up card-dim">
           <Copy size={13} className="text-brown-light flex-shrink-0" />
