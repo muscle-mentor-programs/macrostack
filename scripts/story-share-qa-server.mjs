@@ -10,10 +10,10 @@ const server = await createServer({ server: { host: '127.0.0.1', port: 5198, str
         const {createRoot}=ReactDOM;
         import StoryShareButton from '/src/components/StoryShareButton.jsx';
         import '/src/index.css';
-        document.documentElement.classList.add('theme-blue');
+        document.documentElement.classList.add('ocean-dark');
         const totals={calories:1847,protein:156,carbs:203,fat:46};
         const goals={calories:2200,protein:180,carbs:250,fat:65};
-        const items=[{name:'Grilled chicken breast'},{name:'Jasmine rice'},{name:'Roasted broccoli'},{name:'Extra virgin olive oil'}];
+        const items=[{name:'Grilled chicken breast',amount:180},{name:'Jasmine rice',amount:150},{name:'Roasted broccoli',amount:100},{name:'Extra virgin olive oil',quantity:1,servingUnit:'tsp'},{name:'Fresh lemon juice',quantity:1,servingUnit:'tbsp'},{name:'Smoked paprika',quantity:0.5,servingUnit:'tsp'}];
         window.storyFixtures={totals,goals,items};
         const e=React.createElement;
         if(location.pathname.endsWith('/log')) {
@@ -23,6 +23,7 @@ const server = await createServer({ server: { host: '127.0.0.1', port: 5198, str
           createRoot(document.getElementById('test')).render(e(ClientLog));
         } else createRoot(document.getElementById('test')).render(e('main',{style:{padding:24}},
           e(StoryShareButton,{label:'Share lunch',getStory:()=>({kind:'meal',date:'2026-09-13',meal:'Lunch',totals:{calories:685,protein:54,carbs:72,fat:19},items})}),
+          e(StoryShareButton,{label:'Share large meal',getStory:()=>({kind:'meal',date:'2026-09-13',meal:'Dinner',totals,items:[...items,{name:'Avocado',amount:50},{name:'Greek yogurt',amount:40}]})}),
           e(StoryShareButton,{label:'Share daily totals',getStory:()=>({kind:'daily',date:'2026-09-12',totals,goals})})))
       </script></body></html>`))
     })

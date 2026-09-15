@@ -20,6 +20,12 @@
 .story-share-primary { background:var(--color-accent); color:#fff; }
 .story-photo-controls { padding:4px 0 14px; }
 .story-photo-controls p:last-child { margin-top:8px; }
+.story-photo-intro { padding:28px 24px; border:1px solid var(--color-border); border-radius:14px; background:linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 12%, var(--color-bg)), var(--color-surface)); }
+.story-photo-intro span { font-size:10px; letter-spacing:.2em; color:var(--color-accent); }
+.story-photo-intro h3 { margin-top:12px; font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:900; line-height:1.1; }
+.story-page-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:14px; }
+.story-page-nav p { text-align:center; color:var(--color-cream); }
+.story-page-nav span { display:block; font-size:10px; color:var(--color-muted); }
 .story-photo-position { padding:12px 0; font-size:12px; color:var(--color-muted); }
 .story-photo-position label { display:flex; align-items:center; gap:12px; min-height:44px; }
 .story-photo-position input { flex:1; min-width:0; accent-color:var(--color-accent); }

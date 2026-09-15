@@ -1,13 +1,23 @@
 import assert from 'node:assert/strict'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { storySnapshot, canShareImage, photoCrop, generateStoryImage } from '../src/lib/storyImage.js'
+import { storySnapshot, canShareImage, photoCrop, generateStoryImage, storyServing, storyPageCount } from '../src/lib/storyImage.js'
 const require = createRequire(import.meta.url)
-const { chromium } = require('C:/Users/Branden Hales/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright')
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const data = { kind: 'daily', date: '2026-09-12', totals: { calories: 123.4, protein: 4.5, carbs: 6, fat: 7 }, goals: { calories: 2000 }, email: 'private@example.com' }
 const snapshot = storySnapshot(data)
 assert.equal(snapshot.totals.calories, 123.4)
 assert.equal(snapshot.email, undefined)
+assert.equal(storyServing({quantity:1.5,servingSize:100,servingUnit:'g'}), '150 g')
+assert.equal(storyServing({quantity:0.5,servingSize:15,servingUnit:'tbsp'}), '0.5 tbsp')
+assert.equal(storyServing({amount:85}), '85 g')
+assert.equal(storyServing({}), '')
+assert.equal(storyServing({quantity:1,servingUnit:'2 tablespoons'}), '2 tablespoons')
+assert.equal(storyServing({quantity:0.5,servingUnit:'2 tablespoons'}), '0.5 × 2 tablespoons')
+assert.equal(storyServing({quantity:2,servingSize:100}), '200 g')
+const meal = storySnapshot({...data,kind:'meal',items:[{name:'Rice',amount:150,email:'private',id:'secret'}]})
+assert.deepEqual(meal.items, [{name:'Rice',serving:'150 g'}])
+assert.equal(storyPageCount({...meal,items:Array.from({length:13},()=>meal.items[0])}),3)
 data.totals.calories = 999
 assert.equal(snapshot.totals.calories, 123.4)
 assert.throws(() => storySnapshot({ ...data, kind: 'meal', items: [] }))
@@ -86,6 +96,18 @@ try {
       assert.match((await downloaded).suggestedFilename(), /macrostack-.*\.png/)
       await page.getByRole('button', { name: 'Close share preview' }).click()
     }
+    await page.getByRole('button', {name:'Share large meal',exact:true}).click()
+    await addPhoto(page)
+    await page.locator('a[download][href]').waitFor()
+    assert.match(await page.locator('a[download]').getAttribute('download'), /-1\.png$/)
+    await page.getByRole('button', {name:'Next ingredient card'}).click()
+    await page.locator('a[download][href]').waitFor()
+    assert.match(await page.locator('a[download]').getAttribute('download'), /-2\.png$/)
+    assert.equal(await page.getByRole('button', {name:'Next ingredient card'}).isDisabled(), true)
+    await page.getByRole('button', {name:'Previous ingredient card'}).click()
+    await page.locator('a[download][href]').waitFor()
+    assert.match(await page.locator('a[download]').getAttribute('download'), /-1\.png$/)
+    await page.getByRole('button', {name:'Close share preview'}).click()
     // Native API is mocked: no OS share target or social app receives test data.
     await page.evaluate(() => {
       Object.defineProperty(navigator, 'canShare', { configurable: true, value: () => true })
@@ -111,13 +133,16 @@ try {
     const source = await (await fetch('/outputs/story-share/synthetic-food.png')).blob()
     const photo = await readStoryPhoto(new File([source],'food.png',{type:'image/png'}))
     const blob = await generateStoryImage(storySnapshot({kind:'meal',date:'2026-09-13',meal:'An extremely long meal name that must stay inside the safe margins',totals:window.storyFixtures.totals,items:Array.from({length:12},()=>({name:'A very long food name '.repeat(20)}))}), photo)
-    const exported=await createImageBitmap(blob),check=document.createElement('canvas');check.width=1080;check.height=1920
-    const ctx=check.getContext('2d');ctx.drawImage(exported,0,0)
-    const original=photo.getContext('2d')
-    // No dark overlay, text or logo over the center of the food.
-    for(const [x,y] of [[540,900],[180,650],[850,1100]]) {
-      if(String(ctx.getImageData(x,y,1,1).data)!==String(original.getImageData(x,y,1,1).data)) throw Error('Center obscured')
-    }
+    // Confirm every logged food reaches a card, including the final partial card.
+    const {renderStoryCanvas, storyPageCount}=await import('/src/lib/storyImage.js')
+    const names=Array.from({length:13},(_,i)=>`Ingredient ${i+1}`)
+    const paged=storySnapshot({kind:'meal',date:'2026-09-13',meal:'Lunch',totals:window.storyFixtures.totals,items:names.map(name=>({name,amount:125}))})
+    const drawn=[];const fill=CanvasRenderingContext2D.prototype.fillText
+    CanvasRenderingContext2D.prototype.fillText=function(value,...args){drawn.push(value);return fill.call(this,value,...args)}
+    try { for(let page=0;page<storyPageCount(paged);page++) await renderStoryCanvas(paged,photo,undefined,page) }
+    finally { CanvasRenderingContext2D.prototype.fillText=fill }
+    if(names.some(name=>drawn.filter(text=>text===name).length!==1)) throw Error('Missing or duplicated ingredient')
+    if(drawn.filter(text=>text==='125 g').length!==13) throw Error('Missing logged quantities')
     return Array.from(new Uint8Array(await blob.arrayBuffer()))
   })
   await writeFile('outputs/story-share/long-meal.png', new Uint8Array(bytes))
@@ -148,5 +173,5 @@ try {
   await fallback.screenshot({ path: 'outputs/story-share/fallback-320.png' })
   await fallback.close()
   console.log('PASS required photo, invalid file, camera input, reposition, unsupported sharing, failed font load/retry, 320px download visibility')
-  console.log('PASS long meal export, center pixels unobscured; snapshot privacy and numeric preservation checks')
+  console.log('PASS long meal export, all 13 foods and quantities across cards; snapshot privacy and numeric preservation checks')
 } finally { await browser.close() }

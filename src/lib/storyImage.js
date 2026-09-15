@@ -1,5 +1,21 @@
 // Local-only export: no account identifiers, remote rendering, links or tracking.
 export const STORY_SIZE = { width: 1080, height: 1920 }
+export const FOODS_PER_STORY = 6
+export const storyPageCount = story => story.kind === 'meal' ? Math.max(1, Math.ceil(story.items.length / FOODS_PER_STORY)) : 1
+
+export function storyServing(item) {
+  const positive = value => Number.isFinite(value) && value > 0
+  const quantity = value => Number(value.toFixed(2)).toLocaleString('en-US')
+  if (positive(item.quantity) && item.servingUnit) {
+    if (['g', 'ml', 'oz', 'fl oz', 'L'].includes(item.servingUnit) && positive(item.servingSize)) {
+      return `${quantity(item.quantity * item.servingSize)} ${item.servingUnit}`
+    }
+    return item.quantity === 1 && /^\d/.test(item.servingUnit) ? item.servingUnit : `${quantity(item.quantity)}${/^\d/.test(item.servingUnit) ? ' ×' : ''} ${item.servingUnit}`
+  }
+  if (positive(item.amount)) return `${quantity(item.amount)} g`
+  if (positive(item.quantity) && positive(item.servingSize)) return `${quantity(item.quantity * item.servingSize)} g`
+  return ''
+}
 const colors = { bg: '#080B12', ink: '#D8E6F4', muted: '#99ABC0', line: '#27354A', blue: '#79A6DF', protein: '#A4B781', fat: '#A0AEC1' }
 const keys = ['calories', 'protein', 'carbs', 'fat']
 const values = source => Object.fromEntries(keys.map(key => [key, Number.isFinite(source?.[key]) ? source[key] : null]))
@@ -8,7 +24,7 @@ export function storySnapshot({ kind, date, totals, goals, meal, items = [] }) {
   if (!['meal', 'daily'].includes(kind) || !/^\d{4}-\d{2}-\d{2}$/.test(date || '') || Number.isNaN(Date.parse(date))) throw new Error('Choose a valid logged date.')
   if (!totals || keys.some(key => !Number.isFinite(totals[key]) || totals[key] < 0)) throw new Error('Nutrition totals are unavailable. Please reload and try again.')
   if (kind === 'meal' && !items.length) throw new Error('Log food in this meal before sharing it.')
-  return { kind, date, totals: values(totals), goals: values(goals), meal: String(meal || 'Meal'), items: items.map(item => ({ name: String(item.name || 'Food item') })) }
+  return { kind, date, totals: values(totals), goals: values(goals), meal: String(meal || 'Meal'), items: items.map(item => ({ name: String(item.name || 'Food item'), serving: storyServing(item) })) }
 }
 
 export function canShareImage(file, nav = navigator) {
@@ -78,15 +94,15 @@ export async function readStoryPhoto(file) {
   } finally { URL.revokeObjectURL(url) }
 }
 
-export function photoCrop(width, height, position = { x: 50, y: 50 }) {
+export function photoCrop(width, height, position = { x: 50, y: 50 }, frame = STORY_SIZE) {
   if (!(width > 0 && height > 0)) throw new Error('Add a food photo before sharing.')
-  const scale = Math.max(1080 / width, 1920 / height)
-  const cropWidth = 1080 / scale, cropHeight = 1920 / scale
+  const scale = Math.max(frame.width / width, frame.height / height)
+  const cropWidth = frame.width / scale, cropHeight = frame.height / scale
   return { x: (width - cropWidth) * Math.max(0, Math.min(100, position.x)) / 100,
     y: (height - cropHeight) * Math.max(0, Math.min(100, position.y)) / 100, width: cropWidth, height: cropHeight }
 }
 
-export async function renderStoryCanvas(story, photo, position) {
+export async function renderStoryCanvas(story, photo, position, page = 0) {
   if (story.kind === 'meal' && !photo) throw new Error('Add a food photo before sharing.')
   // Generation happens before the user's final Share tap to preserve iOS activation.
   let timeout
@@ -121,41 +137,82 @@ export async function renderStoryCanvas(story, photo, position) {
     })
     line(ctx, 1600)
   } else {
-  const crop = photoCrop(photo.width || photo.naturalWidth, photo.height || photo.naturalHeight, position)
-  ctx.drawImage(photo, crop.x, crop.y, crop.width, crop.height, 0, 0, 1080, 1920)
-  ctx.textBaseline = 'top'
-  // Text lives above/below the food. The center (y=540–1180) is untouched.
-  const top = ctx.createLinearGradient(0, 0, 0, 540)
-  top.addColorStop(0, 'rgba(8,11,18,.94)'); top.addColorStop(.7, 'rgba(8,11,18,.8)'); top.addColorStop(1, 'rgba(8,11,18,0)')
-  ctx.fillStyle = top; ctx.fillRect(0, 0, 1080, 540)
-  const bottom = ctx.createLinearGradient(0, 1180, 0, 1920)
-  bottom.addColorStop(0, 'rgba(8,11,18,0)'); bottom.addColorStop(.28, 'rgba(8,11,18,.88)'); bottom.addColorStop(1, 'rgba(8,11,18,.98)')
-  ctx.fillStyle = bottom; ctx.fillRect(0, 1180, 1080, 740)
-  const date = new Date(`${story.date}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()
-  text(ctx, date, 90, 220, 26, colors.ink, 900, 'StoryBody')
-  text(ctx, story.kind === 'daily' ? 'DAILY TOTALS' : story.meal.toUpperCase(), 90, 285, 104, colors.ink, 900)
-  ctx.fillStyle = colors.blue; ctx.fillRect(90, 420, 70, 6)
-  text(ctx, number(story.totals.calories), 90, 1270, 112, colors.ink, 620)
-  const calorieWidth = ctx.measureText(number(story.totals.calories)).width
-  text(ctx, 'KCAL', 90 + calorieWidth + 24, 1330, 38, colors.ink, 220)
+    const pageCount = storyPageCount(story)
+    const pageIndex = Math.max(0, Math.min(pageCount - 1, Math.floor(page) || 0))
+    const foods = story.items.slice(pageIndex * FOODS_PER_STORY, (pageIndex + 1) * FOODS_PER_STORY)
+    ctx.font = '32px StoryBody'
+    const foodLines = foods.map(item => {
+      const lines = []
+      let current = ''
+      for (const word of item.name.replace(/\s+/g, ' ').trim().split(' ')) {
+        const next = current ? `${current} ${word}` : word
+        if (ctx.measureText(next).width > 360 && current) { lines.push(current); current = word }
+        else current = next
+      }
+      if (current) lines.push(current)
+      return lines
+    })
+    // Tighten ordinary rows; retain breathing room for wrapped names and quantities.
+    const rowHeights = Array.from({ length: 3 }, (_, row) => Math.max(108,
+      ...foodLines.slice(row * 2, row * 2 + 2).map(lines => Math.min(3, lines.length) * 34 + 52)))
+    const ingredientTop = 1538 - 24 - rowHeights.reduce((sum, height) => sum + height, 0) - 88
+    const photoHeight = ingredientTop + 8
+    const crop = photoCrop(photo.width || photo.naturalWidth, photo.height || photo.naturalHeight, position, { width: 1080, height: photoHeight })
+    ctx.drawImage(photo, crop.x, crop.y, crop.width, crop.height, 0, 0, 1080, photoHeight)
+    ctx.textBaseline = 'top'
+    const top = ctx.createLinearGradient(0, 0, 0, 520)
+    top.addColorStop(0, 'rgba(8,11,18,.88)'); top.addColorStop(1, 'rgba(8,11,18,0)')
+    ctx.fillStyle = top; ctx.fillRect(0, 0, 1080, 520)
+    const bottom = ctx.createLinearGradient(0, photoHeight - 210, 0, photoHeight)
+    bottom.addColorStop(0, 'rgba(8,11,18,0)'); bottom.addColorStop(1, colors.bg)
+    ctx.fillStyle = bottom; ctx.fillRect(0, photoHeight - 210, 1080, 220)
+    const date = new Date(`${story.date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
+    ctx.drawImage(logo, 75, 142, 70, 70)
+    text(ctx, 'MACROSTACK', 150, 165, 32, colors.ink, 420)
+    ctx.textAlign = 'right'; text(ctx, date, 990, 170, 23, colors.ink, 360, 'StoryBody'); ctx.textAlign = 'left'
+    text(ctx, story.meal.toUpperCase(), 86, 222, 126, colors.ink, 908)
+    ctx.fillStyle = colors.blue; ctx.fillRect(90, 370, 64, 5)
+
+    text(ctx, 'THE INGREDIENT STACK', 90, ingredientTop, 35, colors.ink, 700)
+    ctx.textAlign = 'right'
+    text(ctx, pageCount > 1 ? `${pageIndex + 1} / ${pageCount}` : `${story.items.length} FOODS`, 990, ingredientTop + 7, 23, colors.muted, 220, 'StoryBody')
+    ctx.textAlign = 'left'
+    line(ctx, ingredientTop + 62)
+    foods.forEach((item, index) => {
+      const x = 90 + (index % 2) * 470
+      const y = ingredientTop + 92 + rowHeights.slice(0, Math.floor(index / 2)).reduce((sum, height) => sum + height, 0)
+      text(ctx, String(pageIndex * FOODS_PER_STORY + index + 1).padStart(2, '0'), x, y + 2, 21, colors.blue, 38, 'StoryBody')
+      const lines = foodLines[index]
+      lines.slice(0, 3).forEach((value, row) => {
+        ctx.font = '32px StoryBody'; ctx.fillStyle = colors.ink
+        ctx.fillText(short(ctx, row === 2 && lines.length > 3 ? `${value}…` : value, 360), x + 52, y + row * 34)
+      })
+      text(ctx, item.serving, x + 52, y + Math.min(3, lines.length) * 34 + 8, 24, colors.muted, 360, 'StoryBody')
+    })
+    line(ctx, 1538)
+    // Align the calorie and macro values on one baseline despite their different sizes.
+    ctx.textBaseline = 'alphabetic'
+    text(ctx, number(story.totals.calories), 90, 1670, 110, colors.ink, 290)
+    ;[['protein', 'PROTEIN', colors.protein], ['carbs', 'CARBS', colors.blue], ['fat', 'FAT', colors.fat]].forEach(([key, , color], index) => {
+      const x = 450 + index * 185
+      ctx.fillStyle = colors.line; ctx.fillRect(x - 24, 1590, 1, 118)
+      text(ctx, `${number(story.totals[key])}g`, x, 1670, 60, color, 160)
+    })
+    ctx.textBaseline = 'top'
+    text(ctx, 'KCAL', 90, 1690, 20, colors.muted, 305, 'StoryBody')
+    ;['PROTEIN', 'CARBS', 'FAT'].forEach((label, index) => {
+      text(ctx, label, 450 + index * 185, 1690, 20, colors.muted, 160, 'StoryBody')
+    })
+    line(ctx, 1750)
+  }
   if (story.kind === 'daily') {
-    text(ctx, `${number(story.goals.calories)} KCAL GOAL`, 90, 1390, 26, colors.muted, 900, 'StoryBody')
+    ctx.drawImage(logo, 75, 1630, 100, 100)
+    text(ctx, 'MACROSTACK', 184, 1660, 37, colors.muted)
   }
-  ;[['protein', 'PROTEIN', colors.protein], ['carbs', 'CARBS', colors.blue], ['fat', 'FAT', colors.fat]].forEach(([key, label, color], index) => {
-    const x = 90 + index * 310
-    text(ctx, `${number(story.totals[key])}g`, x, 1460, 65, color, 280)
-    text(ctx, label, x, 1540, 25, colors.ink, 280, 'StoryBody')
-    if (story.kind === 'daily') text(ctx, `/ ${number(story.goals[key])}g goal`, x, 1580, 23, colors.muted, 280, 'StoryBody')
-  })
-  line(ctx, 1630)
-  }
-  const brandingOffset = story.kind === 'meal' ? 30 : 0
-  ctx.drawImage(logo, 75, 1630 + brandingOffset, 100, 100)
-  text(ctx, 'MACROSTACK', 184, 1660 + brandingOffset, 37, colors.muted)
   return canvas
 }
 
-export async function generateStoryImage(story, photo, position) {
-  const canvas = await renderStoryCanvas(story, photo, position)
+export async function generateStoryImage(story, photo, position, page = 0) {
+  const canvas = await renderStoryCanvas(story, photo, position, page)
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create the image. Please retry.')), 'image/png'))
 }
