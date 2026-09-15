@@ -98,7 +98,7 @@ export default function SignupCheckout({ onBack, onSignIn }) {
         note: 'Your first client is free, this tier kicks in as your roster grows.' }
     : proInfo
     ? { label: 'MACROSTACK PRO', name: proInfo.name, price: `$${proInfo.price}`, unit: proInfo.unit, tag: proInfo.tag,
-        note: 'Barcode scanner + full progress analytics. Cancel anytime.' }
+        note: 'Barcode scanning, weight logging + all progress analytics. Cancel anytime.' }
     : null
 
   /* ── Redirecting to Stripe overlay ── */

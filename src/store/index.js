@@ -1131,6 +1131,11 @@ const useStore = create(
 
       // ── WEIGHT LOG ────────────────────────────────────────────────────────
       addClientWeight: async (clientId, entry) => {
+        const user = get().currentUser
+        if (!user || (user.role === 'client' && !user.hasAccess)) {
+          set({ activePage: 'upgrade' })
+          return { ok: false, error: 'Pro is required for weight logging.' }
+        }
         const id = crypto.randomUUID()
         const w  = { id, value: entry.value, unit: entry.unit || 'lbs', date: entry.date }
 
@@ -1148,6 +1153,11 @@ const useStore = create(
       },
 
       removeClientWeight: async (clientId, weightId) => {
+        const user = get().currentUser
+        if (!user || (user.role === 'client' && !user.hasAccess)) {
+          set({ activePage: 'upgrade' })
+          return { ok: false, error: 'Pro is required for weight logging.' }
+        }
         set((s) => ({
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c
@@ -1161,6 +1171,10 @@ const useStore = create(
       // Client submits a weekly check-in. Newest first. Attached photos also
       // land in the client's progress-photo timeline (their "file").
       addClientCheckin: async (clientId, data, photoFiles = []) => {
+        // Check-ins stay available, but member weight entries require Pro.
+        const user = get().currentUser
+        if (!user) return { ok: false }
+        if (user.role === 'client' && !user.hasAccess) data = { ...data, weight: null }
         // Upload photos first so their URLs ride on the check-in row
         const photoUrls = []
         for (const file of photoFiles) {

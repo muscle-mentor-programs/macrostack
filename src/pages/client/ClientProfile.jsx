@@ -509,6 +509,7 @@ export default function ClientProfile() {
         </p>
       </div>
 
+      <PremiumGate title="30-DAY ANALYTICS" blurb="Unlock Pro for intake averages, logging consistency, and calorie and protein trends." inline>
       {/* ── 30-Day Progress ─────────────────────────────────────────────────── */}
       <div className="app-page-gutter px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '250ms' }}>
         <div className="flex items-center gap-2 mb-1">
@@ -587,6 +588,8 @@ export default function ClientProfile() {
           </AreaChart>
         </ResponsiveContainer>
       </div>
+
+      </PremiumGate>
 
       {/* ── Weekly report (premium) ─────────────────────────────────────────── */}
       <div className="app-page-gutter px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '440ms' }}>

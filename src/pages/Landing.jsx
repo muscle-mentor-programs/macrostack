@@ -52,7 +52,7 @@ const CARDS = [
   { icon: LayoutDashboard, title: 'COACH DASHBOARD',    body: 'Unlimited clients, individual targets, live compliance, one screen.' },
   { icon: Bot, title: 'KAY AI',             body: 'A nutrition expert in your pocket. Food intel and answers, 24/7.', soon: true },
   { icon: CalendarDays, title: 'MEAL PLANS',         body: 'Coaches build day-by-day plans. Clients log a full meal with one tap.' },
-  { icon: ChartNoAxesCombined, title: 'WEIGHT & TRENDS',    body: '7-day moving averages, calorie trends, consistency heatmaps.' },
+  { icon: ChartNoAxesCombined, title: 'WEIGHT & TRENDS',    body: 'Pro includes weight logging, history, and all progress analytics.' },
 ]
 
 const STATS = [
@@ -74,9 +74,9 @@ const PRO_PLANS = [
 /* What Pro unlocks on top of the always-free core. */
 const PRO_FEATURES = [
   'Barcode scanner, instant macros from any label',
-  'Weight trends & 7-day moving averages',
+  'Weight logging, history & all progress analytics',
   'Calorie history & consistency insights',
-  'Everything in Free, unlimited logging, 15,000+ foods, custom foods',
+  'Everything in Free: unlimited food logging, 15,000+ foods, custom foods',
 ]
 
 /* MacroStack Coach, tiered by active client count. `plan` matches the tier
@@ -118,13 +118,13 @@ const COACH_FEATURES = [
 /* Product mockups, large phones alternate left/right beside feature copy as
    you scroll. Files live in public/mockups/. */
 const APP_SHOWCASE = [
-  { src: '/mockups/user-home-2026.jpg', eyebrow: 'YOUR DAY', title: 'EVERY GRAM, AT A GLANCE', body: 'Calories, macros, and your streak the second you open the app, no digging required.' },
+  { src: '/mockups/user-home-2026.jpg', eyebrow: 'YOUR DAY', title: 'EVERY GRAM, AT A GLANCE', body: 'See today’s calories and macros the second you open the app. Unlock logging streaks with Pro.' },
   { src: '/mockups/user-log-2026.jpg', eyebrow: 'LOG FAST', title: '15,000+ FOODS, ONE TAP', body: 'Search the database or scan any barcode for verified macros. Your go-to foods surface first.' },
-  { src: '/mockups/user-weight-2026.jpg', eyebrow: 'PROGRESS', title: 'WATCH THE REAL TREND', body: '7-day moving averages cut the daily scale noise so you see actual change, not water weight.' },
+  { src: '/mockups/user-weight-2026.jpg', eyebrow: 'PRO · WEIGHT TRACKING', title: 'WATCH THE REAL TREND', body: 'Log your weight with Pro, revisit your history, and follow your 7-day moving average over time.' },
   { src: '/mockups/user-chat-2026.jpg', eyebrow: 'COACHING', title: 'YOUR COACH, ONE TAP AWAY', body: 'Message your coach and submit weekly check-ins right inside the app.' },
-  { src: '/mockups/user-progress-2026.jpg', eyebrow: 'THE BIG PICTURE', title: 'YOUR MONTH IN FOCUS', body: 'See your average daily intake, days logged, and calorie trends together in your profile.' },
+  { src: '/mockups/user-progress-2026.jpg', eyebrow: 'PRO · ANALYTICS', title: 'YOUR MONTH IN FOCUS', body: 'See your average daily intake, days logged, and calorie trends together in your profile.' },
   { src: '/mockups/user-targets-2026.jpg', eyebrow: 'YOUR TARGETS', title: 'A PLAN THAT FITS YOU', body: 'Keep your calorie and macro targets close, with your coach connected to your progress.' },
-  { src: '/mockups/user-report-2026.jpg', eyebrow: 'WEEKLY REPORT', title: 'CONSISTENCY, MADE CLEAR', body: 'Review calorie adherence, protein goals, and your logging streak. Download your weekly report or send it to your inbox.' },
+  { src: '/mockups/user-report-2026.jpg', eyebrow: 'PRO · WEEKLY REPORT', title: 'CONSISTENCY, MADE CLEAR', body: 'Review calorie adherence, protein goals, and your logging streak. Download your weekly report or send it to your inbox.' },
 ]
 const COACH_SHOWCASE = [
   { src: '/mockups/coach-dashboard-2026.jpg', eyebrow: 'DASHBOARD', title: 'YOUR ROSTER, LIVE', body: "Every client's intake, compliance, and streaks on one screen, spot who's on track in seconds." },
@@ -493,8 +493,8 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarke
               <BrandWordmark /> <span style={{ color: ACCENT }}>PRO</span>.
             </h2>
             <p className="font-mono text-xs md:text-sm text-muted mt-4 max-w-md mx-auto leading-relaxed">
-              Start free, forever. Go Pro for the barcode scanner and full progress
-              analytics, same features on every plan, cancel anytime.
+              Food logging and daily macro totals are free. Go Pro for barcode scanning,
+              all weight logging, and all progress analytics. Same features on every plan. Cancel anytime.
             </p>
           </div>
 

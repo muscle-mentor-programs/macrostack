@@ -19,7 +19,7 @@ const COACH_PERKS = [
 // meal plans unlock separately via a coach code, so they're NOT listed here.
 const USER_PERKS = [
   'Barcode scanner, instant macros from any label',
-  'Weight trends & 7-day moving averages',
+  'Weight logging, history & all progress analytics',
   'Calorie history & consistency insights',
 ]
 
@@ -183,7 +183,7 @@ export default function UpgradePage() {
           <p className="font-mono text-xs text-muted mt-3 max-w-xs mx-auto leading-relaxed">
             {audience === 'coach'
               ? 'Unlock unlimited clients and the full coaching toolkit.'
-              : 'Unlock the barcode scanner and full progress analytics.'}
+              : 'Unlock barcode scanning, all weight logging, and all progress analytics.'}
           </p>
         </div>
 

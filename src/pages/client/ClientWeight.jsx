@@ -20,6 +20,14 @@ function movingAvg(sortedWeights, n = 7) {
 }
 
 export default function ClientWeight() {
+  return (
+    <PremiumGate title="WEIGHT & ANALYTICS" blurb="Unlock Pro to log weight, view your history, track trends, and compare progress photos.">
+      <WeightContent />
+    </PremiumGate>
+  )
+}
+
+function WeightContent() {
   const { activeClientId, clients, addClientWeight, removeClientWeight } = useStore()
   const { hasAccess } = useSubscription()
   const client = clients.find((c) => c.id === activeClientId)

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Globe, Award, User, BookOpen, MessageCircle, Check, ClipboardCheck, ClipboardList, ImagePlus, X, ChevronDown, Banknote, Loader2 } from 'lucide-react'
 import useStore from '../../store'
+import useSubscription from '../../hooks/useSubscription'
+import PremiumGate from '../../components/PremiumGate'
 import ScrambleText from '../../components/ScrambleText'
 import { successHaptic } from '../../utils/haptics'
 import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
@@ -155,6 +157,7 @@ function PendingFormCard({ form, clientId }) {
 // photo uploads, and a success summary. Own state so hooks stay above the
 // parent's early returns.
 function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
+  const { hasAccess } = useSubscription()
   const { addClientCheckin, fetchCheckinQuestions, clients } = useStore()
   const client = clients.find((c) => c.id === clientId)
 
@@ -197,7 +200,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
         return v !== undefined && v !== null && String(v).trim() !== ''
       }).length
     : 0
-  const canSubmit = !saving && (weight || answeredCount > 0)
+  const canSubmit = !saving && ((hasAccess && weight) || answeredCount > 0)
 
   const submit = async () => {
     if (!canSubmit) return
@@ -216,7 +219,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
     }
 
     const res = await addClientCheckin(clientId, {
-      weight: weight ? Number(weight) : null,
+      weight: hasAccess && weight ? Number(weight) : null,
       weightUnit: unit,
       adherence: bySlug('adherence'),
       hunger:    bySlug('hunger'),
@@ -269,6 +272,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
       )}
 
       {/* Weight */}
+      <PremiumGate title="WEIGHT LOGGING" blurb="Add weight to your weekly check-in with Pro." inline>
       <div>
         <label className="font-display text-xs text-muted tracking-widest block mb-1.5">CURRENT WEIGHT</label>
         <div className="flex gap-2">
@@ -286,6 +290,8 @@ function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
           </button>
         </div>
       </div>
+
+      </PremiumGate>
 
       {/* Coach's questions */}
       {questions === null ? (

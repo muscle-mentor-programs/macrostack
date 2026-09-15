@@ -3,6 +3,7 @@ import { format, subDays } from 'date-fns'
 import { LogOut, BookOpen, ChevronLeft, ChevronRight, ClipboardList, Flame, UserPlus, Droplets } from 'lucide-react'
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts'
 import useStore from '../../store'
+import useSubscription from '../../hooks/useSubscription'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
 import StoryShareButton from '../../components/StoryShareButton'
@@ -243,6 +244,7 @@ function MealPlanSection({ client, onLogMeal }) {
 }
 
 export default function ClientDashboard() {
+  const { hasAccess } = useSubscription()
   const { activeClientId, clients, getClientTotalsForDate, logDate, setActivePage, setActiveClientId, setActiveRole, addClientEntry, setClientWater, coachProfile } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
   const totals = getClientTotalsForDate(activeClientId, logDate)
@@ -315,7 +317,7 @@ export default function ClientDashboard() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          {streak >= 2 && (
+          {hasAccess && streak >= 2 && (
             <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-brown/30 bg-brown/10 anim-pop" style={{ animationDelay: '500ms' }}>
               <Flame size={13} className="text-brown-light" fill="currentColor" />
               <span className="font-mono text-[10px] text-brown-light font-bold">{streak}</span>

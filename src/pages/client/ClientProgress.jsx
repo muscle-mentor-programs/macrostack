@@ -4,8 +4,17 @@ import {
 } from 'recharts'
 import useStore from '../../store'
 import ScrambleText from '../../components/ScrambleText'
+import PremiumGate from '../../components/PremiumGate'
 
 export default function ClientProgress() {
+  return (
+    <PremiumGate title="PROGRESS ANALYTICS" blurb="Unlock Pro for intake averages, logging consistency, and calorie and protein trends.">
+      <ProgressContent />
+    </PremiumGate>
+  )
+}
+
+function ProgressContent() {
   const { activeClientId, clients } = useStore()
   const client = clients.find((c) => c.id === activeClientId)
 
