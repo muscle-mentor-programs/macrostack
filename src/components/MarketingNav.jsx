@@ -1,8 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { Sun, Moon, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import BrandWordmark from './BrandWordmark'
-import useStore from '../store'
-import { splatToggleTheme } from '../lib/themeSplat'
 import { scrollToMarketingSection } from '../lib/marketingScroll'
 import './MarketingNav.css'
 
@@ -11,8 +9,6 @@ const links = [['features', 'Features'], ['app', 'The app'], ['pricing', 'Pricin
 
 export default function MarketingNav({ gyms = false, onGetStarted, onSignUp, onMarketplace }) {
   const ref = useRef(null)
-  const theme = useStore(s => s.theme)
-  const toggleTheme = useStore(s => s.toggleTheme)
   useEffect(() => {
     const update = () => document.documentElement.style.setProperty('--marketing-nav-height', `${ref.current.offsetHeight}px`)
     const observer = new ResizeObserver(update)
@@ -29,7 +25,6 @@ export default function MarketingNav({ gyms = false, onGetStarted, onSignUp, onM
         {!gyms && <a href="/gyms">Gyms</a>}
       </div>
       <div className="marketing-actions">
-        {!gyms && <button className="marketing-theme" onClick={e => splatToggleTheme(e,toggleTheme)} aria-label={theme === 'ocean-dark' ? 'Switch to light mode' : 'Switch to dark mode'}>{theme === 'ocean-dark' ? <Sun size={16}/> : <Moon size={16}/>}</button>}
         <a href="/login" onClick={e => action(e,onGetStarted)}>Sign in</a>
         <a className="marketing-start" href={gyms ? '#gym-contact' : '/signup'} onClick={e => { if (gyms) { if (scrollToMarketingSection('gym-contact')) e.preventDefault() } else action(e,onSignUp) }}>{gyms ? 'Let’s talk' : 'Get started'}</a>
       </div>

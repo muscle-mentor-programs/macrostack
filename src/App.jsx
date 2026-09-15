@@ -145,14 +145,13 @@ export default function App() {
     () => sessionStorage.getItem('macrostack-post-invite') === '1'
   )
 
-  // Apply theme class (ocean-dark / ocean-light). The landing has its own
-  // art-directed palette per theme (--land-* vars) and a toggle in its nav,
-  // so it renders correctly in both modes.
+  // Public browser pages always use the brand dark theme. Preserve the saved
+  // preference for the authenticated app and installed PWA.
   useEffect(() => {
     const html = document.documentElement
     html.classList.remove('ocean-dark', 'ocean-light')
-    html.classList.add(theme)
-  }, [theme])
+    html.classList.add(!isAuthenticated && !IS_PWA ? 'ocean-dark' : theme)
+  }, [theme, isAuthenticated])
 
   // Check Supabase session on mount
   useEffect(() => {
