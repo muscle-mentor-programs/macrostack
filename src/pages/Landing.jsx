@@ -1,8 +1,9 @@
+import { useEffect } from 'react'
+import MarketingNav from '../components/MarketingNav'
+import { scrollToMarketingSection } from '../lib/marketingScroll'
 import BrandWordmark from '../components/BrandWordmark'
 import { useLayoutEffect, useRef } from 'react'
-import { Smartphone, Share, PlusSquare, Sun, Moon, ScanBarcode, LayoutDashboard, Bot, CalendarDays, ChartNoAxesCombined, Target, ArrowRight } from 'lucide-react'
-import useStore from '../store'
-import { splatToggleTheme } from '../lib/themeSplat'
+import { Smartphone, Share, PlusSquare, ScanBarcode, LayoutDashboard, Bot, CalendarDays, ChartNoAxesCombined, Target, ArrowRight } from 'lucide-react'
 import { FOOD_COUNT } from '../data/foodCount'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -36,13 +37,6 @@ const ON_ACCENT = '#FFFFFF' /* accent is mid-tone in every theme, white reads on
 /* ── Content data ─────────────────────────────────────────────────────────── */
 
 /* In-page nav targets (section ids set on the landing sections below). */
-const NAV_LINKS = [
-  { id: 'features', label: 'FEATURES' },
-  { id: 'app',      label: 'THE APP'  },
-  { id: 'pricing',  label: 'PRICING'  },
-  { id: 'coach',    label: 'COACHES'  },
-]
-
 const HERO_LINES = [
   { text: 'TRACK.',    accent: false },
   { text: 'OPTIMIZE.', accent: false },
@@ -179,27 +173,16 @@ function FeatureRow({ src, eyebrow, title, body, flip, textColor, softColor }) {
 /* ── Component ────────────────────────────────────────────────────────────── */
 
 export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarketplace }) {
-  const theme = useStore((s) => s.theme)
-  const toggleTheme = useStore((s) => s.toggleTheme)
   const rootRef      = useRef(null)
   const progressRef  = useRef(null)
   const trackRef     = useRef(null)
 
-  /* Smooth-scroll to a section, use Lenis so the pinned ScrollTrigger
-     sections stay in sync; fall back to native smooth scroll if it's not ready. */
-  const scrollToSection = (id) => {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (window.lenis) {
-      window.lenis.scrollTo(el, {
-        offset: -72,
-        duration: 1.2,
-        easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2), // easeInOutCubic
-      })
-    } else {
-      el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
-    }
-  }
+  useEffect(() => {
+    const followHash = () => scrollToMarketingSection(window.location.hash.slice(1))
+    const timer = setTimeout(followHash, 150)
+    window.addEventListener('hashchange', followHash)
+    return () => { clearTimeout(timer); window.removeEventListener('hashchange', followHash) }
+  }, [])
 
   useLayoutEffect(() => {
     const root = rootRef.current
@@ -235,60 +218,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarke
       />
 
       {/* ── Nav ── */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-40 flex flex-wrap gap-2 items-center justify-between px-5 md:px-10 py-4 backdrop-blur-xl border-b border-border"
-        style={{ background: 'color-mix(in srgb, var(--color-bg) 72%, transparent)' }}
-      >
-        <button
-          onClick={() => window.lenis ? window.lenis.scrollTo(0, { duration: 1.2 }) : window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="landing-nav-brand font-display font-black text-lg tracking-widest text-cream"
-        >
-          <img
-            src="/macrostack-mark-light-shadow.png"
-            className="landing-mark-shadow"
-            alt="" width="36" height="36"
-          />
-          <BrandWordmark />
-        </button>
-
-        {/* Section links, jump straight to each section (hidden on mobile) */}
-        <div className="hidden xl:flex items-center gap-7 absolute left-1/2 -translate-x-1/2">
-          {NAV_LINKS.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => scrollToSection(id)}
-              className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          <a href="/gyms" className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-2 py-2">FOR GYMS</a>
-          <button onClick={onMarketplace} className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-2 py-2">MARKETPLACE</button>
-          <button
-            onClick={(e) => splatToggleTheme(e, toggleTheme)}
-            title={theme === 'ocean-dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-cream border border-border hover:border-muted transition-colors btn-lift"
-          >
-            {theme === 'ocean-dark' ? <Sun size={14} /> : <Moon size={14} />}
-          </button>
-          <button
-            onClick={onGetStarted}
-            className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-3 py-2 btn-lift"
-          >
-            SIGN IN
-          </button>
-          <button
-            onClick={() => { clearPlan(); onSignUp() }}
-            className="font-display font-bold text-xs tracking-widest px-4 py-2 rounded-lg btn-lift btn-shine"
-            style={{ background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`, color: ON_ACCENT }}
-          >
-            GET STARTED
-          </button>
-        </div>
-      </nav>
+      <MarketingNav onMarketplace={onMarketplace} onGetStarted={onGetStarted} onSignUp={() => { clearPlan(); onSignUp() }} />
 
       {/* ══ 2. HERO ══════════════════════════════════════════════════════════ */}
       {/* min-h-screen (not h-screen): on phones the stacked hero content is
