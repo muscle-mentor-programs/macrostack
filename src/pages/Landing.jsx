@@ -264,6 +264,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarke
         </div>
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
+          <a href="/gyms" className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-2 py-2">FOR GYMS</a>
           <button onClick={onMarketplace} className="font-display font-bold text-xs tracking-widest text-muted hover:text-cream transition-colors px-2 py-2">MARKETPLACE</button>
           <button
             onClick={(e) => splatToggleTheme(e, toggleTheme)}
@@ -806,6 +807,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarke
             MACRO<span style={{ color: ACCENT }}>STACK</span>
           </p>
           <div className="flex items-center gap-4">
+            <a href="/gyms" className="font-mono text-[10px] tracking-[0.2em] text-muted hover:text-cream">FOR GYMS</a>
             <a href="/privacy" className="font-mono text-[10px] tracking-[0.2em] text-muted opacity-70 hover:opacity-100 transition-opacity">
               PRIVACY
             </a>

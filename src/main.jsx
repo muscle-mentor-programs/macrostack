@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import './software.css'
@@ -10,6 +10,10 @@ import './coach-cards.css'
 import App from './App.jsx'
 import StripeConnectCallback from './pages/StripeConnectCallback.jsx'
 import * as Sentry from '@sentry/react'
+
+// The root entry mounts the lazy public route rather than exporting components.
+// eslint-disable-next-line react-refresh/only-export-components
+const Gyms = lazy(() => import('./pages/Gyms.jsx'))
 
 // Error monitoring, no-op until VITE_SENTRY_DSN is set in Vercel env
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -35,6 +39,8 @@ if (window.location.hash.includes('type=invite')) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {window.location.pathname === '/stripe-connect/callback' ? <StripeConnectCallback /> : <App />}
+    {window.location.pathname.replace(/\/+$/, '') === '/gyms'
+      ? <Suspense fallback={<div style={{ minHeight: '100vh', background: '#080b12' }} />}><Gyms /></Suspense>
+      : window.location.pathname === '/stripe-connect/callback' ? <StripeConnectCallback /> : <App />}
   </StrictMode>,
 )
