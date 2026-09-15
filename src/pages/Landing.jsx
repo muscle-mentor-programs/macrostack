@@ -1,3 +1,4 @@
+import BrandWordmark from '../components/BrandWordmark'
 import { useLayoutEffect, useRef } from 'react'
 import { Smartphone, Share, PlusSquare, Sun, Moon, ScanBarcode, LayoutDashboard, Bot, CalendarDays, ChartNoAxesCombined, Target, ArrowRight } from 'lucide-react'
 import useStore from '../store'
@@ -247,7 +248,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarke
             className="landing-mark-shadow"
             alt="" width="36" height="36"
           />
-          <span>MACRO<span style={{ color: ACCENT }}>STACK</span></span>
+          <BrandWordmark />
         </button>
 
         {/* Section links, jump straight to each section (hidden on mobile) */}
@@ -559,7 +560,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarke
               <span className="w-6 h-px" style={{ background: accentA(60) }} />
             </div>
             <h2 className="font-display font-black text-4xl md:text-6xl tracking-wide leading-[1.05] text-cream">
-              MACROSTACK <span style={{ color: ACCENT }}>PRO</span>.
+              <BrandWordmark /> <span style={{ color: ACCENT }}>PRO</span>.
             </h2>
             <p className="font-mono text-xs md:text-sm text-muted mt-4 max-w-md mx-auto leading-relaxed">
               Start free, forever. Go Pro for the barcode scanner and full progress
@@ -804,7 +805,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarke
         {/* Footer */}
         <footer className="max-w-5xl mx-auto mt-24 pt-8 border-t border-border flex flex-wrap items-center justify-between gap-3">
           <p className="font-display font-black text-sm tracking-widest text-cream">
-            MACRO<span style={{ color: ACCENT }}>STACK</span>
+            <BrandWordmark />
           </p>
           <div className="flex items-center gap-4">
             <a href="/gyms" className="font-mono text-[10px] tracking-[0.2em] text-muted hover:text-cream">FOR GYMS</a>

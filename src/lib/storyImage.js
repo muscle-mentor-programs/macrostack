@@ -65,6 +65,14 @@ function text(ctx, value, x, y, size, color = colors.ink, width = 900, family = 
   ctx.fillStyle = color; fit(ctx, value, size, width, family)
   ctx.fillText(short(ctx, value, width), x, y)
 }
+function wordmark(ctx, x, y, size) {
+  ctx.font = `900 ${size}px StoryDisplay`
+  ctx.fillStyle = colors.ink
+  ctx.fillText('MACRO', x, y)
+  const width = ctx.measureText('MACRO').width
+  ctx.fillStyle = '#82ADE1'
+  ctx.fillText('STACK', x + width, y)
+}
 const number = value => value == null ? '—' : Math.round(value).toLocaleString('en-US')
 function line(ctx, y) { ctx.fillStyle = colors.line; ctx.fillRect(90, y, 900, 2) }
 
@@ -203,11 +211,11 @@ export async function renderStoryCanvas(story, photo, position, page = 0) {
     })
     line(ctx, 1750)
     ctx.drawImage(logo, 75, 1774, 70, 70)
-    text(ctx, 'MACROSTACK', 150, 1797, 32, colors.muted, 420)
+    wordmark(ctx, 150, 1797, 32)
   }
   if (story.kind === 'daily') {
     ctx.drawImage(logo, 75, 1630, 100, 100)
-    text(ctx, 'MACROSTACK', 184, 1660, 37, colors.muted)
+    wordmark(ctx, 184, 1660, 37)
   }
   return canvas
 }

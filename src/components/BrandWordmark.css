@@ -1,0 +1,4 @@
+/* Shared wordmark: the gym-page typography, independent of surrounding text styles. */
+.macrostack-wordmark{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-style:normal;letter-spacing:-.025em;line-height:1;white-space:nowrap;color:var(--color-cream,#d8e6f4);text-transform:uppercase}
+.macrostack-wordmark .macrostack-wordmark-accent{color:#82ade1}
+.gyms-page .macrostack-wordmark{color:#d8e6f4}

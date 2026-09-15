@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Eye, EyeOff, UserPlus, Share, PlusSquare, Smartphone } from 'lucide-react'
 import useStore from '../store'
-import ScrambleText from '../components/ScrambleText'
+import BrandWordmark from '../components/BrandWordmark'
 import ThemeToggle from '../components/ThemeToggle'
 
 // Hidden once the app is already running as an installed PWA.
@@ -315,10 +315,8 @@ export default function LoginScreen({ onBack }) {
         <div className="text-center mb-8 scanline-parent py-3">
           {/* track-center compensates the trailing letter-space so the
               tracked display text sits on true center */}
-          <h1 className="font-display font-black text-6xl tracking-widest track-center leading-none text-cream">
-            <ScrambleText text="MACRO" duration={900} />
-            <br />
-            <ScrambleText text="STACK" className="text-brown" duration={900} delay={150} />
+          <h1 className="font-display font-black text-5xl leading-none text-cream">
+            <BrandWordmark />
           </h1>
           <p className="font-mono text-xs text-muted tracking-widest track-center mt-3">NUTRITION OS</p>
         </div>

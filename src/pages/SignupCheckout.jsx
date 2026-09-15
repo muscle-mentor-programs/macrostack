@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { UserPlus, Loader2, Check, X, ShieldCheck, Mail } from 'lucide-react'
 import useStore from '../store'
-import ScrambleText from '../components/ScrambleText'
+import BrandWordmark from '../components/BrandWordmark'
 import ThemeToggle from '../components/ThemeToggle'
 import { isNativeIOS } from '../lib/platform'
 
@@ -162,10 +162,8 @@ export default function SignupCheckout({ onBack, onSignIn }) {
 
           {/* Brand */}
           <div className="text-center mb-7 scanline-parent py-3">
-            <h1 className="font-display font-black text-5xl tracking-widest track-center leading-none text-cream">
-              <ScrambleText text="MACRO" duration={900} />
-              <br />
-              <ScrambleText text="STACK" className="text-brown" duration={900} delay={150} />
+            <h1 className="font-display font-black text-5xl leading-none text-cream">
+              <BrandWordmark />
             </h1>
             <p className="font-mono text-xs text-muted tracking-widest track-center mt-3">CREATE YOUR ACCOUNT</p>
           </div>

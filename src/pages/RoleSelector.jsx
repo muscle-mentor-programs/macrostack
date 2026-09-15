@@ -1,6 +1,6 @@
 import { Monitor, Smartphone, ArrowLeft, ShieldAlert } from 'lucide-react'
 import useStore from '../store'
-import ScrambleText from '../components/ScrambleText'
+import BrandWordmark from '../components/BrandWordmark'
 
 export default function RoleSelector() {
   const setActiveRole = useStore((s) => s.setActiveRole)
@@ -26,9 +26,7 @@ export default function RoleSelector() {
         {/* Brand */}
         <div className="text-center mb-12 anim-fade-in-down">
           <h1 className="font-display font-black text-5xl tracking-wide leading-[0.95] text-cream">
-            <ScrambleText text="MACRO" duration={1000} delay={100} />
-            <br />
-            <ScrambleText text="STACK" className="text-brown" duration={1000} delay={300} />
+            <BrandWordmark />
           </h1>
           <p className="font-mono text-xs text-muted mt-3 tracking-[0.3em]" style={{ animationDelay: '800ms' }}>
             NUTRITION OS

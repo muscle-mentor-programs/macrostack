@@ -1,6 +1,6 @@
 import useStore from '../store'
 import useIsSuperadmin from '../hooks/useIsSuperadmin'
-import ScrambleText from './ScrambleText'
+import BrandWordmark from './BrandWordmark'
 import ThemeToggle from './ThemeToggle'
 import CoachNotifications from './CoachNotifications'
 import { LayoutDashboard, Utensils, MessageCircle, Layers, LogOut, User, CreditCard, ShieldAlert, UserCog, Zap, ClipboardList, Radar } from 'lucide-react'
@@ -64,10 +64,7 @@ export default function Sidebar({ width }) {
       {/* Brand */}
       <div className="product-brand px-6 pt-7 pb-6 border-b border-border relative scanline-parent">
         <h1 className="font-display font-black text-2xl tracking-widest text-cream uppercase leading-none">
-          <ScrambleText text="MACRO" duration={900} delay={0} />
-          <span style={{ color: 'var(--color-accent)' }}>
-            <ScrambleText text="STACK" duration={900} delay={150} />
-          </span>
+          <BrandWordmark />
         </h1>
         <div className="flex items-center gap-2 mt-3">
           <span className="w-5 h-px flex-shrink-0" style={{ background: accentA(50) }} />
