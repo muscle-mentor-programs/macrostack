@@ -1,11 +1,9 @@
+import FoodServingFields from './FoodServingFields'
+import useFoodFormViewport from '../hooks/useFoodFormViewport'
+import { validFoodForm } from '../lib/foodFormValidation'
 import { useState, useEffect } from 'react'
 import { Check, X, AlertCircle, Loader2 } from 'lucide-react'
 import useStore from '../store'
-
-const SERVING_UNITS = [
-  'g', 'oz', 'ml', 'fl oz', 'bar', 'scoop', 'cup',
-  'tbsp', 'tsp', 'piece', 'slice', 'packet', 'bottle', 'can', 'bag',
-]
 
 const EMPTY = {
   name: '', brand: '',
@@ -70,6 +68,7 @@ function buildFormFromProduct(product, scannedFoods) {
 
 // ─────────────────────────────────────────────────────────────────
 export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
+  const viewportStyle = useFoodFormViewport()
   const { addScannedFood } = useStore()
 
   // 'loading' | 'found' | 'notfound' | 'duplicate'
@@ -108,7 +107,7 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
       .catch(() => setStatus('notfound'))
   }, [upc])
 
-  const canSave = form.name.trim() && form.calories && form.servingSize
+  const canSave = validFoodForm(form)
 
   const handleSave = () => {
     if (!canSave) return
@@ -148,8 +147,8 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
   const lbl = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
-    <div className="fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-[65] anim-fade-in px-4">
-      <div className="bg-card border border-border rounded-2xl w-full max-w-[580px] max-h-[92vh] overflow-y-auto shadow-2xl anim-fade-in-up">
+    <div style={viewportStyle} className="food-form-overlay fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-[65] anim-fade-in px-4">
+      <div className="food-form-panel bg-card border border-border rounded-2xl w-full max-w-[580px] max-h-[92vh] overflow-y-auto shadow-2xl anim-fade-in-up">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border sticky top-0 bg-card z-10">
@@ -229,7 +228,7 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
 
             <div className="px-6 py-5 space-y-5">
               {/* Name + Brand */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="food-name-grid grid grid-cols-2 gap-4">
                 <div>
                   <label className={lbl}>FOOD NAME *</label>
                   <input
@@ -253,31 +252,13 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
                 </div>
               </div>
 
-              {/* Serving */}
-              <div>
-                <label className={lbl}>SERVING SIZE *</label>
-                <div className="flex gap-3">
-                  <input
-                    type="number"
-                    placeholder="100"
-                    value={form.servingSize}
-                    onChange={set('servingSize')}
-                    className={`${inputCls} flex-1`}
-                  />
-                  <select
-                    value={form.servingUnit}
-                    onChange={set('servingUnit')}
-                    className={`${inputCls} w-32`}
-                  >
-                    {SERVING_UNITS.map((u) => <option key={u}>{u}</option>)}
-                  </select>
-                </div>
-              </div>
+          <FoodServingFields size={form.servingSize} unit={form.servingUnit}
+            onSizeChange={set('servingSize')} onUnitChange={set('servingUnit')} />
 
               {/* Required macros */}
               <div>
                 <p className={lbl}>MACROS PER SERVING *</p>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="food-macro-grid grid grid-cols-4 gap-3">
                   {[
                     { key: 'calories', label: 'CALORIES', unit: 'kcal', color: 'text-cream'          },
                     { key: 'protein',  label: 'PROTEIN',  unit: 'g',    color: 'text-olive-light'     },
@@ -289,6 +270,8 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
                       <div className="relative">
                         <input
                           type="number"
+                      inputMode="decimal"
+                      aria-label={label}
                           min="0"
                           step="0.1"
                           placeholder="0"
@@ -308,7 +291,7 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
               {/* Optional details */}
               <div>
                 <p className="font-display text-xs text-dim tracking-widest mb-3">OPTIONAL DETAILS</p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="food-detail-grid grid grid-cols-3 gap-3">
                   {[
                     { key: 'fiber',  label: 'FIBER',  unit: 'g'  },
                     { key: 'sugar',  label: 'SUGAR',  unit: 'g'  },
@@ -319,6 +302,8 @@ export default function ScannedFoodModal({ upc, onClose, onAfterSave }) {
                       <div className="relative">
                         <input
                           type="number"
+                      inputMode="decimal"
+                      aria-label={label}
                           min="0"
                           step="0.1"
                           placeholder="0"

@@ -143,6 +143,15 @@ try {
     finally { CanvasRenderingContext2D.prototype.fillText=fill }
     if(names.some(name=>drawn.filter(text=>text===name).length!==1)) throw Error('Missing or duplicated ingredient')
     if(drawn.filter(text=>text==='125 g').length!==13) throw Error('Missing logged quantities')
+    const tops=[]
+    for(const count of [2,4,6]) {
+      let top
+      CanvasRenderingContext2D.prototype.fillText=function(value,x,y,...args){if(value==='THE INGREDIENT STACK') top=y;return fill.call(this,value,x,y,...args)}
+      try { await renderStoryCanvas({...paged,items:paged.items.slice(0,count)},photo) }
+      finally { CanvasRenderingContext2D.prototype.fillText=fill }
+      tops.push(top)
+    }
+    if(!(tops[0]>tops[1] && tops[1]>tops[2])) throw Error('Smaller meals must move ingredients lower')
     return Array.from(new Uint8Array(await blob.arrayBuffer()))
   })
   await writeFile('outputs/story-share/long-meal.png', new Uint8Array(bytes))

@@ -1,0 +1,18 @@
+.food-form-overlay { padding:12px; overflow:hidden; }
+.food-form-overlay .food-form-panel { width:100%; max-width:580px; max-height:100%; overflow-y:auto; overscroll-behavior:contain; scroll-padding:90px 0 24px; }
+.food-form-panel input, .food-form-panel select { min-width:0; font-size:16px; scroll-margin:90px 0 24px; }
+.food-serving-card { padding:16px; border:1px solid var(--color-border); border-radius:14px; background:var(--color-surface); }
+.food-serving-card legend { padding:0 6px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; letter-spacing:.06em; }
+.food-serving-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,100px); gap:12px; }
+.food-serving-grid label { display:block; margin-bottom:8px; color:var(--color-muted); font-size:12px; }
+.food-serving-grid input, .food-serving-grid select { display:block; width:100%; height:56px; border:1px solid var(--color-border); border-radius:10px; padding:10px 12px; background:var(--color-bg); color:var(--color-cream); }
+.food-serving-grid input { font-size:22px; font-variant-numeric:tabular-nums; }
+.food-serving-grid input:focus, .food-serving-grid select:focus { outline:2px solid var(--color-accent); outline-offset:2px; }
+.food-serving-card p { margin-top:12px; font-size:12px; line-height:1.5; color:var(--color-muted); }
+.food-serving-card .food-serving-error { color:#fca5a5; }
+@media (max-width:480px) {
+  .food-form-panel .food-name-grid { grid-template-columns:minmax(0,1fr); }
+  .food-form-panel .food-macro-grid, .food-form-panel .food-detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .food-serving-grid { grid-template-columns:minmax(0,1fr) minmax(0,80px); }
+  .food-serving-card { padding:12px; }
+}

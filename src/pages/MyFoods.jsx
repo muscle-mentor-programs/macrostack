@@ -1,3 +1,6 @@
+import FoodServingFields from '../components/FoodServingFields'
+import useFoodFormViewport from '../hooks/useFoodFormViewport'
+import { validFoodForm, validServingSize } from '../lib/foodFormValidation'
 import apiFetch from '../lib/apiFetch'
 import { useState, useMemo, useEffect } from 'react'
 import { Plus, Trash2, Search, X, Pencil, Check, Database, Scan, Sparkles, Loader2 } from 'lucide-react'
@@ -9,7 +12,6 @@ import BarcodeScanner from '../components/BarcodeScanner'
 import ScannedFoodModal from '../components/ScannedFoodModal'
 import { rankFoods } from '../utils/foodSearch'
 
-const SERVING_UNITS = ['g', 'oz', 'ml', 'fl oz', 'bar', 'scoop', 'cup', 'tbsp', 'tsp', 'piece', 'slice', 'packet', 'bottle', 'can', 'bag']
 const WEIGHT_UNITS  = ['g', 'ml', 'oz', 'fl oz']
 
 function servingLabel(food) {
@@ -25,7 +27,8 @@ const EMPTY_FORM = {
   fiber: '', sugar: '', sodium: '',
 }
 
-function FoodModal({ initial = null, onSave, onClose }) {
+export function FoodModal({ initial = null, onSave, onClose }) {
+  const viewportStyle = useFoodFormViewport()
   const [form, setForm] = useState(
     initial
       ? {
@@ -46,7 +49,7 @@ function FoodModal({ initial = null, onSave, onClose }) {
 
   const f = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }))
   const isEdit  = !!initial
-  const canSave = form.name.trim() && form.calories && form.servingSize
+  const canSave = validFoodForm(form)
 
   // Editing an existing food: changing the serving size rescales every macro
   // proportionally (macros are "per serving at this size"). Scaled from the
@@ -57,7 +60,7 @@ function FoodModal({ initial = null, onSave, onClose }) {
     const origSize = Number(initial?.servingSize)
     setForm((p) => {
       const next = { ...p, servingSize: raw }
-      if (isEdit && origSize > 0 && newSize > 0) {
+      if (isEdit && validServingSize(origSize) && validServingSize(raw)) {
         const s   = newSize / origSize
         const r0  = (v) => String(Math.round((Number(v) || 0) * s))
         const r1  = (v) => String(Math.round((Number(v) || 0) * s * 10) / 10)
@@ -96,8 +99,8 @@ function FoodModal({ initial = null, onSave, onClose }) {
   const lbl      = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
-    <div className="fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-50 anim-fade-in">
-      <div className="bg-card border border-border rounded-2xl w-[580px] max-h-[90vh] overflow-y-auto shadow-2xl anim-fade-in-up">
+    <div style={viewportStyle} className="food-form-overlay fixed inset-0 bg-bg/80 backdrop-blur-sm flex items-center justify-center z-50 anim-fade-in">
+      <div className="food-form-panel bg-card border border-border rounded-2xl w-[580px] max-h-[90vh] overflow-y-auto shadow-2xl anim-fade-in-up">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border sticky top-0 bg-card z-10">
           <h3 className="font-display font-black text-xl tracking-widest text-cream">
@@ -110,7 +113,7 @@ function FoodModal({ initial = null, onSave, onClose }) {
 
         <div className="px-6 py-5 space-y-5">
           {/* Name + Brand */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="food-name-grid grid grid-cols-2 gap-4">
             <div>
               <label className={lbl}>FOOD NAME *</label>
               <input
@@ -134,34 +137,13 @@ function FoodModal({ initial = null, onSave, onClose }) {
             </div>
           </div>
 
-          {/* Serving, number input grows, unit stays a fixed width */}
-          <div>
-            <label className={lbl}>SERVING SIZE *</label>
-            <div className="flex gap-3">
-              <input
-                type="number"
-                placeholder="100"
-                value={form.servingSize}
-                onChange={handleServingChange}
-                className="flex-1 min-w-0 bg-surface border border-border rounded-xl px-3 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors"
-              />
-              <select
-                value={form.servingUnit}
-                onChange={f('servingUnit')}
-                className="w-28 flex-shrink-0 bg-surface border border-border rounded-xl px-3 py-2.5 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors"
-              >
-                {SERVING_UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
-            <p className="font-mono text-[10px] text-dim mt-1.5">
-              All macros below are for <strong className="text-muted">one serving</strong> at this size.
-            </p>
-          </div>
+          <FoodServingFields size={form.servingSize} unit={form.servingUnit}
+            onSizeChange={handleServingChange} onUnitChange={f('servingUnit')} />
 
           {/* Required macros */}
           <div>
             <p className={lbl}>MACROS PER SERVING *</p>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="food-macro-grid grid grid-cols-4 gap-3">
               {[
                 { key: 'calories', label: 'CALORIES', unit: 'kcal', color: 'text-cream' },
                 { key: 'protein',  label: 'PROTEIN',  unit: 'g',    color: 'text-olive-light' },
@@ -173,6 +155,8 @@ function FoodModal({ initial = null, onSave, onClose }) {
                   <div className="relative">
                     <input
                       type="number"
+                      inputMode="decimal"
+                      aria-label={label}
                       min="0"
                       step="0.1"
                       placeholder="0"
@@ -190,7 +174,7 @@ function FoodModal({ initial = null, onSave, onClose }) {
           {/* Optional extras */}
           <div>
             <p className="font-display text-xs text-dim tracking-widest mb-3">OPTIONAL DETAILS</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="food-detail-grid grid grid-cols-3 gap-3">
               {[
                 { key: 'fiber',  label: 'FIBER',  unit: 'g'  },
                 { key: 'sugar',  label: 'SUGAR',  unit: 'g'  },
@@ -201,6 +185,8 @@ function FoodModal({ initial = null, onSave, onClose }) {
                   <div className="relative">
                     <input
                       type="number"
+                      inputMode="decimal"
+                      aria-label={label}
                       min="0"
                       step="0.1"
                       placeholder="0"

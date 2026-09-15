@@ -152,10 +152,10 @@ export async function renderStoryCanvas(story, photo, position, page = 0) {
       if (current) lines.push(current)
       return lines
     })
-    // Tighten ordinary rows; retain breathing room for wrapped names and quantities.
-    const rowHeights = Array.from({ length: 3 }, (_, row) => Math.max(108,
-      ...foodLines.slice(row * 2, row * 2 + 2).map(lines => Math.min(3, lines.length) * 34 + 52)))
-    const ingredientTop = 1538 - 24 - rowHeights.reduce((sum, height) => sum + height, 0) - 88
+    // Anchor only the occupied rows above the macros so smaller meals reveal more photo.
+    const rowHeights = Array.from({ length: Math.ceil(foods.length / 2) }, (_, row) => Math.max(86,
+      ...foodLines.slice(row * 2, row * 2 + 2).map(lines => Math.min(3, lines.length) * 32 + 42)))
+    const ingredientTop = 1538 - 18 - rowHeights.reduce((sum, height) => sum + height, 0) - 72
     const photoHeight = ingredientTop + 8
     const crop = photoCrop(photo.width || photo.naturalWidth, photo.height || photo.naturalHeight, position, { width: 1080, height: photoHeight })
     ctx.drawImage(photo, crop.x, crop.y, crop.width, crop.height, 0, 0, 1080, photoHeight)
@@ -175,17 +175,17 @@ export async function renderStoryCanvas(story, photo, position, page = 0) {
     ctx.textAlign = 'right'
     text(ctx, pageCount > 1 ? `${pageIndex + 1} / ${pageCount}` : `${story.items.length} FOODS`, 990, ingredientTop + 7, 23, colors.muted, 220, 'StoryBody')
     ctx.textAlign = 'left'
-    line(ctx, ingredientTop + 62)
+    line(ctx, ingredientTop + 50)
     foods.forEach((item, index) => {
       const x = 90 + (index % 2) * 470
-      const y = ingredientTop + 92 + rowHeights.slice(0, Math.floor(index / 2)).reduce((sum, height) => sum + height, 0)
+      const y = ingredientTop + 72 + rowHeights.slice(0, Math.floor(index / 2)).reduce((sum, height) => sum + height, 0)
       text(ctx, String(pageIndex * FOODS_PER_STORY + index + 1).padStart(2, '0'), x, y + 2, 21, colors.blue, 38, 'StoryBody')
       const lines = foodLines[index]
       lines.slice(0, 3).forEach((value, row) => {
         ctx.font = '32px StoryBody'; ctx.fillStyle = colors.ink
-        ctx.fillText(short(ctx, row === 2 && lines.length > 3 ? `${value}…` : value, 360), x + 52, y + row * 34)
+        ctx.fillText(short(ctx, row === 2 && lines.length > 3 ? `${value}…` : value, 360), x + 52, y + row * 32)
       })
-      text(ctx, item.serving, x + 52, y + Math.min(3, lines.length) * 34 + 8, 24, colors.muted, 360, 'StoryBody')
+      text(ctx, item.serving, x + 52, y + Math.min(3, lines.length) * 32 + 5, 24, colors.muted, 360, 'StoryBody')
     })
     line(ctx, 1538)
     // Align the calorie and macro values on one baseline despite their different sizes.

@@ -1,3 +1,4 @@
+import { validServingSize } from '../../lib/foodFormValidation'
 import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { format, addDays, subDays, parseISO } from 'date-fns'
@@ -27,6 +28,7 @@ function servingLabel(food) {
 }
 
 function entryServingLabel(entry) {
+  if (entry.servingSize != null && !validServingSize(entry.servingSize)) return 'Serving size needs correction'
   if (!entry.servingUnit || entry.quantity == null) return entry.amount ? `${entry.amount}g` : '1 serving'
   if (WEIGHT_UNITS.includes(entry.servingUnit)) return `${Math.round(entry.quantity * entry.servingSize)} ${entry.servingUnit}`
   return entry.quantity === 1 ? `1 ${entry.servingUnit}` : `${entry.quantity} × ${entry.servingUnit}`
@@ -649,7 +651,7 @@ export default function ClientLog() {
     setEditState({
       id:          entry.id,
       qty:         String(q),
-      grams:       entry.servingSize ? String(Math.round(q * entry.servingSize)) : '',
+      grams:       validServingSize(entry.servingSize) ? String(Math.round(q * entry.servingSize)) : '',
       servingSize: entry.servingSize || null,
       perQty: {
         cal:  (entry.calories || 0) / q,
@@ -671,6 +673,7 @@ export default function ClientLog() {
   }
 
   const editGramsChange = (val) => {
+    if (!validServingSize(editState?.servingSize)) return
     const str = cleanDecimal(val)
     const g   = parseFloat(str)
     setEditState((s) => ({
@@ -680,10 +683,11 @@ export default function ClientLog() {
     }))
   }
 
+  const invalidEditServing = editState?.servingSize != null && !validServingSize(editState.servingSize)
   const editQtyNum = editState ? parseFloat(editState.qty) || 0 : 0
 
   const saveEdit = () => {
-    if (!editState || editQtyNum <= 0) return
+    if (!editState || invalidEditServing || !Number.isFinite(editQtyNum) || editQtyNum <= 0) return
     const { id, perQty } = editState
     const qty = editQtyNum
     updateClientEntry(activeClientId, logDate, id, {
@@ -901,6 +905,8 @@ export default function ClientLog() {
                                   </label>
                                   <input
                                     type="text" inputMode="decimal"
+                                    disabled={invalidEditServing}
+                                    aria-label="Logged grams"
                                     value={editState.grams}
                                     onChange={(e) => editGramsChange(e.target.value)}
                                     className={inpCls}
@@ -914,6 +920,10 @@ export default function ClientLog() {
                                 </div>
                               )}
                             </div>
+
+                            {invalidEditServing && <p role="alert" className="text-sm text-red-300">
+                              This saved serving size is invalid. Correct the food’s serving size, then replace this log entry. Changing grams here would calculate incorrect nutrition.
+                            </p>}
 
                             {/* Live macro preview */}
                             {editPreview && (
@@ -936,7 +946,7 @@ export default function ClientLog() {
                             <div className="flex gap-2">
                               <button
                                 onClick={saveEdit}
-                                disabled={editQtyNum <= 0}
+                                disabled={invalidEditServing || !Number.isFinite(editQtyNum) || editQtyNum <= 0}
                                 className="flex-1 flex items-center justify-center gap-1.5 btn-accent text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors disabled:opacity-40"
                               >
                                 <Check size={13} />

@@ -1,3 +1,6 @@
+import FoodServingFields from '../../../components/FoodServingFields'
+import useFoodFormViewport from '../../../hooks/useFoodFormViewport'
+import { validFoodForm, validServingSize } from '../../../lib/foodFormValidation'
 import apiFetch from '../../../lib/apiFetch'
 import { useState, useMemo } from 'react'
 import { Plus, Trash2, Search, X, Pencil, Check, Database, Scan, Sparkles, Loader2, ChevronLeft } from 'lucide-react'
@@ -9,10 +12,6 @@ import BarcodeScanner from '../../../components/BarcodeScanner'
 import ScannedFoodModal from '../../../components/ScannedFoodModal'
 import { rankFoods } from '../../../utils/foodSearch'
 
-const SERVING_UNITS = [
-  'g', 'oz', 'ml', 'fl oz', 'bar', 'scoop', 'cup',
-  'tbsp', 'tsp', 'piece', 'slice', 'packet', 'bottle', 'can', 'bag',
-]
 const WEIGHT_UNITS = ['g', 'ml', 'oz', 'fl oz']
 
 function servingLabel(food) {
@@ -29,7 +28,8 @@ const EMPTY_FORM = {
 }
 
 // ── Full-screen food form ─────────────────────────────────────────────────────
-function FoodForm({ initial = null, onSave, onClose }) {
+export function FoodForm({ initial = null, onSave, onClose }) {
+  const viewportStyle = useFoodFormViewport()
   const [form, setForm] = useState(
     initial
       ? {
@@ -49,7 +49,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
   )
 
   const f = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }))
-  const canSave = form.name.trim() && form.calories && form.servingSize
+  const canSave = validFoodForm(form)
 
   // Editing an existing food: changing serving size rescales macros from the
   // original values (proportional, drift-free).
@@ -59,7 +59,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
     const origSize = Number(initial?.servingSize)
     setForm((p) => {
       const next = { ...p, servingSize: raw }
-      if (initial && origSize > 0 && newSize > 0) {
+      if (initial && validServingSize(origSize) && validServingSize(raw)) {
         const s   = newSize / origSize
         const r0  = (v) => String(Math.round((Number(v) || 0) * s))
         const r1  = (v) => String(Math.round((Number(v) || 0) * s * 10) / 10)
@@ -98,7 +98,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
   const lbl      = 'font-display text-xs text-muted tracking-widest block mb-1.5'
 
   return (
-    <div className="fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in overflow-hidden">
+    <div style={viewportStyle} className="food-form-panel fixed inset-0 bg-bg z-50 flex flex-col anim-fade-in overflow-hidden">
       {/* Sticky header */}
       <div className="app-page-gutter flex items-center justify-between px-5 pt-mobile-header pb-4 border-b border-border bg-surface flex-shrink-0">
         <h3 className="font-display font-black text-xl tracking-widest text-cream">
@@ -112,7 +112,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
       {/* Scrollable form */}
       <div className="app-page-gutter flex-1 overflow-y-auto px-5 py-5 space-y-5">
         {/* Name + Brand */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="food-name-grid grid grid-cols-2 gap-3">
           <div>
             <label className={lbl}>FOOD NAME *</label>
             <input autoFocus type="text" placeholder="Chicken Breast" value={form.name} onChange={f('name')} className={inputCls} />
@@ -123,18 +123,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
           </div>
         </div>
 
-        {/* Serving */}
-        <div>
-          <label className={lbl}>SERVING SIZE *</label>
-          <div className="flex gap-2">
-            <input type="number" placeholder="100" value={form.servingSize} onChange={handleServingChange}
-              className="flex-1 min-w-0 bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown transition-colors" />
-            <select value={form.servingUnit} onChange={f('servingUnit')}
-              className="w-24 flex-shrink-0 bg-surface border border-border rounded-xl px-3 py-3 font-mono text-sm text-cream focus:outline-none focus:border-brown transition-colors">
-              {SERVING_UNITS.map((u) => <option key={u}>{u}</option>)}
-            </select>
-          </div>
-        </div>
+        <FoodServingFields size={form.servingSize} unit={form.servingUnit} onSizeChange={handleServingChange} onUnitChange={f('servingUnit')} />
 
         {/* Main macros */}
         <div>
@@ -149,7 +138,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
               <div key={key}>
                 <label className={`${lbl} ${color}`}>{label}</label>
                 <div className="relative">
-                  <input type="number" min="0" step="0.1" placeholder="0" value={form[key]} onChange={f(key)} className={`${inputCls} pr-12`} />
+                  <input type="number" inputMode="decimal" aria-label={label} min="0" step="0.1" placeholder="0" value={form[key]} onChange={f(key)} className={`${inputCls} pr-12`} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs text-dim">{unit}</span>
                 </div>
               </div>
@@ -160,7 +149,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
         {/* Optional details */}
         <div>
           <p className="font-display text-xs text-dim tracking-widest mb-3">OPTIONAL DETAILS</p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="food-detail-grid grid grid-cols-3 gap-3">
             {[
               { key: 'fiber',  label: 'FIBER',  unit: 'g'  },
               { key: 'sugar',  label: 'SUGAR',  unit: 'g'  },
@@ -169,7 +158,7 @@ function FoodForm({ initial = null, onSave, onClose }) {
               <div key={key}>
                 <label className={lbl}>{label}</label>
                 <div className="relative">
-                  <input type="number" min="0" step="0.1" placeholder="0" value={form[key]} onChange={f(key)} className={`${inputCls} pr-9`} />
+                  <input type="number" inputMode="decimal" aria-label={label} min="0" step="0.1" placeholder="0" value={form[key]} onChange={f(key)} className={`${inputCls} pr-9`} />
                   <span className="absolute right-2.5 top-1/2 -translate-y-1/2 font-mono text-[10px] text-dim">{unit}</span>
                 </div>
               </div>
