@@ -57,7 +57,7 @@ export default function Marketplace({ onBack, onSignIn }) {
   const filtered = coaches.filter(c => `${c.name} ${c.specialties} ${c.headline}`.toLowerCase().includes(query.toLowerCase()))
   return <main className={`marketplace-page marketplace-browser ${authenticated ? 'marketplace-embedded' : 'marketplace-standalone'} min-h-full bg-bg text-cream px-5 py-8 md:px-8 pb-28`}>
     <div className="max-w-6xl mx-auto space-y-6">
-      {onBack && <button type="button" onClick={onBack} className="btn-ghost flex items-center gap-2"><ArrowLeft size={16} /> Back</button>}
+      <a href="/" onClick={onBack ? event => { event.preventDefault(); onBack() } : undefined} className="btn-ghost inline-flex items-center gap-2 self-start"><ArrowLeft size={16} /> Back to home</a>
       <header><p className="font-mono text-xs tracking-widest text-muted mb-3">MACROSTACK COACHING</p><h1 className="font-display text-4xl md:text-5xl">FIND YOUR COACH</h1><p className="text-muted mt-3 max-w-2xl">Explore coaching that fits your goals. Choose your coach, review their package, and connect after secure checkout.</p></header>
       {error && <p role="alert" className="border border-red-400/40 rounded-lg p-4 text-red-400">{error}</p>}
       {access && <section className="glass-card p-5 space-y-2"><h2 className="font-display text-2xl">{access.coach_name}</h2><p>{access.active ? 'Coaching active' : 'Coaching inactive. Renew your access to continue.'}</p><p className="text-muted text-sm">Access through {new Date(access.paid_until).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>{access.active && <p className="font-mono text-sm">Coach code: <strong>{access.coach_code}</strong>. Your connection is ready.</p>}</section>}
