@@ -4,7 +4,7 @@
 
 Meal exports pair a photo hero with a dark ingredient panel, numbered foods,
 logged quantities, whole-meal calories and macros, and the existing MacroStack
-logo and wordmark in the top left, Barlow Condensed / Space Grotesk type, and blue/green accents.
+logo and wordmark in the bottom left, Barlow Condensed / Space Grotesk type, and blue/green accents.
 The photo normally fills the top 1080 × 1110 region of each 1080 × 1920 image;
 wrapped food names reserve extra panel height when needed. Position sliders crop
 within that region. Ingredient rows use compact spacing with extra room for long

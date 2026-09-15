@@ -167,8 +167,6 @@ export async function renderStoryCanvas(story, photo, position, page = 0) {
     bottom.addColorStop(0, 'rgba(8,11,18,0)'); bottom.addColorStop(1, colors.bg)
     ctx.fillStyle = bottom; ctx.fillRect(0, photoHeight - 210, 1080, 220)
     const date = new Date(`${story.date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
-    ctx.drawImage(logo, 75, 142, 70, 70)
-    text(ctx, 'MACROSTACK', 150, 165, 32, colors.ink, 420)
     ctx.textAlign = 'right'; text(ctx, date, 990, 170, 23, colors.ink, 360, 'StoryBody'); ctx.textAlign = 'left'
     text(ctx, story.meal.toUpperCase(), 86, 222, 126, colors.ink, 908)
     ctx.fillStyle = colors.blue; ctx.fillRect(90, 370, 64, 5)
@@ -204,6 +202,8 @@ export async function renderStoryCanvas(story, photo, position, page = 0) {
       text(ctx, label, 450 + index * 185, 1690, 20, colors.muted, 160, 'StoryBody')
     })
     line(ctx, 1750)
+    ctx.drawImage(logo, 75, 1774, 70, 70)
+    text(ctx, 'MACROSTACK', 150, 1797, 32, colors.muted, 420)
   }
   if (story.kind === 'daily') {
     ctx.drawImage(logo, 75, 1630, 100, 100)
