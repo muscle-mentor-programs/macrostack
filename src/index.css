@@ -336,7 +336,7 @@ html.ocean-dark {
   --color-cream:   #D8E6F4;
   --color-muted:   #607890;
   --color-dim:     #253650;
-  --color-accent:  #4878B0;
+  --color-accent:  #82ADE1;
   color-scheme: dark;
 }
 
@@ -369,27 +369,27 @@ html.ocean-dark .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-co
 html.ocean-dark .placeholder-muted::placeholder { color: #48607A !important; }
 
 /* Ocean accent (replaces brown with steel blue) */
-html.ocean-dark .bg-brown         { background-color: #4878B0 !important; }
-html.ocean-dark .bg-brown-light   { background-color: #6494CC !important; }
-html.ocean-dark .bg-brown-dark    { background-color: #305A8C !important; }
-html.ocean-dark .hover\:bg-brown:hover       { background-color: #4878B0 !important; }
-html.ocean-dark .hover\:bg-brown-light:hover { background-color: #6494CC !important; }
-html.ocean-dark .text-brown       { color: #4878B0 !important; }
-html.ocean-dark .text-brown-light { color: #6494CC !important; }
-html.ocean-dark .text-brown-dark  { color: #305A8C !important; }
-html.ocean-dark .hover\:text-brown:hover       { color: #4878B0 !important; }
-html.ocean-dark .hover\:text-brown-light:hover { color: #6494CC !important; }
-html.ocean-dark .group:hover .group-hover\:text-brown { color: #4878B0 !important; }
-html.ocean-dark .border-brown        { border-color: #4878B0 !important; }
-html.ocean-dark .border-brown\/20    { border-color: rgba(72,120,176,0.2) !important; }
-html.ocean-dark .border-brown\/30    { border-color: rgba(72,120,176,0.3) !important; }
-html.ocean-dark .border-brown\/40    { border-color: rgba(72,120,176,0.4) !important; }
-html.ocean-dark .border-brown\/50    { border-color: rgba(72,120,176,0.5) !important; }
-html.ocean-dark .border-t-brown      { border-top-color: #4878B0 !important; }
-html.ocean-dark .bg-brown\/10        { background-color: rgba(72,120,176,0.1) !important; }
-html.ocean-dark .bg-brown\/20        { background-color: rgba(72,120,176,0.2) !important; }
-html.ocean-dark .bg-brown\/30        { background-color: rgba(72,120,176,0.3) !important; }
-html.ocean-dark .focus\:border-brown:focus    { border-color: #4878B0 !important; }
+html.ocean-dark .bg-brown         { background-color: #82ADE1 !important; }
+html.ocean-dark .bg-brown-light   { background-color: #82ADE1 !important; }
+html.ocean-dark .bg-brown-dark    { background-color: #82ADE1 !important; }
+html.ocean-dark .hover\:bg-brown:hover       { background-color: #82ADE1 !important; }
+html.ocean-dark .hover\:bg-brown-light:hover { background-color: #82ADE1 !important; }
+html.ocean-dark .text-brown       { color: #82ADE1 !important; }
+html.ocean-dark .text-brown-light { color: #82ADE1 !important; }
+html.ocean-dark .text-brown-dark  { color: #82ADE1 !important; }
+html.ocean-dark .hover\:text-brown:hover       { color: #82ADE1 !important; }
+html.ocean-dark .hover\:text-brown-light:hover { color: #82ADE1 !important; }
+html.ocean-dark .group:hover .group-hover\:text-brown { color: #82ADE1 !important; }
+html.ocean-dark .border-brown        { border-color: #82ADE1 !important; }
+html.ocean-dark .border-brown\/20    { border-color: rgba(130,173,225,0.2) !important; }
+html.ocean-dark .border-brown\/30    { border-color: rgba(130,173,225,0.3) !important; }
+html.ocean-dark .border-brown\/40    { border-color: rgba(130,173,225,0.4) !important; }
+html.ocean-dark .border-brown\/50    { border-color: rgba(130,173,225,0.5) !important; }
+html.ocean-dark .border-t-brown      { border-top-color: #82ADE1 !important; }
+html.ocean-dark .bg-brown\/10        { background-color: rgba(130,173,225,0.1) !important; }
+html.ocean-dark .bg-brown\/20        { background-color: rgba(130,173,225,0.2) !important; }
+html.ocean-dark .bg-brown\/30        { background-color: rgba(130,173,225,0.3) !important; }
+html.ocean-dark .focus\:border-brown:focus    { border-color: #82ADE1 !important; }
 
 /* ─────────────────────────────────────────────
    OCEAN LIGHT THEME
@@ -405,14 +405,14 @@ html.ocean-light {
   --color-cream:   #10203A;
   --color-muted:   #4A6B88;
   --color-dim:     #CBDCEC;
-  --color-accent:  #4878B0;
+  --color-accent:  #82ADE1;
   color-scheme: light;
 }
 
 /* Cool light falling from above, the light-mode twin of the dark glow */
 html.ocean-light body {
   background:
-    radial-gradient(ellipse 120% 42% at 50% 0%, rgba(72, 120, 176, 0.07) 0%, transparent 62%),
+    radial-gradient(ellipse 120% 42% at 50% 0%, rgba(130, 173, 225, 0.07) 0%, transparent 62%),
     var(--color-bg) !important;
 }
 
@@ -445,27 +445,27 @@ html.ocean-light .divide-border\/50 > :not([hidden]) ~ :not([hidden]) { border-c
 html.ocean-light .placeholder-muted::placeholder { color: #7C9CBA !important; }
 
 /* Ocean accent (same blue as dark) */
-html.ocean-light .bg-brown         { background-color: #4878B0 !important; }
-html.ocean-light .bg-brown-light   { background-color: #6494CC !important; }
-html.ocean-light .bg-brown-dark    { background-color: #305A8C !important; }
-html.ocean-light .hover\:bg-brown:hover       { background-color: #4878B0 !important; }
-html.ocean-light .hover\:bg-brown-light:hover { background-color: #6494CC !important; }
-html.ocean-light .text-brown       { color: #4878B0 !important; }
-html.ocean-light .text-brown-light { color: #6494CC !important; }
-html.ocean-light .text-brown-dark  { color: #305A8C !important; }
-html.ocean-light .hover\:text-brown:hover       { color: #4878B0 !important; }
-html.ocean-light .hover\:text-brown-light:hover { color: #6494CC !important; }
-html.ocean-light .group:hover .group-hover\:text-brown { color: #4878B0 !important; }
-html.ocean-light .border-brown        { border-color: #4878B0 !important; }
-html.ocean-light .border-brown\/20    { border-color: rgba(72,120,176,0.2) !important; }
-html.ocean-light .border-brown\/30    { border-color: rgba(72,120,176,0.3) !important; }
-html.ocean-light .border-brown\/40    { border-color: rgba(72,120,176,0.4) !important; }
-html.ocean-light .border-brown\/50    { border-color: rgba(72,120,176,0.5) !important; }
-html.ocean-light .border-t-brown      { border-top-color: #4878B0 !important; }
-html.ocean-light .bg-brown\/10        { background-color: rgba(72,120,176,0.1) !important; }
-html.ocean-light .bg-brown\/20        { background-color: rgba(72,120,176,0.2) !important; }
-html.ocean-light .bg-brown\/30        { background-color: rgba(72,120,176,0.3) !important; }
-html.ocean-light .focus\:border-brown:focus    { border-color: #4878B0 !important; }
+html.ocean-light .bg-brown         { background-color: #82ADE1 !important; }
+html.ocean-light .bg-brown-light   { background-color: #82ADE1 !important; }
+html.ocean-light .bg-brown-dark    { background-color: #82ADE1 !important; }
+html.ocean-light .hover\:bg-brown:hover       { background-color: #82ADE1 !important; }
+html.ocean-light .hover\:bg-brown-light:hover { background-color: #82ADE1 !important; }
+html.ocean-light .text-brown       { color: #82ADE1 !important; }
+html.ocean-light .text-brown-light { color: #82ADE1 !important; }
+html.ocean-light .text-brown-dark  { color: #82ADE1 !important; }
+html.ocean-light .hover\:text-brown:hover       { color: #82ADE1 !important; }
+html.ocean-light .hover\:text-brown-light:hover { color: #82ADE1 !important; }
+html.ocean-light .group:hover .group-hover\:text-brown { color: #82ADE1 !important; }
+html.ocean-light .border-brown        { border-color: #82ADE1 !important; }
+html.ocean-light .border-brown\/20    { border-color: rgba(130,173,225,0.2) !important; }
+html.ocean-light .border-brown\/30    { border-color: rgba(130,173,225,0.3) !important; }
+html.ocean-light .border-brown\/40    { border-color: rgba(130,173,225,0.4) !important; }
+html.ocean-light .border-brown\/50    { border-color: rgba(130,173,225,0.5) !important; }
+html.ocean-light .border-t-brown      { border-top-color: #82ADE1 !important; }
+html.ocean-light .bg-brown\/10        { background-color: rgba(130,173,225,0.1) !important; }
+html.ocean-light .bg-brown\/20        { background-color: rgba(130,173,225,0.2) !important; }
+html.ocean-light .bg-brown\/30        { background-color: rgba(130,173,225,0.3) !important; }
+html.ocean-light .focus\:border-brown:focus    { border-color: #82ADE1 !important; }
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

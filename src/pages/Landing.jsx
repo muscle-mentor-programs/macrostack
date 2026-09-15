@@ -32,7 +32,7 @@ const INVERT_CARD   = 'var(--land-invert-card)'
 const INVERT_BORDER = '1px solid var(--land-invert-border)'
 const INVERT_SHADOW = 'var(--land-invert-shadow)'
 
-const ON_ACCENT = '#FFFFFF' /* accent is mid-tone in every theme, white reads on all */
+const ON_ACCENT = '#080B12' /* Dark ink stays readable on the light blue brand accent. */
 
 /* ── Content data ─────────────────────────────────────────────────────────── */
 

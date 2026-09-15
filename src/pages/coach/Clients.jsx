@@ -852,7 +852,7 @@ function TargetScheduler({ client }) {
 }
 
 /* ── Check-in trends, scale answers charted across weeks ──────────────────── */
-const TREND_COLORS = ['#4878B0', '#6B7A52', '#9A7B55', '#8A6FA8', '#B06848']
+const TREND_COLORS = ['#82ADE1', '#6B7A52', '#9A7B55', '#8A6FA8', '#B06848']
 function CheckinTrends({ client }) {
   const checkins = [...(client.checkins || [])].reverse() // oldest → newest
   if (checkins.length < 2) return null
