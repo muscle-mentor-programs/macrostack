@@ -72,7 +72,7 @@ if(process.env.PGLITE_MODULE) {
     grant all on weight_log,checkins to authenticated;
     insert into weight_log values(1,180);
   `)
-  await db.exec(readFileSync(new URL('../supabase/migrations/20260915230000_member_weight_paywall.sql',import.meta.url),'utf8'))
+  await db.exec(readFileSync(new URL('../supabase/migrations/20260915235944_member_weight_paywall.sql',import.meta.url),'utf8'))
   for(const [role,status,override,allowed] of [
     ['client','inactive',null,false],['client','active',null,true],['client','trialing',null,true],
     ['client','canceled',null,false],['client','past_due',null,false],
