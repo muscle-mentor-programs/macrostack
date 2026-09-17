@@ -4,10 +4,33 @@ import { Camera, Trash2, X, Loader2, ImagePlus, Columns2 } from 'lucide-react'
 import useStore from '../store'
 import { successHaptic } from '../utils/haptics'
 
+function RequestProgressPhotos({ client }) {
+  const sendMessage = useStore(s => s.sendMessage)
+  const [state, setState] = useState('idle')
+  const sending = useRef(false)
+  const request = async () => {
+    if (sending.current || state === 'sent') return
+    sending.current = true; setState('sending')
+    try {
+      const result = await sendMessage(client.id, 'coach', 'Your coach has requested updated progress photos. Please open Weight → Progress photos in Macrostack to upload them.')
+      if (!result?.ok) throw new Error('Request failed')
+      setState('sent'); successHaptic()
+    } catch { setState('error') } finally { sending.current = false }
+  }
+  return <div className="mb-4">
+    <button onClick={request} disabled={state === 'sending' || state === 'sent'} className="flex items-center gap-2 px-4 py-3 rounded-xl border border-border text-accent bg-card font-mono text-sm disabled:opacity-60">
+      {state === 'sending' ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+      {state === 'sending' ? 'Sending request…' : state === 'sent' ? 'Request sent' : 'Request progress photos'}
+    </button>
+    {state === 'sent' && <p role="status" className="font-mono text-xs text-muted mt-2">Request sent to your client’s chat.</p>}
+    {state === 'error' && <p role="alert" className="font-mono text-xs text-muted mt-2">Could not send the request. Please try again.</p>}
+  </div>
+}
+
 /* Progress-photo timeline, shared by the client WEIGHT page (canEdit) and
    the coach's client detail (read-only). Photos render oldest → newest so
    the strip reads like a transformation timeline. */
-export default function ProgressPhotos({ client, canEdit = false }) {
+export default function ProgressPhotos({ client, canEdit = false, canRequest = false }) {
   const { addProgressPhoto, deleteProgressPhoto } = useStore()
   const [uploading, setUploading] = useState(false)
   const [error, setError]         = useState('')
@@ -49,18 +72,21 @@ export default function ProgressPhotos({ client, canEdit = false }) {
 
   if (!canEdit && photos.length === 0) {
     return (
+      <div>
+      {canRequest && <RequestProgressPhotos key={client.id} client={client} />}
       <div className="glass-card border border-border rounded-2xl p-8 text-center card-dim">
         <Camera size={22} className="text-dim mx-auto mb-2" />
         <p className="font-display font-bold text-sm text-muted tracking-widest">NO PROGRESS PHOTOS</p>
         <p className="font-mono text-xs text-dim mt-1.5">
           {client?.name?.split(' ')[0] || 'This user'} hasn't uploaded any progress photos yet.
         </p>
-      </div>
+      </div></div>
     )
   }
 
   return (
     <div>
+      {canRequest && !canEdit && <RequestProgressPhotos key={client.id} client={client} />}
       {/* Compare toggle, the before/after money shot */}
       {photos.length >= 2 && (
         <div className="flex items-center justify-between mb-3">

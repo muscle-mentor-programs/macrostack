@@ -1581,7 +1581,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROGRESS PHOTO TIMELINE</p>
             </div>
-            <ProgressPhotos client={client} />
+            <ProgressPhotos client={client} canRequest />
           </div>
         )}
 

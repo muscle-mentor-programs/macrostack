@@ -192,6 +192,6 @@ html body .software-coach .coach-roster-cards{display:grid;grid-template-columns
 .coach-section-scroll::-webkit-scrollbar{display:none}
 .coach-section-scroll>button{flex:1 0 auto;min-height:48px;padding:12px 20px;white-space:nowrap;font:700 14px var(--font-display);letter-spacing:.035em;color:var(--color-muted)}
 .coach-section-track{position:absolute;bottom:3px;left:16px;right:16px;height:4px;border-radius:4px;background:color-mix(in srgb,var(--color-accent) 15%,transparent);overflow:hidden}
-.coach-section-track>span{position:absolute;top:0;height:100%;border-radius:inherit;background:var(--color-accent);transition:left 60ms linear;animation:coach-scroll-cue 850ms ease-out 1}
-@keyframes coach-scroll-cue{0%,100%{transform:translateX(0)}45%{transform:translateX(18px)}}
+.coach-section-track>span{position:absolute;top:0;height:100%;border-radius:inherit;background:var(--color-accent);left:0;will-change:transform;transition:none}
+
 @media(prefers-reduced-motion:reduce){.coach-section-track>span{animation:none!important;transition:none!important}}

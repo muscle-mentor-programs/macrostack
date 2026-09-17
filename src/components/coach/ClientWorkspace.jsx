@@ -98,7 +98,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary', mo
   }, [draft, draftKey])
   const start = (kind, source = null) => {
     if (draft) { setStatus('Finish or discard the open draft first.'); return }
-    setStatus(''); setDraft({ kind, record_id: crypto.randomUUID(), title: '', body: '', details: { date: day(), ...(source ? { source } : {}) } })
+    setStatus(''); setDraft({ kind, record_id: crypto.randomUUID(), title: '', body: '', details: { date: kind === 'comment' && source ? source.slice(0, 10) : day(), ...(source ? { source } : {}) } })
   }
   const change = (key, value) => setDraft(d => ({ ...d, [key]: value }))
   const detail = (key, value) => setDraft(d => ({ ...d, details: { ...d.details, [key]: value } }))
@@ -155,7 +155,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary', mo
       {draft.kind === 'note' && <label>Template<select defaultValue="" onChange={e => { if (e.target.value) { change('body', templates[e.target.value]); change('title', e.target.value) } }}><option value="">Choose a template</option>{Object.keys(templates).map(t => <option key={t}>{t}</option>)}</select></label>}
       <label>Title<input disabled={busy} required maxLength={200} value={draft.title} onChange={e => change('title', e.target.value)} /></label>
       <label>{draft.kind === 'brief' ? 'Goals, motivation, restrictions, schedule, barriers, and communication preferences' : 'Notes, decisions, and next steps'}<textarea aria-label={draft.kind === 'brief' ? 'Client brief' : 'Notes, decisions, and next steps'} required maxLength={30000} value={draft.body} onChange={e => change('body', e.target.value)} /></label>
-      <div className="cw-grid"><label>Tags<input value={draft.details.tags || ''} onChange={e => detail('tags', e.target.value)} placeholder="travel, hunger, plateau" /></label><label>Linked evidence<input value={draft.details.source || ''} onChange={e => detail('source', e.target.value)} placeholder="Check-in date, meal, or measurement" /></label></div>
+      <div className="cw-grid"><label>Tags<input value={draft.details.tags || ''} onChange={e => detail('tags', e.target.value)} placeholder="travel, hunger, plateau" /></label>{draft.kind === 'comment' ? <p className="cw-muted">Private comment for {format(parseISO(draft.details.source.slice(0, 10)), 'MMMM d, yyyy')} · Only visible to your coaching workspace.</p> : <label>Linked evidence<input value={draft.details.source || ''} onChange={e => detail('source', e.target.value)} placeholder="Check-in date or measurement" /></label>}</div>
       {draft.kind === 'task' && <div className="cw-grid"><label>Due date<input type="date" required value={draft.details.due || ''} onChange={e => detail('due', e.target.value)} /></label><label>Responsible person<select value={draft.details.owner || 'Coach'} onChange={e => detail('owner', e.target.value)}><option>Coach</option><option value={`Client ${String.fromCharCode(8212)} coach tracked`}>Client (coach tracked)</option></select></label></div>}
       {draft.kind === 'task' && <label>Priority<select aria-label="Task priority" value={draft.details.priority || 'normal'} onChange={e => detail('priority', e.target.value)}><option value="high">High</option><option value="normal">Normal</option><option value="low">Low</option></select></label>}
       {['review', 'plan', 'brief'].includes(draft.kind) && <label>Next review date<input type="date" value={draft.details.nextReview || ''} onChange={e => detail('nextReview', e.target.value)} /></label>}
@@ -192,8 +192,9 @@ export default function ClientWorkspace({ client, initialSection = 'Summary', mo
           <span className="cw-journal-expand"><span>{foods.length ? `${foods.length} ${foods.length === 1 ? 'entry' : 'entries'} · View journal` : 'No entries logged'}</span><ChevronDown size={16} aria-hidden="true" /></span>
         </summary><div className="cw-journal-body">
           {!foods.length && <p className="cw-muted">No food entries are available for this day. Intake is unknown.</p>}
-          {foods.map((food, i) => <div className="cw-journal-food" key={food.id || i}><span className="cw-journal-eyebrow">{food.meal || 'Meal'}</span><h4>{food.name}</h4><p className="cw-muted">{Math.round(food.calories || 0)} kcal · {Math.round(food.protein || 0)}g protein · {Math.round(food.carbs || 0)}g carbs · {Math.round(food.fat || 0)}g fat</p><button onClick={() => start('comment', `${d} / ${food.meal || 'meal'} / ${food.name} / ${food.id || i}`)}><MessageSquare size={13} aria-hidden="true" /> Add private comment</button></div>)}
+          {foods.map((food, i) => <div className="cw-journal-food" key={food.id || i}><span className="cw-journal-eyebrow">{food.meal || 'Meal'}</span><h4>{food.name}</h4><p className="cw-muted">{Math.round(food.calories || 0)} kcal · {Math.round(food.protein || 0)}g protein · {Math.round(food.carbs || 0)}g carbs · {Math.round(food.fat || 0)}g fat</p></div>)}
           <button disabled={busy || loading || !!error || reviewed} onClick={() => save({ record_id: crypto.randomUUID(), kind: 'day_review', title: `Journal reviewed, ${dateLabel}`, body: 'Coach reviewed the available entries. This does not certify a complete food log.', details: { date: d } })}><CheckCheck size={14} aria-hidden="true" />{reviewed ? 'Reviewed' : 'Mark reviewed'}</button>
+          <button onClick={() => start('comment', d)}><MessageSquare size={13} aria-hidden="true" /> Add private day comment</button>
           {latestEntries(entries, 'comment').filter(e => e.details.source?.startsWith(d)).map(recordCard)}
         </div></details>
       })}</div></div>
