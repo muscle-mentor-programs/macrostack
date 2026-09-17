@@ -27,6 +27,11 @@ try{
   },width)
   await page.getByRole('button',{name:'Find a client',exact:true}).count() // settle imports
   await page.locator('.coach-roster-row').first().waitFor()
+  await page.getByRole('button',{name:/Marketplace notifications/}).click()
+  assert.equal(await page.locator('#coach-notification-title').evaluate(el=>getComputedStyle(el).fontSize),'18px')
+  assert.equal(await page.locator('.coach-notification-actions button').first().evaluate(el=>getComputedStyle(el).fontSize),'13px')
+  await page.getByRole('button',{name:'Close notifications',exact:true}).click()
+
   assert.equal(await page.locator('.coach-roster-row').count(),20)
   const identity = page.locator('.coach-client-identity').first()
   await identity.hover(); await page.mouse.down(); await page.waitForTimeout(180)
