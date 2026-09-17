@@ -1,0 +1,129 @@
+/* Shared coach workspace system. Theme colors come from the active app theme. */
+.coach-shell{display:flex;width:100%;height:var(--coach-height,100dvh);overflow:hidden;background:var(--color-bg);color:var(--color-cream)}
+.coach-canvas{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0}
+.coach-main{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.coach-main>div{min-height:100%}
+.coach-utility-bar{display:flex;justify-content:space-between;align-items:center;min-height:48px;padding:8px 24px;border-bottom:1px solid var(--color-border);background:var(--color-surface);padding-top:max(8px,env(safe-area-inset-top))}
+.coach-eyebrow{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.12em;color:var(--color-muted)}
+.coach-sidebar{display:flex;flex-direction:column;flex:0 0 224px;border-right:1px solid var(--color-border);padding:20px 12px;background:var(--color-surface);overflow:auto}
+.coach-sidebar.is-collapsed{flex-basis:72px}
+.coach-sidebar header{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;font-family:var(--font-display);font-size:24px;font-weight:800}
+.coach-sidebar button{display:flex;align-items:center;gap:12px;min-height:44px;padding:10px 12px;border-radius:8px;text-align:left;font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:.035em}
+.coach-sidebar header button{padding:8px}
+.coach-sidebar nav{flex:1}
+.coach-sidebar nav section{margin:24px 0}
+.coach-sidebar nav h2{font:600 11px var(--font-mono);color:var(--color-muted);text-transform:uppercase;letter-spacing:.08em;margin:0 12px 8px}
+.coach-sidebar nav button{width:100%;margin:4px 0;color:var(--color-muted)}
+.coach-sidebar button[aria-current=page],.coach-bottom-nav button[aria-current=page]{color:var(--color-accent);background:color-mix(in srgb,var(--color-accent) 12%,transparent)}
+.coach-sidebar-account{border-top:1px solid var(--color-border);overflow-wrap:anywhere}
+.coach-sidebar button svg{flex-shrink:0}
+.coach-bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));flex-shrink:0;background:var(--color-surface);border-top:1px solid var(--color-border);padding:4px 4px max(6px,env(safe-area-inset-bottom))}
+.coach-bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:56px;color:var(--color-muted);border-radius:8px}
+.coach-bottom-nav button>span{position:relative}
+.coach-bottom-nav strong{font:700 12px var(--font-display);letter-spacing:.035em}
+.coach-bottom-nav b{position:absolute;top:-5px;left:14px;background:var(--color-accent);color:var(--color-bg);border-radius:12px;padding:1px 4px;font:700 10px var(--font-mono)}
+.coach-offline{padding:10px 16px;background:var(--color-card);border-bottom:1px solid var(--color-accent);font-size:14px}
+.coach-resource-page{max-width:1100px;margin:auto;padding:24px}
+.coach-resource-page h1{font:800 32px var(--font-display);margin:8px 0}
+.coach-resource-page header>p:last-child{color:var(--color-muted);font-size:15px}
+.coach-resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
+.coach-resource-grid>button{display:flex;align-items:center;gap:16px;text-align:left;border:1px solid var(--color-border);background:var(--color-card);border-radius:10px;padding:20px}
+.coach-resource-grid>button>span{flex:1;min-width:0}
+.coach-resource-grid strong{display:block;font:700 22px var(--font-display)}
+.coach-resource-grid small{display:block;font:14px/1.5 var(--font-mono);color:var(--color-muted);margin-top:6px}
+.coach-account-settings{margin-top:32px;max-width:600px}
+.coach-account-settings h2{font:700 24px var(--font-display);margin-bottom:12px}
+.coach-account-settings>div{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.coach-account-settings>button{display:block;min-height:44px;border-bottom:1px solid var(--color-border);width:100%;text-align:left;margin-top:8px}
+.coach-client-detail{container-type:inline-size}
+.coach-client-sections{display:flex;flex-shrink:0;border-bottom:1px solid var(--color-border);background:var(--color-surface);position:relative;z-index:21}
+.coach-client-sections>button,.coach-section-more>summary{flex:1;min-height:48px;padding:12px 10px;white-space:nowrap;text-align:center;font:700 14px var(--font-display);letter-spacing:.04em;color:var(--color-muted);cursor:pointer}
+.coach-client-sections [aria-current=page]{color:var(--color-accent);box-shadow:inset 0 -2px var(--color-accent)}
+.coach-section-more{display:none;flex:1;min-width:0}
+.coach-section-more>summary{list-style:none;overflow:hidden;text-overflow:ellipsis}
+.coach-section-more>summary::-webkit-details-marker{display:none}
+.coach-section-more>div{position:absolute;right:8px;top:100%;padding:8px;min-width:180px;background:var(--color-card);border:1px solid var(--color-border);border-radius:8px;box-shadow:0 8px 24px #0003}
+.coach-section-more button{display:block;width:100%;min-height:44px;text-align:left;padding:8px 12px;font-family:var(--font-display);font-size:16px}
+.coach-client-detail .cw-client-header,.coach-client-detail .cw-privacy,.coach-client-detail .cw-section-intro{display:none}
+.coach-client-detail .cw-journal-toolbar h3{font-size:24px}
+.coach-client-detail .cw-journal-toolbar .cw-journal-eyebrow{display:none}
+.coach-client-detail .cw-stat{padding:12px;margin:0}
+.coach-client-detail .cw-stats{gap:8px}
+.coach-client-detail .cw-stat strong{font-size:28px;line-height:1.1}
+.coach-client-detail .cw-muted{font-size:14px}
+.coach-client-detail .cw-journal-filters{grid-template-columns:minmax(0,1fr) minmax(90px,.55fr);width:100%;max-width:360px}
+.coach-client-detail .cw-journal-filters input{min-width:0;max-width:100%}
+.coach-client-detail .cw-client-workspace{padding:16px 0}
+.coach-client-detail .cw-tabs{display:flex;gap:8px}
+.coach-client-detail .cw-tabs button{flex:1}
+.coach-client-detail .cw-journal-context{margin:12px 0}
+.coach-record-summary{margin:0 24px 24px}
+.coach-record-summary>summary{font:700 20px var(--font-display);cursor:pointer;padding:12px 0}
+.coach-checkin-forms{border-top:1px solid var(--color-border);margin-top:24px;padding-top:20px}
+.coach-checkin-forms>summary{font:700 22px var(--font-display);padding:12px 0;cursor:pointer}
+.coach-roster{width:100%;border:1px solid var(--color-border);border-radius:10px;overflow:hidden;margin:20px 0}
+.coach-roster-row{display:grid;grid-template-columns:minmax(160px,1.5fr) repeat(3,minmax(95px,1fr)) auto;gap:16px;align-items:center;padding:16px;border-bottom:1px solid var(--color-border);background:var(--color-card)}
+.coach-roster-row:last-child{border-bottom:0}
+.coach-roster-row>button{text-align:left;min-height:44px;font:700 18px var(--font-display)}
+.coach-roster-row small{display:block;color:var(--color-muted);font:12px var(--font-mono);margin-top:4px}
+.coach-roster-row span{font-size:14px}
+.coach-roster-row button[data-action]{font-size:14px;color:var(--color-accent);padding:8px;border:1px solid var(--color-border);border-radius:6px}
+.coach-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0;font-size:14px}
+.coach-pagination button{min-height:44px;padding:8px 16px;border:1px solid var(--color-border);border-radius:6px}
+.software-coach :is(input,textarea,select){font-family:var(--font-mono);font-variant-numeric:tabular-nums;max-width:100%;scroll-margin-block:96px}
+.software-coach :is(h1,h2,h3){font-family:var(--font-display)}
+.software-coach :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--color-accent);outline-offset:3px}
+.software-coach :is(button,a){touch-action:manipulation}
+.software-coach .dashboard-workboard{max-width:1440px;margin:auto}
+.software-coach .dashboard-workboard>.cw-tabs{display:none}
+.software-coach .dashboard-workboard>.cw-stats button{padding:16px;text-align:left;min-height:88px;margin:0}
+.software-coach .dashboard-workboard .cw-stat strong{font:800 30px var(--font-display)}
+.software-coach .dashboard-workboard .cw-stats{margin-top:0}
+.software-coach .pb-nav{padding-bottom:24px}
+.software-coach .pt-mobile-header{padding-top:20px}
+.coach-client-detail>header,.coach-client-detail>div:first-child{padding-top:max(12px,env(safe-area-inset-top));padding-bottom:12px}
+@container(max-width:700px){.coach-client-sections>.coach-secondary-section{display:none}.coach-section-more{display:block}}
+@media(min-width:768px){.coach-main>div{height:100%}.coach-client-detail{max-width:1600px;margin:auto}.coach-client-detail .cw-journal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:767px){
+ .coach-utility-bar{padding-inline:16px;min-height:44px}.coach-main{scrollbar-gutter:auto}.coach-resource-page{padding:20px 16px}.coach-resource-grid{grid-template-columns:1fr;gap:12px}
+ .coach-client-detail{height:var(--coach-height,100dvh)!important;bottom:auto!important}.coach-client-detail .app-page-gutter{padding-inline:16px}
+ .coach-client-detail .cw-journal-grid{grid-template-columns:1fr}.coach-client-detail .cw-journal-toolbar{gap:12px;padding:16px}
+ .coach-client-detail .cw-journal-day summary{padding:16px}.coach-client-detail .cw-journal-date{font-size:24px;margin-bottom:12px}
+ .coach-client-detail .cw-journal-metrics strong{font-size:24px}.coach-client-detail .cw-grid{gap:12px}
+ .coach-record-summary{margin-inline:16px}.coach-client-detail .cw-panel{margin-bottom:12px}
+ .software-coach :is(input,textarea,select),body:has(.software-coach) .mp-builder :is(input,textarea,select){font-size:16px!important}
+ .software-coach button{min-height:44px}.coach-roster-row{grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;padding:12px 16px}
+ .coach-roster-row>span{font-size:12px}.coach-roster-row>button:first-child{grid-column:1/-1}.coach-roster-row>button[data-action]{grid-column:2;grid-row:2/4}
+ .coach-keyboard-open .coach-bottom-nav{display:none}.coach-keyboard-open .coach-utility-bar{display:none}
+}
+@media(prefers-reduced-motion:reduce){.software-coach *,.coach-client-detail *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.coach-primary-workboard{padding:20px 24px}
+.coach-dashboard-secondary{margin:12px 24px 24px;border-top:1px solid var(--color-border)}
+.coach-dashboard-secondary>summary{padding:16px 0;cursor:pointer;font:700 20px var(--font-display);color:var(--color-muted)}
+.coach-roster-filters{display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(120px,1fr));gap:12px}
+.coach-roster-filters label{font-size:13px;color:var(--color-muted)}
+.coach-roster-row>button:first-child{overflow-wrap:anywhere}
+.coach-client-detail .cw-journal-day{content-visibility:auto;contain-intrinsic-size:auto 220px}
+.coach-client-detail .cw-record{content-visibility:auto;contain-intrinsic-size:auto 180px}
+body:has(.software-coach) .mp-editor{height:var(--coach-height,100dvh)}
+body:has(.software-coach) .mp-editor input{font-size:16px}
+.software-coach .chat-message-canvas{overscroll-behavior:contain}
+.coach-client-detail .cw-journal-body .cw-panel{content-visibility:visible}
+@media(max-width:767px){.coach-primary-workboard{padding:12px 0}.coach-dashboard-secondary{margin:12px 0}.coach-roster-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.coach-roster-filters label:first-child{grid-column:1/-1}.coach-client-sections>button,.coach-section-more>summary{font-size:13px;padding-inline:6px}.software-coach .glass-panel :is(h1,h2):is(.text-3xl,.text-4xl){font-size:30px}.software-coach .dashboard-workboard>.cw-stats button{padding:12px 8px}.software-coach .dashboard-workboard>.cw-stats .cw-muted{font-size:12px}.software-coach .dashboard-workboard .cw-stat strong{font-size:28px}}
+/* Neutral text, a single brand accent, and shallow surfaces throughout. */
+body .software-coach{--coach-tone:var(--color-accent)}
+body .software-coach [data-coach-section]{--coach-tone:var(--color-accent)}
+body .software-coach :is(.cw-panel,.cw-section-intro,.cw-section-heading)>:is(h2,h3){color:var(--color-cream)!important}
+html body:has(.software-coach) :is(.cw-panel,.glass-card,.card-dim){box-shadow:0 2px 10px #0000000d!important}
+.coach-client-detail>.flex-1>.cw-client-workspace{padding:16px 24px}
+.cw-journal-layout{display:grid;grid-template-columns:160px minmax(0,1fr);gap:20px;align-items:start}
+.cw-journal-dates{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
+.cw-journal-dates button{display:block!important;text-align:left;font-size:15px!important}
+.cw-journal-dates span{display:block;font:12px var(--font-mono);color:var(--color-muted);margin-top:4px}
+@media(min-width:768px){.coach-client-detail .cw-journal-grid{display:block}.coach-client-detail .cw-journal-day[data-selected=false]{display:none}.coach-client-detail .cw-journal-day[data-selected=true]{content-visibility:visible}.coach-client-detail .cw-journal-toolbar{display:block}.coach-client-detail .cw-journal-filters{margin-top:16px}}
+@media(max-width:767px){.coach-client-detail>.flex-1>.cw-client-workspace{padding:16px}.cw-journal-layout{display:block}.cw-journal-dates{display:none}}
+.coach-load-more{display:block;min-height:44px;padding:10px 18px;margin:12px auto;border:1px solid var(--color-border);border-radius:8px;font:700 16px var(--font-display);color:var(--color-accent)}
+@container(min-width:900px){.coach-checkin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}.coach-checkin-grid>*{margin-top:0!important;grid-column:1/-1}.coach-checkin-grid>:first-child,.coach-checkin-grid>:nth-child(2){grid-column:auto}}
+
+html body .software-coach .cw-client-workspace .cw-journal :is(h3,h4){color:var(--color-cream)!important}
+@container(min-width:900px){.coach-client-detail .cw-journal-toolbar{display:flex;align-items:center;justify-content:space-between;gap:24px}.coach-client-detail .cw-journal-filters{margin-top:0}}

@@ -108,10 +108,9 @@ export default function ProgressPhotos({ client, canEdit = false }) {
               onClick={() => (comparing ? pickForCompare(p) : setViewer(p))}
               className="relative flex-shrink-0 w-24 group"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={p.url}
                 alt={`Progress ${dateLabel(p)}`}
-                loading="lazy"
                 className="w-24 aspect-[3/4] object-cover rounded-xl border transition-all"
                 style={picked
                   ? { borderColor: 'var(--color-accent)', boxShadow: '0 0 0 2px var(--color-accent)' }
@@ -164,7 +163,7 @@ export default function ProgressPhotos({ client, canEdit = false }) {
           <div className="flex gap-3 max-w-full" onClick={(e) => e.stopPropagation()}>
             {[...comparePicks].sort((a, b) => (a.takenAt || '').localeCompare(b.takenAt || '')).map((p, i) => (
               <div key={p.id} className="flex-1 min-w-0 text-center">
-                <img src={p.url} alt={dateLabel(p)}
+                <img loading="lazy" decoding="async" src={p.url} alt={dateLabel(p)}
                   className="max-h-[70vh] w-auto max-w-full rounded-2xl border border-border object-contain mx-auto" />
                 <p className="font-mono text-xs mt-3" style={{ color: i === 0 ? 'var(--color-muted)' : 'var(--color-accent)' }}>
                   {i === 0 ? 'BEFORE · ' : 'AFTER · '}{dateLabel(p)}
@@ -187,7 +186,7 @@ export default function ProgressPhotos({ client, canEdit = false }) {
           >
             <X size={16} />
           </button>
-          <img
+          <img loading="lazy" decoding="async"
             src={viewer.url}
             alt={`Progress ${dateLabel(viewer)}`}
             className="max-w-full max-h-[75vh] rounded-2xl border border-border object-contain"

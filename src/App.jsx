@@ -41,6 +41,9 @@ const ClientMessages     = lazy(() => import('./pages/client/ClientMessages'))
 const ClientProfile      = lazy(() => import('./pages/client/ClientProfile'))
 const ClientCoachProfile = lazy(() => import('./pages/client/ClientCoachProfile'))
 
+const CoachLibrary = lazy(() => import('./pages/coach/CoachResources'))
+const CoachMore = lazy(() => import('./pages/coach/CoachMore'))
+
 // Shared
 const UpgradePage = lazy(() => import('./pages/UpgradePage'))
 const AdminBilling = lazy(() => import('./pages/coach/AdminBilling'))
@@ -69,6 +72,8 @@ function PageLoader() {
 }
 
 const COACH_PAGES_DESKTOP = {
+  library: CoachLibrary,
+  more: CoachMore,
   dashboard: CoachDashboard,
   insights:  CoachDashboard,
   clients:   Clients,
@@ -85,6 +90,8 @@ const COACH_PAGES_DESKTOP = {
 }
 
 const COACH_PAGES_MOBILE = {
+  library: CoachLibrary,
+  more: CoachMore,
   dashboard: MobileCoachDashboard,
   insights:  MobileCoachDashboard,
   clients:   MobileClients,

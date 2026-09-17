@@ -201,6 +201,8 @@ function QuickReplies({ onPick, onClose }) {
 /* Premium composer, auto-growing textarea, Enter to send (Shift+Enter for a
    newline), attachment buttons, optional quick-reply templates. Keeps focus
    after sending so mobile keyboards stay up. */
+const messageDrafts = new Map()
+
 export function Composer({
   clientId,
   onSendText,
@@ -211,10 +213,22 @@ export function Composer({
   onInputBlur,
   textSize = 'text-sm',
 }) {
-  const [input, setInput]     = useState('')
+  const accountId = useStore(s => s.currentUser?.id)
+  const draftKey = `${accountId}:${clientId}`
+  const [drafts, setDrafts] = useState(() => new Map(messageDrafts))
+  const input = drafts.get(draftKey) || ''
+  const setInput = value => setDrafts(previous => { const next = new Map(previous); const text = typeof value === 'function' ? value(previous.get(draftKey) || '') : value; next.set(draftKey, text); messageDrafts.set(draftKey, text); return next })
+  const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState('')
   const [showTpl, setShowTpl] = useState(false)
   const innerRef = useRef(null)
   const taRef = inputRef || innerRef
+
+  useEffect(() => {
+    const warn = event => { if (input.trim()) { event.preventDefault(); event.returnValue = '' } }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [input])
 
   const resize = () => {
     const el = taRef.current
@@ -223,19 +237,22 @@ export function Composer({
     el.style.height = `${Math.min(el.scrollHeight, 128)}px`
   }
 
-  const send = () => {
+  const send = async () => {
     const text = input.trim()
-    if (!text) return
-    onSendText(text)
-    setInput('')
-    requestAnimationFrame(() => {
-      const el = taRef.current
-      if (el) { el.style.height = 'auto'; el.focus() }
-    })
+    if (!text || sending) return
+    setSending(true); setSendError('')
+    try {
+      const result = await onSendText(text)
+      if (result?.ok === false) throw new Error(result.error)
+      setInput('')
+      requestAnimationFrame(() => { const el = taRef.current; if (el) { el.style.height = 'auto'; el.focus() } })
+    } catch (error) { setSendError(error.message || 'Message was not sent. Please retry.') }
+    finally { setSending(false) }
   }
 
   return (
-    <div className="relative flex items-end gap-2 w-full">
+    <div className="relative flex items-end gap-2 w-full flex-wrap">
+      {sendError && <p className="w-full text-sm text-red-400" role="alert">{sendError}</p>}
       {showTpl && (
         <QuickReplies
           onClose={() => setShowTpl(false)}
@@ -269,6 +286,8 @@ export function Composer({
         rows={1}
         placeholder={placeholder}
         value={input}
+        disabled={sending}
+        aria-label="Message"
         onChange={(e) => { setInput(e.target.value); resize() }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
@@ -281,8 +300,8 @@ export function Composer({
       <button
         onClick={send}
         onMouseDown={(e) => e.preventDefault()}
-        disabled={!input.trim()}
-        title="Send"
+        disabled={!input.trim() || sending}
+        title={sending ? 'Sending…' : 'Send'}
         className="flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center transition-all disabled:opacity-35 press"
         style={{
           background: 'linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, white))',

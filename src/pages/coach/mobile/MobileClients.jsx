@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import useCoachPreference from '../../../hooks/useCoachPreference'
+import ClientSections from '../../../components/coach/ClientSections'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import {
@@ -10,7 +12,7 @@ import ClientAvatar from '../../../components/ClientAvatar'
 import ClientWorkspace from '../../../components/coach/ClientWorkspace'
 import AnimatedNumber from '../../../components/AnimatedNumber'
 import ScrambleText from '../../../components/ScrambleText'
-import MealPlanBuilder from '../MealPlanBuilder'
+const MealPlanBuilder = lazy(() => import('../MealPlanBuilder'))
 import { reconcileGoals } from '../../../utils/macros'
 import { CheckinTab, ClientFormsTab } from '../Clients'
 import ProgressPhotos from '../../../components/ProgressPhotos'
@@ -296,12 +298,14 @@ function MealPlansTab({ clientId }) {
 
   if (showBuilder) {
     return (
+      <Suspense fallback={<p role="status" className="p-6">Loading meal plan editor…</p>}>
       <MealPlanBuilder
         client={client}
         initialPlan={editingPlan}
         onSave={handleSavePlan}
         onClose={() => { setShowBuilder(false); setEditingPlan(null) }}
       />
+      </Suspense>
     )
   }
 
@@ -413,6 +417,12 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
   const [name,      setName]      = useState(client.name)
   const [email,     setEmail]     = useState(client.email || '')
 
+  useEffect(() => {
+    const warn = event => { if (editGoals || editName) { event.preventDefault(); event.returnValue = '' } }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [editGoals, editName])
+
   const today      = format(new Date(), 'yyyy-MM-dd')
   const todayTotals = getClientTotalsForDate(client.id, today)
 
@@ -432,23 +442,32 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
   // Maintenance estimate from actual intake vs weight trend (non-prescriptive)
   const maint = estimateMaintenance(client)
 
-  const saveGoals = () => {
-    updateClientGoals(client.id, { calories: Number(goals.calories), protein: Number(goals.protein), carbs: Number(goals.carbs), fat: Number(goals.fat) })
+  const [saveError, setSaveError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const saveGoals = async () => {
+    if (saving) return
+    if (Object.values(goals).some(value => !Number.isFinite(Number(value)) || Number(value) < 0)) { setSaveError('Enter valid, nonnegative targets.'); return }
+    setSaving(true); setSaveError('')
+    try {
+    const result = await updateClientGoals(client.id, { calories: Number(goals.calories), protein: Number(goals.protein), carbs: Number(goals.carbs), fat: Number(goals.fat) })
+    if (result?.ok === false) { setSaveError(result.error); return }
     setEditGoals(false)
+    } catch { setSaveError('Could not save targets. Please retry.') } finally { setSaving(false) }
   }
 
-  const saveName = () => {
-    updateClientInfo(client.id, { name, email })
-    setEditName(false)
+  const saveName = async () => {
+    if (saving || !name.trim()) return
+    setSaving(true); setSaveError('')
+    try { const result = await updateClientInfo(client.id, { name: name.trim(), email }); if (result?.ok === false) { setSaveError(result.error); return }; setEditName(false) } catch { setSaveError('Could not save client details. Please retry.') } finally { setSaving(false) }
   }
 
   const inp = 'w-full bg-card border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream focus:outline-none focus:border-brown'
 
   return (
-    <div className="fixed inset-0 bg-bg z-40 flex flex-col anim-slide-right overflow-hidden">
+    <div className="software-ui software-coach coach-client-detail fixed inset-0 bg-bg z-40 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="app-page-gutter flex items-center gap-3 px-4 pt-mobile-header pb-4 border-b border-border bg-surface flex-shrink-0">
-        <button onClick={onBack} className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0">
+        <button aria-label="Back to clients" onClick={() => { if ((!editGoals && !editName) || window.confirm('Discard unsaved client edits?')) onBack() }} className="w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-cream hover:bg-card transition-colors flex-shrink-0">
           <ChevronLeft size={22} />
         </button>
         <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
@@ -469,28 +488,16 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-border flex-shrink-0 bg-surface overflow-x-auto">
-        {[
-          { id: 'workspace', label: 'CLIENT HUB' },
-          { id: 'overview',  label: 'OVERVIEW' },
-          { id: 'checkin',   label: 'CHECK-IN' },
-          { id: 'mealplans', label: 'PLANS'    },
-          { id: 'photos',    label: 'PHOTOS'   },
-          { id: 'forms',     label: 'FORMS'    },
-        ].map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 min-w-[72px] py-3.5 font-display font-bold text-[10px] tracking-widest transition-colors whitespace-nowrap ${
-              tab === t.id ? 'text-cream border-b-2 border-brown' : 'text-muted'
-            }`}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto pb-nav">
-        {tab === 'workspace' && <ClientWorkspace key={client.id} client={client} />}
+      {saveError && <p role="alert" className="px-4 py-3 text-red-400">{saveError}</p>}
+      {saving && <p role="status" className="px-4 text-muted">Saving…</p>}
+      <ClientSections value={tab === 'forms' ? 'checkin' : tab === 'tasks' ? 'workspace' : tab} onChange={next => {
+        if ((editGoals || editName) && !window.confirm('Discard your unsaved client edits?')) return
+        setEditGoals(false); setEditName(false); setTab(next)
+      }} />
+      <div className="flex-1 min-h-0 overflow-y-auto pb-6">
+        {(tab === 'workspace' || tab === 'tasks') && <ClientWorkspace key={`${client.id}-notes`} client={client} mode="records" initialSection={tab === 'tasks' ? 'Tasks' : 'Notes'} />}
+        {tab === 'journal' && <ClientWorkspace key={`${client.id}-journal`} client={client} mode="journal" initialSection="Journal" />}
+        {tab === 'overview' && <details className="coach-record-summary"><summary>Client brief & follow-ups</summary><ClientWorkspace client={client} mode="overview" /></details>}
         {tab === 'overview' && (
           <div className="app-page-gutter p-5 space-y-6">
             {/* Today's intake */}
@@ -648,7 +655,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
             <div className="border border-red-900/30 rounded-2xl p-4">
               <p className="font-display text-xs text-red-400/70 tracking-widest mb-3">DANGER ZONE</p>
               <button
-                onClick={() => { removeClient(client.id); onBack() }}
+                onClick={() => { if (window.confirm('Remove this client? This cannot be undone.')) { removeClient(client.id); onBack() } }}
                 className="flex items-center gap-2 text-red-400 font-display font-bold text-xs tracking-widest"
               >
                 <Trash2 size={13} />
@@ -664,9 +671,10 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
           </div>
         )}
 
-        {tab === 'checkin' && (
+        {(tab === 'checkin' || tab === 'forms') && (
           <div className="app-page-gutter p-5">
             <CheckinTab client={client} />
+            <details className="coach-checkin-forms" open={tab === 'forms' || undefined}><summary>Forms & responses</summary><ClientFormsTab client={client} /></details>
           </div>
         )}
 
@@ -680,15 +688,7 @@ function ClientDetailScreen({ client, onBack, initialTab = 'overview' }) {
           </div>
         )}
 
-        {tab === 'forms' && (
-          <div className="app-page-gutter p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">FORM RESPONSES</p>
-            </div>
-            <ClientFormsTab client={client} />
-          </div>
-        )}
+
       </div>
     </div>
   )
@@ -699,9 +699,10 @@ export default function MobileClients() {
   const { clients, getClientTotalsForDate, viewingClientId, viewingClientTab, setViewingClientId } = useStore()
 
   const [showAddScreen, setShowAddScreen] = useState(false)
+  const [limit, setLimit] = useState(30)
   const [selectedId,    setSelectedId]    = useState(viewingClientId || null)
   const [initialTab,    setInitialTab]    = useState(viewingClientTab || 'overview')
-  const [search,        setSearch]        = useState('')
+  const [search, setSearch] = useCoachPreference('client-search', '')
 
   const today = format(new Date(), 'yyyy-MM-dd')
 
@@ -769,7 +770,7 @@ export default function MobileClients() {
         </div>
       ) : (
         <div className="space-y-4 anim-fade-in">
-          {filteredClients.map((client, i) => {
+          {filteredClients.slice(0,limit).map((client, i) => {
             const todayTotals = getClientTotalsForDate(client.id, today)
             const calPct = Math.min(Math.round((todayTotals.calories / (client.goals.calories || 1)) * 100), 100)
             const days7 = Array.from({ length: 7 }, (_, j) => {
@@ -819,6 +820,7 @@ export default function MobileClients() {
             )
           })}
 
+          {filteredClients.length > limit && <button className="coach-load-more" onClick={()=>setLimit(n=>n+30)}>Show more clients</button>}
           {filteredClients.length === 0 && search && (
             <div className="text-center py-10">
               <p className="font-display text-lg text-muted tracking-widest">NO RESULTS</p>

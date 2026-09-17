@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { format, isValid, parseISO, subDays } from 'date-fns'
+import { format, isValid, parseISO } from 'date-fns'
 import { BookOpen, CheckCheck, ChevronDown, MessageSquare, LayoutDashboard, NotebookPen, ListChecks, Plus, LockKeyhole, Pin } from 'lucide-react'
 import useStore from '../../store'
 import { appendWorkspace, latestEntries, loadWorkspace, periodSummary } from '../../lib/coachWorkspace'
@@ -57,7 +57,7 @@ export function LegacyCoachNotes({ clientId }) {
   </div>
 }
 
-export default function ClientWorkspace({ client, initialSection = 'Summary' }) {
+export default function ClientWorkspace({ client, initialSection = 'Summary', mode = 'full' }) {
   const currentUser = useStore(s => s.currentUser)
   const [section, setSection] = useState(tabs.includes(initialSection) ? initialSection : 'Summary')
   const [entries, setEntries] = useState([])
@@ -70,9 +70,11 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
   const [owner, setOwner] = useState('all')
   const [date, setDate] = useState(day())
   const [days, setDays] = useState(7)
+  const [selectedDate, setSelectedDate] = useState(day())
   const draftKey = `${currentUser?.id}:${client.id}`
   const [draft, setDraft] = useState(() => drafts.get(draftKey) || null)
   const [history, setHistory] = useState(null)
+  const [recordLimit, setRecordLimit] = useState(20)
   const saveLock = useRef(false)
   const composerRef = useRef(null)
   const hasDraft = !!draft
@@ -113,13 +115,10 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
   const tasks = sortTasks(latestEntries(entries, 'task'))
   const openTasks = tasks.filter(e => e.details.state !== 'done')
   const brief = latestEntries(entries, 'brief')[0]
-  const now = periodSummary(client, day(), 7)
-  const prior = periodSummary(client, format(subDays(new Date(), 7), 'yyyy-MM-dd'), 7)
   const journal = section === 'Journal' ? periodSummary(client, date || day(), days) : null
-  const overdueTasks = openTasks.filter(t => t.details.due && t.details.due < day())
   const filteredNotes = notes.filter(e => matches(e) && (filter !== 'pinned' || e.details.pinned)).sort((a, b) => Number(!!b.details.pinned) - Number(!!a.details.pinned))
   const filteredTasks = tasks.filter(t => taskMatches(t, filter, owner, search, day()))
-  const navigate = next => { setSection(next); setSearch(''); setFilter('all'); setOwner('all'); setHistory(null) }
+  const navigate = next => { setSection(next); setSearch(''); setFilter('all'); setOwner('all'); setHistory(null); setRecordLimit(20) }
   function matches(e) { return `${e.title} ${e.body} ${e.details.tags || ''}`.toLowerCase().includes(search.toLowerCase().trim()) }
   const recordCard = e => <article key={e.id} data-coach-record={e.kind} className={`cw-panel cw-record ${e.details.pinned ? 'cw-record-pinned' : ''}`}>
     <div className="cw-row"><span className="cw-pill">{e.kind}</span><span className="cw-muted">{section === 'Journal' && e.created_at ? format(parseISO(e.created_at), 'MMMM d, yyyy') : stamp(e.created_at)}</span>{e.details.pinned && <span className="cw-pill">Pinned</span>}</div>
@@ -145,7 +144,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
       <div className="cw-row"><button className="cw-primary" onClick={() => start('note')}><Plus size={14} aria-hidden="true" />Add note</button><button onClick={() => start('task')}><ListChecks size={14} aria-hidden="true" />Create task</button></div>
     </header>
     <details className="cw-privacy"><summary><LockKeyhole size={12} aria-hidden="true" /> Private records & draft storage</summary><p className="cw-muted">Internal records are not sent to the client. Drafts survive workspace navigation in this session, not a browser restart.</p></details>
-    <nav className="cw-tabs" aria-label="Client coaching workspace">{tabs.map(t => { const Icon = sectionMeta[t][0]; const count = t === 'Notes' ? notes.length : t === 'Tasks' ? openTasks.length : null; return <button key={t} aria-label={t} aria-pressed={section === t} onClick={() => navigate(t)}><Icon size={15} aria-hidden="true" /><span>{t}</span>{count !== null && <span className="cw-nav-count" aria-hidden="true">{loading ? '-' : count}</span>}</button> })}</nav>
+    {mode !== 'journal' && mode !== 'overview' && <nav className="cw-tabs" aria-label="Client coaching workspace">{(mode === 'records' ? ['Notes','Tasks'] : tabs).map(t => { const Icon = sectionMeta[t][0]; const count = t === 'Notes' ? notes.length : t === 'Tasks' ? openTasks.length : null; return <button key={t} aria-label={t} aria-pressed={section === t} onClick={() => navigate(t)}><Icon size={15} aria-hidden="true" /><span>{t}</span>{count !== null && <span className="cw-nav-count" aria-hidden="true">{loading ? '-' : count}</span>}</button> })}</nav>}
     <div key={section} className="cw-section-intro"><h3>{sectionMeta[section][1]}</h3><p className="cw-muted">{sectionMeta[section][2]}</p></div>
     {loading && <p role="status">Loading coaching records…</p>}
     {error && <div role="alert" className="cw-error">{error} Existing client tools and records remain available. <button onClick={() => { setLoading(true); loadWorkspace(client.id).then(rows => { setEntries(rows); setError('') }).catch(e => setError(e.message)).finally(() => setLoading(false)) }}>Retry loading</button></div>}
@@ -167,28 +166,26 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
     </form>}
     {history && <div className="cw-panel"><h3>Revision history, newest first</h3><button onClick={() => setHistory(null)}>Close history</button>{entries.filter(e => e.record_id === history).map(e => <div key={e.id} className="cw-panel"><p className="cw-muted">{stamp(e.created_at)} · Author {e.author_id}</p><h3>{e.title}</h3><p>{e.body}</p><p className="cw-muted">{e.details.state || ''}</p></div>)}</div>}
     {section === 'Summary' && <>
-      <div className="cw-stats">{[['Days logged', `${now.days}/7`], ['Avg calories', now.calories ?? '-'], ['Avg protein', now.protein === null ? '-' : `${now.protein}g`], ['Open tasks', openTasks.length]].map(([label, value]) => <div className="cw-panel cw-stat" key={label}><strong>{value}</strong><span className="cw-muted">{label}</span></div>)}</div>
-      <p className="cw-muted">Averages use logged days only; partial logs are not proof of intake or adherence.</p>
       <div className="cw-grid"><div className="cw-panel"><h3>Client brief</h3><p>{brief?.body || 'Add goals, preferences, restrictions, schedule, barriers, and what matters to this client.'}</p><p className="cw-muted">{brief ? `Last reviewed ${stamp(brief.created_at)}` : 'No brief recorded yet.'}</p><button onClick={() => brief && !draft ? setDraft(cleanEntry(brief)) : start('brief')}>Update brief</button></div>
         <div className="cw-panel"><h3>Needs attention</h3><p>{(client.checkins || []).filter(c => !c.reviewed).length} unreviewed check-ins</p><p>{openTasks.filter(t => t.details.due && t.details.due < day()).length} overdue follow-ups</p></div></div>
-      <div className="cw-grid"><section className="cw-panel"><h3>Week-over-week context</h3><p className="cw-muted">Logged-day averages, compared with the previous seven days. Different logging coverage can change these averages.</p><dl className="cw-comparison">{[['calories','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g']].map(([key,label,unit]) => <div key={key}><dt>{label}</dt><dd><strong>{now[key] === null ? '-' : `${now[key]} ${unit}`}</strong><span>{now[key] === null || prior[key] === null ? 'Not enough data to compare' : `${now[key] - prior[key] > 0 ? '+' : ''}${now[key] - prior[key]} ${unit} vs previous week`}</span></dd></div>)}</dl></section>
-      <section className="cw-panel"><h3>Follow-up queue</h3><div className="cw-queue"><button onClick={() => { navigate('Tasks'); setFilter('overdue') }}><span>Overdue follow-ups</span><strong>{loading ? '-' : overdueTasks.length}</strong></button><button onClick={() => { navigate('Tasks'); setFilter('today') }}><span>Due today</span><strong>{loading ? '-' : openTasks.filter(t => t.details.due === day()).length}</strong></button><button onClick={() => { navigate('Notes'); setFilter('pinned') }}><span>Pinned observations</span><strong>{loading ? '-' : notes.filter(n => n.details.pinned).length}</strong></button></div></section></div>
       <div className="cw-section-heading"><h3>Next actions</h3><button onClick={() => { navigate('Tasks'); setFilter('open') }}>View all tasks</button></div><div className="cw-record-grid">{openTasks.slice(0, 4).map(recordCard)}</div>{!openTasks.length && <p className="cw-empty">No open tasks. Create a follow-up from a note.</p>}
       {!!notes.filter(n => n.details.pinned).length && <><h3 className="cw-section-heading">Pinned observations</h3><div className="cw-record-grid">{notes.filter(n => n.details.pinned).map(recordCard)}</div></>}
     </>}
-    {section === 'Notes' && <><div className="cw-toolbar"><label>Search notes<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search text or tags" /></label><button aria-pressed={filter === 'pinned'} onClick={() => setFilter(filter === 'pinned' ? 'all' : 'pinned')}><Pin size={14} aria-hidden="true" />Pinned only</button><button onClick={() => start('note')}>New coaching note</button></div><p className="cw-muted cw-result-count">{filteredNotes.length} matching notes · Pinned notes first</p><div className="cw-record-grid">{filteredNotes.map(recordCard)}</div>{!filteredNotes.length && <p className="cw-empty">{notes.length ? 'No notes match. Try a different search or turn off the pinned filter.' : 'Create your first dated note. Your original notes are preserved below.'}</p>}<LegacyCoachNotes key={client.id} clientId={client.id} /></>}
-    {section === 'Tasks' && <><div className="cw-toolbar"><label>Search tasks<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search follow-ups or tags" /></label><label>Task status<select aria-label="Task status" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">All tasks</option><option value="open">Open</option><option value="overdue">Overdue</option><option value="today">Due today</option><option value="done">Completed</option></select></label><label>Task owner<select aria-label="Task owner" value={owner} onChange={e => setOwner(e.target.value)}><option value="all">Everyone</option><option>Coach</option><option value={`Client ${String.fromCharCode(8212)} coach tracked`}>Client (coach tracked)</option></select></label><button onClick={() => start('task')}>New follow-up</button></div><p className="cw-muted cw-result-count">{filteredTasks.length} matching tasks · Open first, then due date and priority. Client-owned tasks are coach-tracked, not sent automatically.</p><div className="cw-record-grid">{filteredTasks.map(recordCard)}</div>{!filteredTasks.length && <p className="cw-empty">{tasks.length ? 'No tasks match these filters.' : 'No follow-ups yet. Create one with a due date, owner, and priority.'}</p>}</>}
+    {section === 'Notes' && <><div className="cw-toolbar"><label>Search notes<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search text or tags" /></label><button aria-pressed={filter === 'pinned'} onClick={() => setFilter(filter === 'pinned' ? 'all' : 'pinned')}><Pin size={14} aria-hidden="true" />Pinned only</button><button onClick={() => start('note')}>New coaching note</button></div><p className="cw-muted cw-result-count">{filteredNotes.length} matching notes · Pinned notes first</p><div className="cw-record-grid">{filteredNotes.slice(0, recordLimit).map(recordCard)}</div>{!filteredNotes.length && <p className="cw-empty">{notes.length ? 'No notes match. Try a different search or turn off the pinned filter.' : 'Create your first dated note. Your original notes are preserved below.'}</p>}<LegacyCoachNotes key={client.id} clientId={client.id} /></>}
+    {section === 'Tasks' && <><div className="cw-toolbar"><label>Search tasks<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search follow-ups or tags" /></label><label>Task status<select aria-label="Task status" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">All tasks</option><option value="open">Open</option><option value="overdue">Overdue</option><option value="today">Due today</option><option value="done">Completed</option></select></label><label>Task owner<select aria-label="Task owner" value={owner} onChange={e => setOwner(e.target.value)}><option value="all">Everyone</option><option>Coach</option><option value={`Client ${String.fromCharCode(8212)} coach tracked`}>Client (coach tracked)</option></select></label><button onClick={() => start('task')}>New follow-up</button></div><p className="cw-muted cw-result-count">{filteredTasks.length} matching tasks · Open first, then due date and priority. Client-owned tasks are coach-tracked, not sent automatically.</p><div className="cw-record-grid">{filteredTasks.slice(0, recordLimit).map(recordCard)}</div>{!filteredTasks.length && <p className="cw-empty">{tasks.length ? 'No tasks match these filters.' : 'No follow-ups yet. Create one with a due date, owner, and priority.'}</p>}</>}
+    {((section === 'Notes' && filteredNotes.length > recordLimit) || (section === 'Tasks' && filteredTasks.length > recordLimit)) && <button className="coach-load-more" onClick={() => setRecordLimit(n => n + 20)}>Show more records</button>}
     {section === 'Journal' && <section className="cw-journal" aria-label="Client journal">
       <div className="cw-panel cw-journal-toolbar">
         <div><span className="cw-journal-eyebrow"><BookOpen size={14} aria-hidden="true" /> DAILY NUTRITION</span><h3>Client journal</h3><p className="cw-muted">Explore meals and leave private observations.</p></div>
         <div className="cw-journal-filters"><label>Period ending<input type="date" value={date} onChange={e => setDate(e.target.value)} /></label><label>Show<select value={days} onChange={e => setDays(Number(e.target.value))}>{[7,14,30].map(n => <option key={n} value={n}>{n} days</option>)}</select></label></div>
       </div>
       <div className="cw-journal-context"><p><strong>{journal.days} of {days}</strong> days with entries</p><p className="cw-muted">Ending {format(parseISO(date || day()), 'MMMM d, yyyy')} · Logged entries may be incomplete. No log does not mean no intake.</p></div>
+      <div className="cw-journal-layout"><aside className="cw-journal-dates" aria-label="Journal dates">{journal.dates.map(d => <button key={d} aria-pressed={d === (journal.dates.includes(selectedDate) ? selectedDate : journal.dates[0])} onClick={() => setSelectedDate(d)}>{format(parseISO(d), 'EEE, MMM d')}<span>{client.log?.[d]?.length || 0} entries</span></button>)}</aside>
       <div className="cw-journal-grid">{journal.dates.map(d => {
         const foods = client.log?.[d] || []; const reviewed = latestEntries(entries, 'day_review').some(e => e.details.date === d)
         const totals = foods.reduce((sum, food) => { for (const key of ['calories','protein','carbs','fat']) sum[key] += Number(food[key]) || 0; return sum }, {calories:0,protein:0,carbs:0,fat:0})
         const dateLabel = format(parseISO(d), 'MMMM d, yyyy')
-        return <details className="cw-panel cw-journal-day" key={d}><summary>
+        return <details className="cw-panel cw-journal-day" key={d} data-selected={d === (journal.dates.includes(selectedDate) ? selectedDate : journal.dates[0])} open={d === (journal.dates.includes(selectedDate) ? selectedDate : journal.dates[0])}><summary>
           <span className="cw-journal-dayline"><span className="cw-journal-eyebrow">{format(parseISO(d), 'EEEE')}</span>{reviewed && <span className="cw-journal-reviewed"><CheckCheck size={14} aria-hidden="true" /> Reviewed</span>}</span>
           <span className="cw-journal-date">{dateLabel}</span>
           <span className="cw-journal-metrics">{[['calories','kcal'],['protein','protein'],['carbs','carbs'],['fat','fat']].map(([key,label]) => <span key={key}><strong>{foods.length ? `${Math.round(totals[key])}${key === 'calories' ? '' : 'g'}` : '-'}</strong><span>{label}</span></span>)}</span>
@@ -199,7 +196,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
           <button disabled={busy || loading || !!error || reviewed} onClick={() => save({ record_id: crypto.randomUUID(), kind: 'day_review', title: `Journal reviewed, ${dateLabel}`, body: 'Coach reviewed the available entries. This does not certify a complete food log.', details: { date: d } })}><CheckCheck size={14} aria-hidden="true" />{reviewed ? 'Reviewed' : 'Mark reviewed'}</button>
           {latestEntries(entries, 'comment').filter(e => e.details.source?.startsWith(d)).map(recordCard)}
         </div></details>
-      })}</div>
+      })}</div></div>
     </section>}
   </div>
 }

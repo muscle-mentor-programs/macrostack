@@ -9,6 +9,8 @@ import { FOODS } from '../../data/foods'
 import { mealPlanPDFBase64, downloadMealPlanPDF } from '../../lib/generateMealPlanPDF'
 import { rankFoods, getRecentFoodIdsFromClients } from '../../utils/foodSearch'
 
+const planDrafts = new Map()
+
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 const WEIGHT_UNITS = ['g', 'ml', 'oz', 'fl oz', 'L']
 
@@ -54,6 +56,9 @@ function makeEmptyDay(label) {
 export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose }) {
   const { customFoods, clients, setNavHidden, hiddenFoodIds } = useStore()
   const isMobile = useIsMobile()
+  const userId = useStore(s => s.currentUser?.id)
+  const draftKey = `${userId}:${client.id}:${initialPlan?.id || 'new'}`
+  const restored = planDrafts.get(draftKey)
 
   // Hide the bottom nav while this full-screen overlay is open
   useEffect(() => {
@@ -69,11 +74,11 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const recentFoodIds = useMemo(() => getRecentFoodIdsFromClients(clients), [clients])
 
   // ── Plan meta ─────────────────────────────────────────────────
-  const [planName, setPlanName] = useState(initialPlan?.planName || '')
+  const [planName, setPlanName] = useState(restored?.planName ?? initialPlan?.planName ?? '')
   const [days, setDays]         = useState(() =>
-    initialPlan?.days?.length
+    restored?.days || (initialPlan?.days?.length
       ? initialPlan.days
-      : Array.from({ length: 7 }, (_, i) => makeEmptyDay(`Day ${i + 1}`))
+      : Array.from({ length: 7 }, (_, i) => makeEmptyDay(`Day ${i + 1}`)))
   )
   const [activeDayIdx, setActiveDayIdx] = useState(0)
   const activeDay = days[activeDayIdx]
@@ -93,8 +98,15 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const deferredQuery = useDeferredValue(query)
   const validQuantity = Number.isFinite(Number(quantity)) && Number(quantity) > 0
   const dirty = planName !== (initialPlan?.planName || '') || JSON.stringify(days) !== JSON.stringify(initialPlan?.days || [])
+  useEffect(() => {
+    if (saved) planDrafts.delete(draftKey)
+    else planDrafts.set(draftKey, {planName, days})
+    const warn = event => { if (dirty && !saved) { event.preventDefault(); event.returnValue = '' } }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [draftKey, planName, days, dirty, saved])
   const closeEditor = () => {
-    if (!saving && (!dirty || window.confirm('Discard your unsaved meal plan changes?'))) onClose()
+    if (!saving && (!dirty || window.confirm('Discard your unsaved meal plan changes?'))) { planDrafts.delete(draftKey); onClose() }
   }
 
   const filtered = useMemo(() => rankFoods(allFoods, deferredQuery, recentFoodIds),
@@ -178,6 +190,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     setSaveError('')
     try {
       await onSave({ planName: planName.trim(), days, aiGenerated: initialPlan?.aiGenerated || false })
+      planDrafts.delete(draftKey)
       setSaved(true)
       onClose()
     } catch (error) {

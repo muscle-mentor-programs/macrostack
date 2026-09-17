@@ -1,3 +1,4 @@
+import useCoachPreference from '../../hooks/useCoachPreference'
 import { useState, useEffect, useMemo } from 'react'
 import { format } from 'date-fns'
 import { MessageCircle, Search, ChevronRight, ChevronLeft } from 'lucide-react'
@@ -17,7 +18,7 @@ export default function CoachChat() {
   } = useStore()
   const [selectedId, setSelectedId] = useState(null)
   const [unreadOnly, setUnreadOnly] = useState(false)
-  const [search, setSearch]         = useState('')
+  const [search, setSearch] = useCoachPreference('chat-search', '')
 
   // Auto-open thread when arriving from coach dashboard message icon
   useEffect(() => {
@@ -67,7 +68,8 @@ export default function CoachChat() {
 
   /* Thread with day separators + sender grouping, built forward then reversed
      for flex-col-reverse rendering (newest anchored at the bottom) */
-  const threadItems = useMemo(() => buildThread(thread).reverse(), [thread])
+  const [messageLimit, setMessageLimit] = useState(60)
+  const threadItems = useMemo(() => buildThread(thread.slice(-messageLimit)).reverse(), [thread, messageLimit])
   const seenId      = useMemo(() => lastSeenSelfId(thread, 'coach'), [thread])
 
   /* Selected client context for the thread header */
@@ -208,6 +210,7 @@ export default function CoachChat() {
 
           {/* Messages, flex-col-reverse anchors newest at bottom */}
           <div className="chat-message-canvas app-page-gutter flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col-reverse">
+        {thread.length > messageLimit && <button className="coach-load-more" style={{order:1}} onClick={()=>setMessageLimit(n=>n+60)}>Load earlier messages</button>}
             {threadItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
                 <div

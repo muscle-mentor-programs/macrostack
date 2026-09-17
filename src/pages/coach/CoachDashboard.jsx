@@ -654,6 +654,16 @@ export default function CoachDashboard() {
         </div>
       </div>
 
+      <div className="coach-primary-workboard">
+        <CoachWorkboard renderClient={(client, i, onOpen) => (
+          <ClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
+            onOpen={onOpen} onEdit={setEditClient}
+            onEmail={(id) => { setEmailPreselect(id); setEmailModal(true) }}
+            onChat={handleChat} onMealPlans={handleMealPlans}
+            onReview={handleReview} onFormsReview={handleFormsReview} />
+        )} />
+      </div>
+      <details className="coach-dashboard-secondary"><summary>Business overview & setup</summary>
       {/* Onboarding checklist, new-coach guide, dismissible */}
       {checklistOpen && (
         <div className="app-page-gutter px-8 pt-4 pb-0 flex-shrink-0">
@@ -824,15 +834,10 @@ export default function CoachDashboard() {
       </div>
 
       <div className="app-page-gutter px-8 py-6">
-        <CoachWorkboard renderClient={(client, i, onOpen) => (
-          <ClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
-            onOpen={onOpen} onEdit={setEditClient}
-            onEmail={(id) => { setEmailPreselect(id); setEmailModal(true) }}
-            onChat={handleChat} onMealPlans={handleMealPlans}
-            onReview={handleReview} onFormsReview={handleFormsReview} />
-        )} />
+
       </div>
 
+      </details>
       {editClient && (
         <QuickEditModal client={editClient} onClose={() => setEditClient(null)} />
       )}

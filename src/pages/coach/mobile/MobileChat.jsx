@@ -15,7 +15,8 @@ function ThreadScreen({ client, onBack }) {
   const inputRef = useRef(null)
   const thread = messages[client.id] || []
 
-  const threadItems = useMemo(() => buildThread(thread).reverse(), [thread])
+  const [messageLimit, setMessageLimit] = useState(60)
+  const threadItems = useMemo(() => buildThread(thread.slice(-messageLimit)).reverse(), [thread, messageLimit])
   const seenId      = useMemo(() => lastSeenSelfId(thread, 'coach'), [thread])
 
   useEffect(() => {
@@ -71,6 +72,7 @@ function ThreadScreen({ client, onBack }) {
 
       {/* Messages, flex-col-reverse anchors newest at bottom */}
       <div className="chat-message-canvas app-page-gutter flex-1 min-h-0 overflow-y-auto bg-bg px-4 py-4 flex flex-col-reverse">
+        {thread.length > messageLimit && <button className="coach-load-more" style={{order:1}} onClick={()=>setMessageLimit(n=>n+60)}>Load earlier messages</button>}
         {threadItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center anim-fade-in">
             <MessageCircle size={36} className="text-dim mb-3" />

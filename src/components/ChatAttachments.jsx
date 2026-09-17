@@ -8,6 +8,8 @@ import useStore from '../store'
 
 export function AttachmentButtons({ clientId, onSend, disabled }) {
   const uploadChatAttachment = useStore((s) => s.uploadChatAttachment)
+  const [error, setError] = useState('')
+  const [retry, setRetry] = useState(null)
   const [busy, setBusy]           = useState(false)
   const [recording, setRecording] = useState(false)
   const fileRef     = useRef(null)
@@ -15,10 +17,16 @@ export function AttachmentButtons({ clientId, onSend, disabled }) {
   const chunksRef   = useRef([])
 
   const sendFile = async (file, type) => {
-    setBusy(true)
-    const res = await uploadChatAttachment(clientId, file, type)
-    setBusy(false)
-    if (res?.url) onSend(res)
+    if (busy) return
+    setBusy(true); setError('')
+    try {
+      const res = await uploadChatAttachment(clientId, file, type)
+      if (!res?.url) throw new Error('Upload failed. Please retry.')
+      const result = await onSend(res)
+      if (result?.ok === false) throw new Error(result.error)
+      setRetry(null)
+    } catch (failure) { setError(failure.message || 'Attachment was not sent.'); setRetry({file,type}) }
+    finally { setBusy(false) }
   }
 
   const pickImage = (e) => {
@@ -59,6 +67,7 @@ export function AttachmentButtons({ clientId, onSend, disabled }) {
 
   return (
     <>
+      {error && <span role="alert" className="text-xs text-red-400">{error} {retry && <button disabled={busy} onClick={()=>sendFile(retry.file,retry.type)}>Retry</button>}</span>}
       <button
         type="button"
         onClick={() => fileRef.current?.click()}

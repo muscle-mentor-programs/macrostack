@@ -1,6 +1,9 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import useSessionDraft from '../../hooks/useSessionDraft'
+import useCoachPreference from '../../hooks/useCoachPreference'
+import ClientSections from '../../components/coach/ClientSections'
+import { lazy, Suspense, useState, useEffect, useRef, useMemo } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
-import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronDown, Send, Download, Archive, ArchiveRestore, Wand2 } from 'lucide-react'
+import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Star, Pencil, Search, MessageCircle, Lock, ChevronDown, Send, Download, Archive, ArchiveRestore, Wand2 } from 'lucide-react'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
 import useStore from '../../store'
 import { coachClientLimit, coachTierLabel } from '../../lib/coachTiers'
@@ -8,7 +11,7 @@ import ClientAvatar from '../../components/ClientAvatar'
 import ClientWorkspace, { LegacyCoachNotes } from '../../components/coach/ClientWorkspace'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
-import MealPlanBuilder from './MealPlanBuilder'
+const MealPlanBuilder = lazy(() => import('./MealPlanBuilder'))
 import ProgressPhotos from '../../components/ProgressPhotos'
 import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
 import FormEditor from '../../components/FormEditor'
@@ -454,12 +457,14 @@ function MealPlansTab({ clientId }) {
 
   if (showBuilder) {
     return (
+      <Suspense fallback={<p role="status" className="p-6">Loading meal plan editor…</p>}>
       <MealPlanBuilder
         client={client}
         initialPlan={editingPlan}
         onSave={handleSavePlan}
         onClose={() => { setShowBuilder(false); setEditingPlan(null) }}
       />
+      </Suspense>
     )
   }
 
@@ -1060,7 +1065,8 @@ export function CheckinTab({ client }) {
   const { markCheckinReviewed, sendMessage } = useStore()
   const [showEditor, setShowEditor]   = useState(false)
   const [showHistory, setShowHistory] = useState(false)
-  const [reply, setReply]         = useState('')
+  const [reply, setReply]         = useSessionDraft(`checkin:${client.id}`, '')
+  const [replyError, setReplyError] = useState('')
   const [replySent, setReplySent] = useState(false)
   const [sending, setSending]     = useState(false)
 
@@ -1075,7 +1081,7 @@ export function CheckinTab({ client }) {
   const checkinDate = latest?.createdAt ? format(parseISO(latest.createdAt), 'MMM d, yyyy') : null
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
+    <div className="coach-checkin-grid max-w-6xl mx-auto space-y-5">
       {/* Latest submission */}
       <div className="anim-fade-in-up">
         <div className="flex items-center justify-between mb-3">
@@ -1120,6 +1126,7 @@ export function CheckinTab({ client }) {
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">RESPOND TO {client.name.split(' ')[0].toUpperCase()}</p>
             </div>
           </div>
+          {replyError && <p role="alert" className="text-red-400 text-sm">{replyError}</p>}
           {replySent ? (
             <div className="flex items-center gap-2 text-olive-light py-1">
               <Check size={14} />
@@ -1138,8 +1145,12 @@ export function CheckinTab({ client }) {
                 onClick={async () => {
                   if (!reply.trim() || sending) return
                   setSending(true)
-                  await sendMessage(client.id, 'coach', reply.trim())
-                  setSending(false); setReplySent(true)
+                  setReplyError('')
+                  try {
+                    const result = await sendMessage(client.id, 'coach', reply.trim())
+                    if (result?.ok === false) throw new Error(result.error)
+                    setReplySent(true); setReply('')
+                  } catch (error) { setReplyError(error.message || 'Could not send. Please retry.') } finally { setSending(false) }
                 }}
                 disabled={!reply.trim() || sending}
                 className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-xs tracking-widest py-3 rounded-xl transition-colors disabled:opacity-40"
@@ -1201,6 +1212,12 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   const [name, setName]         = useState(client.name)
   const [email, setEmail]       = useState(client.email || '')
 
+  useEffect(() => {
+    const warn = event => { if (editGoals || editName) { event.preventDefault(); event.returnValue = '' } }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [editGoals, editName])
+
   const today = format(new Date(), 'yyyy-MM-dd')
   const todayTotals = getClientTotalsForDate(client.id, today)
 
@@ -1222,27 +1239,37 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
   // Maintenance estimate from actual intake vs weight trend (non-prescriptive)
   const maint = estimateMaintenance(client)
 
-  const saveGoals = () => {
-    updateClientGoals(client.id, {
+  const [saveError, setSaveError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const saveGoals = async () => {
+    if (saving) return
+    if (Object.values(goals).some(value => !Number.isFinite(Number(value)) || Number(value) < 0)) { setSaveError('Enter valid, nonnegative targets.'); return }
+    setSaving(true); setSaveError('')
+    try {
+    const result = await updateClientGoals(client.id, {
       calories: Number(goals.calories),
       protein:  Number(goals.protein),
       carbs:    Number(goals.carbs),
       fat:      Number(goals.fat),
     })
+    if (result?.ok === false) { setSaveError(result.error); return }
     setEditGoals(false)
+    } catch { setSaveError('Could not save targets. Please retry.') } finally { setSaving(false) }
   }
 
-  const saveName = () => {
-    updateClientInfo(client.id, { name, email })
-    setEditName(false)
+  const saveName = async () => {
+    if (saving || !name.trim()) return
+    setSaving(true); setSaveError('')
+    try { const result = await updateClientInfo(client.id, { name: name.trim(), email }); if (result?.ok === false) { setSaveError(result.error); return }; setEditName(false) } catch { setSaveError('Could not save client details. Please retry.') } finally { setSaving(false) }
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden anim-fade-in">
+    <div className="coach-client-detail flex flex-col h-full overflow-hidden">
       {/* Focus header, back to grid + identity + live pulse */}
       <div className="app-page-gutter relative flex items-center gap-3 md:gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-border flex-shrink-0 glass-panel accent-line">
         <button
-          onClick={onClose}
+          onClick={() => { if (!(editGoals || editName) || window.confirm('Discard your unsaved client changes?')) onClose() }}
+          aria-label="Back to clients"
           className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-border text-muted hover:text-cream hover:border-muted transition-colors flex-shrink-0"
         >
           <ChevronLeft size={14} />
@@ -1300,32 +1327,16 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
         </div>
       </div>
 
-      {/* Tabs, scrollable on narrow screens */}
-      <div className="flex border-b border-border flex-shrink-0 overflow-x-auto">
-        {[
-          { id: 'workspace',  label: 'CLIENT HUB' },
-          { id: 'overview',   label: 'OVERVIEW'   },
-          { id: 'checkin',    label: 'CHECK-IN'   },
-          { id: 'mealplans',  label: 'MEAL PLANS' },
-          { id: 'photos',     label: 'PHOTOS'     },
-          { id: 'forms',      label: 'FORMS'      },
-        ].map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`flex-1 min-w-[104px] whitespace-nowrap px-4 py-3 font-display font-bold text-xs tracking-widest transition-colors ${
-              tab === t.id
-                ? 'text-cream border-b-2 border-brown'
-                : 'text-muted hover:text-cream'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex-1 overflow-y-auto">
-        {tab === 'workspace' && <ClientWorkspace key={client.id} client={client} />}
+      {saveError && <p role="alert" className="px-4 py-3 text-red-400">{saveError}</p>}
+      {saving && <p role="status" className="px-4 text-muted">Saving…</p>}
+      <ClientSections value={tab === 'forms' ? 'checkin' : tab === 'tasks' ? 'workspace' : tab} onChange={next => {
+        if ((editGoals || editName) && !window.confirm('Discard your unsaved client edits?')) return
+        setEditGoals(false); setEditName(false); setTab(next)
+      }} />
+      <div className="flex-1 min-h-0 overflow-y-auto pb-6">
+        {(tab === 'workspace' || tab === 'tasks') && <ClientWorkspace key={`${client.id}-notes`} client={client} mode="records" initialSection={tab === 'tasks' ? 'Tasks' : 'Notes'} />}
+        {tab === 'journal' && <ClientWorkspace key={`${client.id}-journal`} client={client} mode="journal" initialSection="Journal" />}
+        {tab === 'overview' && <details className="coach-record-summary"><summary>Client brief & follow-ups</summary><ClientWorkspace client={client} mode="overview" /></details>}
         {tab === 'overview' && (
           <div className="app-page-gutter p-4 md:p-6 xl:p-8 max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 xl:gap-6">
@@ -1538,7 +1549,7 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
                   <p className="font-display text-xs text-red-400/70 tracking-widest">DANGER ZONE</p>
                   <ArchiveButton client={client} onArchived={onClose} />
                   <button
-                    onClick={() => { removeClient(client.id); onClose() }}
+                    onClick={() => { if (window.confirm('Remove this client? This cannot be undone.')) { removeClient(client.id); onClose() } }}
                     className="flex items-center gap-2 text-red-400 hover:text-red-300 font-display font-bold text-xs tracking-widest transition-colors"
                   >
                     <Trash2 size={13} />
@@ -1551,9 +1562,10 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           </div>
         )}
 
-        {tab === 'checkin' && (
+        {(tab === 'checkin' || tab === 'forms') && (
           <div className="app-page-gutter p-4 md:p-6 max-w-6xl mx-auto">
             <CheckinTab client={client} />
+            <details className="coach-checkin-forms" open={tab === 'forms' || undefined}><summary>Forms & responses</summary><ClientFormsTab client={client} /></details>
           </div>
         )}
 
@@ -1573,36 +1585,9 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
           </div>
         )}
 
-        {tab === 'forms' && (
-          <div className="app-page-gutter p-4 md:p-6 max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.3em] text-muted">FORM RESPONSES</p>
-            </div>
-            <ClientFormsTab client={client} />
-          </div>
-        )}
+
       </div>
     </div>
-  )
-}
-
-/* ── Mini calorie ring for grid tiles ───────────────────────────────────────── */
-function TileRing({ pct }) {
-  const R = 17
-  const C = 2 * Math.PI * R
-  const clamped = Math.min(pct, 100)
-  return (
-    <svg width="44" height="44" viewBox="0 0 44 44" className="flex-shrink-0 -rotate-90">
-      <circle cx="22" cy="22" r={R} fill="none" stroke="var(--color-dim)" strokeWidth="3.5" />
-      <circle
-        cx="22" cy="22" r={R} fill="none"
-        stroke={pct > 110 ? '#f87171' : 'var(--color-accent)'}
-        strokeWidth="3.5" strokeLinecap="round"
-        strokeDasharray={C} strokeDashoffset={C - (C * clamped) / 100}
-        style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}
-      />
-    </svg>
   )
 }
 
@@ -1617,10 +1602,12 @@ const FILTERS = [
 export default function Clients() {
   const { clients, getClientTotalsForDate, messages, viewingClientId, viewingClientTab, setViewingClientId } = useStore()
   const [showAddModal, setShowAddModal] = useState(false)
+  const rosterScroll = useRef(0)
+  const [limit, setLimit] = useState(30)
   const [selectedId,   setSelectedId]   = useState(viewingClientId || null)
   const [initialTab,   setInitialTab]   = useState(viewingClientTab || 'overview')
-  const [search,       setSearch]       = useState('')
-  const [filter,       setFilter]       = useState('all')
+  const [search, setSearch] = useCoachPreference('client-search', '')
+  const [filter, setFilter] = useCoachPreference('client-filter', 'all')
 
   const today = format(new Date(), 'yyyy-MM-dd')
 
@@ -1756,7 +1743,7 @@ export default function Clients() {
       </div>
 
       {/* Grid */}
-      <div className="app-page-gutter flex-1 overflow-y-auto p-5 md:p-6 xl:p-8">
+      <div ref={node => { if (node) node.scrollTop = rosterScroll.current }} onScroll={event => { rosterScroll.current = event.currentTarget.scrollTop }} className="app-page-gutter flex-1 overflow-y-auto p-5 md:p-6 xl:p-8">
         {clients.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 anim-fade-in">
             <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4">
@@ -1777,91 +1764,15 @@ export default function Clients() {
             <p className="font-mono text-xs text-dim mt-2">Try a different search or filter</p>
           </div>
         ) : (
-          <div className="grid gap-4 max-w-[1800px] mx-auto" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))' }}>
-            {visible.map(({ client, totals, calPct, loggedToday, days7, streak, unread }, i) => (
-              <button
-                key={client.id}
-                onClick={() => { setInitialTab('overview'); setSelectedId(client.id) }}
-                style={{ animationDelay: `${i * 40}ms` }}
-                className="anim-fade-in-up glass-card border border-border rounded-2xl p-5 text-left card-hover relative overflow-hidden"
-              >
-                {/* Identity row */}
-                <div className="flex items-center gap-3 mb-4">
-                  <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-11 h-11" textClassName="text-base" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="font-display font-bold text-base text-cream truncate">{client.name}</p>
-                      {client.status === 'pending' && (
-                        <span className="flex-shrink-0 font-display font-bold text-[8px] tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/30 rounded px-1 py-0.5">
-                          PENDING
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-mono text-[10px] text-dim truncate">{client.email || 'No email'}</p>
-                  </div>
-                  {unread > 0 && (
-                    <span
-                      className="flex items-center gap-1 flex-shrink-0 font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: 'var(--color-accent)', color: '#fff' }}
-                    >
-                      <MessageCircle size={9} />
-                      {unread}
-                    </span>
-                  )}
-                </div>
-
-                {/* Calories ring + numbers */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="relative">
-                    <TileRing pct={calPct} />
-                    <span className="absolute inset-0 flex items-center justify-center font-display font-black text-[10px] text-cream">
-                      {calPct}%
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-display font-black text-xl text-cream leading-none">
-                      {totals.calories.toFixed(0)}
-                      <span className="font-mono text-[10px] text-muted font-normal"> / {client.goals.calories} kcal</span>
-                    </p>
-                    {/* Macro micro-bars */}
-                    <div className="flex gap-2 mt-2">
-                      {[
-                        { v: totals.protein, g: client.goals.protein, cls: 'bg-olive'     },
-                        { v: totals.carbs,   g: client.goals.carbs,   cls: 'bg-brown'     },
-                        { v: totals.fat,     g: client.goals.fat,     cls: 'bg-slategray' },
-                      ].map(({ v, g, cls }, mi) => (
-                        <div key={mi} className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: 'rgba(127,127,127,0.18)' }}>
-                          <div className={`h-full rounded-full ${cls}`} style={{ width: `${Math.min(Math.round((v / (g || 1)) * 100), 100)}%` }} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer: 7-day dots + streak */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {days7.map((logged, di) => (
-                      <span
-                        key={di}
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: logged ? 'var(--color-accent)' : 'var(--color-dim)' }}
-                      />
-                    ))}
-                    <span className="font-mono text-[9px] text-dim ml-1.5 tracking-widest">7D</span>
-                  </div>
-                  {streak >= 2 ? (
-                    <span className="flex items-center gap-1 font-mono text-[10px] text-olive-light">
-                      <Flame size={10} fill="currentColor" />
-                      {streak}d
-                    </span>
-                  ) : !loggedToday ? (
-                    <span className="font-mono text-[9px] tracking-widest text-dim">NO LOG TODAY</span>
-                  ) : null}
-                </div>
-              </button>
-            ))}
-          </div>
+          <><div className="coach-roster">
+            {visible.slice(0,limit).map(({client,totals,loggedToday,unread}) => <article className="coach-roster-row" key={client.id}>
+              <button onClick={() => { setInitialTab('overview'); setSelectedId(client.id) }}>{client.name}<small>{client.email || 'No email'}</small></button>
+              <span>Today<small>{loggedToday ? `${Math.round(totals.calories)} kcal` : 'No log yet'}</small></span>
+              <span>Status<small>{client.status || 'Active'}</small></span>
+              <span>Messages<small>{unread} unread</small></span>
+              <button data-action onClick={() => { useStore.getState().setPendingChatClientId(client.id); useStore.getState().setActivePage('chat') }}>Message</button>
+            </article>)}
+          </div>{visible.length>limit&&<button className="coach-load-more" onClick={()=>setLimit(n=>n+30)}>Show more clients</button>}</>
         )}
       </div>
 

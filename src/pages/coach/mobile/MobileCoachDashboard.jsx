@@ -438,6 +438,16 @@ export default function MobileCoachDashboard() {
       </div>
       <div className="app-page-gutter px-4 pt-4 pb-4 space-y-5">
 
+      <div className="coach-primary-workboard">
+        <CoachWorkboard renderClient={(client, i, onOpen) => (
+          <MobileClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
+            onOpen={onOpen} onEdit={setEditClient}
+            onEmail={(id) => { setEmailPreselect(id); setShowEmail(true) }}
+            onChat={handleChat} onMealPlans={handleMealPlans}
+            onReview={handleReview} onFormsReview={handleFormsReview} />
+        )} />
+      </div>
+      <details className="coach-dashboard-secondary"><summary>Business overview & setup</summary>
       {/* Summary stats row */}
       <div className="grid grid-cols-3 gap-3">
         {[
@@ -575,15 +585,10 @@ export default function MobileCoachDashboard() {
       </button>
 
       <div>
-        <CoachWorkboard renderClient={(client, i, onOpen) => (
-          <MobileClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
-            onOpen={onOpen} onEdit={setEditClient}
-            onEmail={(id) => { setEmailPreselect(id); setShowEmail(true) }}
-            onChat={handleChat} onMealPlans={handleMealPlans}
-            onReview={handleReview} onFormsReview={handleFormsReview} />
-        )} />
+
       </div>
 
+      </details>
       </div>{/* end content wrapper */}
 
       {/* Modals (fixed overlays) */}

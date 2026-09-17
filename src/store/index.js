@@ -850,7 +850,8 @@ const useStore = create(
       },
 
       updateClientInfo: async (clientId, info) => {
-        await supabase.from('clients').update({ name: info.name, email: info.email }).eq('id', clientId)
+        const { error } = await supabase.from('clients').update({ name: info.name, email: info.email }).eq('id', clientId)
+        if (error) return { ok: false, error: 'Could not save client details. Please retry.' }
         set((s) => ({
           clients: s.clients.map((c) => c.id === clientId ? { ...c, ...info } : c),
         }))
@@ -979,15 +980,17 @@ const useStore = create(
       },
 
       updateClientGoals: async (clientId, goals) => {
-        await supabase.from('clients').update({
+        const { error } = await supabase.from('clients').update({
           goal_calories: goals.calories,
           goal_protein:  goals.protein,
           goal_carbs:    goals.carbs,
           goal_fat:      goals.fat,
         }).eq('id', clientId)
+        if (error) return { ok: false, error: 'Could not save targets. Please retry.' }
         set((s) => ({
           clients: s.clients.map((c) => c.id === clientId ? { ...c, goals } : c),
         }))
+        return { ok: true }
       },
 
       // ── FOOD LOG ──────────────────────────────────────────────────────────
@@ -1711,12 +1714,15 @@ const useStore = create(
           read_by_coach:  from === 'coach',
           read_by_client: from === 'client',
         }
-        let { error } = await supabase.from('messages').insert(
-          attachment ? { ...row, attachment_url: null, attachment_path: attachment.path, attachment_type: attachment.type } : row
-        )
-        // Retry without attachment columns if that migration hasn't run yet
-        if (error && attachment) ({ error } = await supabase.from('messages').insert(row))
-        if (error) console.error('message insert:', error)
+        try {
+          const { error } = await supabase.from('messages').insert(
+            attachment ? { ...row, attachment_url: null, attachment_path: attachment.path, attachment_type: attachment.type } : row
+          )
+          if (error) throw error
+        } catch {
+          set(s => ({ messages: { ...s.messages, [clientId]: (s.messages[clientId] || []).filter(m => m.id !== id) } }))
+          return { ok: false, error: 'Message was not sent. Your draft is still here; please retry.' }
+        }
 
         // Fire-and-forget push notification to the other party
         get().sendPushToCounterpart(clientId, from, text || (attachment?.type === 'image' ? '📷 Photo' : '🎤 Voice note'))
@@ -1749,6 +1755,7 @@ const useStore = create(
             // No-op for now unless we have a dedicated coach profile lookup.
           }
         } catch (_) { /* notification errors should never break messaging */ }
+        return { ok: true }
       },
 
       signup: async (name, email, password, role) => {
