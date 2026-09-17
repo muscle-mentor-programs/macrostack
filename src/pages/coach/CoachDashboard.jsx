@@ -340,7 +340,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onRev
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Header row */}
-      <div className="dashboard-card-header flex items-start justify-between gap-2">
+      <div className="coach-dashboard-welcome dashboard-card-header flex items-start justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0">
           <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
           <div className="min-w-0">

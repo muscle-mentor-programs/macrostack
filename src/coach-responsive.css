@@ -114,7 +114,7 @@ body:has(.software-coach) .mp-editor input{font-size:16px}
 body .software-coach{--coach-tone:var(--color-accent)}
 body .software-coach [data-coach-section]{--coach-tone:var(--color-accent)}
 body .software-coach :is(.cw-panel,.cw-section-intro,.cw-section-heading)>:is(h2,h3){color:var(--color-cream)!important}
-html body:has(.software-coach) :is(.cw-panel,.glass-card,.card-dim){box-shadow:0 2px 10px #0000000d!important}
+
 .coach-client-detail>.flex-1>.cw-client-workspace{padding:16px 24px}
 .cw-journal-layout{display:grid;grid-template-columns:160px minmax(0,1fr);gap:20px;align-items:start}
 .cw-journal-dates{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
@@ -132,3 +132,35 @@ html body .software-coach .cw-client-workspace .cw-journal :is(h3,h4){color:var(
 .coach-client-detail .cw-journal-filters > label{min-width:0;max-width:100%}
 .coach-client-detail .cw-journal-filters :is(input,select){box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:44px}
 @container(max-width:480px){.coach-client-detail .cw-journal-filters{grid-template-columns:minmax(0,1fr);max-width:none;gap:12px}.coach-client-detail .cw-journal-filters input[type=date]{appearance:none;-webkit-appearance:none}}
+
+/* Three quiet layers: canvas, content surfaces, and transient controls. */
+.software-coach{--coach-card-shadow:0 3px 12px #0000001a,inset 0 1px 0 #ffffff06;--coach-popover-shadow:0 12px 32px #00000030;--coach-surface-edge:color-mix(in srgb,var(--color-border) 85%,var(--color-accent) 15%)}
+html.ocean-light .software-coach{--coach-card-shadow:0 2px 3px #10204004,0 5px 16px #10204009;--coach-popover-shadow:0 12px 32px #10204020}
+html body .software-coach :is(.cw-panel,.glass-card,.card-dim,.coach-resource-grid>button,.coach-roster){box-shadow:var(--coach-card-shadow)!important;border-color:var(--coach-surface-edge)!important;background-color:var(--color-card)}
+html body .software-coach :is(.cw-panel,.glass-card,.card-dim) :is(.cw-panel,.glass-card,.card-dim){box-shadow:none!important}
+html body .software-coach :is(.cw-journal-toolbar,.dashboard-workboard>.cw-stats>.cw-panel,.coach-record-summary){background-image:radial-gradient(ellipse at top right,color-mix(in srgb,var(--color-accent) 7%,transparent),transparent 65%)!important}
+.software-coach .coach-client-sections [aria-current=page],.software-coach .cw-tabs button[aria-pressed=true]{background-color:color-mix(in srgb,var(--color-accent) 9%,transparent)}
+html body .software-coach .cw-journal-dates button[aria-pressed=true],html body .software-coach .dashboard-workboard .cw-stat[aria-pressed=true]{background-color:color-mix(in srgb,var(--color-accent) 10%,var(--color-card));box-shadow:inset 3px 0 var(--color-accent)!important;border-color:color-mix(in srgb,var(--color-accent) 45%,var(--color-border))!important}
+.software-coach .coach-sidebar button[aria-current=page]{box-shadow:inset 3px 0 var(--color-accent)}
+.software-coach :is(h1,h2,h3){line-height:1.15;letter-spacing:.01em}
+.software-coach :is(.cw-stat strong,.cw-journal-metrics strong){font-variant-numeric:tabular-nums;letter-spacing:-.015em}
+.software-coach :is(.cw-muted,.coach-resource-grid small){line-height:1.55}
+.software-coach .cw-section-heading{margin-top:24px;margin-bottom:12px}
+.software-coach :is(button,a,summary,input,select,textarea){transition:background-color 140ms ease,border-color 140ms ease,box-shadow 140ms ease,color 140ms ease}
+.software-coach button:not(:disabled):active{filter:brightness(.96)}
+.software-coach .coach-section-more>div{box-shadow:var(--coach-popover-shadow);animation:coach-surface-enter 140ms ease-out}
+.software-coach [role=dialog]{box-shadow:var(--coach-popover-shadow);animation:coach-surface-enter 160ms ease-out}
+@keyframes coach-surface-enter{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(hover:hover) and (pointer:fine){
+ .software-coach :is(.coach-resource-grid>button,.cw-stats>button,.coach-pagination button,.coach-load-more):not(:disabled):hover{border-color:color-mix(in srgb,var(--color-accent) 55%,var(--color-border))!important}
+ .software-coach :is(.coach-roster-row,.coach-sidebar nav button,.cw-journal-dates button):hover{background-color:color-mix(in srgb,var(--color-accent) 5%,var(--color-card))}
+}
+.software-coach .coach-dashboard-welcome{isolation:isolate;overflow:hidden}
+.software-coach .coach-dashboard-welcome::after{content:'';position:absolute;z-index:-1;pointer-events:none;width:200px;height:200px;right:20%;top:-56px;background:url('/macrostack-mark-transparent.png') center/contain no-repeat;opacity:.035;transform:rotate(-12deg)}
+@media(max-width:767px){.software-coach .coach-dashboard-welcome::after{right:-20px;width:160px;height:160px;top:-35px}}
+@media(prefers-reduced-motion:reduce){.software-coach *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Resource titles use the quieter brand typeface, not condensed display type. */
+.software-coach .coach-resource-page h1{font-family:var(--font-mono);font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-.035em}
+.software-coach .coach-resource-grid strong{font-family:var(--font-mono);font-size:19px;font-weight:600;line-height:1.3;letter-spacing:-.025em}
+.software-coach .coach-account-settings h2{font-family:var(--font-mono);font-size:21px;font-weight:600;line-height:1.3;letter-spacing:-.025em}

@@ -9,7 +9,7 @@ html:is(.light, .forest-light, .ocean-light) body:has(.software-coach) {
   --coach-card-shadow: var(--light-raised);
 }
 
-html body:has(.software-coach) :is(.glass-card, .card-dim, .cw-panel, .coach-card, [data-client-card], .cw-client-header, .cw-toolbar, .cw-empty):not(input):not(select):not(textarea):not(.card-inset) {
+html body:has(.software-coach) :is(.glass-card, .card-dim, .cw-panel, .coach-card, [data-client-card], .cw-client-header, .cw-toolbar, .cw-empty):where(:not(input):not(select):not(textarea):not(.card-inset)) {
   background: var(--coach-card-fill) !important;
   background-image: none !important;
   border-color: var(--color-border) !important;

@@ -237,7 +237,7 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
       )}
 
       {/* Header */}
-      <div className="dashboard-card-header flex items-center justify-between mb-3">
+      <div className="coach-dashboard-welcome dashboard-card-header flex items-center justify-between mb-3">
         <div className="flex items-center gap-3 min-w-0">
           <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
           <div className="min-w-0">
