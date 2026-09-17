@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { format, parseISO, subDays, addDays } from 'date-fns'
-import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Sparkles, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronDown, Send, Download, Archive, ArchiveRestore, Wand2 } from 'lucide-react'
+import { Plus, X, User, Edit2, Trash2, ChevronLeft, Check, Calculator, BookOpen, Star, Pencil, Search, Flame, MessageCircle, Lock, ChevronDown, Send, Download, Archive, ArchiveRestore, Wand2 } from 'lucide-react'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
 import useStore from '../../store'
 import { coachClientLimit, coachTierLabel } from '../../lib/coachTiers'
@@ -10,8 +10,6 @@ import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
 import MealPlanBuilder from './MealPlanBuilder'
 import ProgressPhotos from '../../components/ProgressPhotos'
-import { generateMealPlan } from '../../services/mealPlanAI'
-import { generateCheckinReview } from '../../services/checkinAI'
 import { DEFAULT_QUESTIONS } from '../../lib/checkinQuestions'
 import FormEditor from '../../components/FormEditor'
 import { suggestTargetsFromIntake } from '../../lib/intake'
@@ -414,16 +412,12 @@ function AddClientModal({ onClose }) {
 function MealPlansTab({ clientId }) {
   /* Template plumbing lives at the top so hooks stay unconditional */
   // Read directly from the store so the list always reflects the latest saved state
-  const { clients, addMealPlan, updateMealPlan, removeMealPlan, setActiveMealPlan, customFoods,
+  const { clients, addMealPlan, updateMealPlan, removeMealPlan, setActiveMealPlan,
     mealPlanTemplates, fetchMealPlanTemplates, saveMealPlanTemplate, deleteMealPlanTemplate } = useStore()
   const client = clients.find((c) => c.id === clientId) || {}
 
   const [showBuilder, setShowBuilder]   = useState(false)
   const [editingPlan, setEditingPlan]   = useState(null)   // plan object or null
-  const [aiDays, setAiDays]             = useState(1)
-  const [aiPrefs, setAiPrefs]           = useState('')
-  const [aiLoading, setAiLoading]       = useState(false)
-  const [aiError, setAiError]           = useState('')
   const [expandedPlanId, setExpandedPlanId] = useState(null)
   const [templateSaved, setTemplateSaved]   = useState(false)
 
@@ -442,7 +436,7 @@ function MealPlansTab({ clientId }) {
       // Editing an existing saved plan (has a real id)
       await updateMealPlan(client.id, editingPlan.id, planData)
     } else {
-      // New plan OR AI-generated plan (editingPlan may be truthy but id is null)
+      // Create a new meal plan
       const id = await addMealPlan(client.id, planData)
       if (!id) throw new Error('Could not save meal plan. Please retry; your draft has been kept.')
     }
@@ -450,26 +444,6 @@ function MealPlansTab({ clientId }) {
     // then call onClose() itself after 800 ms
   }
 
-  const handleGenerate = async () => {
-    setAiLoading(true)
-    setAiError('')
-    try {
-      const result = await generateMealPlan({
-        goals:       client.goals,
-        days:        aiDays,
-        preferences: aiPrefs,
-        clientName:  client.name,
-        customFoods: customFoods || [],
-      })
-      // Open builder pre-filled with AI result
-      setEditingPlan({ ...result, id: null })
-      setShowBuilder(true)
-    } catch (e) {
-      setAiError(e.message || 'AI generation failed. Check your API key.')
-    } finally {
-      setAiLoading(false)
-    }
-  }
 
   const MEAL_COLORS = {
     Breakfast: 'text-brown-light',
@@ -496,7 +470,7 @@ function MealPlansTab({ clientId }) {
         <div className="flex flex-col items-center justify-center py-10 text-center anim-fade-in">
           <BookOpen size={28} className="text-dim mb-3 anim-pop" />
           <p className="font-display font-bold text-lg text-muted tracking-widest">NO PLANS YET</p>
-          <p className="font-mono text-xs text-dim mt-1">Create a manual plan or use Auto-AI below</p>
+          <p className="font-mono text-xs text-dim mt-1">Create a meal plan for your client.</p>
         </div>
       ) : (
         <div className="space-y-3 anim-fade-in-up">
@@ -521,11 +495,6 @@ function MealPlansTab({ clientId }) {
                     <div className="flex items-center gap-2 min-w-0">
                       {isActive && <div className="w-1.5 h-1.5 rounded-full bg-brown flex-shrink-0" />}
                       <p className="font-display font-bold text-sm text-cream truncate">{plan.planName}</p>
-                      {plan.aiGenerated && (
-                        <span className="font-mono text-[9px] text-brown-light bg-brown/10 border border-brown/20 px-1.5 py-0.5 rounded flex-shrink-0">
-                          AI
-                        </span>
-                      )}
                     </div>
                     <p className="font-mono text-xs text-muted mt-0.5">
                       {plan.days?.length || 0} day{plan.days?.length !== 1 ? 's' : ''} · created {format(parseISO(plan.createdAt), 'MMM d')}
@@ -654,80 +623,11 @@ function MealPlansTab({ clientId }) {
         <p className="font-mono text-[10px] text-olive-light text-center">Saved as template ✓, assign it to any client from here.</p>
       )}
 
-      {/* Auto-AI section */}
-      <div className="bg-card border border-brown/20 rounded-xl p-4 space-y-3 anim-fade-in-up card-dim" style={{ animationDelay: '150ms' }}>
-        <div className="flex items-center gap-2 mb-1">
-          <Sparkles size={14} className="text-brown-light" />
-          <p className="font-display font-bold text-xs text-brown-light tracking-widest">ASK KAY</p>
-        </div>
-        <p className="font-mono text-xs text-muted leading-relaxed">
-          Kay will build a meal plan using only foods in your database, matching {client.name.split(' ')[0]}'s calorie and macro targets.
-        </p>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="font-display text-xs text-muted tracking-widest block mb-1.5">DAYS</label>
-            <select
-              value={aiDays}
-              onChange={(e) => setAiDays(Number(e.target.value))}
-              className="w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream focus:outline-none focus:border-brown"
-            >
-              {[1,2,3,4,5,6,7].map((d) => (
-                <option key={d} value={d}>{d} day{d > 1 ? 's' : ''}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="font-display text-xs text-muted tracking-widest block mb-1.5">TARGETS</label>
-            <div className="bg-surface border border-border rounded-lg px-3 py-2 font-mono text-xs text-muted">
-              {client.goals.calories} kcal · {client.goals.protein}p
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className="font-display text-xs text-muted tracking-widest block mb-1.5">PREFERENCES / NOTES</label>
-          <textarea
-            value={aiPrefs}
-            onChange={(e) => setAiPrefs(e.target.value)}
-            placeholder="e.g. no dairy, high protein breakfast, avoid nuts..."
-            rows={2}
-            className="w-full bg-surface border border-border rounded-lg px-3 py-2 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown resize-none"
-          />
-        </div>
-
-        {aiError && (
-          <p className="font-mono text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
-            {aiError}
-          </p>
-        )}
-
-        <button
-          onClick={handleGenerate}
-          disabled={aiLoading}
-          className="w-full flex items-center justify-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-50 text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-all glow-hover"
-        >
-          {aiLoading ? (
-            <>
-              <div className="w-4 h-4 border-2 border-bg/30 border-t-bg rounded-full animate-spin" />
-              KAY IS BUILDING…
-            </>
-          ) : (
-            <>
-              <Sparkles size={15} />
-              ASK KAY TO BUILD THIS
-            </>
-          )}
-        </button>
-        <p className="font-mono text-[10px] text-dim text-center">
-          Kay's result opens in the plan builder for review before saving
-        </p>
-      </div>
     </div>
   )
 }
 
-// ── Coach weekly check-in review (latest submission + AI analysis) ───────────
+// ── Coach weekly check-in review (latest submission and coach response) ───────────
 /* ── Archive / restore, pause a client without losing their data ──────────── */
 function ArchiveButton({ client, onArchived }) {
   const setClientArchived = useStore((s) => s.setClientArchived)
@@ -1157,11 +1057,7 @@ export function ClientFormsTab({ client }) {
 }
 
 export function CheckinTab({ client }) {
-  const { getClientTotalsForDate, updateClientGoals, markCheckinReviewed, sendMessage } = useStore()
-  const [loading, setLoading] = useState(false)
-  const [review, setReview]   = useState(null)
-  const [error, setError]     = useState('')
-  const [applied, setApplied] = useState(false)
+  const { markCheckinReviewed, sendMessage } = useStore()
   const [showEditor, setShowEditor]   = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [reply, setReply]         = useState('')
@@ -1175,47 +1071,6 @@ export function CheckinTab({ client }) {
   useEffect(() => {
     if (latest && !latest.reviewed) markCheckinReviewed(client.id, latest.id)
   }, [latest?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Last 7 days of logged intake (oldest → newest)
-  const week = Array.from({ length: 7 }, (_, i) => {
-    const date = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd')
-    const logged = (client.log?.[date] || []).length > 0
-    const t = getClientTotalsForDate(client.id, date)
-    return { date, logged, calories: t.calories, protein: t.protein, carbs: t.carbs, fat: t.fat }
-  })
-  const loggedDays = week.filter((d) => d.logged).length
-
-  // Weight trend from the last ~30 days of weight log
-  const wl = [...(client.weightLog || [])].sort((a, b) => a.date.localeCompare(b.date))
-  const weightTrend = wl.length >= 2
-    ? { start: wl[0].value, end: wl[wl.length - 1].value, change: +(wl[wl.length - 1].value - wl[0].value).toFixed(1), unit: wl[wl.length - 1].unit || 'lbs' }
-    : null
-
-  const runReview = async () => {
-    setLoading(true); setError(''); setReview(null); setApplied(false)
-    try {
-      const r = await generateCheckinReview({
-        clientName: client.name, goals: client.goals, week, weightTrend, checkin: latest,
-      })
-      setReview(r)
-    } catch (e) {
-      setError(e.message || 'Could not generate review.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const goalsChanged = review && (
-    review.suggestedGoals.calories !== client.goals.calories ||
-    review.suggestedGoals.protein  !== client.goals.protein  ||
-    review.suggestedGoals.carbs    !== client.goals.carbs    ||
-    review.suggestedGoals.fat      !== client.goals.fat
-  )
-
-  const applyGoals = () => {
-    updateClientGoals(client.id, review.suggestedGoals)
-    setApplied(true)
-  }
 
   const checkinDate = latest?.createdAt ? format(parseISO(latest.createdAt), 'MMM d, yyyy') : null
 
@@ -1250,82 +1105,11 @@ export function CheckinTab({ client }) {
           <div className="glass-card border border-border rounded-2xl p-8 text-center card-dim">
             <p className="font-display font-bold text-sm text-muted tracking-widest">NO CHECK-IN YET</p>
             <p className="font-mono text-xs text-dim mt-1.5">
-              {client.name.split(' ')[0]} hasn't submitted a weekly check-in. You can still generate a review from their logged data.
+              {client.name.split(' ')[0]} hasn't submitted a weekly check-in yet.
             </p>
           </div>
         )}
       </div>
-
-      {/* AI review */}
-      <button
-        onClick={runReview}
-        disabled={loading}
-        className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover disabled:opacity-50"
-      >
-        {loading
-          ? <><div className="w-4 h-4 border-2 border-bg/30 border-t-bg rounded-full animate-spin" /> KAY IS REVIEWING…</>
-          : <><Sparkles size={15} /> {review ? 'REGENERATE REVIEW' : 'GENERATE WEEKLY REVIEW'}</>}
-      </button>
-      <p className="font-mono text-[10px] text-dim text-center -mt-2">
-        Reviews {loggedDays}/7 logged days{weightTrend ? ' + weight trend' : ''}{latest ? ' + their check-in' : ''}
-      </p>
-
-      {error && (
-        <p className="font-mono text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">{error}</p>
-      )}
-
-      {review && (
-        <div className="glass-card border rounded-2xl p-5 card-dim space-y-4 anim-fade-in-up" style={{ borderColor: 'color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
-          <div className="flex items-center gap-2">
-            <Sparkles size={13} style={{ color: 'var(--color-accent)' }} />
-            <p className="font-display text-xs text-muted tracking-widest">KAY'S REVIEW</p>
-          </div>
-          <p className="font-mono text-sm text-cream leading-relaxed">{review.summary}</p>
-          <div className="border-t border-border/50 pt-4">
-            <p className="font-mono text-[10px] tracking-widest text-muted mb-1.5">RECOMMENDATION</p>
-            <p className="font-mono text-sm text-cream leading-relaxed">{review.recommendation}</p>
-          </div>
-
-          {/* Suggested targets */}
-          <div className="border-t border-border/50 pt-4">
-            <p className="font-mono text-[10px] tracking-widest text-muted mb-2.5">
-              {goalsChanged ? 'SUGGESTED TARGETS' : 'TARGETS, NO CHANGE'}
-            </p>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                ['KCAL', client.goals.calories, review.suggestedGoals.calories],
-                ['PRO',  client.goals.protein,  review.suggestedGoals.protein],
-                ['CARB', client.goals.carbs,    review.suggestedGoals.carbs],
-                ['FAT',  client.goals.fat,      review.suggestedGoals.fat],
-              ].map(([l, cur, sug]) => {
-                const changed = cur !== sug
-                return (
-                  <div key={l} className="border border-border/50 rounded-lg p-2 text-center card-inset">
-                    <p className="font-display font-black text-base" style={{ color: changed ? 'var(--color-accent)' : 'var(--color-cream)' }}>{sug}</p>
-                    {changed && <p className="font-mono text-[9px] text-dim line-through">{cur}</p>}
-                    <p className="font-mono text-[9px] text-muted tracking-widest mt-0.5">{l}</p>
-                  </div>
-                )
-              })}
-            </div>
-            {goalsChanged && (
-              applied ? (
-                <div className="flex items-center justify-center gap-2 mt-4 text-olive-light">
-                  <Check size={14} />
-                  <span className="font-display font-bold text-xs tracking-widest">TARGETS UPDATED</span>
-                </div>
-              ) : (
-                <button
-                  onClick={applyGoals}
-                  className="w-full mt-4 btn-accent text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors"
-                >
-                  APPLY THESE TARGETS
-                </button>
-              )
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Respond to the client, closes the check-in loop */}
       {latest && (
@@ -1335,15 +1119,6 @@ export function CheckinTab({ client }) {
               <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
               <p className="font-mono text-[10px] tracking-[0.3em] text-muted">RESPOND TO {client.name.split(' ')[0].toUpperCase()}</p>
             </div>
-            {review && !replySent && (
-              <button
-                onClick={() => setReply(`${review.summary}\n\n${review.recommendation}`)}
-                className="flex items-center gap-1.5 font-display font-bold text-[9px] tracking-widest px-2.5 py-1.5 rounded-lg border transition-colors"
-                style={{ borderColor: 'color-mix(in srgb, var(--color-accent) 35%, transparent)', color: 'var(--color-accent)', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)' }}
-              >
-                <Wand2 size={10} /> USE KAY'S DRAFT
-              </button>
-            )}
           </div>
           {replySent ? (
             <div className="flex items-center gap-2 text-olive-light py-1">

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import {
   Plus, X, User, Check, ChevronLeft, Trash2, Calculator,
-  BookOpen, Sparkles, Star, Pencil, Edit2, Search, ChevronRight,
+  BookOpen, Star, Pencil, Edit2, Search, ChevronRight,
 } from 'lucide-react'
 import useStore from '../../../store'
 import ClientAvatar from '../../../components/ClientAvatar'
@@ -12,7 +12,6 @@ import AnimatedNumber from '../../../components/AnimatedNumber'
 import ScrambleText from '../../../components/ScrambleText'
 import MealPlanBuilder from '../MealPlanBuilder'
 import { reconcileGoals } from '../../../utils/macros'
-import { generateMealPlan } from '../../../services/mealPlanAI'
 import { CheckinTab, ClientFormsTab } from '../Clients'
 import ProgressPhotos from '../../../components/ProgressPhotos'
 import { computeWeeklyStats } from '../../../lib/generateProgressReportPDF'
@@ -275,15 +274,11 @@ function AddClientScreen({ onClose }) {
 
 // ─── Meal plans tab ───────────────────────────────────────────────────────────
 function MealPlansTab({ clientId }) {
-  const { clients, addMealPlan, updateMealPlan, removeMealPlan, setActiveMealPlan, customFoods } = useStore()
+  const { clients, addMealPlan, updateMealPlan, removeMealPlan, setActiveMealPlan } = useStore()
   const client = clients.find((c) => c.id === clientId) || {}
 
   const [showBuilder,    setShowBuilder]    = useState(false)
   const [editingPlan,    setEditingPlan]    = useState(null)
-  const [aiDays,         setAiDays]         = useState(7)
-  const [aiPrefs,        setAiPrefs]        = useState('')
-  const [aiLoading,      setAiLoading]      = useState(false)
-  const [aiError,        setAiError]        = useState('')
   const [expandedPlanId, setExpandedPlanId] = useState(null)
 
   const plans       = client.mealPlans || []
@@ -297,17 +292,7 @@ function MealPlansTab({ clientId }) {
     }
   }
 
-  const handleGenerate = async () => {
-    setAiLoading(true); setAiError('')
-    try {
-      const result = await generateMealPlan({ goals: client.goals, days: aiDays, preferences: aiPrefs, clientName: client.name, customFoods: customFoods || [] })
-      setEditingPlan({ ...result, id: null }); setShowBuilder(true)
-    } catch (e) {
-      setAiError(e.message || 'AI generation failed. Check your API key.')
-    } finally { setAiLoading(false) }
-  }
 
-  const inp = 'w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream focus:outline-none focus:border-brown'
 
   if (showBuilder) {
     return (
@@ -326,7 +311,7 @@ function MealPlansTab({ clientId }) {
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <BookOpen size={26} className="text-dim mb-3" />
           <p className="font-display font-bold text-lg text-muted tracking-widest">NO PLANS YET</p>
-          <p className="font-mono text-xs text-dim mt-1">Create a plan manually or use AI below</p>
+          <p className="font-mono text-xs text-dim mt-1">Create a meal plan for your client.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -342,9 +327,6 @@ function MealPlansTab({ clientId }) {
                     <div className="flex items-center gap-2">
                       {isActive && <div className="w-1.5 h-1.5 rounded-full bg-brown flex-shrink-0" />}
                       <p className="font-display font-bold text-sm text-cream truncate">{plan.planName}</p>
-                      {plan.aiGenerated && (
-                        <span className="font-mono text-[9px] text-brown-light bg-brown/10 border border-brown/20 px-1.5 py-0.5 rounded flex-shrink-0">AI</span>
-                      )}
                     </div>
                     <p className="font-mono text-xs text-muted mt-0.5">
                       {plan.days?.length || 0} days · {format(parseISO(plan.createdAt), 'MMM d')}
@@ -411,50 +393,6 @@ function MealPlansTab({ clientId }) {
         CREATE PLAN MANUALLY
       </button>
 
-      {/* AI generator */}
-      <div className="glass-card border border-brown/20 rounded-2xl p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <Sparkles size={14} className="text-brown-light" />
-          <p className="font-display font-bold text-xs text-brown-light tracking-widest">ASK KAY</p>
-        </div>
-        <p className="font-mono text-xs text-muted leading-relaxed">
-          Kay will build a meal plan using your food database, matched to {client.name?.split(' ')[0]}'s targets.
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="font-display text-xs text-muted tracking-widest block mb-1.5">DAYS</label>
-            <select value={aiDays} onChange={(e) => setAiDays(Number(e.target.value))} className={inp}>
-              {[1,2,3,4,5,6,7].map((d) => <option key={d} value={d}>{d} day{d > 1 ? 's' : ''}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="font-display text-xs text-muted tracking-widest block mb-1.5">TARGETS</label>
-            <div className="bg-surface border border-border rounded-xl px-4 py-3 font-mono text-xs text-muted">
-              {client.goals?.calories} kcal · {client.goals?.protein}p
-            </div>
-          </div>
-        </div>
-        <div>
-          <label className="font-display text-xs text-muted tracking-widest block mb-1.5">PREFERENCES / NOTES</label>
-          <textarea
-            value={aiPrefs} onChange={(e) => setAiPrefs(e.target.value)}
-            placeholder="e.g. no dairy, high protein breakfast…"
-            rows={2}
-            className="w-full bg-surface border border-border rounded-xl px-4 py-3 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown resize-none"
-          />
-        </div>
-        {aiError && (
-          <p className="font-mono text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl px-3 py-2">{aiError}</p>
-        )}
-        <button onClick={handleGenerate} disabled={aiLoading}
-          className="w-full flex items-center justify-center gap-2 bg-brown hover:bg-brown-light disabled:opacity-50 text-bg font-display font-bold text-sm tracking-widest py-4 rounded-xl transition-colors">
-          {aiLoading
-            ? <><div className="w-4 h-4 border-2 border-bg/30 border-t-bg rounded-full animate-spin" />KAY IS BUILDING…</>
-            : <><Sparkles size={15} />ASK KAY TO BUILD THIS</>
-          }
-        </button>
-        <p className="font-mono text-[10px] text-dim text-center">Kay's result opens in the plan builder for review</p>
-      </div>
     </div>
   )
 }

@@ -211,7 +211,7 @@ function WeeklyCheckinCard({ clientId, lastCheckin, allowPhotos = false }) {
       id: q.id, label: q.label, type: q.type,
       value: answers[q.id] !== undefined && String(answers[q.id]).trim?.() !== '' ? answers[q.id] : answers[q.id] ?? null,
     }))
-    // Slug-mapped questions also fill the legacy columns (trends + Kay)
+    // Slug-mapped questions also fill the legacy columns (trend views)
     const bySlug = (slug) => {
       const q = questions.find((x) => x.slug === slug)
       const v = q ? answers[q.id] : null

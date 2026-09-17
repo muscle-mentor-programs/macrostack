@@ -13,10 +13,9 @@ import ClientAvatar from '../../components/ClientAvatar'
 import AnimatedNumber from '../../components/AnimatedNumber'
 import ScrambleText from '../../components/ScrambleText'
 import NotificationBell from '../../components/NotificationBell'
-import KayCoachChat from '../../components/KayCoachChat'
 import { computeRosterNudges, computeGoalNudge } from '../../lib/goalNudges'
 import { resyncPush } from '../../lib/push'
-import { Sparkles, UserPlus2, AlertTriangle } from 'lucide-react'
+import { UserPlus2, AlertTriangle } from 'lucide-react'
 
 // ─── Quick-edit goals modal ───────────────────────────────────────────────────
 function QuickEditModal({ client, onClose }) {
@@ -524,7 +523,6 @@ export default function CoachDashboard() {
   const [emailPreselect,  setEmailPreselect]  = useState(null)
   const [copied,          setCopied]          = useState(false)
   const [reqError,        setReqError]        = useState('')
-  const [showKay,         setShowKay]         = useState(false)
   const [checklistHidden, setChecklistHidden] = useState(
     () => localStorage.getItem('ms-onboarding-dismissed') === '1'
   )
@@ -591,7 +589,7 @@ export default function CoachDashboard() {
     setActivePage('clients')
   }
 
-  // Deep-link into the client's CHECK-IN tab, where Kay suggests new targets
+  // Deep-link into the client's CHECK-IN tab, to review their latest submission
   const handleReview = (clientId) => {
     setViewingClientId(clientId, 'checkin')
     setActivePage('clients')
@@ -645,18 +643,6 @@ export default function CoachDashboard() {
           </div>
         </div>
         <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => setShowKay(true)}
-            className="flex items-center gap-2 font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded-xl transition-all btn-lift"
-            style={{
-              background: 'color-mix(in srgb, var(--color-accent) 14%, transparent)',
-              border: '1px solid color-mix(in srgb, var(--color-accent) 40%, transparent)',
-              color: 'var(--color-accent)',
-            }}
-          >
-            <Sparkles size={14} />
-            ASK KAY
-          </button>
           <button
             onClick={() => { setEmailPreselect(null); setEmailModal(true) }}
             className="flex items-center gap-2 bg-surface border border-border hover:border-brown/50 text-muted hover:text-cream font-display font-bold text-xs tracking-widest px-4 py-2.5 rounded-xl transition-all"
@@ -857,7 +843,6 @@ export default function CoachDashboard() {
           onClose={() => { setEmailModal(false); setEmailPreselect(null) }}
         />
       )}
-      {showKay && <KayCoachChat onClose={() => setShowKay(false)} />}
     </div>
   )
 }

@@ -3,7 +3,7 @@ import MarketingNav from '../components/MarketingNav'
 import { scrollToMarketingSection } from '../lib/marketingScroll'
 import BrandWordmark from '../components/BrandWordmark'
 import { useLayoutEffect, useRef } from 'react'
-import { Smartphone, Share, PlusSquare, ScanBarcode, LayoutDashboard, Bot, CalendarDays, ChartNoAxesCombined, Target, ArrowRight } from 'lucide-react'
+import { Smartphone, Share, PlusSquare, ScanBarcode, LayoutDashboard, CalendarDays, ChartNoAxesCombined, Target, ArrowRight } from 'lucide-react'
 import { FOOD_COUNT } from '../data/foodCount'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -50,7 +50,6 @@ const CARDS = [
   { icon: Target, title: 'PRECISION TRACKING', body: 'Exact macros for every meal. Custom foods, serving math, gram-level control.' },
   { icon: ScanBarcode, title: 'BARCODE SCANNER',    body: 'Instant nutrition data from any label. No typing, no guessing.' },
   { icon: LayoutDashboard, title: 'COACH DASHBOARD',    body: 'Unlimited clients, individual targets, live compliance, one screen.' },
-  { icon: Bot, title: 'KAY AI',             body: 'A nutrition expert in your pocket. Food intel and answers, 24/7.', soon: true },
   { icon: CalendarDays, title: 'MEAL PLANS',         body: 'Coaches build day-by-day plans. Clients log a full meal with one tap.' },
   { icon: ChartNoAxesCombined, title: 'WEIGHT & TRENDS',    body: 'Pro includes weight logging, history, and all progress analytics.' },
 ]
@@ -106,7 +105,7 @@ const COACH_FEATURES = [
   { t: 'Live client dashboard',      d: 'Every client’s daily intake, macros, and 7-day compliance at a glance.' },
   { t: 'AI meal-plan builder',       d: 'Build day-by-day custom plans in seconds, clients log them in one tap.' },
   { t: 'Real-time messaging',        d: 'Direct in-app chat with every client, with read receipts and unread badges.' },
-  { t: 'Weekly check-ins',           d: 'Clients submit weight, adherence & notes, AI summarizes so you review in seconds.' },
+  { t: 'Weekly check-ins',           d: 'Clients submit weight, adherence & notes, review their submissions in one place.' },
   { t: 'Macro targets & auto-adjust',d: 'Set each client’s calorie & macro goals; get nudges to adjust as progress dictates.' },
   { t: 'Progress & photos',          d: 'Weight trends, compliance streaks, and progress-photo timelines over time.' },
   { t: 'Automated reminders',        d: 'Auto-nudge clients to log meals and submit check-ins, hands-off.' },

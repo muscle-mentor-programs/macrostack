@@ -5,7 +5,7 @@
    if the coach changes the questions later.
 
    The `slug` ties a question to a legacy structured column (adherence /
-   hunger / energy) so trend views and Kay's review keep working across
+   hunger / energy) so trend views keep working across
    default and customized sets. Custom questions have slug = null. */
 
 export const QUESTION_TYPES = [

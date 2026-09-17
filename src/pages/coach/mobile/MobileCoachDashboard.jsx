@@ -403,7 +403,7 @@ export default function MobileCoachDashboard() {
     setActivePage('clients')
   }
 
-  // Deep-link into the client's CHECK-IN tab, where Kay suggests new targets
+  // Deep-link into the client's CHECK-IN tab, to review their latest submission
   const handleReview = (clientId) => {
     setViewingClientId(clientId, 'checkin')
     setActivePage('clients')

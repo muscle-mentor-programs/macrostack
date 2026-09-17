@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { format, isValid, parseISO, subDays } from 'date-fns'
-import { BookOpen, CheckCheck, ChevronDown, MessageSquare, LayoutDashboard, NotebookPen, ListChecks, ClipboardCheck, History, Target, Plus, LockKeyhole, Pin } from 'lucide-react'
+import { BookOpen, CheckCheck, ChevronDown, MessageSquare, LayoutDashboard, NotebookPen, ListChecks, Plus, LockKeyhole, Pin } from 'lucide-react'
 import useStore from '../../store'
 import { appendWorkspace, latestEntries, loadWorkspace, periodSummary } from '../../lib/coachWorkspace'
 import { workspaceDate, taskMatches, sortTasks } from '../../lib/workspacePresentation'
@@ -8,15 +8,12 @@ import './CoachWorkspace.css'
 
 const drafts = new Map()
 const originalDrafts = new Map()
-const tabs = ['Summary', 'Journal', 'Notes', 'Tasks', 'Reviews', 'Timeline', 'Plan']
+const tabs = ['Summary', 'Journal', 'Notes', 'Tasks']
 const sectionMeta = {
   Summary: [LayoutDashboard, 'The coaching picture', 'Start with what changed, what needs attention, and what happens next.'],
   Journal: [BookOpen, 'Daily nutrition', 'Review the available logs without treating missing entries as zero intake.'],
   Notes: [NotebookPen, 'Your coaching notebook', 'Keep observations, decisions, and supporting evidence together.'],
   Tasks: [ListChecks, 'Follow-ups that move things forward', 'Prioritize by due date, assign responsibility, and keep a complete history.'],
-  Reviews: [ClipboardCheck, 'Make the next decision', 'Compare logged weeks and check-ins before documenting your review.'],
-  Timeline: [History, 'The complete record', 'Search the client’s activity and your coaching decisions in one place.'],
-  Plan: [Target, 'Direction and decisions', 'Current targets and the reasoning behind documented plan changes.'],
 }
 const templates = {
   'Weekly review': 'CLIENT UPDATE\n\nWINS\n\nBARRIERS\n\nOBSERVATIONS & EVIDENCE\n\nDECISIONS & RATIONALE\n\nAGREED ACTIONS\n\nNEXT REVIEW\n',
@@ -62,8 +59,7 @@ export function LegacyCoachNotes({ clientId }) {
 
 export default function ClientWorkspace({ client, initialSection = 'Summary' }) {
   const currentUser = useStore(s => s.currentUser)
-  const clientMessages = useStore(s => s.messages[client.id]) || []
-  const [section, setSection] = useState(initialSection)
+  const [section, setSection] = useState(tabs.includes(initialSection) ? initialSection : 'Summary')
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -72,7 +68,6 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [owner, setOwner] = useState('all')
-  const [visibleEvents, setVisibleEvents] = useState(30)
   const [date, setDate] = useState(day())
   const [days, setDays] = useState(7)
   const draftKey = `${currentUser?.id}:${client.id}`
@@ -118,27 +113,14 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
   const tasks = sortTasks(latestEntries(entries, 'task'))
   const openTasks = tasks.filter(e => e.details.state !== 'done')
   const brief = latestEntries(entries, 'brief')[0]
-  const plan = latestEntries(entries, 'plan')[0]
-  const reviews = latestEntries(entries, 'review')
-  const lastReview = reviews[0]
-  const scheduledReview = [brief, plan, lastReview].filter(e => e?.details.nextReview).sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))[0]?.details.nextReview
   const now = periodSummary(client, day(), 7)
   const prior = periodSummary(client, format(subDays(new Date(), 7), 'yyyy-MM-dd'), 7)
   const journal = section === 'Journal' ? periodSummary(client, date || day(), days) : null
   const overdueTasks = openTasks.filter(t => t.details.due && t.details.due < day())
   const filteredNotes = notes.filter(e => matches(e) && (filter !== 'pinned' || e.details.pinned)).sort((a, b) => Number(!!b.details.pinned) - Number(!!a.details.pinned))
   const filteredTasks = tasks.filter(t => taskMatches(t, filter, owner, search, day()))
-  const navigate = next => { setSection(next); setSearch(''); setFilter('all'); setOwner('all'); setVisibleEvents(30); setHistory(null) }
+  const navigate = next => { setSection(next); setSearch(''); setFilter('all'); setOwner('all'); setHistory(null) }
   function matches(e) { return `${e.title} ${e.body} ${e.details.tags || ''}`.toLowerCase().includes(search.toLowerCase().trim()) }
-  const events = [
-    ...entries,
-    ...clientMessages.map(e => ({ id: `message-${e.id}`, kind: 'message', title: e.from === 'coach' ? 'Coach message' : 'Client message', body: e.text || 'Attachment', created_at: e.timestamp, details: {} })),
-    ...(client.mealPlans || []).map(e => ({ id: `mealplan-${e.id}`, kind: 'mealplan', title: e.planName || 'Meal plan', body: 'Meal plan created. View the Plans tab for current contents.', created_at: e.createdAt, details: {} })),
-    ...(client.checkins || []).map(e => ({ id: `checkin-${e.id}`, kind: 'checkin', title: 'Client check-in', body: e.notes || (e.answers || []).map(a => `${a.label}: ${a.value}`).join('\n'), created_at: e.createdAt, details: {} })),
-    ...(client.photos || []).map(e => ({ id: `photo-${e.id}`, kind: 'photo', title: 'Progress photo', body: e.note || '', created_at: e.createdAt || e.takenAt, details: {} })),
-    ...(client.weightLog || []).map(e => ({ id: `weight-${e.id || e.date}`, kind: 'weight', title: `Weight: ${e.value} ${e.unit || 'lbs'}`, body: '', created_at: e.date, details: {} })),
-  ].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
-  const filteredEvents = events.filter(matches).filter(e => filter === 'all' || e.kind === filter)
   const recordCard = e => <article key={e.id} data-coach-record={e.kind} className={`cw-panel cw-record ${e.details.pinned ? 'cw-record-pinned' : ''}`}>
     <div className="cw-row"><span className="cw-pill">{e.kind}</span><span className="cw-muted">{section === 'Journal' && e.created_at ? format(parseISO(e.created_at), 'MMMM d, yyyy') : stamp(e.created_at)}</span>{e.details.pinned && <span className="cw-pill">Pinned</span>}</div>
     <h3>{e.title}</h3><p>{e.body}</p>
@@ -163,7 +145,7 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
       <div className="cw-row"><button className="cw-primary" onClick={() => start('note')}><Plus size={14} aria-hidden="true" />Add note</button><button onClick={() => start('task')}><ListChecks size={14} aria-hidden="true" />Create task</button></div>
     </header>
     <details className="cw-privacy"><summary><LockKeyhole size={12} aria-hidden="true" /> Private records & draft storage</summary><p className="cw-muted">Internal records are not sent to the client. Drafts survive workspace navigation in this session, not a browser restart.</p></details>
-    <nav className="cw-tabs" aria-label="Client coaching workspace">{tabs.map(t => { const Icon = sectionMeta[t][0]; const count = t === 'Notes' ? notes.length : t === 'Tasks' ? openTasks.length : t === 'Reviews' ? reviews.length : null; return <button key={t} aria-label={t} aria-pressed={section === t} onClick={() => navigate(t)}><Icon size={15} aria-hidden="true" /><span>{t}</span>{count !== null && <span className="cw-nav-count" aria-hidden="true">{loading ? '-' : count}</span>}</button> })}</nav>
+    <nav className="cw-tabs" aria-label="Client coaching workspace">{tabs.map(t => { const Icon = sectionMeta[t][0]; const count = t === 'Notes' ? notes.length : t === 'Tasks' ? openTasks.length : null; return <button key={t} aria-label={t} aria-pressed={section === t} onClick={() => navigate(t)}><Icon size={15} aria-hidden="true" /><span>{t}</span>{count !== null && <span className="cw-nav-count" aria-hidden="true">{loading ? '-' : count}</span>}</button> })}</nav>
     <div key={section} className="cw-section-intro"><h3>{sectionMeta[section][1]}</h3><p className="cw-muted">{sectionMeta[section][2]}</p></div>
     {loading && <p role="status">Loading coaching records…</p>}
     {error && <div role="alert" className="cw-error">{error} Existing client tools and records remain available. <button onClick={() => { setLoading(true); loadWorkspace(client.id).then(rows => { setEntries(rows); setError('') }).catch(e => setError(e.message)).finally(() => setLoading(false)) }}>Retry loading</button></div>}
@@ -188,18 +170,17 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
       <div className="cw-stats">{[['Days logged', `${now.days}/7`], ['Avg calories', now.calories ?? '-'], ['Avg protein', now.protein === null ? '-' : `${now.protein}g`], ['Open tasks', openTasks.length]].map(([label, value]) => <div className="cw-panel cw-stat" key={label}><strong>{value}</strong><span className="cw-muted">{label}</span></div>)}</div>
       <p className="cw-muted">Averages use logged days only; partial logs are not proof of intake or adherence.</p>
       <div className="cw-grid"><div className="cw-panel"><h3>Client brief</h3><p>{brief?.body || 'Add goals, preferences, restrictions, schedule, barriers, and what matters to this client.'}</p><p className="cw-muted">{brief ? `Last reviewed ${stamp(brief.created_at)}` : 'No brief recorded yet.'}</p><button onClick={() => brief && !draft ? setDraft(cleanEntry(brief)) : start('brief')}>Update brief</button></div>
-        <div className="cw-panel"><h3>Needs attention</h3><p>{(client.checkins || []).filter(c => !c.reviewed).length} unreviewed check-ins</p><p>{openTasks.filter(t => t.details.due && t.details.due < day()).length} overdue follow-ups</p><p>{lastReview ? `Last completed review: ${stamp(lastReview.created_at)}` : 'No coaching review recorded yet.'}</p><p className="cw-muted">{events.filter(e => e.kind !== 'review' && (!lastReview || e.created_at > lastReview.created_at)).length} recorded events since last review</p></div></div>
-      <div className="cw-grid"><section className="cw-panel"><h3>Week-over-week context</h3><p className="cw-muted">Logged-day averages, compared with the previous seven days. Different logging coverage can change these averages.</p><dl className="cw-comparison">{[['calories','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g']].map(([key,label,unit]) => <div key={key}><dt>{label}</dt><dd><strong>{now[key] === null ? '-' : `${now[key]} ${unit}`}</strong><span>{now[key] === null || prior[key] === null ? 'Not enough data to compare' : `${now[key] - prior[key] > 0 ? '+' : ''}${now[key] - prior[key]} ${unit} vs previous week`}</span></dd></div>)}</dl><button onClick={() => navigate('Reviews')}>Open reviews</button></section>
-      <section className="cw-panel"><h3>Review queue</h3><div className="cw-queue"><button onClick={() => { navigate('Tasks'); setFilter('overdue') }}><span>Overdue follow-ups</span><strong>{loading ? '-' : overdueTasks.length}</strong></button><button onClick={() => { navigate('Tasks'); setFilter('today') }}><span>Due today</span><strong>{loading ? '-' : openTasks.filter(t => t.details.due === day()).length}</strong></button><button onClick={() => { navigate('Notes'); setFilter('pinned') }}><span>Pinned observations</span><strong>{loading ? '-' : notes.filter(n => n.details.pinned).length}</strong></button></div><p className="cw-muted">Latest scheduled review: {workspaceDate(scheduledReview)}</p></section></div>
-      <div className="cw-section-heading"><h3>Next actions</h3><button onClick={() => { navigate('Tasks'); setFilter('open') }}>View all tasks</button></div><div className="cw-record-grid">{openTasks.slice(0, 4).map(recordCard)}</div>{!openTasks.length && <p className="cw-empty">No open tasks. Create a follow-up from a note or review.</p>}
+        <div className="cw-panel"><h3>Needs attention</h3><p>{(client.checkins || []).filter(c => !c.reviewed).length} unreviewed check-ins</p><p>{openTasks.filter(t => t.details.due && t.details.due < day()).length} overdue follow-ups</p></div></div>
+      <div className="cw-grid"><section className="cw-panel"><h3>Week-over-week context</h3><p className="cw-muted">Logged-day averages, compared with the previous seven days. Different logging coverage can change these averages.</p><dl className="cw-comparison">{[['calories','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g']].map(([key,label,unit]) => <div key={key}><dt>{label}</dt><dd><strong>{now[key] === null ? '-' : `${now[key]} ${unit}`}</strong><span>{now[key] === null || prior[key] === null ? 'Not enough data to compare' : `${now[key] - prior[key] > 0 ? '+' : ''}${now[key] - prior[key]} ${unit} vs previous week`}</span></dd></div>)}</dl></section>
+      <section className="cw-panel"><h3>Follow-up queue</h3><div className="cw-queue"><button onClick={() => { navigate('Tasks'); setFilter('overdue') }}><span>Overdue follow-ups</span><strong>{loading ? '-' : overdueTasks.length}</strong></button><button onClick={() => { navigate('Tasks'); setFilter('today') }}><span>Due today</span><strong>{loading ? '-' : openTasks.filter(t => t.details.due === day()).length}</strong></button><button onClick={() => { navigate('Notes'); setFilter('pinned') }}><span>Pinned observations</span><strong>{loading ? '-' : notes.filter(n => n.details.pinned).length}</strong></button></div></section></div>
+      <div className="cw-section-heading"><h3>Next actions</h3><button onClick={() => { navigate('Tasks'); setFilter('open') }}>View all tasks</button></div><div className="cw-record-grid">{openTasks.slice(0, 4).map(recordCard)}</div>{!openTasks.length && <p className="cw-empty">No open tasks. Create a follow-up from a note.</p>}
       {!!notes.filter(n => n.details.pinned).length && <><h3 className="cw-section-heading">Pinned observations</h3><div className="cw-record-grid">{notes.filter(n => n.details.pinned).map(recordCard)}</div></>}
     </>}
     {section === 'Notes' && <><div className="cw-toolbar"><label>Search notes<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search text or tags" /></label><button aria-pressed={filter === 'pinned'} onClick={() => setFilter(filter === 'pinned' ? 'all' : 'pinned')}><Pin size={14} aria-hidden="true" />Pinned only</button><button onClick={() => start('note')}>New coaching note</button></div><p className="cw-muted cw-result-count">{filteredNotes.length} matching notes · Pinned notes first</p><div className="cw-record-grid">{filteredNotes.map(recordCard)}</div>{!filteredNotes.length && <p className="cw-empty">{notes.length ? 'No notes match. Try a different search or turn off the pinned filter.' : 'Create your first dated note. Your original notes are preserved below.'}</p>}<LegacyCoachNotes key={client.id} clientId={client.id} /></>}
     {section === 'Tasks' && <><div className="cw-toolbar"><label>Search tasks<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search follow-ups or tags" /></label><label>Task status<select aria-label="Task status" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">All tasks</option><option value="open">Open</option><option value="overdue">Overdue</option><option value="today">Due today</option><option value="done">Completed</option></select></label><label>Task owner<select aria-label="Task owner" value={owner} onChange={e => setOwner(e.target.value)}><option value="all">Everyone</option><option>Coach</option><option value={`Client ${String.fromCharCode(8212)} coach tracked`}>Client (coach tracked)</option></select></label><button onClick={() => start('task')}>New follow-up</button></div><p className="cw-muted cw-result-count">{filteredTasks.length} matching tasks · Open first, then due date and priority. Client-owned tasks are coach-tracked, not sent automatically.</p><div className="cw-record-grid">{filteredTasks.map(recordCard)}</div>{!filteredTasks.length && <p className="cw-empty">{tasks.length ? 'No tasks match these filters.' : 'No follow-ups yet. Create one with a due date, owner, and priority.'}</p>}</>}
-    {section === 'Reviews' && <><div className="cw-grid">{[['This week', now], ['Previous week', prior]].map(([label, stats]) => <div className="cw-panel" key={label}><h3>{label}</h3><p>{stats.days}/7 days logged</p><p>Average: {stats.calories ?? '-'} kcal · {stats.protein ?? '-'}g protein</p><p className="cw-muted">Logged days only; missing days excluded.</p></div>)}</div><div className="cw-grid">{(client.checkins || []).slice(0, 2).map((c, i) => <div className="cw-panel" key={c.id}><h3>{i ? 'Previous check-in' : 'Latest check-in'}</h3><p className="cw-muted">{stamp(c.createdAt)}</p><p>{c.notes}</p>{(c.answers || []).map((a, n) => <p key={n}>{a.label}: {String(a.value ?? '-')}</p>)}</div>)}</div><button onClick={() => { if (!draft) setDraft({ record_id: crypto.randomUUID(), kind: 'review', title: `Review, ${day()}`, body: templates['Weekly review'], details: { snapshot: { current: now, previous: prior, goals: client.goals, checkinId: client.checkins?.[0]?.id || null } } }) }}>Complete review</button><p className="cw-muted">Saving records your review. It does not send a message or change client targets.</p>{reviews.map(recordCard)}</>}
     {section === 'Journal' && <section className="cw-journal" aria-label="Client journal">
       <div className="cw-panel cw-journal-toolbar">
-        <div><span className="cw-journal-eyebrow"><BookOpen size={14} aria-hidden="true" /> DAILY NUTRITION</span><h3>Client journal</h3><p className="cw-muted">Explore meals, leave private observations, and track your reviews.</p></div>
+        <div><span className="cw-journal-eyebrow"><BookOpen size={14} aria-hidden="true" /> DAILY NUTRITION</span><h3>Client journal</h3><p className="cw-muted">Explore meals and leave private observations.</p></div>
         <div className="cw-journal-filters"><label>Period ending<input type="date" value={date} onChange={e => setDate(e.target.value)} /></label><label>Show<select value={days} onChange={e => setDays(Number(e.target.value))}>{[7,14,30].map(n => <option key={n} value={n}>{n} days</option>)}</select></label></div>
       </div>
       <div className="cw-journal-context"><p><strong>{journal.days} of {days}</strong> days with entries</p><p className="cw-muted">Ending {format(parseISO(date || day()), 'MMMM d, yyyy')} · Logged entries may be incomplete. No log does not mean no intake.</p></div>
@@ -220,7 +201,5 @@ export default function ClientWorkspace({ client, initialSection = 'Summary' }) 
         </div></details>
       })}</div>
     </section>}
-    {section === 'Timeline' && <><div className="cw-toolbar"><label>Search history<input type="search" value={search} onChange={e => { setSearch(e.target.value); setVisibleEvents(30) }} /></label><label>Event type<select aria-label="Event type" value={filter} onChange={e => { setFilter(e.target.value); setVisibleEvents(30) }}>{['all','note','task','review','brief','plan','comment','day_review','checkin','photo','weight','message','mealplan'].map(k => <option key={k}>{k}</option>)}</select></label></div><p className="cw-muted cw-result-count">{filteredEvents.length} matching events · Newest first · Earlier revisions are retained</p><div className="cw-timeline">{filteredEvents.slice(0, visibleEvents).map(e => <article className="cw-panel" key={e.id}><span className="cw-pill">{e.kind}</span><p className="cw-muted">{stamp(e.created_at)}</p><h3>{e.title}</h3><p>{e.body}</p></article>)}</div>{!filteredEvents.length && <p className="cw-empty">No events match these filters.</p>}{filteredEvents.length > visibleEvents && <button onClick={() => setVisibleEvents(n => n + 30)}>Show more events</button>}</>}
-    {section === 'Plan' && <><div className="cw-panel"><h3>Current targets</h3><p>{client.goals.calories} kcal · {client.goals.protein}g protein · {client.goals.carbs}g carbs · {client.goals.fat}g fat</p><p className="cw-muted">Use the existing Overview target controls and Plans tab to make changes. Historical targets before documented snapshots are unknown.</p></div><button onClick={() => { if (!draft) setDraft({ record_id: crypto.randomUUID(), kind: 'plan', title: `Plan decision, ${day()}`, body: 'COACHING PHASE\n\nGOAL & MILESTONES\n\nRATIONALE\n\nNEXT ACTIONS\n', details: { snapshot: { goals: client.goals, mealPlanId: client.activeMealPlanId || null }, previous: plan?.details.snapshot || null } }) }}>Document plan & rationale</button><p className="cw-muted">Snapshots preserve targets at the time you document a decision. They do not retroactively reconstruct earlier changes.</p>{latestEntries(entries, 'plan').map(recordCard)}</>}
   </div>
 }
