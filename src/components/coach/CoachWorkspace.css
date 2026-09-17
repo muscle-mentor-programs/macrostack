@@ -134,3 +134,9 @@
 .cw-client-workspace .cw-tabs button {
   text-transform: uppercase;
 }
+
+/* Bound native Safari date controls to the form's available content width. */
+.cw-client-workspace fieldset{min-inline-size:0;max-inline-size:100%}
+.cw-client-workspace label{min-inline-size:0;max-inline-size:100%}
+.cw-client-workspace input[type="date"]{box-sizing:border-box;inline-size:100%;min-inline-size:0;max-inline-size:100%;appearance:none;-webkit-appearance:none;min-height:44px}
+.cw-client-workspace input[type="date"]::-webkit-date-and-time-value{min-width:0;text-align:left}

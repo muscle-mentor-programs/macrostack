@@ -8,10 +8,22 @@ const positions=new Map()
 export default function CoachLayout({children}) {
  const {activePage,currentUser}=useStore();const mobile=useIsMobile();const root=useRef(null);const [online,setOnline]=useState(navigator.onLine)
  useEffect(()=>{
-   const sync=()=>{const viewport=window.visualViewport;document.documentElement.style.setProperty('--coach-height',`${viewport?.height||innerHeight}px`);document.documentElement.classList.toggle('coach-keyboard-open',!!viewport&&innerHeight-viewport.height>150)}
-   sync();window.visualViewport?.addEventListener('resize',sync);window.addEventListener('resize',sync)
+   let frame = 0
+   const sync = () => {
+     cancelAnimationFrame(frame)
+     frame = requestAnimationFrame(() => {
+       const viewport = window.visualViewport
+       const root = document.documentElement
+       // Safari pans the visual viewport as well as shrinking it for the keyboard.
+       // Keep both coordinates in sync so a fixed editor cannot end above the keyboard.
+       root.style.setProperty('--coach-height', `${viewport?.height || innerHeight}px`)
+       root.style.setProperty('--coach-viewport-top', `${viewport?.offsetTop || 0}px`)
+       root.classList.toggle('coach-keyboard-open', !!viewport && innerHeight - viewport.height > 150)
+     })
+   }
+   sync();window.visualViewport?.addEventListener('resize',sync);window.visualViewport?.addEventListener('scroll',sync);window.addEventListener('resize',sync)
    const connection=()=>setOnline(navigator.onLine);window.addEventListener('online',connection);window.addEventListener('offline',connection)
-   return()=>{window.visualViewport?.removeEventListener('resize',sync);window.removeEventListener('resize',sync);window.removeEventListener('online',connection);window.removeEventListener('offline',connection);document.documentElement.classList.remove('coach-keyboard-open')}
+   return()=>{cancelAnimationFrame(frame);window.visualViewport?.removeEventListener('resize',sync);window.visualViewport?.removeEventListener('scroll',sync);window.removeEventListener('resize',sync);document.documentElement.style.removeProperty('--coach-height');document.documentElement.style.removeProperty('--coach-viewport-top');window.removeEventListener('online',connection);window.removeEventListener('offline',connection);document.documentElement.classList.remove('coach-keyboard-open')}
  },[])
  useEffect(()=>{
    const key=`${currentUser?.id}:${activePage}:${mobile}`;const el=root.current

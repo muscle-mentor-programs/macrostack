@@ -195,3 +195,13 @@ html body .software-coach .coach-roster-cards{display:grid;grid-template-columns
 .coach-section-track>span{position:absolute;top:0;height:100%;border-radius:inherit;background:var(--color-accent);left:0;will-change:transform;transition:none}
 
 @media(prefers-reduced-motion:reduce){.coach-section-track>span{animation:none!important;transition:none!important}}
+
+/* Match fixed mobile editors to Safari's visible viewport, including keyboard pan. */
+@media(max-width:767px){
+ .coach-client-detail{top:var(--coach-viewport-top,0px)!important;max-height:var(--coach-height,100dvh)}
+ .coach-shell{position:relative;top:var(--coach-viewport-top,0px)}
+ body:has(.software-coach) .mp-editor{top:var(--coach-viewport-top,0px);bottom:auto}
+ .coach-client-detail>.overflow-y-auto{min-height:0;scroll-padding-block:16px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+ .coach-keyboard-open .coach-client-detail textarea{min-height:96px;max-height:38dvh;height:clamp(96px,28vh,160px);scroll-margin-block:16px}
+ .coach-keyboard-open .coach-client-detail>div:first-child{padding-block:8px}
+}

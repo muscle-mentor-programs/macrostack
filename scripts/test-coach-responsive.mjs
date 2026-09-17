@@ -42,6 +42,22 @@ try{
   }
   await page.evaluate(()=>{window.testStore.getState().setViewingClientId('client-0','overview');window.testStore.getState().setActivePage('clients')})
   await page.getByRole('navigation',{name:'Client sections'}).waitFor()
+  if(width<768){
+   await page.evaluate(()=>{Object.defineProperty(visualViewport,'height',{configurable:true,value:420});Object.defineProperty(visualViewport,'offsetTop',{configurable:true,value:180});visualViewport.dispatchEvent(new Event('resize'));visualViewport.dispatchEvent(new Event('scroll'))})
+   await page.waitForTimeout(80)
+   const bounds=await page.locator('.coach-client-detail').evaluate(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom}})
+   assert.ok(Math.abs(bounds.top-180)<2,'Editor follows keyboard viewport pan')
+   assert.ok(Math.abs(bounds.bottom-600)<2,'Editor reaches visible keyboard boundary')
+   await page.evaluate(()=>{delete visualViewport.height;delete visualViewport.offsetTop;visualViewport.dispatchEvent(new Event('resize'));visualViewport.dispatchEvent(new Event('scroll'))})
+   await page.waitForTimeout(80)
+  }
+
+  await page.getByText('Client brief & follow-ups',{exact:true}).click()
+  await page.getByRole('button',{name:'Update brief',exact:true}).click()
+  const reviewDate=page.getByLabel('Next review date',{exact:true})
+  await reviewDate.fill('2026-12-31')
+  assert.equal(await reviewDate.evaluate(el=>{const field=el.getBoundingClientRect(),label=el.parentElement.getBoundingClientRect();return field.left>=label.left-1&&field.right<=label.right+1}),true,`${width}: review date stays within label`)
+  await page.getByRole('button',{name:'Discard draft',exact:true}).click()
   await page.getByRole('button',{name:'Journal',exact:true}).click()
   await page.getByRole('heading',{name:'Client journal',exact:true}).waitFor()
   assert.equal(await page.locator('.coach-client-detail').evaluate(n=>n.scrollWidth>n.clientWidth),false,`${width}: client detail overflow`)
