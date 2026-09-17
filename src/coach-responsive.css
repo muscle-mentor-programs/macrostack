@@ -127,3 +127,8 @@ html body:has(.software-coach) :is(.cw-panel,.glass-card,.card-dim){box-shadow:0
 
 html body .software-coach .cw-client-workspace .cw-journal :is(h3,h4){color:var(--color-cream)!important}
 @container(min-width:900px){.coach-client-detail .cw-journal-toolbar{display:flex;align-items:center;justify-content:space-between;gap:24px}.coach-client-detail .cw-journal-filters{margin-top:0}}
+
+/* Native iOS date controls need their own bounded row on narrow screens. */
+.coach-client-detail .cw-journal-filters > label{min-width:0;max-width:100%}
+.coach-client-detail .cw-journal-filters :is(input,select){box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:44px}
+@container(max-width:480px){.coach-client-detail .cw-journal-filters{grid-template-columns:minmax(0,1fr);max-width:none;gap:12px}.coach-client-detail .cw-journal-filters input[type=date]{appearance:none;-webkit-appearance:none}}
