@@ -221,3 +221,17 @@ html body .software-coach .cw-journal-date{font-size:22px;line-height:1.2}
  .software-coach .dashboard-workboard .cw-stat strong{font-size:24px}
  .software-coach .dashboard-workboard>.cw-stats .cw-muted{font-size:11px;line-height:1.4}
 }
+
+/* Library and Account share the coach page shell, with complementary accents. */
+.software-coach .coach-resource-page{max-width:none;margin:0;padding:0;--resource-tone:var(--coach-sage);--coach-tone:var(--resource-tone)}
+.software-coach .coach-resource-page[data-resource-tone=account]{--resource-tone:var(--coach-lavender)}
+.software-coach .coach-resource-header{position:relative;padding:24px 32px;border-bottom:1px solid var(--color-border)}
+.software-coach .coach-resource-header h1{font:900 28px/1.15 var(--font-display);letter-spacing:.025em;text-transform:uppercase;color:var(--resource-tone);margin:0}
+.software-coach .coach-resource-header>p:last-child{font:12px/1.5 var(--font-mono);margin-top:6px;color:var(--color-muted)}
+.coach-resource-content{max-width:1100px;margin-inline:auto;padding:24px 32px}
+.coach-resource-content .coach-resource-grid{margin-top:0}
+.software-coach .coach-resource-grid>button>svg:first-child{color:var(--resource-tone)}
+.software-coach .coach-resource-grid>button>svg:last-child{color:var(--color-muted)}
+.software-coach .coach-resource-page .coach-resource-grid>button:focus-visible{outline-color:var(--resource-tone)}
+@media(hover:hover){html body .software-coach .coach-resource-page .coach-resource-grid>button:hover{border-color:color-mix(in srgb,var(--resource-tone) 50%,var(--color-border))!important}}
+@media(max-width:767px){.software-coach .coach-resource-header{padding:20px 16px 16px}.software-coach .coach-resource-header h1{font-size:26px}.coach-resource-content{padding:20px 16px}}
