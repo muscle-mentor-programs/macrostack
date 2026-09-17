@@ -28,6 +28,12 @@ try{
   await page.getByRole('button',{name:'Find a client',exact:true}).count() // settle imports
   await page.locator('.coach-roster-row').first().waitFor()
   assert.equal(await page.locator('.coach-roster-row').count(),20)
+  const identity = page.locator('.coach-client-identity').first()
+  await identity.hover(); await page.mouse.down(); await page.waitForTimeout(180)
+  assert.ok(Number(await page.locator('.coach-client-card').first().evaluate(el=>getComputedStyle(el).scale)) < 1, 'Whole client card responds to press')
+  assert.equal(await identity.evaluate(el=>getComputedStyle(el).boxShadow), 'none', 'No inset rectangle on client name')
+  await page.mouse.move(0,0); await page.mouse.up()
+
   await page.getByRole('button',{name:'Next',exact:true}).click();assert.match(await page.locator('.coach-pagination').innerText(),/2\/3/)
   await page.getByRole('button',{name:'Previous',exact:true}).click()
   for(const theme of ['ocean-dark','ocean-light']){
