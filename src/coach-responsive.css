@@ -164,3 +164,24 @@ html body .software-coach .cw-journal-dates button[aria-pressed=true],html body 
 .software-coach .coach-resource-page h1{font-family:var(--font-mono);font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-.035em}
 .software-coach .coach-resource-grid strong{font-family:var(--font-mono);font-size:19px;font-weight:600;line-height:1.3;letter-spacing:-.025em}
 .software-coach .coach-account-settings h2{font-family:var(--font-mono);font-size:21px;font-weight:600;line-height:1.3;letter-spacing:-.025em}
+
+/* Separate roster cards: identity, a compact data strip, and one action. */
+html body .software-coach .coach-roster-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;border:0;background:none;box-shadow:none!important;overflow:visible}
+.software-coach .coach-roster-cards .coach-client-card{display:flex;flex-direction:column;gap:18px;padding:18px;border:1px solid var(--coach-surface-edge);border-radius:12px;min-width:0;background:var(--color-card);box-shadow:var(--coach-card-shadow)}
+.software-coach .coach-client-card .coach-client-identity{display:flex;align-items:center;gap:12px;width:100%;padding:0;min-width:0;text-align:left}
+.coach-client-identity>span{min-width:0;flex:1}
+.software-coach .coach-client-identity strong{display:block;font:600 17px/1.3 var(--font-mono);letter-spacing:-.025em;overflow-wrap:anywhere}
+.software-coach .coach-client-identity small{font:12px/1.5 var(--font-mono);overflow-wrap:anywhere;margin-top:4px}
+.coach-client-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px 0;border-block:1px solid var(--color-border);width:100%}
+.coach-client-metrics>div+div{border-left:1px solid var(--color-border);padding-left:10px}
+.coach-client-metrics dt{font:11px/1.4 var(--font-mono);color:var(--color-muted);margin-bottom:6px}
+.coach-client-metrics dd{font:600 13px/1.4 var(--font-mono);color:var(--color-cream);overflow-wrap:anywhere}
+.coach-client-card footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:auto;width:100%}
+.software-coach .coach-client-card .coach-client-status{font:11px/1.4 var(--font-mono);color:var(--color-muted)}
+.coach-client-status[data-attention=true]::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--color-accent);margin-right:6px}
+.software-coach .coach-client-card button[data-action]{display:flex;align-items:center;gap:6px;font:600 12px var(--font-mono);padding:8px 10px;min-height:40px;border-radius:7px;background:color-mix(in srgb,var(--color-accent) 8%,transparent)}
+.software-coach .coach-resource-page h1{font-size:25px}
+.software-coach .coach-resource-grid strong{font-size:16px;line-height:1.35}
+.software-coach .coach-resource-grid>button{padding:18px;gap:14px}
+@media(max-width:900px){html body .software-coach .coach-roster-cards{grid-template-columns:minmax(0,1fr);gap:14px}}
+@media(max-width:767px){.software-coach .coach-client-card button[data-action]{min-height:44px}.software-coach .coach-resource-page h1{font-size:24px}}
