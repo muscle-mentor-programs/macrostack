@@ -112,3 +112,25 @@
 @media(max-width:767px) {
   .coach-workspace.pt-mobile-header { padding-top:calc(env(safe-area-inset-top, 0px) + 72px); padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 96px); }
 }
+
+/* Match the app's display headings and numeric cards; body copy keeps its text face. */
+.cw-client-workspace :is(h2, h3, h4),
+.cw-client-workspace .cw-journal-date,
+.cw-client-workspace .cw-stat strong,
+.cw-client-workspace .cw-journal-metrics strong,
+.cw-client-workspace .cw-queue strong {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+.cw-client-workspace :is(h2, h3),
+.cw-client-workspace .cw-journal-date {
+  letter-spacing: .025em;
+}
+.cw-client-workspace button {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+.cw-client-workspace .cw-tabs button {
+  text-transform: uppercase;
+}
