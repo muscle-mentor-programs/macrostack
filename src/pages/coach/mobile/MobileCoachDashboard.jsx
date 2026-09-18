@@ -439,7 +439,7 @@ export default function MobileCoachDashboard() {
       <div className="app-page-gutter px-4 pt-4 pb-4 space-y-5">
 
       <div className="coach-primary-workboard">
-        <CoachWorkboard renderClient={(client, i, onOpen) => (
+        <CoachWorkboard userCount={clients.length} avgCompliance={avgCompliance} activePlans={activePlans} coachCode={currentUser?.coachCode} copied={copied} onCopyCode={handleCopyCode} renderClient={(client, i, onOpen) => (
           <MobileClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
             onOpen={onOpen} onEdit={setEditClient}
             onEmail={(id) => { setEmailPreselect(id); setShowEmail(true) }}
@@ -447,48 +447,7 @@ export default function MobileCoachDashboard() {
             onReview={handleReview} onFormsReview={handleFormsReview} />
         )} />
       </div>
-      <details className="coach-dashboard-secondary"><summary>Business overview & setup</summary>
-      {/* Summary stats row */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'USERS',      val: clients.length,      color: 'text-cream',        Icon: Users      },
-          { label: '7-DAY LOG',  val: `${avgCompliance}%`, color: complianceColor,     Icon: TrendingUp },
-          { label: 'PLANS',      val: activePlans,          color: 'text-brown-light',  Icon: Target     },
-        ].map(({ label, val, color, Icon }, i) => (
-          <div
-            key={label}
-            className="glass-card border border-border rounded-2xl px-3 py-4 flex flex-col items-center gap-1.5 anim-fade-in-up"
-            style={{ animationDelay: `${i * 50}ms` }}
-          >
-            <Icon size={16} className={`${color} opacity-60`} />
-            <p className={`font-display font-black text-2xl ${color} data-flicker`}>{val}</p>
-            <p className="font-mono text-[9px] text-muted text-center">{label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Coach Code */}
-      {currentUser?.coachCode && (
-        <div className="glass-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-xs text-muted tracking-widest">COACH CODE</span>
-            <span className="font-display font-black text-lg text-brown tracking-widest">
-              {currentUser.coachCode}
-            </span>
-          </div>
-          <button
-            onClick={handleCopyCode}
-            className="flex items-center gap-1.5 font-mono text-xs text-muted hover:text-cream transition-colors px-2 py-1 rounded-lg hover:bg-surface"
-          >
-            {copied ? (
-              <><CheckIcon size={13} className="text-olive-light" /><span className="text-olive-light">COPIED</span></>
-            ) : (
-              <><Copy size={13} />COPY</>
-            )}
-          </button>
-        </div>
-      )}
-
+      <div className="coach-dashboard-secondary">
       {/* Pending requests */}
       {coachRequests.length > 0 && (
         <div className="glass-card border border-brown/30 rounded-xl p-4 space-y-3">
@@ -588,7 +547,7 @@ export default function MobileCoachDashboard() {
 
       </div>
 
-      </details>
+      </div>
       </div>{/* end content wrapper */}
 
       {/* Modals (fixed overlays) */}

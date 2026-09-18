@@ -625,21 +625,7 @@ export default function CoachDashboard() {
             <p className="font-mono text-sm text-muted">
               {format(new Date(), 'EEEE, MMMM d, yyyy')}
             </p>
-            {currentUser?.coachCode && (
-              <button
-                onClick={handleCopyCode}
-                title="Copy your coach code"
-                className="flex items-center gap-2 border border-border hover:border-muted rounded-lg px-2.5 py-1 transition-colors"
-              >
-                <span className="font-mono text-[9px] tracking-[0.2em] text-muted">CODE</span>
-                <span className="font-display font-black text-sm tracking-widest" style={{ color: 'var(--color-accent)' }}>
-                  {currentUser.coachCode}
-                </span>
-                {copied
-                  ? <CheckIcon size={11} className="text-olive-light" />
-                  : <Copy size={11} className="text-dim" />}
-              </button>
-            )}
+
           </div>
         </div>
         <div className="flex items-center gap-2.5">
@@ -655,7 +641,7 @@ export default function CoachDashboard() {
       </div>
 
       <div className="coach-primary-workboard">
-        <CoachWorkboard renderClient={(client, i, onOpen) => (
+        <CoachWorkboard userCount={active.length} avgCompliance={avgCompliance} activePlans={activePlans} coachCode={currentUser?.coachCode} copied={copied} onCopyCode={handleCopyCode} renderClient={(client, i, onOpen) => (
           <ClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
             onOpen={onOpen} onEdit={setEditClient}
             onEmail={(id) => { setEmailPreselect(id); setEmailModal(true) }}
@@ -663,7 +649,7 @@ export default function CoachDashboard() {
             onReview={handleReview} onFormsReview={handleFormsReview} />
         )} />
       </div>
-      <details className="coach-dashboard-secondary"><summary>Business overview & setup</summary>
+      <div className="coach-dashboard-secondary">
       {/* Onboarding checklist, new-coach guide, dismissible */}
       {checklistOpen && (
         <div className="app-page-gutter px-8 pt-4 pb-0 flex-shrink-0">
@@ -804,40 +790,11 @@ export default function CoachDashboard() {
         </div>
       )}
 
-      {/* Summary stats + business signals */}
-      <div className="app-page-gutter grid grid-cols-5 gap-3 px-8 py-5 border-b border-border flex-shrink-0 glass-panel">
-        {[
-          { label: 'ACTIVE USERS', val: active.length, color: 'text-cream',       Icon: Users      },
-          { label: 'AVG 7-DAY LOG', val: `${avgCompliance}%`,
-            color: avgCompliance >= 70 ? 'text-olive-light' : avgCompliance >= 40 ? 'text-brown-light' : 'text-red-400',
-            Icon: TrendingUp },
-          { label: 'MEAL PLANS',   val: activePlans,   color: 'text-brown-light', Icon: Target     },
-          { label: 'NEW (30D)',    val: newLast30,     color: 'text-olive-light', Icon: UserPlus2  },
-          { label: 'AT RISK',      val: atRisk,
-            color: atRisk > 0 ? 'text-red-400' : 'text-dim',
-            Icon: AlertTriangle,
-            title: 'Active clients with nothing logged in 5+ days' },
-        ].map(({ label, val, color, Icon, title }, i) => (
-          <div
-            key={label}
-            title={title}
-            className="bg-card border border-border rounded-2xl px-4 py-4 flex items-center gap-3 anim-fade-in-up card-hover card-dim"
-            style={{ animationDelay: `${i * 60}ms` }}
-          >
-            <Icon size={18} className={`${color} opacity-50 flex-shrink-0`} />
-            <div className="min-w-0">
-              <p className={`font-display font-black text-2xl ${color} data-flicker`}>{val}</p>
-              <p className="font-mono text-[10px] text-muted truncate">{label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
       <div className="app-page-gutter px-8 py-6">
 
       </div>
 
-      </details>
+      </div>
       {editClient && (
         <QuickEditModal client={editClient} onClose={() => setEditClient(null)} />
       )}

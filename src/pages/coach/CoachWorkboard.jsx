@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import ClientAvatar from '../../components/ClientAvatar'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Users, TrendingUp, Target, MessageSquare, ClipboardCheck, ListChecks, Copy } from 'lucide-react'
 import { format } from 'date-fns'
 import useStore from '../../store'
 import useCoachPreference from '../../hooks/useCoachPreference'
 import { latestEntries, loadWorkspace } from '../../lib/coachWorkspace'
 import '../../components/coach/CoachWorkspace.css'
-export default function CoachWorkboard() {
+export default function CoachWorkboard({ userCount, avgCompliance, activePlans, coachCode, copied, onCopyCode }) {
  const {clients,messages,setActivePage,setViewingClientId,setPendingChatClientId}=useStore()
  const [entries,setEntries]=useState([]),[error,setError]=useState(''),[loading,setLoading]=useState(true)
  const [search,setSearch]=useCoachPreference('roster-search',''),[filter,setFilter]=useCoachPreference('roster-filter','all'),[sort,setSort]=useCoachPreference('roster-sort','attention')
@@ -19,7 +19,10 @@ export default function CoachWorkboard() {
  const rows=clients.filter(c=>c.status!=='archived').map(client=>({client,unread:(messages[client.id]||[]).filter(m=>m.from==='client'&&!m.readByCoach).length,checkins:(client.checkins||[]).filter(c=>!c.reviewed).length,tasks:tasks.filter(t=>t.client_id===client.id&&t.details.due&&t.details.due<=today).length,last:Object.keys(client.log||{}).filter(d=>client.log[d]?.length).sort().at(-1)}))
  const visible=rows.filter(r=>`${r.client.name} ${r.client.email||''} ${(r.client.tags||[]).join(' ')}`.toLowerCase().includes(search.toLowerCase())).filter(r=>filter==='all'||(filter==='attention'?r.unread+r.checkins+r.tasks>0:r[filter]>0)).sort((a,b)=>sort==='name'?a.client.name.localeCompare(b.client.name):sort==='last'?(b.last||'').localeCompare(a.last||''):(b.unread+b.checkins+b.tasks)-(a.unread+a.checkins+a.tasks)||a.client.name.localeCompare(b.client.name))
  const pages=Math.max(1,Math.ceil(visible.length/20)),current=Math.min(page,pages-1)
- return <div className="dashboard-workboard"><div className="cw-stats">{[['unread','Unread messages',rows.reduce((n,r)=>n+r.unread,0)],['checkins','New check-ins',rows.reduce((n,r)=>n+r.checkins,0)],['tasks','Tasks due',unavailable?'—':rows.reduce((n,r)=>n+r.tasks,0)]].map(([id,label,value])=><button className="cw-panel cw-stat" key={id} aria-pressed={filter===id} onClick={()=>{setFilter(id);setPage(0)}}><strong>{value}</strong><span className="cw-muted">{label}</span></button>)}</div>
+ return <div className="dashboard-workboard">
+ <div className="coach-summary-grid">{[['USERS',userCount,Users],['7-DAY LOG',`${avgCompliance}%`,TrendingUp],['PLANS',activePlans,Target]].map(([label,value,Icon])=><div className="glass-card coach-summary-card" key={label}><Icon size={16} aria-hidden="true"/><strong>{value}</strong><span>{label}</span></div>)}</div>
+ <div className="cw-stats coach-summary-grid">{[['unread','Unread messages',rows.reduce((n,r)=>n+r.unread,0)],['checkins','New check-ins',rows.reduce((n,r)=>n+r.checkins,0)],['tasks','Tasks due',unavailable?'—':rows.reduce((n,r)=>n+r.tasks,0)]].map(([id,label,value])=><button className="cw-panel cw-stat coach-summary-card" key={id} aria-pressed={filter===id} onClick={()=>{setFilter(id);setPage(0)}}>{id==='unread'?<MessageSquare size={16}/>:id==='checkins'?<ClipboardCheck size={16}/>:<ListChecks size={16}/>}<strong>{value}</strong><span className="cw-muted">{label}</span></button>)}</div>
+ {coachCode && <div className="coach-summary-code glass-card"><span>COACH CODE <strong>{coachCode}</strong></span><button onClick={onCopyCode}><Copy size={14}/>{copied?'Copied':'Copy'}</button></div>}
  {loading&&<p role="status">Loading follow-ups…</p>}{error&&<p role="alert" className="cw-error">{error} <button onClick={()=>{setLoading(true);setReload(n=>n+1)}}>Retry</button></p>}
  <div className="coach-roster-filters"><label>Find a client<input type="search" value={search} onChange={e=>{setSearch(e.target.value);setPage(0)}} placeholder="Name, email, or tag"/></label><label>Show<select value={filter} onChange={e=>{setFilter(e.target.value);setPage(0)}}><option value="all">All clients</option><option value="attention">Needs attention</option><option value="unread">Unread messages</option><option value="checkins">New check-ins</option><option value="tasks">Tasks due</option></select></label><label>Sort by<select value={sort} onChange={e=>{setSort(e.target.value);setPage(0)}}><option value="attention">Needs attention</option><option value="name">Name</option><option value="last">Last logged</option></select></label></div>
  <div className="coach-roster coach-roster-cards">{visible.slice(current*20,current*20+20).map(r=><article className="coach-roster-row coach-client-card" key={r.client.id}>
