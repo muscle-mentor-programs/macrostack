@@ -1,6 +1,6 @@
-import { LayoutDashboard, Users, MessageCircle, BookOpen, Menu } from 'lucide-react'
+import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings } from 'lucide-react'
 import useStore from '../store'
-const nav=[['dashboard','Home',LayoutDashboard],['clients','Clients',Users],['chat','Messages',MessageCircle],['library','Library',BookOpen],['more','More',Menu]]
+const nav=[['dashboard','Home',LayoutDashboard],['clients','Clients',Users],['chat','Messages',MessageCircle],['library','Library',BookOpen],['more','Settings',Settings]]
 export default function CoachBottomNav(){
  const {activePage,setActivePage,clients,messages,navHidden}=useStore()
  const unread=clients.reduce((n,c)=>n+(messages[c.id]||[]).filter(m=>m.from==='client'&&!m.readByCoach).length,0)

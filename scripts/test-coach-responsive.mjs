@@ -82,7 +82,7 @@ try{
   await page.getByRole('button',{name:'Notes & tasks',exact:true}).filter({visible:true}).click()
   await page.getByRole('button',{name:'Tasks',exact:true}).click();await page.getByRole('button',{name:'New follow-up'}).waitFor()
   await page.evaluate(()=>window.testStore.getState().setActivePage('library'));await page.getByRole('heading',{name:'Library',exact:true}).waitFor()
-  await page.evaluate(()=>window.testStore.getState().setActivePage('more'));await page.getByRole('heading',{name:'Account & tools'}).waitFor()
+  await page.evaluate(()=>window.testStore.getState().setActivePage('more'));await page.getByRole('heading',{name:'Settings',exact:true,level:1}).waitFor()
   if(width===390 || width===1440){
     await page.evaluate(async()=>{
       const {Composer}=await import('/src/components/ChatKit.jsx')
