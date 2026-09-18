@@ -14,19 +14,22 @@ import useStore from '../store'
 export default function useSubscription() {
   const user           = useStore((s) => s.currentUser)
 
-  const status       = user?.subscriptionStatus || 'inactive'
+  const activeRole = useStore(s => s.activeRole)
+  const memberMode = user?.dualRole && activeRole === 'client'
+  const subscription = memberMode ? user.memberSubscription : user
+  const status       = subscription?.subscriptionStatus || 'inactive'
   const isSubscribed = status === 'active' || status === 'trialing'
-  const audience     = user?.role === 'client' ? 'user' : 'coach'
+  const audience     = (memberMode || user?.role === 'client') ? 'user' : 'coach'
 
   // Coach connections do not change the account's subscription entitlement.
-  const hasAccess = !!user?.hasAccess
+  const hasAccess = !!subscription?.hasAccess
 
   return {
     hasAccess,
     isSubscribed,
-    plan:     user?.subscriptionPlan || null,
+    plan:     subscription?.subscriptionPlan || null,
     status,
-    override: user?.adminOverride || null,
+    override: subscription?.adminOverride || null,
     audience,
   }
 }

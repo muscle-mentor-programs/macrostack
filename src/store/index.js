@@ -39,13 +39,21 @@ export function computeSubscriptionAccess(profile) {
   return profile.subscription_status === 'active' || profile.subscription_status === 'trialing'
 }
 
-// profile row (from get_my_profile) + email → currentUser store shape
+// profile row (from get_my_account) + email → currentUser store shape
 function profileToUser(profile, email) {
   return {
     id:          profile.id,
     name:        profile.name,
     email,
     role:        profile.role,
+    dualRole:    !!profile.dual_role,
+    memberSubscription: profile.dual_role ? {
+      subscriptionStatus: profile.member_subscription?.subscription_status || 'inactive',
+      subscriptionPlan: profile.member_subscription?.subscription_plan || null,
+      currentPeriodEnd: profile.member_subscription?.current_period_end || null,
+      adminOverride: profile.member_subscription?.admin_override || null,
+      hasAccess: profile.admin_override !== 'locked' && computeSubscriptionAccess({ role: 'client', ...profile.member_subscription }),
+    } : null,
     coachCode:   profile.coach_code   || null,
     bio:         profile.bio          || '',
     specialties: profile.specialties  || '',
@@ -249,7 +257,7 @@ const useStore = create(
           return
         }
 
-        const { data: profileRows } = await supabase.rpc('get_my_profile')
+        const { data: profileRows } = await supabase.rpc('get_my_account')
         const profile = profileRows?.[0] ?? null
 
         if (!profile) {
@@ -260,11 +268,12 @@ const useStore = create(
 
         const currentUser = profileToUser(profile, session.user.email)
 
+        set({ currentUser, activeRole: profile.dual_role ? (get().activeRole || (new URLSearchParams(window.location.search).get('workspace') === 'coach' ? 'coach' : 'client')) : get().activeRole })
         await get().loadAllData()
 
         const update = { isAuthenticated: true, currentUser, authLoading: false }
 
-        if (profile.role === 'client') {
+        if (profile.role === 'client' || (profile.dual_role && get().activeRole === 'client')) {
           const clientProfile = get().clients.find(
             (c) => c.email?.toLowerCase() === session.user.email.toLowerCase()
           )
@@ -305,7 +314,7 @@ const useStore = create(
         })
         if (error) return { ok: false, error: 'Invalid email or password.' }
 
-        const { data: profileRows, error: profileErr } = await supabase.rpc('get_my_profile')
+        const { data: profileRows, error: profileErr } = await supabase.rpc('get_my_account')
         const profile = profileRows?.[0] ?? null
 
         if (!profile) {
@@ -318,18 +327,19 @@ const useStore = create(
           await supabase.auth.signOut()
           return { ok: false, error: 'This account requires the User Edition.' }
         }
-        if (edition === 'client' && profile.role !== 'client') {
+        if (edition === 'client' && profile.role !== 'client' && !profile.dual_role) {
           await supabase.auth.signOut()
           return { ok: false, error: 'This account requires the Coach Edition.' }
         }
 
         const currentUser = profileToUser(profile, data.user.email)
 
+        set({ currentUser, activeRole: profile.dual_role ? (edition === 'coach' ? 'coach' : 'client') : get().activeRole })
         await get().loadAllData()
 
         const update = { isAuthenticated: true, currentUser }
 
-        if (profile.role === 'client') {
+        if (profile.role === 'client' || (profile.dual_role && get().activeRole === 'client')) {
           const clientProfile = get().clients.find(
             (c) => c.email?.toLowerCase() === email.toLowerCase()
           )
@@ -464,6 +474,9 @@ const useStore = create(
         // (Superadmin Portal / regular coaches are unaffected, RLS already
         // scopes real coaches to their own roster.)
         const me = get().currentUser
+        if (me?.dualRole) {
+          clients = clients.filter(c => get().activeRole === 'client' ? c.profileId === me.id : c.coachId === me.id && c.profileId !== me.id)
+        }
         if (me?.role === 'superadmin' && get().portalMode === 'coach') {
           clients = clients.filter((c) => c.coachId === me.id)
         }
@@ -471,6 +484,7 @@ const useStore = create(
         // Messages grouped by client_id
         const messages = {}
         ;(msgRes.data || []).forEach((row) => {
+          if (me?.dualRole && !clients.some(c => c.id === row.client_id)) return
           if (!messages[row.client_id]) messages[row.client_id] = []
           messages[row.client_id].push(dbToMessage(row))
         })
@@ -487,7 +501,7 @@ const useStore = create(
           .filter((f) => f.source !== 'custom' && f.source !== 'override' && f.source !== 'deleted')
           .map(dbToFood)
 
-        set({ clients, messages, customFoods, scannedFoods, overrideFoods, hiddenFoodIds, coachRequests: reqRes.data || [] })
+        set({ clients, messages, customFoods, scannedFoods, overrideFoods, hiddenFoodIds, coachRequests: (reqRes.data || []).filter(r => !me?.dualRole || (get().activeRole === 'client' ? r.client_profile_id === me.id : r.coach_id === me.id)) })
 
         // Live chat: stream message INSERTs/UPDATEs the moment they land
         get().subscribeToMessages()
@@ -510,6 +524,7 @@ const useStore = create(
             const row = payload.new
             const msg = dbToMessage(row)
             set((s) => {
+              if (s.currentUser?.dualRole && !s.clients.some(c => c.id === row.client_id)) return {}
               const thread = s.messages[row.client_id] || []
               // Our own optimistic sends share the same id, skip duplicates
               if (thread.some((m) => m.id === msg.id)) return {}
@@ -583,7 +598,7 @@ const useStore = create(
       // Refresh the signed-in user's subscription state (e.g. after returning
       // from Stripe Checkout). Recomputes hasAccess from the latest profile.
       refreshSubscription: async () => {
-        const { data, error } = await supabase.rpc('get_my_profile')
+        const { data, error } = await supabase.rpc('get_my_account')
         const profile = data?.[0]
         if (error || !profile) return
         set((s) => ({
@@ -757,7 +772,27 @@ const useStore = create(
 
       // ── ROLE / NAVIGATION ─────────────────────────────────────────────────
       activeRole:   null,
-      setActiveRole: (role) => set({ activeRole: role }),
+      setActiveRole: async (role) => {
+        if (!get().currentUser?.dualRole) { set({ activeRole: role }); return }
+        set({ activeRole: role, activeClientId: null, activePage: 'dashboard', authLoading: true, coachProfile: null, checkinQuestions: null, coachBilling: null })
+        try {
+          await get().loadAllData()
+          if (role === 'client') {
+            const own = get().clients.find(c => c.profileId === get().currentUser.id)
+            set({ activeClientId: own?.id || null })
+            if (own?.coachId) await get().loadCoachProfile(own.coachId)
+          }
+        } finally { set({ authLoading: false }) }
+      },
+      activateCoach: async () => {
+        const { error } = await supabase.rpc('activate_coach_workspace')
+        if (error) return { ok: false, error: error.message }
+        await get().refreshSubscription()
+        if (!['coach','superadmin'].includes(get().currentUser?.role)) return {ok:false,error:'Coach setup saved, but could not refresh your account. Please sign in again.'}
+        await get().setActiveRole('coach')
+        set({ activePage: 'upgrade' })
+        return { ok: true }
+      },
 
       // Superadmin portal mode: 'superadmin' = full access to everything;
       // 'coach' = scoped coach experience (own clients only, no admin tools).
@@ -1135,7 +1170,7 @@ const useStore = create(
       // ── WEIGHT LOG ────────────────────────────────────────────────────────
       addClientWeight: async (clientId, entry) => {
         const user = get().currentUser
-        if (!user || (user.role === 'client' && !user.hasAccess)) {
+        if (!user || ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !(user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess))) {
           set({ activePage: 'upgrade' })
           return { ok: false, error: 'Pro is required for weight logging.' }
         }
@@ -1157,7 +1192,7 @@ const useStore = create(
 
       removeClientWeight: async (clientId, weightId) => {
         const user = get().currentUser
-        if (!user || (user.role === 'client' && !user.hasAccess)) {
+        if (!user || ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !(user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess))) {
           set({ activePage: 'upgrade' })
           return { ok: false, error: 'Pro is required for weight logging.' }
         }
@@ -1177,7 +1212,7 @@ const useStore = create(
         // Check-ins stay available, but member weight entries require Pro.
         const user = get().currentUser
         if (!user) return { ok: false }
-        if (user.role === 'client' && !user.hasAccess) data = { ...data, weight: null }
+        if ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !(user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess)) data = { ...data, weight: null }
         // Upload photos first so their URLs ride on the check-in row
         const photoUrls = []
         for (const file of photoFiles) {
@@ -1245,7 +1280,7 @@ const useStore = create(
         const me = get().currentUser
         if (!me) return []
         let coachId = me.id
-        if (me.role === 'client') {
+        if (me.role === 'client' || (me.dualRole && get().activeRole === 'client')) {
           const client = get().clients.find((c) => c.id === get().activeClientId)
           coachId = client?.coachId
           if (!coachId) { set({ checkinQuestions: [] }); return [] }
@@ -1296,7 +1331,7 @@ const useStore = create(
         const me = get().currentUser
         if (!me) return []
         let q = supabase.from('coach_forms').select('*').order('created_at', { ascending: true })
-        if (me.role === 'client') {
+        if (me.role === 'client' || (me.dualRole && get().activeRole === 'client')) {
           const client = get().clients.find((c) => c.id === get().activeClientId)
           if (!client?.coachId) { set({ coachForms: [] }); return [] }
           q = q.eq('coach_id', client.coachId).eq('active', true)
@@ -1566,7 +1601,7 @@ const useStore = create(
         const me = get().currentUser
         if (!me) return null
         let coachId = me.id
-        if (me.role === 'client') {
+        if (me.role === 'client' || (me.dualRole && get().activeRole === 'client')) {
           const client = get().clients.find((c) => c.id === get().activeClientId)
           coachId = client?.coachId
           if (!coachId) { set({ coachBilling: null }); return null }
@@ -1764,7 +1799,7 @@ const useStore = create(
 
         // Finalize once a session exists, shared by both signup paths.
         const finalize = async () => {
-          const { data: profileRows } = await supabase.rpc('get_my_profile')
+          const { data: profileRows } = await supabase.rpc('get_my_account')
           const profile = profileRows?.[0] ?? null
           if (!profile) return { ok: false, error: 'Profile setup failed. Please try again.' }
 

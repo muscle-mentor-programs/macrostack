@@ -15,6 +15,7 @@ import { computeWeeklyStats, downloadProgressReportPDF, progressReportPDFBase64 
 import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
+import CoachActivation from '../../components/CoachActivation'
 import CoachMarketplace from '../../components/CoachMarketplace'
 
 /* Enable browser push, new messages from the coach ping the home screen. */
@@ -265,6 +266,7 @@ export default function ClientProfile() {
         <p className="font-mono text-xs text-muted mt-1">Your info & 30-day progress</p>
       </div>
 
+      <CoachActivation />
       {/* Avatar, tap to upload */}
       <div className="flex flex-col items-center mt-5 mb-6 anim-pop" style={{ animationDelay: '80ms' }}>
         <button

@@ -6,6 +6,7 @@ import ScrambleText from '../../components/ScrambleText'
 export default function ClientSelector() {
   const { clients, setActiveClientId, setActiveRole, currentUser } = useStore()
   const isClientUser = currentUser?.role === 'client'
+  const visibleClients = currentUser?.dualRole ? clients.filter(c => c.profileId === currentUser.id) : clients
 
   return (
     <div className="software-ui software-entry flex flex-col h-screen bg-bg px-6 pt-12 pb-8">
@@ -32,7 +33,7 @@ export default function ClientSelector() {
       </div>
 
       {/* Client list */}
-      {clients.length === 0 ? (
+      {visibleClients.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center anim-fade-in" style={{ animationDelay: '120ms' }}>
           <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center mb-4 anim-pop" style={{ animationDelay: '200ms' }}>
             <User size={28} className="text-muted" />
@@ -45,7 +46,7 @@ export default function ClientSelector() {
       ) : (
         /* Scrolls independently, rosters grow past the fold */
         <div className="flex-1 min-h-0 overflow-y-auto space-y-3 -mx-2 px-2 pb-6">
-          {clients.map((client, ci) => (
+          {visibleClients.map((client, ci) => (
             <button
               key={client.id}
               onClick={() => setActiveClientId(client.id)}

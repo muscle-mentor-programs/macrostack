@@ -39,17 +39,17 @@ function AmbientBackground() {
 export default function ClientLayout({ children }) {
   const { logout, currentUser, setActiveRole, activePage } = useStore()
 
-  const isSuperAdmin = currentUser?.role === 'superadmin'
+  const canSwitchToCoach = currentUser?.role === 'superadmin' || currentUser?.dualRole
 
   return (
     <div className="software-ui software-client flex flex-col h-full w-full bg-bg relative">
       <AmbientBackground />
 
-      {/* Top-right controls: role switch (superadmin only) + theme + logout */}
+      {/* Top-right controls: available workspaces + theme + logout */}
       <div className="product-controls fixed top-safe right-4 z-30 flex items-center gap-2">
-        {isSuperAdmin && (
+        {canSwitchToCoach && (
           <button
-            onClick={() => setActiveRole(null)}
+            onClick={() => setActiveRole(currentUser?.dualRole ? 'coach' : null)}
             title="Switch to Coach Portal"
             className="h-9 px-3 flex items-center gap-1.5 rounded-xl bg-card border border-brown/40 text-brown hover:text-brown-light hover:border-brown/70 hover:bg-brown/10 transition-all shadow-sm"
           >

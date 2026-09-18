@@ -40,15 +40,17 @@ async function syncSubscription(stripe: Stripe, admin: ReturnType<typeof createC
   const plan = sub.metadata?.plan
     || (interval === 'year' ? 'annual' : interval === 'week' ? 'weekly' : 'monthly')
 
-  const { error } = await admin.from('profiles').update({
-    stripe_subscription_id: sub.id,
-    stripe_customer_id:     sub.customer as string,
-    subscription_status:    sub.status, // active | trialing | past_due | canceled | ...
-    subscription_plan:      plan,
-    current_period_end:     periodEnd(sub),
-  }).eq('id', userId)
+  const { error } = await admin.rpc('sync_account_subscription', {
+    p_user: userId,
+    p_subscription: sub.id,
+    p_customer: sub.customer as string,
+    p_status: sub.status,
+    p_plan: plan,
+    p_period_end: periodEnd(sub),
+    p_audience: sub.metadata?.audience || null,
+  })
+  if (error) throw new Error(`Subscription update failed: ${error.message}`)
 
-  if (error) console.error('profile update failed:', error.message)
 }
 
 serve(async (req) => {

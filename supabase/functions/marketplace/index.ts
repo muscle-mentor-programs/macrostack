@@ -21,7 +21,7 @@ serve(async req=>{
     }
     const {data:{user},error:authError}=await db.auth.getUser((req.headers.get('Authorization')||'').replace('Bearer ',''))
     if(authError || !user) return json({error:'Please sign in to continue.'},401)
-    const {data:profile,error:profileError}=await db.from('profiles').select('id,role,name,stripe_connect_id,coach_code,subscription_status,subscription_plan,admin_override').eq('id',user.id).single()
+    const {data:profile,error:profileError}=await db.from('profiles').select('id,role,dual_role,name,stripe_connect_id,coach_code,subscription_status,subscription_plan,admin_override').eq('id',user.id).single()
     if(profileError) throw profileError
     const stripe=new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!,{apiVersion:'2024-06-20',httpClient:Stripe.createFetchHttpClient()})
     const base=new URL(Deno.env.get('SITE_URL') || 'https://www.getmacrostack.com').origin
@@ -43,7 +43,7 @@ serve(async req=>{
       if(error) throw error
       return json({profile:data})
     }
-    if(profile.role!=='client') return json({error:'Use a client account to purchase coaching.'},403)
+    if(profile.role!=='client'&&!profile.dual_role) return json({error:'Use a client account to purchase coaching.'},403)
     const {data:client,error:clientError}=await db.from('clients').select('id,coach_id,status').eq('profile_id',user.id).single()
     if(clientError) throw new Error('Your client profile is not ready. Please sign in again.')
     if(action==='manage') {

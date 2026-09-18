@@ -52,18 +52,23 @@ serve(async (req) => {
 
     // `plan` is a cadence (weekly|monthly|annual) for users, or a coach tier
     // key (t_2_10 … t_121_plus) for coaches.
-    const { plan, returnUrl } = await req.json()
+    const { plan, returnUrl, audience: requestedAudience } = await req.json()
 
     // Reuse an existing Stripe customer if we have one, else create + persist it.
     const { data: profile } = await admin
       .from('profiles')
-      .select('stripe_customer_id, role')
+      .select('stripe_customer_id, role, dual_role, stripe_subscription_id, subscription_status, member_subscription')
       .eq('id', user.id)
       .single()
 
     // Audience is derived from the account's real role, never trusted from the
     // client, so a user can't check out at the wrong plan/price.
-    const audience = profile?.role === 'client' ? 'user' : 'coach'
+    if (!profile) throw new Error('Account not found')
+    const audience = profile.role === 'client' ? 'user' : profile.dual_role && requestedAudience === 'user' ? 'user' : 'coach'
+    const subscription = profile.dual_role && audience === 'user' ? profile.member_subscription : profile
+    if (subscription?.stripe_subscription_id && ['active','trialing','past_due','unpaid','incomplete','paused'].includes(subscription.subscription_status)) {
+      throw new Error('You already have a subscription for this workspace. Manage your existing plan instead.')
+    }
 
     let priceId: string | undefined
     if (audience === 'coach') {
@@ -91,10 +96,10 @@ serve(async (req) => {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       // user_id in metadata lets the webhook map the subscription back to a profile
-      subscription_data: { metadata: { supabase_user_id: user.id, plan } },
-      metadata: { supabase_user_id: user.id, plan },
-      success_url: `${base}/?checkout=success`,
-      cancel_url: `${base}/?checkout=cancelled`,
+      subscription_data: { metadata: { supabase_user_id: user.id, plan, audience } },
+      metadata: { supabase_user_id: user.id, plan, audience },
+      success_url: `${base}/?checkout=success&workspace=${audience === 'coach' ? 'coach' : 'client'}`,
+      cancel_url: `${base}/?checkout=cancelled&workspace=${audience === 'coach' ? 'coach' : 'client'}`,
       allow_promotion_codes: true,
     })
 
