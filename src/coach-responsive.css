@@ -235,3 +235,8 @@ html body .software-coach .cw-journal-date{font-size:22px;line-height:1.2}
 .software-coach .coach-resource-page .coach-resource-grid>button:focus-visible{outline-color:var(--resource-tone)}
 @media(hover:hover){html body .software-coach .coach-resource-page .coach-resource-grid>button:hover{border-color:color-mix(in srgb,var(--resource-tone) 50%,var(--color-border))!important}}
 @media(max-width:767px){.software-coach .coach-resource-header{padding:20px 16px 16px}.software-coach .coach-resource-header h1{font-size:26px}.coach-resource-content{padding:20px 16px}}
+
+/* Dashboard uses warm amber; shared header sizing stays identical across pages. */
+body .software-coach .coach-dashboard-welcome{--coach-tone:var(--coach-amber)}
+html body .software-coach .coach-dashboard-welcome h2{font:900 28px/1.15 var(--font-display);letter-spacing:.025em;color:var(--coach-amber)!important}
+@media(max-width:767px){html body .software-coach .coach-dashboard-welcome h2{font-size:26px}}

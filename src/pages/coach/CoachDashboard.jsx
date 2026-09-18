@@ -340,7 +340,7 @@ function ClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans, onRev
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Header row */}
-      <div className="coach-dashboard-welcome dashboard-card-header flex items-start justify-between gap-2">
+      <div className="dashboard-card-header flex items-start justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0">
           <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
           <div className="min-w-0">
@@ -616,7 +616,7 @@ export default function CoachDashboard() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="app-page-gutter relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+      <div className="coach-dashboard-welcome app-page-gutter relative flex items-center justify-between px-8 py-6 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
         <div>
           <h2 className="font-display font-black text-4xl tracking-wide text-cream">
             <ScrambleText text="DASHBOARD" duration={900} />

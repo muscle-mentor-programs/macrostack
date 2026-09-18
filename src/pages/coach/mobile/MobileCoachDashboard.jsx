@@ -237,7 +237,7 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
       )}
 
       {/* Header */}
-      <div className="coach-dashboard-welcome dashboard-card-header flex items-center justify-between mb-3">
+      <div className="dashboard-card-header flex items-center justify-between mb-3">
         <div className="flex items-center gap-3 min-w-0">
           <ClientAvatar name={client.name} avatarUrl={client.avatarUrl} className="w-10 h-10" textClassName="text-base" />
           <div className="min-w-0">
@@ -428,7 +428,7 @@ export default function MobileCoachDashboard() {
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
       {/* Header, starts at y=0, background covers status bar */}
-      <div className="app-page-gutter glass-panel accent-line sticky top-0 z-20 anim-fade-in-down px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
+      <div className="coach-dashboard-welcome app-page-gutter glass-panel accent-line sticky top-0 z-20 anim-fade-in-down px-4 pt-mobile-header pb-4 border-b border-border flex-shrink-0">
         <h2 className="font-display font-black text-3xl tracking-wide text-cream">
           <ScrambleText text="DASHBOARD" duration={800} />
         </h2>
