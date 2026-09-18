@@ -123,7 +123,7 @@ body .software-coach :is(.cw-panel,.cw-section-intro,.cw-section-heading)>:is(h2
 @media(min-width:768px){.coach-client-detail .cw-journal-grid{display:block}.coach-client-detail .cw-journal-day[data-selected=false]{display:none}.coach-client-detail .cw-journal-day[data-selected=true]{content-visibility:visible}.coach-client-detail .cw-journal-toolbar{display:block}.coach-client-detail .cw-journal-filters{margin-top:16px}}
 @media(max-width:767px){.coach-client-detail>.flex-1>.cw-client-workspace{padding:16px}.cw-journal-layout{display:block}.cw-journal-dates{display:none}}
 .coach-load-more{display:block;min-height:44px;padding:10px 18px;margin:12px auto;border:1px solid var(--color-border);border-radius:8px;font:700 16px var(--font-display);color:var(--color-accent)}
-@container(min-width:900px){.coach-checkin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}.coach-checkin-grid>*{margin-top:0!important;grid-column:1/-1}.coach-checkin-grid>:first-child,.coach-checkin-grid>:nth-child(2){grid-column:auto}}
+.coach-checkin-grid{width:100%;max-width:none}
 
 html body .software-coach .cw-client-workspace .cw-journal :is(h3,h4){color:var(--color-cream)!important}
 @container(min-width:900px){.coach-client-detail .cw-journal-toolbar{display:flex;align-items:center;justify-content:space-between;gap:24px}.coach-client-detail .cw-journal-filters{margin-top:0}}
@@ -248,6 +248,6 @@ html body .software-coach .dashboard-workboard .coach-summary-card{display:flex;
 html body .software-coach .dashboard-workboard .coach-summary-card strong{font:900 26px/1.1 var(--font-display);color:var(--color-cream)}
 html body .software-coach .dashboard-workboard .coach-summary-card>span{font:10px/1.4 var(--font-mono);text-transform:uppercase;color:var(--color-muted)}
 .coach-summary-code{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;margin-bottom:24px;border:1px solid var(--color-border);border-radius:12px;font:12px var(--font-mono)}
-.coach-summary-code>span{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.coach-summary-code strong{font:800 18px var(--font-display);letter-spacing:.06em;color:var(--color-accent)}
+.coach-summary-code>span{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;line-height:1.2}
+.coach-summary-code strong{font:800 18px/1.2 var(--font-display);letter-spacing:.06em;color:var(--color-accent)}
 .coach-summary-code button{display:flex;align-items:center;gap:6px;min-height:44px}

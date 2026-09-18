@@ -1081,7 +1081,7 @@ export function CheckinTab({ client }) {
   const checkinDate = latest?.createdAt ? format(parseISO(latest.createdAt), 'MMM d, yyyy') : null
 
   return (
-    <div className="coach-checkin-grid max-w-6xl mx-auto space-y-5">
+    <div className="coach-checkin-grid space-y-5">
       {/* Latest submission */}
       <div className="anim-fade-in-up">
         <div className="flex items-center justify-between mb-3">
@@ -1563,14 +1563,14 @@ function ClientDetail({ client, onClose, initialTab = 'overview' }) {
         )}
 
         {(tab === 'checkin' || tab === 'forms') && (
-          <div className="app-page-gutter p-4 md:p-6 max-w-6xl mx-auto">
+          <div className="app-page-gutter p-4 md:p-6 w-full">
             <CheckinTab client={client} />
             <details className="coach-checkin-forms" open={tab === 'forms' || undefined}><summary>Forms & responses</summary><ClientFormsTab client={client} /></details>
           </div>
         )}
 
         {tab === 'mealplans' && (
-          <div className="app-page-gutter p-4 md:p-6 max-w-6xl mx-auto">
+          <div className="app-page-gutter p-4 md:p-6 w-full">
             <MealPlansTab clientId={client.id} />
           </div>
         )}
