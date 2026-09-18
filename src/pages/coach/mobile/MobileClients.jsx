@@ -1,6 +1,6 @@
 import useCoachPreference from '../../../hooks/useCoachPreference'
 import ClientSections from '../../../components/coach/ClientSections'
-import { lazy, Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { format, parseISO, subDays, addDays } from 'date-fns'
 import {
@@ -12,7 +12,7 @@ import ClientAvatar from '../../../components/ClientAvatar'
 import ClientWorkspace from '../../../components/coach/ClientWorkspace'
 import AnimatedNumber from '../../../components/AnimatedNumber'
 import ScrambleText from '../../../components/ScrambleText'
-const MealPlanBuilder = lazy(() => import('../MealPlanBuilder'))
+import MealPlanBuilder from '../MealPlanBuilder'
 import { reconcileGoals } from '../../../utils/macros'
 import { CheckinTab, ClientFormsTab } from '../Clients'
 import ProgressPhotos from '../../../components/ProgressPhotos'

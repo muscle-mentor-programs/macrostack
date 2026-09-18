@@ -5,8 +5,6 @@ import { X, Plus, Trash2, Search, Check, Mail, Download, ArrowLeft } from 'lucid
 import './MealPlanBuilder.css'
 import useStore from '../../store'
 import useIsMobile from '../../hooks/useIsMobile'
-import { FOODS } from '../../data/foods'
-import { mealPlanPDFBase64, downloadMealPlanPDF } from '../../lib/generateMealPlanPDF'
 import { rankFoods, getRecentFoodIdsFromClients } from '../../utils/foodSearch'
 
 const planDrafts = new Map()
@@ -65,9 +63,18 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     setNavHidden(true)
     return () => setNavHidden(false)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const [baseFoods, setBaseFoods] = useState([])
+  const [foodsState, setFoodsState] = useState('loading')
+  const [foodRetry, setFoodRetry] = useState(0)
+  useEffect(() => {
+    let active = true
+    setFoodsState('loading')
+    import('../../data/foods').then(({ FOODS }) => { if (active) { setBaseFoods(FOODS); setFoodsState('ready') } }).catch(() => { if (active) setFoodsState('error') })
+    return () => { active = false }
+  }, [foodRetry])
   const allFoods = useMemo(
-    () => [...FOODS.filter((f) => !(hiddenFoodIds || []).includes(f.id)), ...(customFoods || [])],
-    [customFoods, hiddenFoodIds]
+    () => [...baseFoods.filter((f) => !(hiddenFoodIds || []).includes(f.id)), ...(customFoods || [])],
+    [baseFoods, customFoods, hiddenFoodIds]
   )
 
   // Foods used by any client in the last 30 days float to the top
@@ -200,15 +207,16 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     }
   }
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!planName.trim()) return
     setDownloading(true)
     try {
+      const { downloadMealPlanPDF } = await import('../../lib/generateMealPlanPDF')
       downloadMealPlanPDF(
         { planName: planName.trim(), days },
         client ? { name: client.name, goals: client.goals } : null
       )
-    } finally {
+    } catch { setSaveError('Could not create PDF. Please retry.') } finally {
       setTimeout(() => setDownloading(false), 600)
     }
   }
@@ -217,6 +225,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     if (!planName.trim() || !client?.email) return
     setEmailStatus('sending')
     try {
+      const { mealPlanPDFBase64 } = await import('../../lib/generateMealPlanPDF')
       const pdfBase64 = mealPlanPDFBase64(
         { planName: planName.trim(), days },
         { name: client.name, goals: client.goals }
@@ -521,7 +530,9 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
               </button>
             ))}
             {filtered.length > visibleCount && <button className="w-full p-4 text-brown-light" onClick={() => setVisibleCount(n => n + 50)}>Show more foods ({filtered.length - visibleCount} remaining)</button>}
-            {filtered.length === 0 && (
+            {foodsState === 'loading' && <p role="status" className="p-4 text-muted text-sm">Loading food library…</p>}
+            {foodsState === 'error' && <button onClick={() => setFoodRetry(n => n + 1)}>Food library unavailable. Retry</button>}
+            {foodsState === 'ready' && filtered.length === 0 && (
               <div className="flex items-center justify-center h-40">
                 <p className="font-display text-lg text-muted tracking-widest">NO RESULTS</p>
               </div>
