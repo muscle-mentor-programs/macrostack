@@ -266,7 +266,6 @@ export default function ClientProfile() {
         <p className="font-mono text-xs text-muted mt-1">Your info & 30-day progress</p>
       </div>
 
-      <CoachActivation />
       {/* Avatar, tap to upload */}
       <div className="flex flex-col items-center mt-5 mb-6 anim-pop" style={{ animationDelay: '80ms' }}>
         <button
@@ -776,7 +775,7 @@ export default function ClientProfile() {
         </button>
       </div>
     </div>
-
+    <CoachActivation />
 
     <div className="mx-5 mb-8 glass-card rounded-lg p-5">
       <h2 className="font-display font-bold text-xl">FEATURES & BUGS</h2>

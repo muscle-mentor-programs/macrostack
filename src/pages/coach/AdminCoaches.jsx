@@ -7,6 +7,7 @@ import useStore from '../../store'
 import useIsSuperadmin from '../../hooks/useIsSuperadmin'
 import ScrambleText from '../../components/ScrambleText'
 import { computeSubscriptionAccess } from '../../store'
+import MarketplaceReviewQueue from '../../components/MarketplaceReviewQueue'
 
 const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transparent)`
 
@@ -148,6 +149,7 @@ export default function AdminCoaches() {
       {/* Coach cards */}
       <div className="flex-1 overflow-y-auto">
         <div className="app-page-gutter p-5 md:p-6 max-w-4xl mx-auto w-full space-y-2.5">
+        <MarketplaceReviewQueue />
         {adminAccountsError ? (
           <div className="flex flex-col items-center justify-center h-48 anim-fade-in text-center px-6">
             <p className="font-display font-bold text-lg text-red-400 tracking-widest">COULDN'T LOAD COACHES</p>

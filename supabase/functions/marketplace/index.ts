@@ -4,6 +4,7 @@ import Stripe from 'https://esm.sh/stripe@14?target=deno'
 import {validateListing,accessActive} from '../_shared/marketplace-rules.ts'
 import {fulfillMarketplace,syncMarketplaceSubscription} from '../_shared/marketplace-payments.ts'
 import {coachConnection,directReady,orderOptions} from '../_shared/coach-payments.ts'
+import {marketplaceReview} from '../_shared/marketplace-review.ts'
 
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization,x-client-info,apikey,content-type'}
 const fields='coach_id,name,headline,bio,specialties,credentials,photo_url,cover_url,price_cents,billing_mode,duration_days'
@@ -15,7 +16,7 @@ serve(async req=>{
     const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
     const input=await req.json(), action=input.action
     if(action==='list') {
-      const {data,error}=await db.from('marketplace_profiles').select(fields).eq('published',true).eq('stripe_ready',true).order('name').limit(200)
+      const {data,error}=await db.from('marketplace_profiles').select(fields).eq('published',true).eq('approval_status','approved').eq('stripe_ready',true).order('name').limit(200)
       if(error) throw error
       return json({coaches:data})
     }
@@ -23,6 +24,10 @@ serve(async req=>{
     if(authError || !user) return json({error:'Please sign in to continue.'},401)
     const {data:profile,error:profileError}=await db.from('profiles').select('id,role,dual_role,name,stripe_connect_id,coach_code,subscription_status,subscription_plan,admin_override').eq('id',user.id).single()
     if(profileError) throw profileError
+    if(action==='admin-list'||action==='admin-review') {
+      if(profile.role!=='superadmin') return json({error:'Superadmin approval required.'},403)
+      return json(await marketplaceReview(db,{id:user.id,role:profile.role},input))
+    }
     const stripe=new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!,{apiVersion:'2024-06-20',httpClient:Stripe.createFetchHttpClient()})
     const base=new URL(Deno.env.get('SITE_URL') || 'https://www.getmacrostack.com').origin
     if(action==='save') {
@@ -32,10 +37,19 @@ serve(async req=>{
       const account=connection?await stripe.accounts.retrieve(connection.stripe_account_id):null
       const ready=!!account && directReady(account)
       if(listing.published && !Deno.env.get('STRIPE_CONNECT_WEBHOOK_SECRET')) throw new Error('Direct payment notifications are still being configured. You can save your profile as a draft.')
-      if(listing.published && (!ready || !profile.coach_code)) throw new Error('Complete Stripe setup before publishing.')
-      const {error}=await db.from('marketplace_profiles').upsert({...listing,coach_id:user.id,stripe_ready:ready,updated_at:new Date().toISOString()})
+      if(listing.published && (!ready || !profile.coach_code)) throw new Error('Complete Stripe setup before submitting for review.')
+      const existing=await db.from('marketplace_profiles').select('revision,approval_status').eq('coach_id',user.id).maybeSingle()
+      if(existing.error) throw existing.error
+      if(existing.data && input.profile?.revision!==existing.data.revision) throw new Error('Your profile was updated or reviewed. Refresh before saving again.')
+      const values={...listing,coach_id:user.id,stripe_ready:ready,updated_at:new Date().toISOString(),
+        ...(existing.data?.approval_status==='rejected' && listing.published ? {approval_status:'pending',review_note:'',reviewed_by:null,reviewed_at:null} : {})}
+      const query=existing.data
+        ? db.from('marketplace_profiles').update(values).eq('coach_id',user.id).eq('revision',existing.data.revision)
+        : db.from('marketplace_profiles').insert(values)
+      const {data,error}=await query.select('*').maybeSingle()
       if(error) throw error
-      return json({ok:true,ready})
+      if(!data) throw new Error('Your profile changed while saving. Refresh and try again.')
+      return json({ok:true,ready,profile:data})
     }
     if(action==='my-profile') {
       if(!['coach','superadmin'].includes(profile.role)) return json({error:'Coach account required.'},403)
@@ -73,7 +87,7 @@ serve(async req=>{
       return json({access:{...latest,recurring:!!order?.subscription_id,active:accessActive(latest),coach_name:coach?.name,coach_code:accessActive(latest)?coach?.coach_code:null}})
     }
     if(action==='checkout') {
-      const {data:listing,error}=await db.from('marketplace_profiles').select('*').eq('coach_id',input.coach_id).eq('published',true).single()
+      const {data:listing,error}=await db.from('marketplace_profiles').select('*').eq('coach_id',input.coach_id).eq('published',true).eq('approval_status','approved').single()
       if(error || !listing) throw new Error('This coach is not currently accepting marketplace purchases.')
       if(client.coach_id && client.coach_id!==listing.coach_id) throw new Error('You are already connected to another coach. Contact your coach before changing connections.')
       if(client.status==='archived') throw new Error('Your client profile is archived. Contact support before purchasing coaching.')
