@@ -17,7 +17,7 @@ try {
  grant select on marketplace_profiles to authenticated;
  create policy owner on marketplace_profiles for select to authenticated using(coach_id=auth.uid());
  insert into marketplace_profiles(coach_id,name,headline,bio,price_cents,billing_mode,published,stripe_ready) values('${coach}','Test coach','Test coaching','A complete coaching package description',10000,'monthly',true,true);`)
- await db.exec(readFileSync('supabase/migrations/20260918033305_marketplace_profile_approval.sql','utf8'))
+ await db.exec(readFileSync('supabase/migrations/20260918035453_marketplace_profile_approval.sql','utf8'))
  const row=async()=> (await db.query('select * from marketplace_profiles')).rows[0]
  assert.equal((await row()).approval_status,'pending','Existing listings need approval')
  await db.exec(`set request.jwt.claim.sub='${coach}';set role authenticated;`)
