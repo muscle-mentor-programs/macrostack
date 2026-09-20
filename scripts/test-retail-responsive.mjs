@@ -15,6 +15,7 @@ export async function context(){return {locations:[loc],organizations:[{id:oid,n
 export async function relationships(){return {rows:[relation],count:1}}
 export async function list(t){return t==='relationships'?[relation]:records[t]||[]}
 export async function customer(){return structuredClone(records)}
+export async function conversation(){return structuredClone(records)}
 export async function directory(){return staff}
 export async function inbox(){return []}
 export async function queue(){return []}
@@ -27,8 +28,11 @@ export async function uploadFile(){}
 export async function historyPage(){return {items:[],next:null}}
 export async function billing(){return {url:'https://checkout.stripe.com/test'}}
 export async function verifyPhone(){}
+export async function operations(){return {counts:{failed:window.deliveryRetried?0:1},items:window.deliveryRetried?[]:[{id:"retry",name:"Synthetic customer",channel:"email",status:"failed",error_code:"retries_exhausted",retryable:true}],worker:null,scheduler_credential:false,configuration:{},setup:{staff:1,resources:0,customers:1,billing:null}}}
+export async function retryDelivery(){window.deliveryRetried=true}
 export async function fileURL(){return ''}
 export async function command(action,p){
+ window.lastRetailCommand={action,p};
  if(window.failRetailSave&&action==='consultation')throw Error('Simulated connection failure. Retry.');
  if(action==='consultation'){const old=records.consultations.find(c=>c.id===p.id);const row={...p,id:p.id||'draft',status:'draft',updated_at:new Date().toISOString(),revision:(old?.revision||0)+1};records.consultations=[row];return structuredClone(row)}
  if(action==='publish'){records.consultations[0].status='published';records.plans=[{id:'plan',published_at:new Date().toISOString(),content:records.consultations[0].draft}];return {published:true}}
@@ -92,7 +96,46 @@ try {
         `${width} ${tab}: overflow`,
       );
     }
+    await page
+      .getByText("Delivery issues and queued reminders (1)", { exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Queue retry", exact: true })
+      .click();
+    await page
+      .getByText("Delivery issues and queued reminders (0)", { exact: true })
+      .waitFor();
     await page.screenshot({ path: `outputs/retail/store-${width}.png` });
+    await page
+      .getByRole("navigation", { name: "Store navigation" })
+      .getByRole("button", { name: "Library", exact: true })
+      .click();
+    await page
+      .getByText("Start with an editable draft", { exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Review draft", exact: true })
+      .first()
+      .click();
+    await page.getByRole("dialog").waitFor();
+    assert.equal(
+      await page.getByLabel("Resource title").inputValue(),
+      "New customer intake",
+    );
+    assert.equal(
+      await page.getByLabel("Publish for staff use").isChecked(),
+      false,
+    );
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Save", exact: true })
+      .click();
+    await page.getByRole("dialog").waitFor({ state: "hidden" });
+    assert.equal(
+      await page.evaluate(() => window.lastRetailCommand.p.published),
+      false,
+    );
+
     await page
       .getByRole("navigation")
       .getByRole("button", { name: "Customers", exact: true })
@@ -190,7 +233,13 @@ try {
       0,
       "Customer cannot see private notes",
     );
-    for (const tab of ["Intake", "Check-ins", "Messages", "History", "Preferences"]) {
+    for (const tab of [
+      "Intake",
+      "Check-ins",
+      "Messages",
+      "History",
+      "Preferences",
+    ]) {
       await page
         .locator(".retail-tabbar")
         .getByRole("button", { name: tab, exact: true })

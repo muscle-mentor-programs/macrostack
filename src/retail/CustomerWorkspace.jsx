@@ -3,7 +3,7 @@ import ContactPreferences from "./ContactPreferences";
 import useClock from "./useClock";
 import { useEffect, useRef, useState } from "react";
 import useStore from "../store";
-import { command, customer, intakeForm } from "./api";
+import { command, customer, intakeForm, conversation } from "./api";
 import { displayDate, parseAssessmentCSV } from "./model";
 import { Button, Field, Select, Check, Empty, Alert, useAction } from "./ui";
 import Consultation from "./Consultation";
@@ -89,8 +89,12 @@ export default function CustomerWorkspace({
   useEffect(() => {
     if (tab !== "Messages") return;
     const timer = setInterval(() => {
-      customer(relationship.id)
-        .then(setData)
+      conversation(relationship.id)
+        .then((partial) =>
+          setData((previous) =>
+            previous ? { ...previous, ...partial } : previous,
+          ),
+        )
         .catch(() => {});
     }, 15000);
     return () => clearInterval(timer);

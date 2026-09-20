@@ -13,6 +13,15 @@ serve(async (req) => {
   if (req.method !== "POST")
     return new Response("Method not allowed", { status: 405 });
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, service);
+  const started = new Date().toISOString();
+  await admin
+    .from("retail_worker_health")
+    .upsert({
+      id: true,
+      last_started_at: started,
+      status: "running",
+      processed: 0,
+    });
   try {
     const { data: jobs, error } = await admin.rpc("retail_claim_deliveries", {
       batch_size: 25,
@@ -58,8 +67,22 @@ serve(async (req) => {
       if (saved.error) throw saved.error;
       processed++;
     }
+    await admin
+      .from("retail_worker_health")
+      .update({
+        last_finished_at: new Date().toISOString(),
+        status: "ok",
+        processed,
+      })
+      .eq("id", true)
+      .eq("last_started_at", started);
     return Response.json({ processed });
   } catch {
+    await admin
+      .from("retail_worker_health")
+      .update({ last_finished_at: new Date().toISOString(), status: "failed" })
+      .eq("id", true)
+      .eq("last_started_at", started);
     return Response.json(
       { error: "Delivery processing failed; inspect the delivery queue." },
       { status: 500 },

@@ -1,5 +1,6 @@
 import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
+import * as Sentry from '@sentry/react'
 import './index.css'
 import './software.css'
 import './light-depth.css'
@@ -8,11 +9,14 @@ import './coach-dashboard.css'
 import './software-motion.css'
 import './coach-cards.css'
 import './coach-responsive.css'
-import App from './App.jsx'
-import StripeConnectCallback from './pages/StripeConnectCallback.jsx'
-import * as Sentry from '@sentry/react'
+// eslint-disable-next-line react-refresh/only-export-components
+const App = lazy(() => import('./App.jsx'))
+// eslint-disable-next-line react-refresh/only-export-components
+const StripeConnectCallback = lazy(() => import('./pages/StripeConnectCallback.jsx'))
 
 // The root entry mounts the lazy public route rather than exporting components.
+// eslint-disable-next-line react-refresh/only-export-components
+const RetailDemo = lazy(() => import('./retail/RetailDemo.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
 const Gyms = lazy(() => import('./pages/Gyms.jsx'))
 
@@ -38,10 +42,14 @@ if (window.location.hash.includes('type=invite')) {
   sessionStorage.setItem('macrostack-post-invite', '1')
 }
 
+const publicPath = window.location.pathname.replace(/\/+$/, '')
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {window.location.pathname.replace(/\/+$/, '') === '/gyms'
-      ? <Suspense fallback={<div style={{ minHeight: '100vh', background: '#080b12' }} />}><Gyms /></Suspense>
-      : window.location.pathname === '/stripe-connect/callback' ? <StripeConnectCallback /> : <App />}
+    <Suspense fallback={<div role="status" aria-label="Loading MacroStack" style={{ minHeight: '100dvh', background: '#080b12' }} />}>
+      {publicPath === '/retail/demo' ? <RetailDemo />
+        : publicPath === '/gyms' ? <Gyms />
+        : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />
+        : <App />}
+    </Suspense>
   </StrictMode>,
 )

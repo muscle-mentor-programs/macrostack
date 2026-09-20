@@ -60,6 +60,12 @@ try {
       "utf8",
     ),
   );
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/20260920213018_retail_readiness.sql",
+      "utf8",
+    ),
+  );
   await as("other");
   await assert.rejects(
     () => call("provision", { name: "Forbidden" }),
@@ -340,7 +346,73 @@ try {
     await db.query("select retail_delivery_target($1) x", [claimed[0].id])
   ).rows[0].x;
   assert.equal(target.phone, "+12025550123");
+  const emailJob = claimed.find((j) => j.channel === "email"),
+    smsJob = claimed.find((j) => j.channel === "sms");
+  await db.query(
+    "update retail_deliveries set status='failed',error_code='retries_exhausted' where id=$1",
+    [emailJob.id],
+  );
+  await as("member");
+  await assert.rejects(
+    () => db.query("select retail_operations($1)", [a.location_id]),
+    /manager/,
+  );
+  await assert.rejects(
+    () => db.query("select retail_retry_delivery($1)", [emailJob.id]),
+    /manager/,
+  );
+  await as("manager");
+  const health = (
+    await db.query("select retail_operations($1) x", [a.location_id])
+  ).rows[0].x;
+  assert.ok(health.items.find((j) => j.id === emailJob.id).retryable);
+  await assert.rejects(
+    () => db.query("select retail_operations($1)", [b.location_id]),
+    /manager/,
+  );
+  await db.query("select retail_retry_delivery($1)", [emailJob.id]);
+  await assert.rejects(
+    () => db.query("select retail_retry_delivery($1)", [emailJob.id]),
+    /safely retried/,
+  );
+  await assert.rejects(
+    () => db.query("select retail_retry_delivery($1)", [smsJob.id]),
+    /safely retried/,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select manual_retries from retail_deliveries where id=$1",
+        [emailJob.id],
+      )
+    ).rows[0].manual_retries,
+    1,
+  );
+  const firstInbox = (
+    await db.query("select retail_inbox_page($1,0,'all') x", [a.location_id])
+  ).rows[0].x;
+  assert.ok(firstInbox.some((t) => t.relationship_id === rid));
+  assert.deepEqual(
+    (
+      await db.query("select retail_inbox_page($1,999,'all') x", [
+        a.location_id,
+      ])
+    ).rows[0].x,
+    [],
+  );
+  await db.exec("reset role");
   await db.query("select retail_unsubscribe($1)", [target.unsubscribe]);
+  await db.query(
+    "update retail_deliveries set status='failed',error_code='retries_exhausted' where id=$1",
+    [emailJob.id],
+  );
+  await as("manager");
+  await assert.rejects(
+    () => db.query("select retail_retry_delivery($1)", [emailJob.id]),
+    /consent/,
+  );
+  await db.exec("reset role");
+
   assert.equal(
     (await db.query("select retail_delivery_target($1) x", [claimed[0].id]))
       .rows[0].x,
@@ -370,6 +442,12 @@ try {
       ),
     /mismatch/,
   );
+  const paidThrough=(await db.query("select sponsorship_ends_at from retail_locations where id=$1",[a.location_id])).rows[0].sponsorship_ends_at;
+  await db.query("select retail_sync_contract($1,'sub_test','cus_test','past_due',now()+interval '60 days')",[contract.id]);
+  assert.equal(String((await db.query("select sponsorship_ends_at from retail_locations where id=$1",[a.location_id])).rows[0].sponsorship_ends_at),String(paidThrough),'failed payments never extend sponsorship');
+  await db.query("select retail_sync_contract($1,'sub_test','cus_test','canceled',now()+interval '60 days')",[contract.id]);
+  assert.ok(Date.parse((await db.query("select sponsorship_ends_at from retail_locations where id=$1",[a.location_id])).rows[0].sponsorship_ends_at)<=Date.now());
+  assert.deepEqual((await db.query("select member_subscription from profiles where id=$1",[ids.member])).rows[0].member_subscription,{},'store cancellation does not modify a personal subscription');
   await as("member");
   await call("preferences", {
     relationship_id: rid,
@@ -439,6 +517,8 @@ try {
     () => db.query("select retail_reports($1,now())", [b.location_id]),
     /Manager required/,
   );
+  await db.exec("reset role");
+  await db.exec(readFileSync("scripts/test-retail-hosted.sql", "utf8"));
   console.log(
     "PASS retail database: provisioning, invitation identity, store isolation, staff/private visibility, immutable publishing, retry deduplication, sponsorship pause and corporate aggregate-only reporting",
   );

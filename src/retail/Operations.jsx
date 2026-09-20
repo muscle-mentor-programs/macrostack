@@ -13,24 +13,28 @@ export default function Operations({
     [name, setName] = useState(""),
     [email, setEmail] = useState("");
   const { busy, error, run, setError } = useAction();
-  const reload = async () => {
+  const reload = async (scope = "all") => {
     const [contracts, settings] = await Promise.all([
       list("contracts", { location_id: location.id }),
       list("pilot_settings", { organization_id: organization.id }),
     ]);
-    setContract(contracts[0] || null);
-    setName(contracts[0]?.billing_name || "");
-    setEmail(contracts[0]?.billing_email || "");
-    setPilot(
-      settings[0] || {
-        public_name: organization.name,
-        contact_email: "",
-        onboarding_notes: "",
-        forms_approved: false,
-        brand_approved: false,
-        staff_trained: false,
-      },
-    );
+    if (scope !== "pilot") {
+      setContract(contracts[0] || null);
+      setName(contracts[0]?.billing_name || "");
+      setEmail(contracts[0]?.billing_email || "");
+    }
+    if (scope !== "billing") {
+      setPilot(
+        settings[0] || {
+          public_name: organization.name,
+          contact_email: "",
+          onboarding_notes: "",
+          forms_approved: false,
+          brand_approved: false,
+          staff_trained: false,
+        },
+      );
+    }
     setLoaded(true);
   };
   useEffect(() => {
@@ -108,7 +112,7 @@ export default function Operations({
                         billing_email: email,
                         revision: contract?.revision,
                       });
-                      await reload();
+                      await reload("billing");
                     });
                   }}
                 >
@@ -147,7 +151,10 @@ export default function Operations({
                     Manage billing
                   </Button>
                 )}
-                <Button disabled={busy} onClick={() => run(reload)}>
+                <Button
+                  disabled={busy}
+                  onClick={() => run(() => reload("billing"))}
+                >
                   Refresh billing
                 </Button>
               </div>
@@ -170,7 +177,7 @@ export default function Operations({
                   ...pilot,
                   organization_id: organization.id,
                 });
-                await reload();
+                await reload("pilot");
               });
             }}
           >
