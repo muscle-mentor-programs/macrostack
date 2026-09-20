@@ -24,6 +24,9 @@ export async function joinInfo(){return {name:'Pilot Store'}}
 export async function intakeForm(){return [{id:'goal',label:'Your goals'}]}
 export async function activity(){return {shared:true,foods:[],weights:[]}}
 export async function uploadFile(){}
+export async function historyPage(){return {items:[],next:null}}
+export async function billing(){return {url:'https://checkout.stripe.com/test'}}
+export async function verifyPhone(){}
 export async function fileURL(){return ''}
 export async function command(action,p){
  if(window.failRetailSave&&action==='consultation')throw Error('Simulated connection failure. Retry.');
@@ -99,6 +102,7 @@ try {
       "Intake",
       "Plan",
       "Progress",
+      "History",
       "Check-ins",
       "Messages",
       "Overview",
@@ -186,7 +190,7 @@ try {
       0,
       "Customer cannot see private notes",
     );
-    for (const tab of ["Intake", "Check-ins", "Messages", "Preferences"]) {
+    for (const tab of ["Intake", "Check-ins", "Messages", "History", "Preferences"]) {
       await page
         .locator(".retail-tabbar")
         .getByRole("button", { name: tab, exact: true })

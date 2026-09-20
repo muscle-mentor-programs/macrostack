@@ -45,3 +45,23 @@ Corporate reports are counts, not revenue attribution. New relationships and act
 ## Pending external activation
 
 InBody and POS synchronization, SMS/email delivery, authorized partner assets, approved partner intake/legal copy and real-store onboarding need partner/provider inputs. The interface explicitly describes manual workflows until those integrations are verified. No customer invitation, marketing message or real enrollment is sent by development scripts.
+
+## Retail operations extension
+
+Store subscriptions default to **$599 USD per location per month**, billed by **MacroStack, LLC**. Billing contacts remain blank until supplied. Superadmins save a contract contact; an authorized store billing administrator completes Stripe Checkout. There is no charge when the contact is saved. Store customers and subscriptions are separate from personal MacroStack subscriptions. Verified Stripe events control the paid sponsorship period; canceled/unpaid subscriptions stop sponsorship, and past-due events never extend it.
+
+Store settings include partner readiness and launch notes. Approved 5 Star branding, forms, staff/store roster and billing contact are pending. Existing Library and staff invitation tools accept those materials when supplied. InBody and POS integrations are explicitly deferred; manual assessments and validated CSV imports remain available.
+
+Customers can opt into email and verified-phone text service reminders, independently of marketing consent. Delivery requires both relationship service consent and channel consent. Reminders contain a generic secure-app link, not health records. The worker uses 9am–8pm store-local quiet hours, consent rechecks, deduplication, bounded retries and provider signatures. Ambiguous SMS delivery is marked unknown rather than automatically resent. Provider acceptance is distinguished from confirmed delivery. Unsubscribe disables both reminder channels for that store relationship; SMS STOP disables texts for the verified number.
+
+Customer histories use date-filtered keyset pagination. Exports include either the current page or the complete selected date range up to 50,000 records; larger exports require a narrower range and never silently truncate. Private consultations, notes, follow-ups and delivery history remain staff-only.
+
+### Delivery activation checklist
+
+- Supabase secrets: `RETAIL_EMAIL_ENABLED=true`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (verified sender), `RETAIL_RESEND_WEBHOOK_SECRET`, and `SITE_URL`.
+- Resend webhook: `/functions/v1/retail-email-webhook`, subscribed to delivered, bounced, complained and suppressed events. Use its signing secret above.
+- SMS requires an approved Twilio sender, `RETAIL_SMS_ENABLED=true`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_MESSAGING_SERVICE_SID`, and a configured Supabase Auth phone provider. Configure incoming messages/advanced opt-out to `/functions/v1/retail-sms-webhook`; delivery callbacks are attached to each send.
+- Store the same randomly generated worker credential in Supabase Edge secret `RETAIL_DELIVERY_WORKER_KEY` and Vault secret `retail_delivery_worker_key`. The five-minute SQL cron schedule remains inert without the Vault secret. Never put credentials in SQL migration files or Git.
+- Billing uses existing `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. The Stripe account business/legal identity and invoice settings must reflect MacroStack, LLC; a product label alone does not change Stripe’s legal entity settings. Enable the billing portal in Stripe.
+- All webhook functions use custom signature/token authentication with platform JWT checks disabled. `retail-billing` validates the caller and store access, and keeps platform JWT verification enabled.
+- Before enabling delivery or accepting payments, run a hosted test-mode checkout and consenting test-recipient send, verify webhook results and cancellation/opt-out, then enable production channels. No live payment or message is needed to create the setup.

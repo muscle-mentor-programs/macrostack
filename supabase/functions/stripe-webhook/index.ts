@@ -1,7 +1,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.105.3'
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
 import { fulfillMarketplace, syncMarketplaceSubscription } from '../_shared/marketplace-payments.ts'
+import { syncRetailSubscription } from '../_shared/retail-billing.mjs'
 import { stripeReady } from '../_shared/marketplace-rules.ts'
 
 // Safely convert a Stripe unix timestamp to ISO. Returns null if absent/invalid
@@ -22,7 +23,11 @@ function periodEnd(sub: Stripe.Subscription): string | null {
 
 // Map a Stripe subscription onto the profile row. The webhook NEVER touches
 // admin_override, a superadmin's manual lock/unlock always wins.
-async function syncSubscription(stripe: Stripe, admin: ReturnType<typeof createClient>, sub: Stripe.Subscription) {
+async function syncSubscription(stripe: Stripe, admin: SupabaseClient, sub: Stripe.Subscription) {
+  if (sub.metadata?.kind === 'retail_store') {
+    await syncRetailSubscription(stripe, admin, sub.id)
+    return
+  }
   if (sub.metadata?.kind === 'marketplace_coaching') {
     await syncMarketplaceSubscription(stripe, admin, sub.id)
     return
@@ -114,7 +119,9 @@ serve(async (req) => {
       case 'invoice.paid':
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice
-        if (invoice.subscription) await syncMarketplaceSubscription(stripe, admin, invoice.subscription as string)
+        if (invoice.subscription) {
+          if (!await syncRetailSubscription(stripe, admin, invoice.subscription as string)) await syncMarketplaceSubscription(stripe, admin, invoice.subscription as string)
+        }
         break
       }
       case 'account.updated': {

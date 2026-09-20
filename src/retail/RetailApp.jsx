@@ -1,3 +1,4 @@
+import Operations from "./Operations";
 import useViewport from "./useViewport";
 import useClock from "./useClock";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -708,6 +709,22 @@ export default function RetailApp() {
             )}
             {section === "Store" && (
               <>
+                {manager && org && (
+                  <Operations
+                    key={location.id}
+                    location={location}
+                    organization={org}
+                    admin={user?.role === "superadmin"}
+                    organizationAdmin={
+                      user?.role === "superadmin" ||
+                      memberships.some(
+                        (m) =>
+                          m.organization_id === org.id &&
+                          m.role === "organization_admin",
+                      )
+                    }
+                  />
+                )}
                 <div className="retail-columns">
                   <section>
                     <div className="retail-card">

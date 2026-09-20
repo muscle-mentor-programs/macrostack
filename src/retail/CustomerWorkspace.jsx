@@ -1,3 +1,5 @@
+import History from "./History";
+import ContactPreferences from "./ContactPreferences";
 import useClock from "./useClock";
 import { useEffect, useRef, useState } from "react";
 import useStore from "../store";
@@ -160,6 +162,7 @@ export default function CustomerWorkspace({
           "Progress",
           "Check-ins",
           "Messages",
+          "History",
           ...(!staff ? ["Preferences"] : []),
         ].map((t) => (
           <Button key={t} primary={t === tab} onClick={() => selectTab(t)}>
@@ -849,6 +852,12 @@ export default function CustomerWorkspace({
                 Send message
               </Button>
             </section>
+          )}
+          {tab === "Preferences" && (
+            <ContactPreferences relationship={relationship} />
+          )}
+          {tab === "History" && (
+            <History relationship={relationship} staff={staff} />
           )}
           {tab === "Preferences" && (
             <section className="retail-card">

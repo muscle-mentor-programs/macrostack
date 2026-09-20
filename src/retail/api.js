@@ -162,3 +162,84 @@ export async function fileURL(path) {
 export async function queueCounts(lid) {
   return check(await supabase.rpc("retail_queue_counts", { lid }));
 }
+
+const archiveColumns = {
+  consultations: "updated_at",
+  plans: "published_at",
+  assessments: "created_at",
+  tasks: "created_at",
+  notes: "created_at",
+  messages: "created_at",
+  checkins: "created_at",
+  files: "created_at",
+  deliveries: "created_at",
+};
+export async function historyPage(
+  table,
+  rid,
+  { cursor = null, from = "", to = "", size = 50 } = {},
+) {
+  if (
+    (from && !/^\d{4}-\d{2}-\d{2}$/.test(from)) ||
+    (to && !/^\d{4}-\d{2}-\d{2}$/.test(to)) ||
+    (from && to && from > to)
+  )
+    throw new Error("Choose a valid date range.");
+  size = Math.max(
+    1,
+    Math.min(200, Number.isFinite(size) ? Math.floor(size) : 50),
+  );
+  const column = archiveColumns[table];
+  if (!column) throw new Error("Unsupported history category");
+  let q = supabase
+    .from(`retail_${table}`)
+    .select("*")
+    .eq("relationship_id", rid)
+    .order(column, { ascending: false })
+    .order("id", { ascending: false })
+    .limit(size + 1);
+  if (from) q = q.gte(column, `${from}T00:00:00Z`);
+  if (to)
+    q = q.lt(
+      column,
+      new Date(Date.parse(`${to}T00:00:00Z`) + 86400000).toISOString(),
+    );
+  if (cursor) {
+    if (
+      !/^[0-9a-f-]{36}$/i.test(cursor.id) ||
+      !Number.isFinite(Date.parse(cursor.time))
+    )
+      throw new Error("Invalid history cursor");
+    q = q.or(
+      `${column}.lt.${cursor.time},and(${column}.eq.${cursor.time},id.lt.${cursor.id})`,
+    );
+  }
+  const rows = check(await q) || [],
+    more = rows.length > size,
+    items = rows.slice(0, size),
+    last = items.at(-1);
+  return { items, next: more ? { id: last.id, time: last[column] } : null };
+}
+export async function billing(contractId, action) {
+  const result = await supabase.functions.invoke("retail-billing", {
+    body: { contract_id: contractId, action },
+  });
+  if (result.error) {
+    let detail;
+    try {
+      detail = await result.error.context?.json();
+    } catch {
+      /* safe fallback */
+    }
+    throw new Error(detail?.error || result.error.message);
+  }
+  if (result.data?.error) throw new Error(result.data.error);
+  return result.data;
+}
+export async function verifyPhone(phone, token) {
+  if (token)
+    return check(
+      await supabase.auth.verifyOtp({ phone, token, type: "phone_change" }),
+    );
+  return check(await supabase.auth.updateUser({ phone }));
+}

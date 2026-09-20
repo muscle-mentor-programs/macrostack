@@ -27,7 +27,7 @@ const call = async (action, payload = {}) =>
 try {
   await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid,bucket_id text,name text);alter table storage.objects enable row level security;
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
- create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);
+ create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz,phone text,phone_confirmed_at timestamptz);
  create table public.profiles(id uuid primary key,name text,role text,admin_override text,member_subscription jsonb default '{}');
  create table public.clients(id uuid primary key,profile_id uuid,coach_id uuid);
  create table public.food_log(id uuid,client_id uuid,date date,name text,meal text,quantity numeric,serving_unit text,calories numeric,protein numeric,carbs numeric,fat numeric);create table public.weight_log(id uuid,client_id uuid,date date,value numeric,unit text);create table public.checkins(id uuid,weight numeric);
@@ -44,13 +44,19 @@ try {
       key === "admin" ? "superadmin" : "client",
     ]);
   for (const [key, id] of Object.entries(ids))
-    await db.query("insert into auth.users values($1,$2,now())", [
-      id,
-      `${key}@example.invalid`,
-    ]);
+    await db.query(
+      "insert into auth.users(id,email,email_confirmed_at) values($1,$2,now())",
+      [id, `${key}@example.invalid`],
+    );
   await db.exec(
     readFileSync(
       "supabase/migrations/20260920193515_retail_store_platform.sql",
+      "utf8",
+    ),
+  );
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/20260920203257_retail_operations_billing.sql",
       "utf8",
     ),
   );
@@ -72,6 +78,27 @@ try {
     location_name: "Store B",
     timezone: "America/Chicago",
   });
+  const contract = await call("contract", {
+    location_id: a.location_id,
+    billing_name: "Test Store",
+    billing_email: "billing@example.invalid",
+  });
+  assert.equal(contract.monthly_cents, 59900);
+  assert.equal(contract.seller, "MacroStack, LLC");
+  await as("other");
+  await assert.rejects(
+    () => call("contract", { location_id: a.location_id }),
+    /Superadmin/,
+  );
+  assert.equal(
+    (await db.query("select * from retail_contracts")).rows.length,
+    0,
+  );
+  await assert.rejects(
+    () => db.query("select retail_claim_deliveries(25)"),
+    /permission denied/,
+  );
+  await as("admin");
   const invite = await call("invite_staff", {
     organization_id: a.organization_id,
     location_id: a.location_id,
@@ -166,6 +193,31 @@ try {
       (await db.query("select * from retail_plans")).rows,
     ).includes("PRIVATE"),
     false,
+  );
+  await assert.rejects(
+    () =>
+      call("contact_preferences", { relationship_id: rid, sms_enabled: true }),
+    /Verify your phone/,
+  );
+  await call("contact_preferences", {
+    relationship_id: rid,
+    email_enabled: true,
+  });
+  await db.exec("reset role");
+  await db.query(
+    "update auth.users set phone='12025550123',phone_confirmed_at=now() where id=$1",
+    [ids.member],
+  );
+  await as("member");
+  await call("contact_preferences", {
+    relationship_id: rid,
+    email_enabled: true,
+    sms_enabled: true,
+  });
+  assert.equal(
+    (await db.query("select verified_phone from retail_contact_preferences"))
+      .rows[0].verified_phone,
+    "+12025550123",
   );
   const msg = {
     id: crypto.randomUUID(),
@@ -275,6 +327,48 @@ try {
   assert.equal(
     (await db.query("select retail_process_reminders() n")).rows[0].n,
     0,
+  );
+  const claimed = (await db.query("select * from retail_claim_deliveries(25)"))
+    .rows;
+  assert.ok(claimed.some((j) => j.channel === "email"));
+  assert.ok(claimed.some((j) => j.channel === "sms"));
+  assert.equal(
+    (await db.query("select * from retail_claim_deliveries(25)")).rows.length,
+    0,
+  );
+  const target = (
+    await db.query("select retail_delivery_target($1) x", [claimed[0].id])
+  ).rows[0].x;
+  assert.equal(target.phone, "+12025550123");
+  await db.query("select retail_unsubscribe($1)", [target.unsubscribe]);
+  assert.equal(
+    (await db.query("select retail_delivery_target($1) x", [claimed[0].id]))
+      .rows[0].x,
+    null,
+  );
+  await db.query(
+    "update retail_contracts set stripe_customer_id='cus_test' where id=$1",
+    [contract.id],
+  );
+  await db.query(
+    "select retail_sync_contract($1,'sub_test','cus_test','active',now()+interval '30 days')",
+    [contract.id],
+  );
+  assert.equal(
+    (
+      await db.query("select status from retail_contracts where id=$1", [
+        contract.id,
+      ])
+    ).rows[0].status,
+    "active",
+  );
+  await assert.rejects(
+    () =>
+      db.query(
+        "select retail_sync_contract($1,'sub_other','cus_wrong','active',now()+interval '30 days')",
+        [contract.id],
+      ),
+    /mismatch/,
   );
   await as("member");
   await call("preferences", {
