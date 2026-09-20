@@ -59,3 +59,5 @@ PLAYWRIGHT_MODULE=/path/to/playwright TEST_URL=http://127.0.0.1:5198 node script
 ```
 
 Browser tests use synthetic API responses to verify layout, save recovery and interactions. Database tests execute the actual migration/RPCs in local PostgreSQL-compatible PGlite. Neither substitutes for post-migration hosted Supabase/Storage/Auth/cron smoke tests.
+
+For actual Auth/API/private Storage acceptance, follow `hosted-acceptance.md`. Its isolated synthetic-account test includes mandatory object, session and database cleanup and does not send external reminders or initiate billing.
