@@ -13,10 +13,16 @@ export default function Consultation({
   existing,
   onDone,
   templates = [],
+  startingStep,
+  previousPlan,
 }) {
   const [draftId] = useState(() => existing?.id || crypto.randomUUID());
-  const [draft, setDraft] = useState({ ...initialDraft, ...existing?.draft }),
-    [step, setStep] = useState(existing?.step || 0),
+  const [draft, setDraft] = useState({
+      ...initialDraft,
+      ...previousPlan,
+      ...existing?.draft,
+    }),
+    [step, setStep] = useState(startingStep ?? existing?.step ?? 0),
     [record, setRecord] = useState(existing || null),
     [status, setStatus] = useState(existing ? "Saved" : "Not saved");
   const { busy, error, run, setError } = useAction();
@@ -118,7 +124,7 @@ export default function Consultation({
       <div className="retail-header">
         <div>
           <div className="retail-eyebrow">
-            Consultation · {relationship.name}
+            Nutrition consultation · {relationship.name}
           </div>
           <h1>{steps[step]}</h1>
           <span className="retail-status" role="status">
@@ -217,6 +223,12 @@ export default function Consultation({
         )}
         {step === 3 && (
           <>
+            <Field
+              label="Plan goal"
+              value={draft.goal}
+              onChange={field("goal")}
+              maxLength={500}
+            />
             <Select
               label="Start with an approved nutrition template"
               value=""

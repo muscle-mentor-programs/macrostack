@@ -550,3 +550,13 @@
 .retail-avatar { width:46px; height:46px; display:grid; place-items:center; border-radius:50%; background:color-mix(in srgb,var(--retail-accent) 14%,var(--color-surface)); color:var(--retail-accent); margin-bottom:18px; font-weight:600; }
 @media(max-width:600px) { .retail-status-list { grid-template-columns:1fr; } }
 @media(prefers-reduced-motion:reduce) { .retail *, .retail *::before, .retail *::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; } }
+
+/* Customer care: clear entry points without nested interactive cards. */
+.retail-customer-open{display:block;width:100%;text-align:left;background:none;border:0;padding:0;color:inherit}
+.retail-customer-open>p{margin-top:14px}.retail-customer-identity{display:flex;align-items:center;gap:12px;margin-bottom:16px}.retail-customer-identity h2{margin:0;font-size:20px}.retail-customer-identity p{overflow-wrap:anywhere;margin:4px 0 0;font-size:12px}
+.retail-customer-avatar{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;border-radius:14px;background:color-mix(in srgb,var(--retail-accent) 14%,transparent);color:var(--retail-accent);font-size:20px;font-weight:700}
+.retail-customer-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid var(--color-border);padding-top:16px;margin-top:16px}.retail-customer-shortcuts .retail-button{font-size:12px;min-height:42px;padding:8px}
+.retail-care-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}.retail-care-actions button{text-align:left;color:inherit}.retail-care-actions h2{font-size:17px}.retail-care-actions p{font-size:12px;line-height:1.6}
+.retail-nutrition-targets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}.retail-nutrition-targets>div{padding:16px;background:color-mix(in srgb,var(--retail-accent) 7%,transparent);border-radius:12px}.retail-nutrition-targets strong{display:block;font-size:22px}.retail-nutrition-targets small{display:block;color:var(--color-muted);margin-top:5px}
+.retail-tabbar[aria-label="Customer sections"]{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding-bottom:10px}.retail-tabbar[aria-label="Customer sections"] button{flex-shrink:0}
+@media(max-width:800px){.retail-care-actions{grid-template-columns:1fr 1fr}.retail-nutrition-targets{grid-template-columns:1fr 1fr}.retail-nav{overflow-x:auto;flex-wrap:nowrap}.retail-nav button{flex-shrink:0}}

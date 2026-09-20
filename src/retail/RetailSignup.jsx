@@ -27,7 +27,11 @@ export default function RetailSignup() {
   useViewport();
   const [user, setUser] = useState(null),
     [checking, setChecking] = useState(Boolean(supabase));
-  const [mode, setMode] = useState("signup"),
+  const [mode, setMode] = useState(
+      new URLSearchParams(window.location.search).has("signin")
+        ? "login"
+        : "signup",
+    ),
     [name, setName] = useState("");
   const [email, setEmail] = useState(""),
     [password, setPassword] = useState("");
@@ -79,6 +83,11 @@ export default function RetailSignup() {
         .then(({ data, error: e }) => {
           if (active) {
             setExisting(Boolean(data?.length));
+            if (
+              data?.length &&
+              new URLSearchParams(window.location.search).has("signin")
+            )
+              window.location.replace("/retail");
             if (e)
               setError(
                 "Could not check your existing workspace. Refresh before continuing.",
@@ -171,7 +180,7 @@ export default function RetailSignup() {
           <BrandWordmark />
         </a>
         <div className="retail-actions">
-          <a href="/retail">Staff sign in ↗</a>
+          <a href="/retailers?signin=1">Retailer sign in ↗</a>
         </div>
       </header>
       <main className="retail-signup-main">

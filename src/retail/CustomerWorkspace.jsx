@@ -22,6 +22,7 @@ export default function CustomerWorkspace({
   manager,
   employees = [],
   templates = [],
+  initialTab = "Overview",
   onBack,
   onRefresh,
 }) {
@@ -29,8 +30,9 @@ export default function CustomerWorkspace({
   const userId = useStore((s) => s.currentUser?.id);
   const composingAt = useRef(0);
   const [data, setData] = useState(null),
-    [tab, setTab] = useState("Overview"),
+    [tab, setTab] = useState(initialTab),
     [consult, setConsult] = useState(false),
+    [consultStep, setConsultStep] = useState(undefined),
     [loading, setLoading] = useState(true),
     [questions, setQuestions] = useState([]),
     [intake, setIntake] = useState({});
@@ -121,9 +123,13 @@ export default function CustomerWorkspace({
       <Consultation
         relationship={relationship}
         existing={draft}
+        previousPlan={plan?.content}
+        startingStep={consultStep}
         templates={templates}
         onDone={() => {
           setConsult(false);
+          setConsultStep(undefined);
+          setTab("Plan");
           refresh()
             .then(() => onRefresh?.())
             .catch((e) => setError(e.message));
@@ -158,19 +164,29 @@ export default function CustomerWorkspace({
         )}
       </div>
       <Alert error={error} />
-      <div className="retail-tabbar">
+      <div
+        className="retail-tabbar"
+        role="navigation"
+        aria-label="Customer sections"
+      >
         {[
           "Overview",
           "Intake",
           "Plan",
+          "Food journal",
           "Progress",
           "Check-ins",
           "Messages",
           "History",
           ...(!staff ? ["Preferences"] : []),
         ].map((t) => (
-          <Button key={t} primary={t === tab} onClick={() => selectTab(t)}>
-            {t}
+          <Button
+            key={t}
+            primary={t === tab}
+            aria-current={t === tab ? "page" : undefined}
+            onClick={() => selectTab(t)}
+          >
+            {t === "Plan" ? "Nutrition" : t}
           </Button>
         ))}
       </div>
@@ -180,6 +196,41 @@ export default function CustomerWorkspace({
         <Button onClick={() => run(refresh)}>Retry</Button>
       ) : (
         <>
+          {tab === "Overview" && staff && (
+            <div className="retail-care-actions">
+              {[
+                [
+                  "Plan",
+                  "Nutrition plan",
+                  "Set calories, macros, habits and product guidance",
+                ],
+                [
+                  "Food journal",
+                  "Food journal",
+                  "Review shared daily meals and intake",
+                ],
+                [
+                  "Progress",
+                  "Progress & assessments",
+                  "Review measurements, scans and photos",
+                ],
+                [
+                  "Check-ins",
+                  "Check-ins",
+                  "Review updates and keep customers on track",
+                ],
+              ].map(([target, title, description]) => (
+                <button
+                  className="retail-card"
+                  key={target}
+                  onClick={() => selectTab(target)}
+                >
+                  <h2>{title} →</h2>
+                  <p className="retail-muted">{description}</p>
+                </button>
+              ))}
+            </div>
+          )}
           {tab === "Overview" && (
             <div className="retail-columns">
               <div>
@@ -463,8 +514,36 @@ export default function CustomerWorkspace({
           )}
           {tab === "Plan" && (
             <section className="retail-card">
+              <div className="retail-row">
+                <div>
+                  <h2>Nutrition plan</h2>
+                  <p className="retail-muted">
+                    Daily targets, practical meal guidance and agreed habits.
+                  </p>
+                </div>
+                {staff && (
+                  <Button
+                    primary
+                    onClick={() => {
+                      setConsultStep(3);
+                      setConsult(true);
+                    }}
+                  >
+                    {draft
+                      ? "Continue nutrition draft"
+                      : plan
+                        ? "Update nutrition plan"
+                        : "Create nutrition plan"}
+                  </Button>
+                )}
+              </div>
               {!plan ? (
-                <Empty>No published plan yet.</Empty>
+                <Empty>
+                  No nutrition plan published yet.{" "}
+                  {staff
+                    ? "Create a plan above, review it and publish it to your customer."
+                    : "Your store team will share your targets and guidance here."}
+                </Empty>
               ) : (
                 <>
                   <div className="retail-eyebrow">
@@ -474,15 +553,21 @@ export default function CustomerWorkspace({
                   <Button onClick={() => window.print()}>
                     Print / save plan
                   </Button>
-                  <div className="retail-stats">
-                    {["calories", "protein", "carbs"].map((k) => (
+                  <div className="retail-nutrition-targets">
+                    {["calories", "protein", "carbs", "fat"].map((k) => (
                       <div key={k}>
-                        <strong>{plan.content[k] || "—"}</strong>
-                        <small>{k}</small>
+                        <strong>
+                          {plan.content[k] === ""
+                            ? "—"
+                            : (plan.content[k] ?? "—")}
+                        </strong>
+                        <small>
+                          {k === "calories" ? "kcal / day" : `${k} · g / day`}
+                        </small>
                       </div>
                     ))}
                   </div>
-                  <p>Fat: {plan.content.fat || "—"} g</p>
+                  <h3>Meal & nutrition guidance</h3>
                   <p className="retail-pre">{plan.content.guidance}</p>
                   <h3>Habits</h3>
                   <p className="retail-pre">
@@ -512,6 +597,13 @@ export default function CustomerWorkspace({
               )}
             </section>
           )}
+          {tab === "Food journal" && (
+            <Progress
+              relationship={relationship}
+              mode="journal"
+              targets={plan?.content}
+            />
+          )}
           {tab === "Progress" && (
             <>
               {staff && (
@@ -528,7 +620,7 @@ export default function CustomerWorkspace({
                   Request progress photos
                 </Button>
               )}
-              <Progress relationship={relationship} />
+              <Progress relationship={relationship} mode="files" />
               <div className="retail-card">
                 <h2>Assessment history</h2>
                 <p className="retail-muted">

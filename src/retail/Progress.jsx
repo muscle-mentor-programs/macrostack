@@ -3,7 +3,7 @@ import useStore from "../store";
 import { activity, list, uploadFile, fileURL } from "./api";
 import { Button, Select, Empty, Alert, useAction } from "./ui";
 import { displayDate } from "./model";
-export default function Progress({ relationship }) {
+export default function Progress({ relationship, mode = "all", targets }) {
   const userId = useStore((s) => s.currentUser?.id),
     [shared, setShared] = useState(null),
     [files, setFiles] = useState([]),
@@ -48,105 +48,133 @@ export default function Progress({ relationship }) {
   );
   return (
     <>
-      <section className="retail-card">
-        <h2>Shared files & photos</h2>
-        <Alert error={error} />
-        <p className="retail-muted">
-          Files uploaded here are shared with this customer and their authorized
-          store team. Personal app photos stay separate.
-        </p>
-        {relationship.status === "active" && (
-          <>
-            <Select label="File type" value={kind} onChange={setKind}>
-              <option value="photo">Progress photo</option>
-              <option value="assessment">Scan report</option>
-              <option value="document">Document</option>
-            </Select>
-            <input
-              aria-label="Upload store file"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf"
-              disabled={busy}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                e.target.value = "";
-                if (file)
-                  run(async () => {
-                    await uploadFile(relationship.id, file, kind, userId);
-                    setFiles(
-                      await list("files", { relationship_id: relationship.id }),
-                    );
-                  });
-              }}
-            />
-            <p className="retail-muted">JPG, PNG, WebP or PDF · up to 10 MB</p>
-          </>
-        )}
-        {files.map((f) => (
-          <div className="retail-row" key={f.id}>
-            <div>
-              <strong>{f.label}</strong>
-              <p>
-                {f.kind} · {displayDate(f.created_at)}
+      {mode !== "journal" && (
+        <section className="retail-card">
+          <h2>Shared files & photos</h2>
+          <Alert error={error} />
+          <p className="retail-muted">
+            Files uploaded here are shared with this customer and their
+            authorized store team. Personal app photos stay separate.
+          </p>
+          {relationship.status === "active" && (
+            <>
+              <Select label="File type" value={kind} onChange={setKind}>
+                <option value="photo">Progress photo</option>
+                <option value="assessment">Scan report</option>
+                <option value="document">Document</option>
+              </Select>
+              <input
+                aria-label="Upload store file"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                disabled={busy}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file)
+                    run(async () => {
+                      await uploadFile(relationship.id, file, kind, userId);
+                      setFiles(
+                        await list("files", {
+                          relationship_id: relationship.id,
+                        }),
+                      );
+                    });
+                }}
+              />
+              <p className="retail-muted">
+                JPG, PNG, WebP or PDF · up to 10 MB
               </p>
+            </>
+          )}
+          {files.map((f) => (
+            <div className="retail-row" key={f.id}>
+              <div>
+                <strong>{f.label}</strong>
+                <p>
+                  {f.kind} · {displayDate(f.created_at)}
+                </p>
+              </div>
+              <Button
+                disabled={busy}
+                onClick={() =>
+                  run(async () =>
+                    setPreview({
+                      url: await fileURL(f.object_path),
+                      label: f.label,
+                    }),
+                  )
+                }
+              >
+                View file
+              </Button>
             </div>
-            <Button
-              disabled={busy}
-              onClick={() =>
-                run(async () =>
-                  setPreview({
-                    url: await fileURL(f.object_path),
-                    label: f.label,
-                  }),
-                )
-              }
-            >
-              View file
-            </Button>
-          </div>
-        ))}
-        {!files.length && <Empty>No shared files yet.</Empty>}
-        {preview && (
-          <div className="retail-card">
-            <a href={preview.url} target="_blank" rel="noopener noreferrer">
-              Open {preview.label}
-            </a>
-            <p className="retail-muted">
-              This private link expires after two minutes. Reopen the file for a
-              fresh link.
-            </p>
-            <Button onClick={() => setPreview(null)}>Close</Button>
-          </div>
-        )}
-      </section>
-      <section className="retail-card">
-        <h2>Recent nutrition activity</h2>
-        {shared?.shared ? (
-          <>
-            <p className="retail-muted">
-              Up to 500 entries from the last 30 days. Partial logs are not
-              proof of actual intake.
-            </p>
-            {days.map((d) => (
-              <details key={d.date}>
-                <summary>
-                  {displayDate(d.date)} · {Math.round(d.calories)} kcal ·{" "}
-                  {Math.round(d.protein)} g protein
-                </summary>
-                {d.foods.map((f, i) => (
-                  <p key={i}>
-                    {f.meal} · {f.name} · {f.quantity} {f.serving_unit}
-                  </p>
+          ))}
+          {!files.length && <Empty>No shared files yet.</Empty>}
+          {preview && (
+            <div className="retail-card">
+              <a href={preview.url} target="_blank" rel="noopener noreferrer">
+                Open {preview.label}
+              </a>
+              <p className="retail-muted">
+                This private link expires after two minutes. Reopen the file for
+                a fresh link.
+              </p>
+              <Button onClick={() => setPreview(null)}>Close</Button>
+            </div>
+          )}
+        </section>
+      )}
+      {mode !== "files" && (
+        <section className="retail-card">
+          <h2>Food journal</h2>
+          <Alert error={error} />
+          {shared?.shared ? (
+            <>
+              <p className="retail-muted">
+                Up to 500 entries from the last 30 days. Partial logs are not
+                proof of actual intake.
+              </p>
+              {targets && (
+                <div className="retail-nutrition-targets">
+                  {["calories", "protein", "carbs", "fat"].map((k) => (
+                    <div key={k}>
+                      <strong>
+                        {targets[k] === "" ? "—" : (targets[k] ?? "—")}
+                      </strong>
+                      <small>
+                        {k === "calories"
+                          ? "Daily kcal target"
+                          : `${k} target · g`}
+                      </small>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {days
+                .sort((a, b) => b.date.localeCompare(a.date))
+                .map((d) => (
+                  <details key={d.date}>
+                    <summary>
+                      {displayDate(d.date)} · {Math.round(d.calories)} kcal ·{" "}
+                      {Math.round(d.protein)} g protein · {Math.round(d.carbs)}{" "}
+                      g carbs · {Math.round(d.fat)} g fat
+                    </summary>
+                    {d.foods.map((f, i) => (
+                      <p key={i}>
+                        {f.meal} · {f.name} · {f.quantity} {f.serving_unit}
+                      </p>
+                    ))}
+                  </details>
                 ))}
-              </details>
-            ))}
-            {!days.length && <Empty>No recent food entries.</Empty>}
-          </>
-        ) : (
-          <Empty>The customer has not enabled activity sharing.</Empty>
-        )}
-      </section>
-      {shared?.shared && (
+              {!days.length && <Empty>No recent food entries.</Empty>}
+            </>
+          ) : (
+            <Empty>The customer has not enabled activity sharing.</Empty>
+          )}
+        </section>
+      )}
+      {mode !== "files" && shared?.shared && (
         <section className="retail-card">
           <h2>Recent weight activity</h2>
           {shared.weights?.map((w, i) => (

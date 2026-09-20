@@ -57,17 +57,18 @@ export default function RetailApp() {
     back = useStore((s) => s.setActivePage);
   const [ctx, setCtx] = useState(emptyContext),
     [locationId, setLocationId] = useState(""),
-    [section, setSection] = useState(
+    [requestedSection, setSection] = useState(
       new URLSearchParams(window.location.search).has("setup") ||
         new URLSearchParams(window.location.search).has("billing")
         ? "Store"
-        : "Today",
+        : "Customers",
     ),
     [customers, setCustomers] = useState([]),
     [templates, setTemplates] = useState([]),
     [tasks, setTasks] = useState([]),
     [threads, setThreads] = useState([]),
     [selected, setSelected] = useState(null),
+    [customerTab, setCustomerTab] = useState("Overview"),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
     [loading, setLoading] = useState(true),
@@ -132,6 +133,12 @@ export default function RetailApp() {
   const locationStaff =
     user?.role === "superadmin" ||
     memberships.some((m) => m.location_id === locationId);
+  const section =
+    isStaff &&
+    !locationStaff &&
+    !["Library", "Store"].includes(requestedSection)
+      ? "Store"
+      : requestedSection;
   const employees = staffDirectory;
   const reloadContext = useCallback(async () => {
     const c = await context(user?.id);
@@ -246,12 +253,15 @@ export default function RetailApp() {
     }, 30000);
     return () => clearInterval(timer);
   }, [isStaff, selected, refresh, setError]);
-  const openCustomer = (id) =>
+  const openCustomer = (id, tab = "Overview") =>
     run(async () => {
       const c =
         customers.find((c) => c.id === id) ||
         (await list("relationships", { id }))[0];
-      if (c) setSelected(c);
+      if (c) {
+        setCustomerTab(tab);
+        setSelected(c);
+      }
     });
   const openTasks = tasks
     .filter((t) => t.status === "open")
@@ -330,17 +340,26 @@ export default function RetailApp() {
               back("dashboard");
             }}
           >
-            Back to app
+            Personal / coach app
           </Button>
         </div>
       </header>
-      {isStaff && !selected && (
+      {isStaff && (
         <nav className="retail-nav" aria-label="Store navigation">
           {(locationStaff ? sections : ["Library", "Store"]).map((s) => (
             <button
               key={s}
-              aria-current={s === section ? "page" : undefined}
+              aria-current={
+                s === (selected ? "Customers" : section) ? "page" : undefined
+              }
               onClick={() => {
+                if (
+                  !window.dispatchEvent(
+                    new Event("retail-before-leave", { cancelable: true }),
+                  )
+                )
+                  return;
+                setSelected(null);
                 setSection(s);
                 setTaskOffset(0);
                 setThreadOffset(0);
@@ -373,7 +392,6 @@ export default function RetailApp() {
               </Button>
             </section>
           )}
-        {isStaff && !selected && <WorkspaceGuide section={section} />}
         <Alert
           error={
             !online
@@ -450,7 +468,8 @@ export default function RetailApp() {
           <Empty>Loading your stores…</Empty>
         ) : selected ? (
           <CustomerWorkspace
-            key={selected.id}
+            key={`${selected.id}:${customerTab}`}
+            initialTab={customerTab}
             relationship={
               customers.find((c) => c.id === selected.id) || selected
             }
@@ -461,7 +480,10 @@ export default function RetailApp() {
             manager={manager}
             employees={employees}
             templates={templates}
-            onBack={() => setSelected(null)}
+            onBack={() => {
+              setSelected(null);
+              setSection("Customers");
+            }}
             onRefresh={async () => {
               await refresh();
               const rows = await list("relationships", { id: selected.id });
@@ -529,7 +551,8 @@ export default function RetailApp() {
                   {
                     {
                       Today: "A clear next step for every customer.",
-                      Customers: "Your store relationships, ready to continue.",
+                      Customers:
+                        "Manage nutrition plans, food journals, progress and follow-ups for every customer.",
                       Inbox: "One team. Every conversation accounted for.",
                       Library: "Approved resources, ready to personalize.",
                       Store: "Your team, operations and pilot results.",
@@ -539,10 +562,11 @@ export default function RetailApp() {
               </div>
               {locationStaff && ["Today", "Customers"].includes(section) && (
                 <Button primary onClick={() => setModal("prospect")}>
-                  New customer consultation
+                  Add customer
                 </Button>
               )}
             </div>
+            <WorkspaceGuide section={section} />
             {section === "Today" && (
               <>
                 <div className="retail-stats">
@@ -627,7 +651,9 @@ export default function RetailApp() {
                             </p>
                           </div>
                           <Button
-                            onClick={() => openCustomer(t.relationship_id)}
+                            onClick={() =>
+                              openCustomer(t.relationship_id, "Messages")
+                            }
                           >
                             Open
                           </Button>
@@ -676,31 +702,88 @@ export default function RetailApp() {
                 </div>
                 <div className="retail-grid">
                   {filtered.map((c) => (
-                    <button
+                    <article
                       className="retail-card retail-customer-card"
                       key={c.id}
-                      onClick={() => setSelected(c)}
                     >
-                      <div className="retail-eyebrow">{c.status}</div>
-                      <h2>{c.name}</h2>
-                      <p className="retail-muted">
-                        {c.goal || "Goal not recorded"}
-                      </p>
-                      <div className="retail-row">
-                        <span>
+                      <button
+                        className="retail-customer-open"
+                        onClick={() => {
+                          setCustomerTab("Overview");
+                          setSelected(c);
+                        }}
+                      >
+                        <div className="retail-customer-identity">
+                          <span
+                            className="retail-customer-avatar"
+                            aria-hidden="true"
+                          >
+                            {c.name?.trim().slice(0, 1).toUpperCase()}
+                          </span>
+                          <div>
+                            <h2>{c.name}</h2>
+                            <p className="retail-muted">
+                              {c.email || "No email recorded"}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="retail-badge">
+                          {c.status === "invited"
+                            ? "Invitation pending"
+                            : c.status}
+                        </span>
+                        <p>{c.goal || "Set their goals and nutrition plan"}</p>
+                        <p className="retail-muted">
                           {c.assigned_to === user.id
                             ? "Assigned to you"
                             : c.assigned_to
                               ? "Assigned specialist"
-                              : "Unassigned"}
-                        </span>
-                        <span>Open →</span>
+                              : "Unassigned"}{" "}
+                          · Open customer →
+                        </p>
+                      </button>
+                      <div
+                        className="retail-customer-shortcuts"
+                        aria-label={`Actions for ${c.name}`}
+                      >
+                        {[
+                          ["Plan", "Nutrition"],
+                          ["Food journal", "Food journal"],
+                          ["Progress", "Progress"],
+                          ["Messages", "Messages"],
+                        ].map(([tab, label]) => (
+                          <Button
+                            key={tab}
+                            onClick={() => {
+                              setCustomerTab(tab);
+                              setSelected(c);
+                            }}
+                          >
+                            {label}
+                          </Button>
+                        ))}
                       </div>
-                    </button>
+                    </article>
                   ))}
                 </div>
                 {!filtered.length && (
-                  <Empty>No matching accessible customers.</Empty>
+                  <Empty>
+                    <h2>
+                      {query || filter !== "all"
+                        ? "No matching customers"
+                        : "Start with your first customer"}
+                    </h2>
+                    <p>
+                      {query || filter !== "all"
+                        ? "Try another name or clear the filters."
+                        : "Add a customer, share their private invitation, then manage their nutrition plan and progress here."}
+                    </p>
+                    {!query && filter === "all" && (
+                      <Button primary onClick={() => setModal("prospect")}>
+                        Add your first customer
+                      </Button>
+                    )}
+                  </Empty>
                 )}
                 <div className="retail-actions" style={{ marginTop: 20 }}>
                   <Button
@@ -739,7 +822,11 @@ export default function RetailApp() {
                             ?.name || "Unassigned"}
                         </p>
                       </div>
-                      <Button onClick={() => openCustomer(t.relationship_id)}>
+                      <Button
+                        onClick={() =>
+                          openCustomer(t.relationship_id, "Messages")
+                        }
+                      >
                         Open conversation
                       </Button>
                     </div>

@@ -81,7 +81,9 @@ try {
         React.createElement(App),
       );
     });
-    await page.getByRole("heading", { name: "Today", exact: true }).waitFor();
+    await page
+      .getByRole("heading", { name: "Customers", exact: true })
+      .waitFor();
     for (const tab of ["Today", "Customers", "Inbox", "Library", "Store"]) {
       await page
         .getByRole("navigation", { name: "Store navigation" })
@@ -140,10 +142,44 @@ try {
       .getByRole("navigation")
       .getByRole("button", { name: "Customers", exact: true })
       .click();
+    await page
+      .getByRole("heading", { name: "Customers", exact: true })
+      .waitFor();
+    assert.equal(
+      await page
+        .getByRole("navigation", { name: "Store navigation" })
+        .getByRole("button", { name: "Customers", exact: true })
+        .getAttribute("aria-current"),
+      "page",
+    );
+    await page.screenshot({
+      path: `outputs/retail/customer-directory-${width}.png`,
+    });
+    await page
+      .getByLabel("Actions for Alexandra Montgomery")
+      .getByRole("button", { name: "Nutrition", exact: true })
+      .click();
+    await page
+      .getByRole("heading", { name: "Nutrition plan", exact: true })
+      .waitFor();
+    await page
+      .getByRole("button", { name: "← Customers", exact: true })
+      .click();
+    await page
+      .getByLabel("Actions for Alexandra Montgomery")
+      .getByRole("button", { name: "Food journal", exact: true })
+      .click();
+    await page
+      .getByRole("heading", { name: "Food journal", exact: true })
+      .waitFor();
+    await page
+      .getByRole("button", { name: "← Customers", exact: true })
+      .click();
     await page.getByRole("button", { name: /Alexandra Montgomery/ }).click();
     for (const tab of [
       "Intake",
-      "Plan",
+      "Nutrition",
+      "Food journal",
       "Progress",
       "History",
       "Check-ins",
@@ -205,10 +241,38 @@ try {
     await page.getByRole("button", { name: "Start consultation" }).waitFor();
     await page
       .locator(".retail-tabbar")
-      .getByRole("button", { name: "Plan", exact: true })
+      .getByRole("button", { name: "Nutrition", exact: true })
       .click();
     await page
       .getByRole("heading", { name: "Build consistency", exact: true })
+      .waitFor();
+    await page
+      .getByRole("button", { name: "Update nutrition plan", exact: true })
+      .click();
+    assert.equal(
+      await page.getByLabel("Plan goal", { exact: true }).inputValue(),
+      "Build consistency",
+    );
+    assert.equal(
+      await page
+        .getByLabel("Nutrition guidance — visible to customer")
+        .inputValue(),
+      "Prioritize consistent meals.",
+    );
+    await page.getByLabel("Calories / day", { exact: true }).fill("2300");
+    await page
+      .getByRole("navigation", { name: "Store navigation" })
+      .getByRole("button", { name: "Customers", exact: true })
+      .click();
+    await page
+      .getByRole("alert")
+      .filter({ hasText: "Save and close" })
+      .waitFor();
+    await page
+      .getByRole("button", { name: "Save & close", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Continue nutrition draft", exact: true })
       .waitFor();
     await page
       .getByRole("button", { name: "← Customers", exact: true })
