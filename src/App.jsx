@@ -51,6 +51,7 @@ const AdminCoaches = lazy(() => import('./pages/coach/AdminCoaches'))
 const LeadFinder = lazy(() => import('./pages/coach/LeadFinder'))
 const FeedbackForum = lazy(() => import('./pages/FeedbackForum'))
 const Marketplace = lazy(() => import('./pages/Marketplace'))
+const RetailApp = lazy(() => import('./retail/RetailApp'))
 const MarketplaceSetup = lazy(() => import('./pages/coach/MarketplaceSetup'))
 
 // Shared suspense fallback, branded skeleton so page swaps feel intentional,
@@ -122,6 +123,7 @@ const CLIENT_PAGES = {
 // Every page id that gets a real URL path (/chat, /foods, /billing, …).
 // Union of coach + client page maps, the active role renders its own page.
 const ROUTABLE = new Set([
+  'retail',
   ...Object.keys(COACH_PAGES_DESKTOP),
   ...Object.keys(CLIENT_PAGES),
 ])
@@ -195,12 +197,14 @@ export default function App() {
   useEffect(() => {
     const seg = (initialPathRef.current || '/').replace(/^\/+|\/+$/g, '')
     if (!isAuthenticated) {
+      if (seg === 'retail') { sessionStorage.setItem('ms-retail-return', '1'); setAuthView('login') }
       if (seg === 'login')  setAuthView('login')
       if (seg === 'signup') setAuthView('signup')
       if (seg === 'marketplace') setAuthView('marketplace')
       return
     }
     if (ROUTABLE.has(seg)) setActivePage(seg)
+    if (sessionStorage.getItem('ms-retail-return')) {setActivePage('retail');sessionStorage.removeItem('ms-retail-return')}
     if (sessionStorage.getItem('ms-marketplace-coach')) setActivePage('marketplace')
     initialPathRef.current = '/'   // consumed, don't re-apply on later auth flips
   }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -232,6 +236,15 @@ export default function App() {
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isAuthenticated) return
+    const refresh = () => { if (document.visibilityState === 'visible') useStore.getState().refreshRetailSponsorship() }
+    refresh()
+    const timer = setInterval(refresh, 60000)
+    document.addEventListener('visibilitychange', refresh)
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', refresh) }
+  }, [isAuthenticated])
 
   // Chat self-heal: when the tab comes back to the foreground, re-pull the
   // messages table in case the realtime websocket dropped while backgrounded
@@ -305,6 +318,8 @@ export default function App() {
       </Suspense>
     )
   }
+
+  if (activePage === 'retail') return <Suspense fallback={<PageLoader />}><RetailApp /></Suspense>
 
   if (!activeRole) {
     return (

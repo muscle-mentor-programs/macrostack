@@ -248,6 +248,21 @@ const useStore = create(
       authLoading:     true,   // true while initial session check is in flight
       currentUser:     null,   // { id, name, email, role, coachCode }
 
+      retailSponsorship: null,
+      refreshRetailSponsorship: async () => {
+        const id=get().currentUser?.id
+        if(!id||!supabase){set({retailSponsorship:null});return}
+        try {
+          const {data,error}=await supabase.rpc('retail_sponsored')
+          if(get().currentUser?.id===id)set({retailSponsorship:!error&&data===true?{userId:id,expiresAt:Date.now()+70000}:null})
+        } catch {
+          if(get().currentUser?.id===id)set({retailSponsorship:null})
+        }
+      },
+      hasRetailAccess: () => {
+        const s=get(), grant=s.retailSponsorship, user=s.currentUser
+        return !!(grant&&grant.userId===user?.id&&grant.expiresAt>Date.now()&&user.adminOverride!=='locked'&&user.memberSubscription?.adminOverride!=='locked')
+      },
       initAuth: async () => {
         if (!supabase) { set({ authLoading: false, isAuthenticated: false }); return }
         const { data: { session } } = await supabase.auth.getSession()
@@ -1182,7 +1197,7 @@ const useStore = create(
       // ── WEIGHT LOG ────────────────────────────────────────────────────────
       addClientWeight: async (clientId, entry) => {
         const user = get().currentUser
-        if (!user || ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !(user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess))) {
+        if (!user || ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !((user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess)||get().hasRetailAccess()))) {
           set({ activePage: 'upgrade' })
           return { ok: false, error: 'Pro is required for weight logging.' }
         }
@@ -1205,7 +1220,7 @@ const useStore = create(
 
       removeClientWeight: async (clientId, weightId) => {
         const user = get().currentUser
-        if (!user || ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !(user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess))) {
+        if (!user || ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !((user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess)||get().hasRetailAccess()))) {
           set({ activePage: 'upgrade' })
           return { ok: false, error: 'Pro is required for weight logging.' }
         }
@@ -1227,7 +1242,7 @@ const useStore = create(
         // Check-ins stay available, but member weight entries require Pro.
         const user = get().currentUser
         if (!user) return { ok: false }
-        if ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !(user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess)) data = { ...data, weight: null }
+        if ((user.role === 'client' || (user.dualRole && get().clients.find(c => c.id === clientId)?.profileId === user.id)) && !((user.dualRole ? user.memberSubscription?.hasAccess : user.hasAccess)||get().hasRetailAccess())) data = { ...data, weight: null }
         // Upload photos first so their URLs ride on the check-in row
         const photoUrls = []
         for (const file of photoFiles) {

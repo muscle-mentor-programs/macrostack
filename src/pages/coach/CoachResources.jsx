@@ -7,6 +7,7 @@ export default function CoachResources({ account = false }) {
   const {setActivePage,setActiveRole,logout,currentUser,portalMode,setPortalMode}=useStore()
   const admin=useIsSuperadmin()
   const items=account ? [
+    ['retail','Store workspace','Consultations, customer follow-ups and store operations',Users],
     ['profile','Profile & settings','Your coaching profile and preferences',User],
     ['upgrade','Subscription','Manage your coaching plan',CreditCard],
     ['forms','Forms & check-ins','Create questionnaires for your clients',ClipboardList],
