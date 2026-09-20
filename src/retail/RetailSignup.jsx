@@ -314,7 +314,7 @@ export default function RetailSignup() {
               <form onSubmit={createWorkspace}>
                 <Field
                   label="Business name"
-                  placeholder="e.g. 5 Star Nutrition"
+                  placeholder="e.g. Peak Nutrition"
                   required
                   maxLength={120}
                   value={business}
@@ -322,7 +322,7 @@ export default function RetailSignup() {
                 />
                 <Field
                   label="First store name"
-                  placeholder="e.g. Boise"
+                  placeholder="e.g. Downtown location"
                   required
                   maxLength={120}
                   value={store}
