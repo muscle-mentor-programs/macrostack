@@ -74,8 +74,16 @@ export async function joinInfo(code) {
 export async function directory(lid) {
   return check(await supabase.rpc("retail_staff_directory", { lid })) || [];
 }
-export async function inbox(lid) {
-  return check(await supabase.rpc("retail_inbox", { lid })) || [];
+export async function inbox(lid, { offset = 0, state = "all" } = {}) {
+  return (
+    check(
+      await supabase.rpc("retail_inbox_page", {
+        lid,
+        page_offset: offset,
+        thread_state: state,
+      }),
+    ) || []
+  );
 }
 export async function intakeForm(rid) {
   return check(await supabase.rpc("retail_intake_form", { rid })) || [];
@@ -107,14 +115,15 @@ export async function relationships(
   check(result);
   return { rows: result.data || [], count: result.count || 0 };
 }
-export async function queue(lid) {
+export async function queue(lid, offset = 0) {
   const r = await supabase
     .from("retail_tasks")
     .select("*,retail_relationships!inner(location_id,name)")
     .eq("retail_relationships.location_id", lid)
     .eq("status", "open")
     .order("due_at")
-    .limit(100);
+    .order("id")
+    .range(offset, offset + 25);
   return check(r) || [];
 }
 export async function activity(rid) {
@@ -242,4 +251,31 @@ export async function verifyPhone(phone, token) {
       await supabase.auth.verifyOtp({ phone, token, type: "phone_change" }),
     );
   return check(await supabase.auth.updateUser({ phone }));
+}
+
+export async function operations(locationId) {
+  const result = await supabase.functions.invoke("retail-health", {
+    body: { location_id: locationId },
+  });
+  if (result.error || result.data?.error)
+    throw new Error(
+      result.data?.error || "Could not load store health. Please retry.",
+    );
+  return result.data;
+}
+export async function retryDelivery(id) {
+  return check(await supabase.rpc("retail_retry_delivery", { did: id }));
+}
+
+export async function conversation(id) {
+  return Object.fromEntries(
+    await Promise.all(
+      ["messages", "threads", "notifications", "read_receipts"].map(
+        async (table) => [
+          table,
+          await list(table, { relationship_id: id }, 300),
+        ],
+      ),
+    ),
+  );
 }

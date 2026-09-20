@@ -1,3 +1,7 @@
+import { createRequestCache } from "./requestCache.mjs";
+import OperationalHealth from "./OperationalHealth";
+import StarterResources from "./StarterResources";
+import WorkspaceGuide from "./WorkspaceGuide";
 import Operations from "./Operations";
 import useViewport from "./useViewport";
 import useClock from "./useClock";
@@ -72,6 +76,9 @@ export default function RetailApp() {
     [network, setNetwork] = useState(null);
   const { busy, error, run, setError } = useAction();
   const generation = useRef(0);
+  const [auxCache] = useState(() => createRequestCache());
+  const [taskOffset, setTaskOffset] = useState(0),
+    [threadOffset, setThreadOffset] = useState(0);
   const [search, setSearch] = useState("");
   useEffect(() => {
     const timer = setTimeout(() => setSearch(query), 250);
@@ -149,44 +156,63 @@ export default function RetailApp() {
       active = false;
     };
   }, [setError, user?.id]);
-  const refresh = useCallback(async () => {
-    const g = ++generation.current;
-    if (!locationId) return;
-    const [c, t, ts, th, people, counts] = await Promise.all([
-      relationships(locationId, {
-        search: section === "Customers" ? search : "",
-        filter: section === "Customers" ? filter : "all",
-        userId: user?.id,
-        offset: section === "Customers" ? offset : 0,
-      }),
-      list("templates", { organization_id: location?.organization_id }),
-      isStaff ? queue(locationId) : Promise.resolve([]),
-      isStaff ? inbox(locationId) : Promise.resolve([]),
-      isStaff ? directory(locationId) : Promise.resolve([]),
-      isStaff ? queueCounts(locationId) : Promise.resolve({}),
-    ]);
-    if (g !== generation.current) return;
-    setCustomers(c.rows);
-    setTotal(c.count);
-    setTemplates(
-      t.filter((x) => !x.location_id || x.location_id === locationId),
-    );
-    setTasks(ts);
-    setThreads(th);
-    setStaffDirectory(people);
-    setCounts(counts);
-  }, [
-    locationId,
-    location,
-    search,
-    filter,
-    offset,
-    section,
-    user?.id,
-    isStaff,
-  ]);
+  const refresh = useCallback(
+    async (force = true) => {
+      const g = ++generation.current;
+      if (!locationId) return;
+      const inboxState = section === "Today" ? "open" : "all";
+      const [c, auxiliary] = await Promise.all([
+        section === "Customers" || !isStaff
+          ? relationships(locationId, {
+              search: section === "Customers" ? search : "",
+              filter: section === "Customers" ? filter : "all",
+              userId: user?.id,
+              offset: section === "Customers" ? offset : 0,
+            })
+          : Promise.resolve({ rows: [], count: 0 }),
+        auxCache.get(
+          `${user?.id}:${locationId}:${isStaff}:${taskOffset}:${threadOffset}:${inboxState}`,
+          () =>
+            Promise.all([
+              list("templates", { organization_id: location?.organization_id }),
+              isStaff ? queue(locationId, taskOffset) : Promise.resolve([]),
+              isStaff
+                ? inbox(locationId, { offset: threadOffset, state: inboxState })
+                : Promise.resolve([]),
+              isStaff ? directory(locationId) : Promise.resolve([]),
+              isStaff ? queueCounts(locationId) : Promise.resolve({}),
+            ]),
+          force,
+        ),
+      ]);
+      const [t, ts, th, people, counts] = auxiliary;
+      if (g !== generation.current) return;
+      setCustomers(c.rows);
+      setTotal(c.count);
+      setTemplates(
+        t.filter((x) => !x.location_id || x.location_id === locationId),
+      );
+      setTasks(ts);
+      setThreads(th);
+      setStaffDirectory(people);
+      setCounts(counts);
+    },
+    [
+      locationId,
+      location,
+      search,
+      filter,
+      offset,
+      section,
+      user?.id,
+      isStaff,
+      auxCache,
+      taskOffset,
+      threadOffset,
+    ],
+  );
   useEffect(() => {
-    refresh().catch((e) => setError(e.message));
+    refresh(false).catch((e) => setError(e.message));
     return () => {
       // Request counter, not a DOM node; invalidate in-flight responses.
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -257,7 +283,7 @@ export default function RetailApp() {
     setMetric(null);
     setNetwork(null);
     setOffset(0);
-    setLocationId(id);
+    setLocationId(id);setTaskOffset(0);setThreadOffset(0);
     setCustomers([]);
     setTasks([]);
     setThreads([]);
@@ -309,6 +335,8 @@ export default function RetailApp() {
               aria-current={s === section ? "page" : undefined}
               onClick={() => {
                 setSection(s);
+                setTaskOffset(0);
+                setThreadOffset(0);
                 if (s === "Store" && manager) showReports();
               }}
             >
@@ -318,6 +346,7 @@ export default function RetailApp() {
         </nav>
       )}
       <main className="retail-main">
+        {isStaff && !selected && <WorkspaceGuide section={section} />}
         <Alert
           error={
             !online
@@ -500,7 +529,7 @@ export default function RetailApp() {
                   <section className="retail-card">
                     <h2>Follow-up queue</h2>
                     <p className="retail-muted">
-                      Next 25 actions, oldest due first.
+                      25 actions per page, oldest due first.
                     </p>
                     {!openTasks.length && (
                       <Empty>
@@ -528,6 +557,23 @@ export default function RetailApp() {
                         </Button>
                       </div>
                     ))}
+                    <div className="retail-actions">
+                      <Button
+                        disabled={taskOffset === 0 || busy}
+                        onClick={() =>
+                          setTaskOffset((n) => Math.max(0, n - 25))
+                        }
+                      >
+                        Previous actions
+                      </Button>
+                      <span>Page {Math.floor(taskOffset / 25) + 1}</span>
+                      <Button
+                        disabled={tasks.length <= 25 || busy}
+                        onClick={() => setTaskOffset((n) => n + 25)}
+                      >
+                        Next actions
+                      </Button>
+                    </div>
                   </section>
                   <aside className="retail-card">
                     <h2>Continue a conversation</h2>
@@ -646,7 +692,7 @@ export default function RetailApp() {
             {section === "Inbox" && (
               <section className="retail-card">
                 {threads.length ? (
-                  threads.map((t) => (
+                  threads.slice(0, 50).map((t) => (
                     <div className="retail-row" key={t.relationship_id}>
                       <div>
                         <h3>
@@ -667,12 +713,28 @@ export default function RetailApp() {
                     </div>
                   ))
                 ) : (
-                  <Empty>No customer conversations yet.</Empty>
+                  <Empty>No customer conversations on this page.</Empty>
                 )}
+                <div className="retail-actions">
+                  <Button
+                    disabled={threadOffset === 0 || busy}
+                    onClick={() => setThreadOffset((n) => Math.max(0, n - 50))}
+                  >
+                    Previous conversations
+                  </Button>
+                  <span>Page {Math.floor(threadOffset / 50) + 1}</span>
+                  <Button
+                    disabled={threads.length <= 50 || busy}
+                    onClick={() => setThreadOffset((n) => n + 50)}
+                  >
+                    Next conversations
+                  </Button>
+                </div>
               </section>
             )}
             {section === "Library" && (
               <>
+                {manager && <StarterResources onChoose={setModal} />}
                 <div className="retail-actions" style={{ marginBottom: 18 }}>
                   {manager && (
                     <Button primary onClick={() => setModal("template")}>
@@ -709,6 +771,13 @@ export default function RetailApp() {
             )}
             {section === "Store" && (
               <>
+                {manager && (
+                  <OperationalHealth
+                    key={`health-${location.id}`}
+                    location={location}
+                    onNavigate={setSection}
+                  />
+                )}
                 {manager && org && (
                   <Operations
                     key={location.id}
@@ -971,7 +1040,9 @@ export default function RetailApp() {
         <Modal
           title={
             typeof modal === "object"
-              ? "Edit resource"
+              ? modal.id
+                ? "Edit resource"
+                : "Review draft"
               : {
                   provision: "Create retail organization",
                   prospect: "New customer",
