@@ -25,3 +25,11 @@ The default is $599 USD/store/month, billed by MacroStack, LLC. The billing cont
 Supabase advisors returned no retail-specific warnings. Existing notices remain for public pg_net, legacy callable security-definer functions, leaked-password protection and two intentionally server-only Stripe tables with no browser policies. These are not changes from this release. [Supabase advisor guidance](https://supabase.com/docs/guides/database/database-linter).
 
 Historical drift in `docs/sync-baseline.md` remains unresolved. The preexisting local workflow change and untracked workspace/reference outputs were excluded from this release.
+
+## Readiness follow-up — September 20, 2026
+
+Applied `20260920213018_retail_readiness.sql`; local filename matches Supabase history. Added restricted operations health, manager-only safe email retries, paginated inbox RPCs and supporting indexes. `retail-health` is ACTIVE v1 (JWT required); `retail-delivery` is ACTIVE v2 with worker heartbeat reporting and existing worker authentication.
+
+The synthetic hosted database workflow passed for staff/customer enrollment, intake, idempotent publication, private-note isolation, assessment visibility, idempotent messaging, check-ins, sponsorship and unrelated-account denial. All test writes were rolled back; no test accounts or retail customer records remain. Storage binary transport and external provider acceptance still require configured, consenting test accounts/providers.
+
+Fourteen core suites, the expanded database suite, both four-width browser suites, React lint, Deno checks, the production build and production dependency audit pass. The public interactive demo is isolated from customer APIs. Browser tests verify draft-only resource creation, retry controls, save recovery, mobile/desktop layouts and sample consultation/member flows. The worker-health table intentionally has no browser policies: only server code can access it directly; authorized managers use the scoped health RPC.
