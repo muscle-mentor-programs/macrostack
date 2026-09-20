@@ -57,7 +57,12 @@ export default function RetailApp() {
     back = useStore((s) => s.setActivePage);
   const [ctx, setCtx] = useState(emptyContext),
     [locationId, setLocationId] = useState(""),
-    [section, setSection] = useState("Today"),
+    [section, setSection] = useState(
+      new URLSearchParams(window.location.search).has("setup") ||
+        new URLSearchParams(window.location.search).has("billing")
+        ? "Store"
+        : "Today",
+    ),
     [customers, setCustomers] = useState([]),
     [templates, setTemplates] = useState([]),
     [tasks, setTasks] = useState([]),
@@ -283,7 +288,9 @@ export default function RetailApp() {
     setMetric(null);
     setNetwork(null);
     setOffset(0);
-    setLocationId(id);setTaskOffset(0);setThreadOffset(0);
+    setLocationId(id);
+    setTaskOffset(0);
+    setThreadOffset(0);
     setCustomers([]);
     setTasks([]);
     setThreads([]);
@@ -346,6 +353,26 @@ export default function RetailApp() {
         </nav>
       )}
       <main className="retail-main">
+        {isStaff &&
+          location?.billing_required &&
+          (!location.enabled ||
+            !location.sponsorship_ends_at ||
+            Date.parse(location.sponsorship_ends_at) <= now) && (
+            <section className="retail-card retail-banner">
+              <h2>Your workspace is ready. Activate your store next.</h2>
+              <p>
+                Invite your team and prepare resources now. Activate the
+                $599/month store subscription to start customer consultations,
+                plans, messages, check-ins and sponsored Pro access.
+              </p>
+              <Button primary onClick={() => setSection("Store")}>
+                Open store setup & billing
+              </Button>
+              <Button onClick={() => run(reloadContext)}>
+                Refresh activation status
+              </Button>
+            </section>
+          )}
         {isStaff && !selected && <WorkspaceGuide section={section} />}
         <Alert
           error={
@@ -444,6 +471,11 @@ export default function RetailApp() {
           />
         ) : !locationId ? (
           <section className="retail-card">
+            {!code && (
+              <a className="retail-button primary" href="/retailers">
+                Retailer? Create your business workspace →
+              </a>
+            )}
             <h1>
               {user?.role === "superadmin"
                 ? "Set up a retail organization"
@@ -771,16 +803,10 @@ export default function RetailApp() {
             )}
             {section === "Store" && (
               <>
-                {manager && (
-                  <OperationalHealth
-                    key={`health-${location.id}`}
-                    location={location}
-                    onNavigate={setSection}
-                  />
-                )}
                 {manager && org && (
                   <Operations
                     key={location.id}
+                    onBillingRefresh={reloadContext}
                     location={location}
                     organization={org}
                     admin={user?.role === "superadmin"}
@@ -794,6 +820,14 @@ export default function RetailApp() {
                     }
                   />
                 )}
+                {manager && (
+                  <OperationalHealth
+                    key={`health-${location.id}`}
+                    location={location}
+                    onNavigate={setSection}
+                  />
+                )}
+
                 <div className="retail-columns">
                   <section>
                     <div className="retail-card">

@@ -18,6 +18,8 @@ const StripeConnectCallback = lazy(() => import('./pages/StripeConnectCallback.j
 // eslint-disable-next-line react-refresh/only-export-components
 const RetailDemo = lazy(() => import('./retail/RetailDemo.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
+const RetailSignup = lazy(() => import('./retail/RetailSignup.jsx'))
+// eslint-disable-next-line react-refresh/only-export-components
 const Gyms = lazy(() => import('./pages/Gyms.jsx'))
 
 // Error monitoring, no-op until VITE_SENTRY_DSN is set in Vercel env
@@ -46,7 +48,8 @@ const publicPath = window.location.pathname.replace(/\/+$/, '')
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Suspense fallback={<div role="status" aria-label="Loading MacroStack" style={{ minHeight: '100dvh', background: '#080b12' }} />}>
-      {publicPath === '/retail/demo' ? <RetailDemo />
+      {publicPath === '/retailers' || publicPath === '/retail/start' ? <RetailSignup />
+        : publicPath === '/retail/demo' ? <RetailDemo />
         : publicPath === '/gyms' ? <Gyms />
         : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />
         : <App />}

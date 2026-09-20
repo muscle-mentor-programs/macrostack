@@ -66,6 +66,12 @@ try {
       "utf8",
     ),
   );
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/20260920225539_retail_self_service_onboarding.sql",
+      "utf8",
+    ),
+  );
   await as("other");
   await assert.rejects(
     () => call("provision", { name: "Forbidden" }),
@@ -442,12 +448,51 @@ try {
       ),
     /mismatch/,
   );
-  const paidThrough=(await db.query("select sponsorship_ends_at from retail_locations where id=$1",[a.location_id])).rows[0].sponsorship_ends_at;
-  await db.query("select retail_sync_contract($1,'sub_test','cus_test','past_due',now()+interval '60 days')",[contract.id]);
-  assert.equal(String((await db.query("select sponsorship_ends_at from retail_locations where id=$1",[a.location_id])).rows[0].sponsorship_ends_at),String(paidThrough),'failed payments never extend sponsorship');
-  await db.query("select retail_sync_contract($1,'sub_test','cus_test','canceled',now()+interval '60 days')",[contract.id]);
-  assert.ok(Date.parse((await db.query("select sponsorship_ends_at from retail_locations where id=$1",[a.location_id])).rows[0].sponsorship_ends_at)<=Date.now());
-  assert.deepEqual((await db.query("select member_subscription from profiles where id=$1",[ids.member])).rows[0].member_subscription,{},'store cancellation does not modify a personal subscription');
+  const paidThrough = (
+    await db.query(
+      "select sponsorship_ends_at from retail_locations where id=$1",
+      [a.location_id],
+    )
+  ).rows[0].sponsorship_ends_at;
+  await db.query(
+    "select retail_sync_contract($1,'sub_test','cus_test','past_due',now()+interval '60 days')",
+    [contract.id],
+  );
+  assert.equal(
+    String(
+      (
+        await db.query(
+          "select sponsorship_ends_at from retail_locations where id=$1",
+          [a.location_id],
+        )
+      ).rows[0].sponsorship_ends_at,
+    ),
+    String(paidThrough),
+    "failed payments never extend sponsorship",
+  );
+  await db.query(
+    "select retail_sync_contract($1,'sub_test','cus_test','canceled',now()+interval '60 days')",
+    [contract.id],
+  );
+  assert.ok(
+    Date.parse(
+      (
+        await db.query(
+          "select sponsorship_ends_at from retail_locations where id=$1",
+          [a.location_id],
+        )
+      ).rows[0].sponsorship_ends_at,
+    ) <= Date.now(),
+  );
+  assert.deepEqual(
+    (
+      await db.query("select member_subscription from profiles where id=$1", [
+        ids.member,
+      ])
+    ).rows[0].member_subscription,
+    {},
+    "store cancellation does not modify a personal subscription",
+  );
   await as("member");
   await call("preferences", {
     relationship_id: rid,
@@ -519,6 +564,7 @@ try {
   );
   await db.exec("reset role");
   await db.exec(readFileSync("scripts/test-retail-hosted.sql", "utf8"));
+  await db.exec(readFileSync("scripts/test-retail-signup.sql", "utf8"));
   console.log(
     "PASS retail database: provisioning, invitation identity, store isolation, staff/private visibility, immutable publishing, retry deduplication, sponsorship pause and corporate aggregate-only reporting",
   );

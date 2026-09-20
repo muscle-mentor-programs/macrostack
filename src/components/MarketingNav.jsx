@@ -23,6 +23,7 @@ export default function MarketingNav({ gyms = false, onGetStarted, onSignUp, onM
       <div className="marketing-sections">{(gyms ? gymLinks : links).map(([id,label]) => <a key={id} href={`#${id}`} onClick={event => { if (scrollToMarketingSection(id)) event.preventDefault() }}>{label}</a>)}
         {!gyms && <a href="/marketplace" onClick={e => action(e,onMarketplace)}>Marketplace</a>}
         {!gyms && <a href="/gyms">Gyms</a>}
+        {!gyms && <a href="/retailers">Retailers</a>}
       </div>
       <div className="marketing-actions">
         <a href="/login" onClick={e => action(e,onGetStarted)}>Sign in</a>

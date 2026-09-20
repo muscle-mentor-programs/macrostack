@@ -6,6 +6,7 @@ export default function Operations({
   organization,
   admin,
   organizationAdmin,
+  onBillingRefresh,
 }) {
   const [contract, setContract] = useState(null),
     [pilot, setPilot] = useState(null),
@@ -36,6 +37,7 @@ export default function Operations({
       );
     }
     setLoaded(true);
+    if (scope !== "pilot") await onBillingRefresh?.();
   };
   useEffect(() => {
     let active = true;
@@ -99,7 +101,7 @@ export default function Operations({
                 {new Date(contract.period_end).toLocaleDateString()}
               </p>
             )}
-            {admin &&
+            {(admin || (organizationAdmin && location.billing_required)) &&
               !contract?.checkout_id &&
               !contract?.stripe_subscription_id && (
                 <form
