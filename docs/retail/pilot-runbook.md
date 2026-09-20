@@ -4,7 +4,7 @@
 
 1. Read `docs/sync-baseline.md`. This repository has historical migration drift: do not run a blanket database push.
 2. Compare actual `profiles.member_subscription`, `member_weight_access()`, existing weight/check-in policies and migration history. Back up the database through the normal operator process.
-3. Run the core suite, production build, database isolation suite and responsive browser suite. Review the new migration in full. Apply only `20260920193515_retail_store_platform.sql` after checking it has not been applied under another version.
+3. Run the core suite, production build, database isolation suite and responsive browser suite. Review the new migration in full. Apply only `20260920205307_retail_store_platform.sql` followed by `20260920205319_retail_operations_billing.sql` after checking it has not been applied under another version.
 4. Confirm every `retail_*` public table has RLS and browser SELECT-only grants. Confirm `retail-files` is private, with the size/type restrictions and path policies in the migration. Run database advisors and assess new findings.
 5. Check `cron.job` contains the active `retail-service-reminders` job. Run the worker twice with a synthetic due task: first creates one notification, second creates none. Inspect `cron.job_run_details` for failures. The local PGlite harness intentionally does not provide pg_cron.
 6. Deploy committed application source, verify the source SHA and production alias, then exercise a synthetic store/customer account end to end. No live customer records should be used for smoke tests.

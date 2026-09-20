@@ -50,13 +50,13 @@ try {
     );
   await db.exec(
     readFileSync(
-      "supabase/migrations/20260920193515_retail_store_platform.sql",
+      "supabase/migrations/20260920205307_retail_store_platform.sql",
       "utf8",
     ),
   );
   await db.exec(
     readFileSync(
-      "supabase/migrations/20260920203257_retail_operations_billing.sql",
+      "supabase/migrations/20260920205319_retail_operations_billing.sql",
       "utf8",
     ),
   );
