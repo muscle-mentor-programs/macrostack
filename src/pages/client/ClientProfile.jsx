@@ -787,6 +787,7 @@ export default function ClientProfile() {
         </button>
       </div>
     </div>
+    <div className="mx-5 mb-8 glass-card rounded-lg p-5"><h2 className="font-display font-bold text-xl">YOUR STORE</h2><p className="text-muted text-sm mt-2 mb-4">Open your store plan, check-ins and conversations.</p><button className="btn-accent rounded-lg px-5 py-3" onClick={() => useStore.getState().setActivePage('retail')}>Open store workspace</button></div>
     <CoachActivation />
 
     <div className="mx-5 mb-8 glass-card rounded-lg p-5">

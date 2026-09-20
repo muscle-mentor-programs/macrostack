@@ -1,4 +1,5 @@
 import useStore from '../store'
+import useClock from '../retail/useClock'
 
 /**
  * Subscription access for the signed-in account.
@@ -12,8 +13,10 @@ import useStore from '../store'
  *   audience    – 'coach' | 'user' (which plan this account would buy)
  */
 export default function useSubscription() {
+  const now = useClock()
   const user           = useStore((s) => s.currentUser)
 
+  const sponsored = useStore(s => s.retailSponsorship)
   const activeRole = useStore(s => s.activeRole)
   const memberMode = user?.dualRole && activeRole === 'client'
   const subscription = memberMode ? user.memberSubscription : user
@@ -22,7 +25,7 @@ export default function useSubscription() {
   const audience     = (memberMode || user?.role === 'client') ? 'user' : 'coach'
 
   // Coach connections do not change the account's subscription entitlement.
-  const hasAccess = !!subscription?.hasAccess
+  const hasAccess = !!subscription?.hasAccess || (audience === 'user' && user?.adminOverride !== 'locked' && subscription?.adminOverride !== 'locked' && sponsored?.userId === user?.id && sponsored?.expiresAt > now)
 
   return {
     hasAccess,

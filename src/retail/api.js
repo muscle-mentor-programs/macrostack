@@ -1,0 +1,164 @@
+import { supabase } from "../lib/supabase";
+function check(result) {
+  if (result.error)
+    throw new Error(result.error.message || "Could not save. Please retry.");
+  return result.data;
+}
+export async function command(action, payload) {
+  if (!supabase) throw new Error("The account service is unavailable.");
+  return check(await supabase.rpc("retail_command", { action, payload }));
+}
+export async function list(table, filters = {}, limit = 200) {
+  if (!supabase) throw new Error("The account service is unavailable.");
+  let query = supabase.from(`retail_${table}`).select("*").limit(limit);
+  const order = {
+    consultations: "updated_at",
+    plans: "published_at",
+    assessments: "measured_on",
+    tasks: "due_at",
+    notes: "created_at",
+    messages: "created_at",
+    checkins: "created_at",
+    notifications: "created_at",
+    templates: "updated_at",
+    relationships: "created_at",
+  }[table];
+  if (order) query = query.order(order, { ascending: table === "tasks" });
+  for (const [key, value] of Object.entries(filters))
+    query = query.eq(key, value);
+  return check(await query) || [];
+}
+export async function context(userId) {
+  if (!userId) throw new Error("Sign in to open the store workspace.");
+  const [locations, organizations, staff, operators] = await Promise.all([
+    list("locations"),
+    list("organizations"),
+    list("staff", { user_id: userId, active: true }),
+    list("operators"),
+  ]);
+  return { locations, organizations, staff, operators };
+}
+export async function customer(id) {
+  const tables = [
+    "consultations",
+    "plans",
+    "assessments",
+    "tasks",
+    "notes",
+    "messages",
+    "threads",
+    "checkins",
+    "notifications",
+    "read_receipts",
+    "intakes",
+  ];
+  const entries = await Promise.all(
+    tables.map(async (table) => [
+      table,
+      await list(table, { relationship_id: id }, 300),
+    ]),
+  );
+  return Object.fromEntries(entries);
+}
+export async function reports(lid, days = 30) {
+  return check(
+    await supabase.rpc("retail_reports", {
+      lid,
+      since_at: new Date(Date.now() - days * 86400000).toISOString(),
+    }),
+  );
+}
+export async function joinInfo(code) {
+  return check(await supabase.rpc("retail_join_info", { code }));
+}
+export async function directory(lid) {
+  return check(await supabase.rpc("retail_staff_directory", { lid })) || [];
+}
+export async function inbox(lid) {
+  return check(await supabase.rpc("retail_inbox", { lid })) || [];
+}
+export async function intakeForm(rid) {
+  return check(await supabase.rpc("retail_intake_form", { rid })) || [];
+}
+export async function relationships(
+  lid,
+  { search = "", filter = "all", userId, offset = 0 } = {},
+) {
+  let q = supabase
+    .from("retail_relationships")
+    .select("*", { count: "exact" })
+    .eq("location_id", lid)
+    .order("created_at", { ascending: false })
+    .order("id")
+    .range(offset, offset + 49);
+  if (filter === "mine") q = q.eq("assigned_to", userId);
+  else if (filter !== "all") q = q.eq("status", filter);
+  if (search.trim()) {
+    // Escape PostgREST filter grammar; wildcards remain literal user text.
+    const safe = search
+      .trim()
+      .replace(/[,%()*"\\]/g, " ")
+      .slice(0, 100);
+    q = q.or(
+      `name.ilike.%${safe}%,email.ilike.%${safe}%,phone.ilike.%${safe}%`,
+    );
+  }
+  const result = await q;
+  check(result);
+  return { rows: result.data || [], count: result.count || 0 };
+}
+export async function queue(lid) {
+  const r = await supabase
+    .from("retail_tasks")
+    .select("*,retail_relationships!inner(location_id,name)")
+    .eq("retail_relationships.location_id", lid)
+    .eq("status", "open")
+    .order("due_at")
+    .limit(100);
+  return check(r) || [];
+}
+export async function activity(rid) {
+  return check(await supabase.rpc("retail_activity", { rid }));
+}
+export async function uploadFile(rid, file, kind, userId) {
+  if (
+    !["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(
+      file.type,
+    )
+  )
+    throw new Error("Choose a JPG, PNG, WebP or PDF file.");
+  if (file.size > 10 * 1024 * 1024)
+    throw new Error("Choose a file smaller than 10 MB.");
+  const id = crypto.randomUUID(),
+    path = `${rid}/${userId}/${id}`;
+  check(
+    await supabase.storage
+      .from("retail-files")
+      .upload(path, file, { contentType: file.type, upsert: false }),
+  );
+  try {
+    await command("file", {
+      relationship_id: rid,
+      id,
+      object_path: path,
+      label: file.name,
+      kind,
+    });
+  } catch (error) {
+    // A lost response may follow a successful registration. Preserve the object in
+    // that case; otherwise clean up the unregistered upload.
+    const saved = await list("files", { id }).catch(() => null);
+    if (saved?.length) return;
+    if (saved) await supabase.storage.from("retail-files").remove([path]);
+    throw error;
+  }
+}
+export async function fileURL(path) {
+  return check(
+    await supabase.storage.from("retail-files").createSignedUrl(path, 120),
+  ).signedUrl;
+}
+
+export async function queueCounts(lid) {
+  return check(await supabase.rpc("retail_queue_counts", { lid }));
+}
