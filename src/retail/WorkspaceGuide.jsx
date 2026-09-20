@@ -29,14 +29,6 @@ export default function WorkspaceGuide({ section }) {
           <li key={x}>{x}</li>
         ))}
       </ol>
-      <a
-        className="retail-button"
-        href="/retail/demo"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Practice in the demo ↗
-      </a>
     </details>
   );
 }

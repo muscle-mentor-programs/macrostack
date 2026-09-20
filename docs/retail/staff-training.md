@@ -2,9 +2,7 @@
 
 ## Practice first
 
-Open `/retail/demo`. Every store, customer and result is fictional. Choose a customer, complete the three practice steps, publish the sample plan, and switch to Member view. Add a demo reply and compare the sample store results. Reset returns to the starting state; closing the tab discards all practice changes. Nothing is sent, charged or saved to a customer account.
-
-The demo is a shortened rehearsal. The live consultation includes intake, measurements, private observations, customer guidance, follow-up dates and a publication preview.
+Use your retailer workspace to review store setup, staff permissions and approved resources. Rehearse customer workflows only with designated test accounts before enrolling real customers.
 
 ## Prepare a store
 

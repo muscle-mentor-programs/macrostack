@@ -56,14 +56,6 @@ export default function OperationalHealth({ location, onNavigate }) {
             <h2>Launch checklist</h2>
             <p>Prepare the store, then rehearse the customer journey.</p>
           </div>
-          <a
-            className="retail-button"
-            href="/retail/demo"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open demo ↗
-          </a>
         </div>
         {data && (
           <>
@@ -87,8 +79,7 @@ export default function OperationalHealth({ location, onNavigate }) {
             </div>
             <p className="retail-muted">
               Partner approval, staff training, and a hosted pilot remain part
-              of launch sign-off. The demo does not create real accounts or send
-              messages.
+              of launch sign-off.
             </p>
           </>
         )}

@@ -46,9 +46,22 @@
     {
       "source": "/stripe-connect/callback",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "Referrer-Policy", "value": "no-referrer" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/retail/demo",
+      "destination": "/retailers",
+      "permanent": true
     }
   ]
 }

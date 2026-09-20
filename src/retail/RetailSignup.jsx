@@ -171,7 +171,6 @@ export default function RetailSignup() {
           <BrandWordmark />
         </a>
         <div className="retail-actions">
-          <a href="/retail/demo">Explore demo</a>
           <a href="/retail">Staff sign in ↗</a>
         </div>
       </header>
