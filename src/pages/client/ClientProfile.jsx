@@ -55,7 +55,7 @@ function PushToggle() {
 
 export default function ClientProfile() {
   const {
-    activeClientId, clients, updateClientProfile, uploadClientAvatar,
+    currentUser, activeClientId, clients, updateClientProfile, uploadClientAvatar,
     submitCoachCode, setClientReminders, updateClientGoals, setServingPref,
     unlinkFromCoach, myCoachRequests, fetchMyCoachRequests, coachProfile,
   } = useStore()
@@ -133,6 +133,8 @@ export default function ClientProfile() {
     bio:    client?.bio    || '',
   })
   const [saved,      setSaved]      = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [uploading,  setUploading]  = useState(false)
   const [cropSrc,    setCropSrc]    = useState(null)   // object-URL while cropping
   const [photoMessage, setPhotoMessage] = useState('')
@@ -177,16 +179,24 @@ export default function ClientProfile() {
 
   const field = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
-  const handleSave = () => {
-    updateClientProfile(activeClientId, {
-      name:   form.name,
-      height: form.height,
-      dob:    form.dob,
-      phone:  form.phone,
-      bio:    form.bio,
-    })
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  const handleSave = async () => {
+    if (saving) return
+    setSaving(true)
+    setSaved(false)
+    setSaveError('')
+    try {
+      const result = await updateClientProfile(activeClientId, {
+        name: form.name, height: form.height, dob: form.dob,
+        phone: form.phone, bio: form.bio,
+      })
+      if (!result?.ok) throw new Error(result?.error || 'Could not save your profile. Please retry.')
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (error) {
+      setSaveError(error.message || 'Could not save your profile. Please retry.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   // ── 30-day progress data ───────────────────────────────────────────────────
@@ -214,14 +224,14 @@ export default function ClientProfile() {
   const [reportEmail, setReportEmail] = useState('idle') // idle | sending | sent | error
 
   const handleEmailReport = async () => {
-    if (!client?.email || reportEmail === 'sending') return
+    if (!currentUser?.email || reportEmail === 'sending') return
     setReportEmail('sending')
     try {
       const res = await apiFetch('/api/email/report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to:              client.email,
+          to:              currentUser.email,
           clientName:      client.name,
           rangeLabel:      reportRange,
           pdfBase64:       progressReportPDFBase64(client),
@@ -624,7 +634,7 @@ export default function ClientProfile() {
             <FileDown size={15} />
             DOWNLOAD WEEKLY REPORT
           </button>
-          {client?.email && (
+          {currentUser?.email && (
             <button
               onClick={handleEmailReport}
               disabled={reportEmail === 'sending'}
@@ -759,10 +769,12 @@ export default function ClientProfile() {
         </div>
       </div>
 
+      {saveError && <p role="alert" className="mx-5 mb-3 text-sm text-red-400">{saveError}</p>}
       {/* Save button */}
       <div className="mx-5 mb-8 anim-fade-in-up" style={{ animationDelay: '520ms' }}>
         <button
           onClick={handleSave}
+          disabled={saving}
           className={`w-full py-3.5 rounded-xl font-display font-bold text-sm tracking-widest transition-all glow-hover-olive ${
             saved ? 'bg-olive text-bg' : 'btn-accent text-bg'
           }`}
@@ -771,7 +783,7 @@ export default function ClientProfile() {
             <span className="flex items-center justify-center gap-2">
               <Check size={15} /> SAVED
             </span>
-          ) : 'SAVE CHANGES'}
+          ) : saving ? 'SAVING…' : 'SAVE CHANGES'}
         </button>
       </div>
     </div>

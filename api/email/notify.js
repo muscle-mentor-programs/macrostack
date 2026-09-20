@@ -1,4 +1,4 @@
-import { requireUser } from '../_auth.js'
+import { requireUser, requireEmailRecipients } from '../_auth.js'
 /**
  * POST /api/email/notify
  * Sends a notification email for new messages or new account creation.
@@ -19,18 +19,21 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM   = process.env.RESEND_FROM_EMAIL || 'MacroStack <onboarding@resend.dev>'
 
 export default async function handler(req, res) {
-  if (!(await requireUser(req, res))) return
+  const auth = await requireUser(req, res)
+  if (!auth) return
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   if (!process.env.RESEND_API_KEY) {
     return res.status(500).json({ error: 'RESEND_API_KEY is not configured' })
   }
 
-  const { type, recipientEmail, ...payload } = req.body
+  const { type, recipientEmail, ...payload } = req.body || {}
 
   if (!type || !recipientEmail) {
     return res.status(400).json({ error: 'Missing type or recipientEmail' })
   }
+
+  if (!(await requireEmailRecipients(auth, recipientEmail, res))) return
 
   try {
     let subject, html
@@ -56,7 +59,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: `Unknown notification type: ${type}` })
     }
 
-    await resend.emails.send({ from: FROM, to: recipientEmail, subject, html })
+    const result = await resend.emails.send({ from: FROM, to: recipientEmail, subject, html })
+    if (result.error) return res.status(502).json({ error: 'Email delivery was rejected. Please retry.' })
     res.status(200).json({ ok: true })
   } catch (e) {
     res.status(500).json({ error: e.message })

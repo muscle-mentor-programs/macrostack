@@ -629,10 +629,12 @@ export default function ClientLog() {
   const handleCopyDay = async () => {
     if (copying || !copyFrom) return
     setCopying(true)
-    await copyDayEntries(activeClientId, copyFrom, logDate)
-    successHaptic()
-    setCopyFrom('')
-    setCopying(false)
+    try {
+      const count = await copyDayEntries(activeClientId, copyFrom, logDate)
+      if (count > 0) { successHaptic(); setCopyFrom('') }
+    } catch {
+      useStore.setState({ logSaveError: 'Could not copy this day. Please retry.' })
+    } finally { setCopying(false) }
   }
 
   // ── Edit handlers ──────────────────────────────────────────────────────────
@@ -686,19 +688,25 @@ export default function ClientLog() {
   const invalidEditServing = editState?.servingSize != null && !validServingSize(editState.servingSize)
   const editQtyNum = editState ? parseFloat(editState.qty) || 0 : 0
 
-  const saveEdit = () => {
+  const [editSaving, setEditSaving] = useState(false)
+  const saveEdit = async () => {
+    if (editSaving) return
     if (!editState || invalidEditServing || !Number.isFinite(editQtyNum) || editQtyNum <= 0) return
     const { id, perQty } = editState
     const qty = editQtyNum
-    updateClientEntry(activeClientId, logDate, id, {
-      quantity: qty,
-      calories: Math.round(perQty.cal  * qty * 10) / 10,
-      protein:  Math.round(perQty.pro  * qty * 10) / 10,
-      carbs:    Math.round(perQty.carb * qty * 10) / 10,
-      fat:      Math.round(perQty.fat  * qty * 10) / 10,
-    })
-    successHaptic()
-    setEditState(null)
+    setEditSaving(true)
+    try {
+      const result = await updateClientEntry(activeClientId, logDate, id, {
+        quantity: qty,
+        calories: Math.round(perQty.cal  * qty * 10) / 10,
+        protein:  Math.round(perQty.pro  * qty * 10) / 10,
+        carbs:    Math.round(perQty.carb * qty * 10) / 10,
+        fat:      Math.round(perQty.fat  * qty * 10) / 10,
+      })
+      if (result?.ok) { successHaptic(); setEditState(null) }
+    } catch {
+      useStore.setState({ logSaveError: 'Could not update this food. Please retry.' })
+    } finally { setEditSaving(false) }
   }
 
   const editPreview = editState ? {
@@ -946,17 +954,22 @@ export default function ClientLog() {
                             <div className="flex gap-2">
                               <button
                                 onClick={saveEdit}
-                                disabled={invalidEditServing || !Number.isFinite(editQtyNum) || editQtyNum <= 0}
+                                disabled={editSaving || invalidEditServing || !Number.isFinite(editQtyNum) || editQtyNum <= 0}
                                 className="flex-1 flex items-center justify-center gap-1.5 btn-accent text-bg font-display font-bold text-xs tracking-widest py-2.5 rounded-lg transition-colors disabled:opacity-40"
                               >
                                 <Check size={13} />
                                 SAVE
                               </button>
                               <button
-                                onClick={() => {
-                                  deleteHaptic()
-                                  removeClientEntry(activeClientId, logDate, entry.id)
-                                  setEditState(null)
+                                disabled={editSaving}
+                                onClick={async () => {
+                                  setEditSaving(true)
+                                  try {
+                                    const result = await removeClientEntry(activeClientId, logDate, entry.id)
+                                    if (result?.ok) { deleteHaptic(); setEditState(null) }
+                                  } catch {
+                                    useStore.setState({ logSaveError: 'Could not delete this food. Please retry.' })
+                                  } finally { setEditSaving(false) }
                                 }}
                                 className="flex items-center justify-center px-4 border border-red-900/40 text-red-400 hover:text-red-300 hover:border-red-400/60 py-2.5 rounded-lg transition-colors"
                               >

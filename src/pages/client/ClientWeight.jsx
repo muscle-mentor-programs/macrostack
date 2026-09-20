@@ -39,15 +39,34 @@ function WeightContent() {
   const [logDate, setLogDate] = useState(todayStr)
   const [showDate, setShowDate] = useState(false)
 
-  const handleLog = () => {
-    const val = parseFloat(input)
-    if (!val) return
-    addClientWeight(activeClientId, { value: val, unit, date: logDate })
-    successHaptic()
-    setInput('')
-    // Reset date back to today after logging
-    setLogDate(todayStr)
-    setShowDate(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const handleLog = async () => {
+    const val = Number(input)
+    if (saving) return
+    if (!Number.isFinite(val) || val <= 0) { setSaveError('Enter a valid positive weight.'); return }
+    setSaving(true)
+    setSaveError('')
+    try {
+      const result = await addClientWeight(activeClientId, { value: val, unit, date: logDate })
+      if (!result?.ok) throw new Error(result?.error || 'Could not save your weight. Please retry.')
+      successHaptic()
+      setInput('')
+      setLogDate(todayStr)
+      setShowDate(false)
+    } catch (error) { setSaveError(error.message || 'Could not save your weight. Please retry.') }
+    finally { setSaving(false) }
+  }
+
+  const handleDelete = async (id) => {
+    if (saving) return
+    setSaving(true)
+    setSaveError('')
+    try {
+      const result = await removeClientWeight(activeClientId, id)
+      if (!result?.ok) throw new Error(result?.error || 'Could not delete this weight. Please retry.')
+    } catch (error) { setSaveError(error.message || 'Could not delete this weight. Please retry.') }
+    finally { setSaving(false) }
   }
 
   // Sort oldest → newest so moving average is correct for any backfilled dates
@@ -187,7 +206,7 @@ function WeightContent() {
           </button>
           <button
             onClick={handleLog}
-            disabled={!input}
+            disabled={saving || !input}
             className="flex-shrink-0 btn-accent disabled:opacity-40 text-bg font-display font-bold text-sm tracking-widest px-4 rounded-xl transition-colors glow-hover"
           >
             LOG
@@ -220,6 +239,7 @@ function WeightContent() {
         </div>
       </div>
 
+      {saveError && <p role="alert" className="app-page-inset mb-4 text-sm text-red-400">{saveError}</p>}
       {/* Trend insight, premium */}
       {hasAccess && trend && (
         <div className="app-page-inset mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-dim">
@@ -358,7 +378,9 @@ function WeightContent() {
                       </span>
                     )}
                     <button
-                      onClick={() => removeClientWeight(activeClientId, entry.id)}
+                      onClick={() => handleDelete(entry.id)}
+                      disabled={saving}
+                      aria-label="Delete weight"
                       className="text-dim hover:text-red-400 transition-colors p-1"
                     >
                       <Trash2 size={13} />

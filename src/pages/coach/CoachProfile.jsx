@@ -16,6 +16,7 @@ export default function CoachProfile() {
 
   const [editing, setEditing]   = useState(false)
   const [saving,  setSaving]    = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [copied,  setCopied]    = useState(false)
   const [form,    setForm]      = useState({
     name:        currentUser?.name        || '',
@@ -41,10 +42,18 @@ export default function CoachProfile() {
   const f = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }))
 
   const handleSave = async () => {
+    if (saving) return
     setSaving(true)
-    await updateCoachProfile(form)
-    setSaving(false)
-    setEditing(false)
+    setSaveError('')
+    try {
+      const result = await updateCoachProfile(form)
+      if (!result?.ok) throw new Error(result?.error || 'Could not save your profile. Please retry.')
+      setEditing(false)
+    } catch (error) {
+      setSaveError(error.message || 'Could not save your profile. Please retry.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleCancel = () => {
@@ -103,6 +112,7 @@ export default function CoachProfile() {
               </button>
               <button
                 onClick={handleCancel}
+                disabled={saving}
                 className="flex items-center gap-2 bg-surface border border-border text-muted hover:text-cream font-display font-bold text-sm tracking-widest px-4 py-2.5 rounded-xl transition-colors"
               >
                 <X size={14} />
@@ -112,6 +122,8 @@ export default function CoachProfile() {
           )}
         </div>
       </div>
+
+      {saveError && <p role="alert" className="px-4 md:px-8 py-3 text-sm text-red-400">{saveError}</p>}
 
       {/* Scrollable content, main column + sticky rail (code + live preview) */}
       <div className="flex-1 overflow-y-auto">
@@ -294,7 +306,7 @@ export default function CoachProfile() {
               )}
               {(form.specialties || currentUser?.specialties) && (
                 <div className="flex flex-wrap gap-1.5">
-                  {(form.specialties || currentUser?.specialties).split(',').map((s) => s.trim()).filter(Boolean).slice(0, 4).map((s, i) => (
+                  {(form.specialties || currentUser?.specialties || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 4).map((s, i) => (
                     <span key={i} className="font-mono text-[10px] px-2 py-0.5 rounded"
                       style={{ color: ACCENT, background: accentA(10), border: `1px solid ${accentA(22)}` }}>
                       {s}

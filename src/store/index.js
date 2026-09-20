@@ -901,7 +901,8 @@ const useStore = create(
         if (fields.bio       !== undefined) dbFields.bio       = fields.bio
         if (fields.avatarUrl !== undefined) dbFields.avatar_url = fields.avatarUrl
 
-        await supabase.from('clients').update(dbFields).eq('id', clientId)
+        const { data: updated, error } = await supabase.from('clients').update(dbFields).eq('id', clientId).select('id').single()
+        if (error || !updated) return { ok: false, error: 'Could not save your profile. Please retry.' }
         set((s) => ({
           clients: s.clients.map((c) => c.id === clientId ? { ...c, ...fields } : c),
         }))
@@ -913,10 +914,12 @@ const useStore = create(
           const me = get().currentUser
           const client = get().clients.find((c) => c.id === clientId)
           if (me && client?.profileId === me.id) {
-            await supabase.from('profiles').update({ name }).eq('id', me.id)
-            set((s) => ({ currentUser: { ...s.currentUser, name } }))
+            const { data: account, error: accountError } = await supabase.from('profiles').update({ name }).eq('id', me.id).select('id').single()
+            if (accountError || !account) return { ok: false, error: 'Profile details saved, but your account name could not update. Please retry.' }
+            set((s) => ({ currentUser: s.currentUser?.id === me.id ? { ...s.currentUser, name } : s.currentUser }))
           }
         }
+        return { ok: true }
       },
 
       uploadClientAvatar: async (clientId, file) => {
@@ -1098,52 +1101,61 @@ const useStore = create(
           fat:          e.fat          ?? 0,
         }))
 
-        // Optimistic: append cloned entries to the target day
+        const { error } = await supabase.from('food_log').insert(rows)
+        if (error) {
+          set({ logSaveError: 'Could not copy this day. Please retry.' })
+          return 0
+        }
         const cloned = rows.map((r) => dbToEntry(r))
         set((s) => ({
+          logSaveError: null,
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c
-            return { ...c, log: { ...c.log, [target]: [...(c.log[target] || []), ...cloned] } }
+            // Realtime may have delivered the committed entries first.
+            const existing = c.log[target] || []
+            const ids = new Set(existing.map((e) => e.id))
+            return { ...c, log: { ...c.log, [target]: [...existing, ...cloned.filter((e) => !ids.has(e.id))] } }
           }),
         }))
-
-        const { error } = await supabase.from('food_log').insert(rows)
-        if (error) console.error('food_log copy-day insert:', error)
         return rows.length
       },
 
       removeClientEntry: async (clientId, date, entryId) => {
+        const { data: removed, error } = await supabase.from('food_log').delete().eq('id', entryId).eq('client_id', clientId).select('id').single()
+        if (error || !removed) {
+          set({ logSaveError: 'Could not delete this food. Please retry.' })
+          return { ok: false }
+        }
         set((s) => ({
+          logSaveError: null,
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c
             return { ...c, log: { ...c.log, [date]: (c.log[date] || []).filter((e) => e.id !== entryId) } }
           }),
         }))
-        await supabase.from('food_log').delete().eq('id', entryId)
+        return { ok: true }
       },
 
       updateClientEntry: async (clientId, date, entryId, updates) => {
-        set((s) => ({
-          clients: s.clients.map((c) => {
-            if (c.id !== clientId) return c
-            return {
-              ...c,
-              log: {
-                ...c.log,
-                [date]: (c.log[date] || []).map((e) =>
-                  e.id === entryId ? { ...e, ...updates } : e
-                ),
-              },
-            }
-          }),
-        }))
-        await supabase.from('food_log').update({
+        const { data: updated, error } = await supabase.from('food_log').update({
           quantity: updates.quantity,
           calories: updates.calories,
-          protein:  updates.protein,
-          carbs:    updates.carbs,
-          fat:      updates.fat,
-        }).eq('id', entryId)
+          protein: updates.protein,
+          carbs: updates.carbs,
+          fat: updates.fat,
+        }).eq('id', entryId).eq('client_id', clientId).select('id').single()
+        if (error || !updated) {
+          set({ logSaveError: 'Could not update this food. Please retry.' })
+          return { ok: false }
+        }
+        set((s) => ({
+          logSaveError: null,
+          clients: s.clients.map((c) => {
+            if (c.id !== clientId) return c
+            return { ...c, log: { ...c.log, [date]: (c.log[date] || []).map((e) => e.id === entryId ? { ...e, ...updates } : e) } }
+          }),
+        }))
+        return { ok: true }
       },
 
       getClientTotalsForDate: (clientId, date) =>
@@ -1177,17 +1189,18 @@ const useStore = create(
         const id = crypto.randomUUID()
         const w  = { id, value: entry.value, unit: entry.unit || 'lbs', date: entry.date }
 
-        set((s) => ({
-          clients: s.clients.map((c) => {
-            if (c.id !== clientId) return c
-            return { ...c, weightLog: [...c.weightLog, w].sort((a, b) => a.date.localeCompare(b.date)) }
-          }),
-        }))
-
+        if (!Number.isFinite(entry.value) || entry.value <= 0) return { ok: false, error: 'Enter a valid positive weight.' }
         const { error } = await supabase.from('weight_log').insert({
           id, client_id: clientId, value: entry.value, unit: entry.unit || 'lbs', date: entry.date,
         })
-        if (error) console.error('weight_log insert:', error)
+        if (error) return { ok: false, error: 'Could not save your weight. Please retry.' }
+        set((s) => ({
+          clients: s.clients.map((c) => {
+            if (c.id !== clientId) return c
+            return { ...c, weightLog: [...c.weightLog.filter((item) => item.id !== id), w].sort((a, b) => a.date.localeCompare(b.date)) }
+          }),
+        }))
+        return { ok: true }
       },
 
       removeClientWeight: async (clientId, weightId) => {
@@ -1196,13 +1209,15 @@ const useStore = create(
           set({ activePage: 'upgrade' })
           return { ok: false, error: 'Pro is required for weight logging.' }
         }
+        const { data: removed, error } = await supabase.from('weight_log').delete().eq('id', weightId).eq('client_id', clientId).select('id').single()
+        if (error || !removed) return { ok: false, error: 'Could not delete this weight. Please retry.' }
         set((s) => ({
           clients: s.clients.map((c) => {
             if (c.id !== clientId) return c
             return { ...c, weightLog: c.weightLog.filter((w) => w.id !== weightId) }
           }),
         }))
-        await supabase.from('weight_log').delete().eq('id', weightId)
+        return { ok: true }
       },
 
       // ── WEEKLY CHECK-INS ──────────────────────────────────────────────────
@@ -2278,10 +2293,11 @@ const useStore = create(
         if (updates.credentials !== undefined) dbUpdates.credentials = updates.credentials
         if (updates.website     !== undefined) dbUpdates.website     = updates.website
         if (updates.name        !== undefined) dbUpdates.name        = updates.name
-        const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id)
+        const { data: updated, error } = await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id).select('id').single()
+        if (!error && !updated) return { ok: false, error: 'Your profile could not be found. Please sign in again.' }
         if (error) { console.error('updateCoachProfile:', error); return { ok: false, error: error.message } }
         set((s) => ({
-          currentUser: s.currentUser ? { ...s.currentUser, ...updates } : s.currentUser,
+          currentUser: s.currentUser?.id === currentUser.id ? { ...s.currentUser, ...updates } : s.currentUser,
         }))
         return { ok: true }
       },

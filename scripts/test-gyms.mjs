@@ -8,7 +8,7 @@ try {
  for(const width of [320,390,1440]) {
   const page=await browser.newPage({viewport:{width,height:900}})
   const errors=[];page.on('pageerror',e=>errors.push(e.message))
-  await page.goto('http://127.0.0.1:5197/gyms')
+  await page.goto(`${process.env.TEST_URL || 'http://127.0.0.1:5198'}/gyms`)
   await page.getByRole('heading',{level:1}).waitFor()
   await page.evaluate(()=>document.fonts.ready)
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)

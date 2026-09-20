@@ -129,7 +129,7 @@ function EmailModal({ clients, preselectedId, onClose }) {
           }),
         })
         const data = await res.json()
-        if (!res.ok) throw new Error(data.error || 'Send failed')
+        if (!res.ok || data.failed) throw new Error(data.failed ? `${data.sent || 0} sent; ${data.failed} failed. Check delivery before retrying.` : data.error || 'Send failed')
       }
       setStatus('sent')
       setTimeout(onClose, 1600)

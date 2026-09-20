@@ -1,6 +1,7 @@
 // Isolated PostgreSQL tests. Test-only runtime (not an app dependency):
 // npm install --prefix outputs/notification-qa --no-save --no-package-lock @electric-sql/pglite
-import { PGlite } from '../outputs/notification-qa/node_modules/@electric-sql/pglite/dist/index.js'
+import { createRequire } from 'node:module'
+const { PGlite } = createRequire(import.meta.url)(process.env.PGLITE_MODULE || '@electric-sql/pglite')
 import { readFileSync } from 'node:fs'
 import assert from 'node:assert/strict'
 

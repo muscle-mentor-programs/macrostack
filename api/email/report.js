@@ -1,4 +1,4 @@
-import { requireUser } from '../_auth.js'
+import { requireUser, requireEmailRecipients } from '../_auth.js'
 /**
  * POST /api/email/report
  * Send a client's weekly progress report as a branded PDF attachment.
@@ -17,14 +17,15 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM   = process.env.RESEND_FROM_EMAIL || 'MacroStack <onboarding@resend.dev>'
 
 export default async function handler(req, res) {
-  if (!(await requireUser(req, res))) return
+  const auth = await requireUser(req, res)
+  if (!auth) return
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const {
     to, clientName, rangeLabel, pdfBase64,
     avgCal, avgProtein, daysLogged, weightChange, weightUnit,
     calAdherencePct, streak, coachName,
-  } = req.body
+  } = req.body || {}
 
   if (!to || !clientName || !pdfBase64) {
     return res.status(400).json({ error: 'Missing required fields: to, clientName, pdfBase64' })
@@ -34,11 +35,13 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'RESEND_API_KEY is not configured' })
   }
 
+  if (!(await requireEmailRecipients(auth, to, res))) return
+
   try {
     const stamp    = new Date().toISOString().slice(0, 10)
     const filename = `${clientName.replace(/\s+/g, '-').toLowerCase()}-weekly-report-${stamp}.pdf`
 
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from:    FROM,
       to,
       subject: `Your MacroStack weekly report, ${rangeLabel || 'last 7 days'}`,
@@ -49,6 +52,7 @@ export default async function handler(req, res) {
       attachments: [{ filename, content: pdfBase64 }],
     })
 
+    if (result.error) return res.status(502).json({ error: 'Email delivery was rejected. Please retry.' })
     res.status(200).json({ ok: true })
   } catch (e) {
     res.status(500).json({ error: e.message })

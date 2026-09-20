@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "prebuild": "node scripts/gen-food-count.mjs",
-    "predev": "node scripts/gen-food-count.mjs"
+    "predev": "node scripts/gen-food-count.mjs",
+    "test": "node scripts/test-core.mjs"
   },
   "dependencies": {
     "@capacitor/cli": "^8.4.1",
