@@ -68,7 +68,7 @@ try {
   );
   await db.exec(
     readFileSync(
-      "supabase/migrations/20260920225539_retail_self_service_onboarding.sql",
+      "supabase/migrations/20260920230443_retail_self_service_onboarding.sql",
       "utf8",
     ),
   );
