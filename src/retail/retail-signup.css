@@ -1,6 +1,8 @@
 .retail-signup {
   --color-bg: #080b12;
   --color-card: #141a2b;
+  --color-surface: #0f1522;
+  color-scheme: dark;
   --color-cream: #d8e6f2;
   --color-muted: #9aaabd;
   --color-border: #2b3850;
@@ -59,24 +61,10 @@
   font-size: 17px;
   margin: 0 0 7px;
 }
-.retail-signup-features p,
-.retail-signup-price p {
+.retail-signup-features p {
   color: #9aaabd;
   line-height: 1.65;
   margin: 0;
-}
-.retail-signup-price {
-  padding: 22px;
-  border: 1px solid #34465f;
-  border-radius: 16px;
-  background: #82ade109;
-}
-.retail-signup-price strong {
-  font-size: 30px;
-}
-.retail-signup-price strong span {
-  font-size: 14px;
-  font-weight: 400;
 }
 .retail-signup-form {
   padding: 28px;
@@ -100,6 +88,7 @@
   font-size: 12px;
 }
 .retail-signup-steps {
+  margin: 0 0 24px;
   list-style: none;
   padding: 0 0 18px;
   display: flex;
@@ -149,9 +138,6 @@
   }
   .retail-signup .retail-brand {
     font-size: 24px !important;
-  }
-  .retail-signup-price {
-    margin-top: 22px;
   }
 }
 .retail-signup{scroll-behavior:smooth}.retail-signup #retailer-account{scroll-margin-top:110px}

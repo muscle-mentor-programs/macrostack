@@ -252,21 +252,6 @@ export default function RetailSignup() {
               </div>
             ))}
           </div>
-          <div className="retail-signup-price">
-            <strong>
-              $599<span> / store / month</span>
-            </strong>
-            <p>
-              Billed by MacroStack, LLC. Includes your store tools and sponsored
-              Pro access for connected customers while your subscription is
-              active.
-            </p>
-          </div>
-          <p className="retail-muted">
-            Manual assessments and CSV imports are available. Automated
-            InBody/POS connections are not included yet. Email/text reminders
-            require provider setup.
-          </p>
         </section>
         <section
           id="retailer-account"
