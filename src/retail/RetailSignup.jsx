@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { isRetailAccount } from "./authRouting.mjs";
 import BrandWordmark from "../components/BrandWordmark";
 import { Alert, Button, Field, Select, useAction } from "./ui";
 import useViewport from "./useViewport";
@@ -51,7 +52,7 @@ export default function RetailSignup() {
       .getUser()
       .then(({ data }) => {
         if (active) {
-          setUser(data.user);
+          setUser(isRetailAccount(data.user) ? data.user : null);
           setChecking(false);
         }
       })
@@ -64,7 +65,7 @@ export default function RetailSignup() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) setUser(session?.user || null);
+      if (active) setUser(isRetailAccount(session?.user) ? session.user : null);
     });
     return () => {
       active = false;
@@ -73,6 +74,10 @@ export default function RetailSignup() {
   }, [setError]);
   useEffect(() => {
     let active = true;
+    if (user && new URLSearchParams(window.location.search).has("invite")) {
+      window.location.replace(`/retail?staff=1&invite=${encodeURIComponent(new URLSearchParams(window.location.search).get("invite"))}`);
+      return;
+    }
     if (user)
       supabase
         .from("retail_staff")
@@ -87,7 +92,11 @@ export default function RetailSignup() {
               data?.length &&
               new URLSearchParams(window.location.search).has("signin")
             )
-              window.location.replace("/retail");
+              window.location.replace(
+                new URLSearchParams(window.location.search).has("invite")
+                  ? `/retail?staff=1&invite=${encodeURIComponent(new URLSearchParams(window.location.search).get("invite"))}`
+                  : "/retail",
+              );
             if (e)
               setError(
                 "Could not check your existing workspace. Refresh before continuing.",
@@ -109,6 +118,7 @@ export default function RetailSignup() {
             email: email.trim(),
             password,
             role: "client",
+            account_type: "retailer",
           },
         });
         if (result.error || result.data?.error) {
@@ -121,7 +131,7 @@ export default function RetailSignup() {
           }
           throw new Error(
             detail?.error ||
-              "Could not create your account. If you already have one, sign in below.",
+              "Could not create your retailer account. Use a work email that is not registered to a personal or coach account.",
           );
         }
       }
@@ -135,7 +145,20 @@ export default function RetailSignup() {
             ? "Account created. Sign in to continue setting up your business."
             : result.error.message,
         );
+      if (!isRetailAccount(result.data.user)) {
+        await supabase.auth.signOut({ scope: "local" });
+        throw new Error(
+          "This is a personal or coach account. Create a separate retailer account with a different work email.",
+        );
+      }
       setUser(result.data.user);
+      const invite = new URLSearchParams(window.location.search).get("invite");
+      if (invite) {
+        window.location.assign(
+          `/retail?staff=1&invite=${encodeURIComponent(invite)}`,
+        );
+        return;
+      }
       setPassword("");
       setBillingName(name);
       setBillingEmail(email.trim());
@@ -253,8 +276,8 @@ export default function RetailSignup() {
               </h2>
               <p>
                 {mode === "signup"
-                  ? "Start with your account. Add your business and first store next."
-                  : "Use your existing MacroStack account to set up or return to your business."}
+                  ? "Create a separate retailer account using a work email not used for your personal or coach account."
+                  : "Sign in with your retailer work email and password. Personal and coach accounts cannot sign in here."}
               </p>
               <form onSubmit={authenticate}>
                 {mode === "signup" && (
@@ -302,10 +325,12 @@ export default function RetailSignup() {
                 }}
               >
                 {mode === "signup"
-                  ? "Already have an account? Sign in"
-                  : "New to MacroStack? Create account"}
+                  ? "Already have a retailer account? Sign in"
+                  : "New retailer? Create account"}
               </Button>
-              <a href="/login">Need to reset your password?</a>
+              <a href="mailto:getmacrostack@gmail.com">
+                Need help with your retailer account?
+              </a>
             </>
           ) : (
             <>

@@ -1,3 +1,4 @@
+import { supabase } from "../lib/supabase";
 import { createRequestCache } from "./requestCache.mjs";
 import OperationalHealth from "./OperationalHealth";
 import StarterResources from "./StarterResources";
@@ -40,7 +41,7 @@ const emptyContext = {
   staff: [],
   operators: [],
 };
-export default function RetailApp() {
+export default function RetailApp({ retailerSession = false }) {
   useViewport();
   const now = useClock();
   const [online, setOnline] = useState(navigator.onLine);
@@ -282,8 +283,9 @@ export default function RetailApp() {
     });
   const closeModal = useCallback(() => setModal(null), []);
   const newLink = (invite) => {
-    const url = new URL("/retail", window.location.origin);
+    const url = new URL(invite.role === "customer" ? "/retail/member" : "/retail", window.location.origin);
     url.searchParams.set("invite", invite.token);
+    if (invite.role !== "customer") url.searchParams.set("staff", "1");
     setLink(url.toString());
     setModal(null);
   };
@@ -336,11 +338,12 @@ export default function RetailApp() {
                 )
               )
                 return;
+              if (retailerSession) { run(async () => { const {error:e}=await supabase.auth.signOut({scope:"local"}); if(e) throw e; }); return; }
               window.history.replaceState({}, "", "/dashboard");
               back("dashboard");
             }}
           >
-            Personal / coach app
+            {retailerSession ? "Sign out" : "Back to app"}
           </Button>
         </div>
       </header>
@@ -453,7 +456,7 @@ export default function RetailApp() {
                   );
                   await useStore.getState().refreshRetailSponsorship();
                   setCode("");
-                  window.history.replaceState({}, "", "/retail");
+                  window.history.replaceState({}, "", retailerSession ? "/retail" : "/retail/member");
                   sessionStorage.removeItem("ms-retail-return");
                   await reloadContext();
                   await refresh();
@@ -506,7 +509,7 @@ export default function RetailApp() {
             <p className="retail-muted">
               {user?.role === "superadmin"
                 ? "Create an organization and its first pilot store. Stores start with a 90-day sponsored pilot."
-                : "Use the invitation or QR link supplied by your store. Your existing MacroStack account stays intact."}
+                : retailerSession ? "Create your business workspace or use the staff invitation sent to your work email." : "Use the customer invitation or QR link supplied by your store. Your personal MacroStack account stays intact."}
             </p>
             {user?.role === "superadmin" && (
               <Button primary onClick={() => setModal("provision")}>
@@ -924,11 +927,11 @@ export default function RetailApp() {
                         confirm this store connection.
                       </p>
                       <JoinQR
-                        url={`${window.location.origin}/retail?store=${location.join_code}`}
+                        url={`${window.location.origin}/retail/member?store=${location.join_code}`}
                       />
                       <Field
                         label="Customer link"
-                        value={`${window.location.origin}/retail?store=${location.join_code}`}
+                        value={`${window.location.origin}/retail/member?store=${location.join_code}`}
                         readOnly
                         onChange={() => {}}
                       />
@@ -936,7 +939,7 @@ export default function RetailApp() {
                         onClick={() =>
                           run(() =>
                             navigator.clipboard.writeText(
-                              `${window.location.origin}/retail?store=${location.join_code}`,
+                              `${window.location.origin}/retail/member?store=${location.join_code}`,
                             ),
                           )
                         }

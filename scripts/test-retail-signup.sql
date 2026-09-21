@@ -5,6 +5,13 @@ declare owner_id uuid:=gen_random_uuid(); other_id uuid:=gen_random_uuid(); r js
 begin
  insert into auth.users(id,email,email_confirmed_at) values(owner_id,'retail-signup-'||owner_id||'@example.invalid',now()),(other_id,'retail-signup-'||other_id||'@example.invalid',now());
  insert into public.profiles(id,name,role) values(owner_id,'Synthetic owner','client'),(other_id,'Synthetic outsider','client') on conflict(id) do nothing;
+ perform set_config('request.jwt.claim.sub',owner_id::text,true);
+ execute 'set local role authenticated';
+ rejected:=false;
+ begin perform public.retail_command('start_workspace','{}');exception when others then rejected:=sqlerrm like '%separate retailer account%';end;
+ if not rejected then raise exception 'Personal account allowed to create retailer workspace';end if;
+ execute 'reset role';
+ update auth.users set raw_app_meta_data='{"account_type":"retailer"}' where id=owner_id;
  execute 'set local role authenticated';
  perform set_config('request.jwt.claim.sub',owner_id::text,true);
  rejected:=false;

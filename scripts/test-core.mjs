@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process'
 const suites = [
   'coach-workspace.test.mjs',
   'test-retail-model.mjs',
+  'test-retail-auth.mjs',
   'test-retail-operations.mjs',
   'test-retail-readiness.mjs',
   'test-dual-role.mjs',

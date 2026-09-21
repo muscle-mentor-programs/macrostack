@@ -54,6 +54,7 @@ if (mode === "register") {
           ...account,
           name: "Synthetic retail acceptance",
           role: "client",
+          account_type: role === "manager" ? "retailer" : "personal",
         },
       }),
       "Registration",

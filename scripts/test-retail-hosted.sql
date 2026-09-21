@@ -11,6 +11,7 @@ begin
   insert into public.profiles(id,name,role) values(person,'Synthetic retail QA','client') on conflict(id) do nothing;
  end loop;
  update public.profiles set role='superadmin' where id=admin_id;
+ update auth.users set raw_app_meta_data='{"account_type":"retailer"}' where id=manager_id;
  execute 'set local role authenticated';
  perform set_config('request.jwt.claim.sub',admin_id::text,true);
  org:=public.retail_command('provision',jsonb_build_object('name','Synthetic QA — rollback','operator_name','QA','location_name','Synthetic QA store','timezone','America/Chicago'));

@@ -197,13 +197,14 @@ export default function App() {
   useEffect(() => {
     const seg = (initialPathRef.current || '/').replace(/^\/+|\/+$/g, '')
     if (!isAuthenticated) {
-      if (seg === 'retail') { sessionStorage.setItem('ms-retail-return', '1'); setAuthView('login') }
+      if (seg === 'retail' || seg === 'retail/member') { sessionStorage.setItem('ms-retail-return', '1'); setAuthView('login') }
       if (seg === 'login')  setAuthView('login')
       if (seg === 'signup') setAuthView('signup')
       if (seg === 'marketplace') setAuthView('marketplace')
       return
     }
-    if (ROUTABLE.has(seg)) setActivePage(seg)
+    if (seg === 'retail/member') setActivePage('retail')
+    else if (ROUTABLE.has(seg)) setActivePage(seg)
     if (sessionStorage.getItem('ms-retail-return')) {setActivePage('retail');sessionStorage.removeItem('ms-retail-return')}
     if (sessionStorage.getItem('ms-marketplace-coach')) setActivePage('marketplace')
     initialPathRef.current = '/'   // consumed, don't re-apply on later auth flips
@@ -213,7 +214,7 @@ export default function App() {
   useEffect(() => {
     if (authLoading) return
     const path = isAuthenticated
-      ? `/${activePage || 'dashboard'}`
+      ? (activePage === 'retail' ? '/retail/member' : `/${activePage || 'dashboard'}`)
       : authView === 'login' ? '/login'
       : authView === 'signup' ? '/signup'
       : authView === 'marketplace' ? '/marketplace'
@@ -229,6 +230,8 @@ export default function App() {
       const seg = window.location.pathname.replace(/^\/+|\/+$/g, '')
       if (!isAuthenticated) {
         setAuthView(seg === 'marketplace' ? 'marketplace' : seg === 'login' ? 'login' : seg === 'signup' ? 'signup' : (IS_PWA ? 'login' : null))
+      } else if (seg === 'retail/member') {
+        setActivePage('retail')
       } else if (ROUTABLE.has(seg)) {
         setActivePage(seg)
       }

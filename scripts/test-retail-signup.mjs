@@ -9,7 +9,7 @@ const url = process.env.TEST_URL || "http://127.0.0.1:5198";
 const fixture = `
 let handler;let user=null;
 export const supabase={
- auth:{getUser:async()=>({data:{user}}),onAuthStateChange:fn=>{handler=fn;return {data:{subscription:{unsubscribe(){}}}}},signInWithPassword:async({email})=>{user={id:'owner',email};handler('SIGNED_IN',{user});return {data:{user}}},signOut:async()=>{user=null;handler('SIGNED_OUT',null);return {}}},
+ auth:{getUser:async()=>({data:{user}}),onAuthStateChange:fn=>{handler=fn;return {data:{subscription:{unsubscribe(){}}}}},signInWithPassword:async({email})=>{user={id:'owner',email,app_metadata:{account_type:window.personalAccount?'personal':'retailer'}};handler('SIGNED_IN',{user});return {data:{user}}},signOut:async()=>{user=null;handler('SIGNED_OUT',null);return {}}},
  functions:{invoke:async(name,body)=>{window.signupBody=body;return {data:{ok:true}}}},
  from:()=>({select(){return this},eq(){return this},limit:async()=>({data:window.existingStaff?[{id:"membership"}]:[]})}),
  rpc:async(action,body)=>{window.workspaceBody=body;if(window.failSave)return {error:{message:'Connection failed. Please retry.'}};return {data:{location_id:'store',organization_id:'business'}}}
@@ -53,8 +53,8 @@ try {
       .click();
     await page.getByRole("heading", { name: "Set up your business" }).waitFor();
     assert.equal(
-      await page.evaluate(() => window.signupBody.body.role),
-      "client",
+      await page.evaluate(() => window.signupBody.body.account_type),
+      "retailer",
     );
     await page
       .getByLabel("Business name", { exact: true })
@@ -88,14 +88,40 @@ try {
     await page.getByRole("button", { name: "Create my workspace →" }).click();
     await page.getByRole("heading", { name: "Workspace opened" }).waitFor();
     assert.deepEqual(errors, []);
-    await page.route("**/retail", r=>r.fulfill({contentType:"text/html",body:"<h1>Retail workspace</h1>"}));
-    await page.addInitScript(()=>{window.existingStaff=true;});
-    await page.goto(url+"/retailers?signin=1");
-    await page.getByRole("heading",{name:"Welcome back"}).waitFor();
+    await page.route("**/retail", (r) =>
+      r.fulfill({
+        contentType: "text/html",
+        body: "<h1>Retail workspace</h1>",
+      }),
+    );
+    await page.addInitScript(() => {
+      window.existingStaff = true;
+    });
+    await page.goto(url + "/retailers?signin=1");
+    await page.getByRole("heading", { name: "Welcome back" }).waitFor();
+    await page.evaluate(() => {
+      window.personalAccount = true;
+    });
+    await page.getByLabel("Work email").fill("personal@example.invalid");
+    await page
+      .getByLabel("Password", { exact: true })
+      .fill("SyntheticPassword123");
+    await page.getByRole("button", { name: "Sign in →", exact: true }).click();
+    await page
+      .getByRole("alert")
+      .filter({ hasText: "This is a personal or coach account" })
+      .waitFor();
+    await page.evaluate(() => {
+      window.personalAccount = false;
+    });
     await page.getByLabel("Work email").fill("staff@example.invalid");
-    await page.getByLabel("Password",{exact:true}).fill("SyntheticPassword123");
-    await page.getByRole("button",{name:"Sign in →",exact:true}).click();
-    await page.getByRole("heading",{name:"Retail workspace",exact:true}).waitFor();
+    await page
+      .getByLabel("Password", { exact: true })
+      .fill("SyntheticPassword123");
+    await page.getByRole("button", { name: "Sign in →", exact: true }).click();
+    await page
+      .getByRole("heading", { name: "Retail workspace", exact: true })
+      .waitFor();
     await page.close();
     console.log(
       "PASS retailer signup, workspace setup and retry at " + width + "px",

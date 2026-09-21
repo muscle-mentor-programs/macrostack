@@ -14,7 +14,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { email, password, name, role } = await req.json()
+    const { email, password, name, role, account_type } = await req.json()
 
     const cleanEmail = (email || '').trim().toLowerCase()
     if (!cleanEmail || !password) throw new Error('Email and password are required')
@@ -22,7 +22,8 @@ serve(async (req) => {
 
     // Only the two self-serve roles may be created here; superadmin is never
     // self-assignable.
-    const safeRole = role === 'coach' ? 'coach' : 'client'
+    const retailer = account_type === 'retailer'
+    const safeRole = !retailer && role === 'coach' ? 'coach' : 'client'
 
     const admin = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -37,7 +38,7 @@ serve(async (req) => {
       // app_metadata is applied; direct client signup never receives this
       // server-validated value.
       user_metadata: { name: (name || '').trim() || cleanEmail.split('@')[0], role: safeRole },
-      app_metadata: { role: safeRole },
+      app_metadata: { role: safeRole, account_type: retailer ? 'retailer' : 'personal' },
     })
 
     if (error) {

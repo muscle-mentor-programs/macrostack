@@ -1,6 +1,6 @@
 # Retailer self-service
 
-Retailers start at `/retailers` (also `/retail/start`). The main website navigation links to Retailers. They create a regular MacroStack identity or sign in to an existing one, then enter their business, first store, timezone and billing contact. This does not change their personal account role or subscription.
+Retailers start at `/retailers` (also `/retail/start`). The main website navigation links to Retailers. They create a dedicated retailer identity using a work email not already registered to any MacroStack account, then enter their business, first store, timezone and billing contact. Personal/coach credentials are rejected by retailer sign-in. Retailer credentials are rejected by personal/coach sign-in.
 
 `retail_command('start_workspace', ...)` creates the organization, corporate operator, first location, organization-admin and location-manager memberships, and a $599 USD/month draft contract in one transaction. A profile-row lock and unique owner mapping return the existing workspace on retries. Revoked owners cannot regain access by retrying. Names, timezone and billing fields are validated on the server; account locks are respected. The owner mapping has RLS and no direct browser writes.
 
@@ -8,7 +8,7 @@ The workspace opens on Store setup with billing first. Owners can prepare resour
 
 Verified subscription synchronization enables self-service stores. Cancellation, unpaid, paused and expired incomplete subscriptions disable them. Store operations and uploads check paid-through time; owners cannot bypass activation with the enable-store control. Existing administrator-provisioned pilots preserve their previous behavior. Additional self-service locations receive independent draft contracts and manager membership for their creator.
 
-Existing staff open `/retail`. Customers continue to use store QR/private invitations. Owners have access to Today, Customers, Consultations, Inbox, Library and Store, including published plans, check-ins, progress files, manual assessments/CSV import, staff administration and reporting, under the existing permissions.
+Existing staff sign in at `/retailers?signin=1` and open `/retail`. Retail authentication uses its own `macrostack-retail-auth` session key. Customers continue through `/retail/member` with their personal sessions; existing customer QR/private links remain supported. New staff invitation links carry `staff=1` and preserve the invitation through signup/sign-in. Retail access is issued through server-owned `app_metadata.account_type`; database guards reject personal identities when creating a workspace or accepting staff membership. Retailer identities cannot join as customers. Retail account help currently routes to support, rather than the personal password-reset screen. Owners have access to Today, Customers, Consultations, Inbox, Library and Store, including published plans, check-ins, progress files, manual assessments/CSV import, staff administration and reporting, under the existing permissions.
 
 Email/SMS provider activation still requires sender configuration. InBody/POS automation remains deferred. Self-service signup does not claim partner approval, alter Stripe legal identity, or activate an unconfigured external sender.
 

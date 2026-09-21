@@ -1,6 +1,7 @@
 import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
+import { isRetailLoginRoute } from './retail/authRouting.mjs'
 import './index.css'
 import './software.css'
 import './light-depth.css'
@@ -17,6 +18,8 @@ const StripeConnectCallback = lazy(() => import('./pages/StripeConnectCallback.j
 // The root entry mounts the lazy public route rather than exporting components.
 // eslint-disable-next-line react-refresh/only-export-components
 const RetailSignup = lazy(() => import('./retail/RetailSignup.jsx'))
+// eslint-disable-next-line react-refresh/only-export-components
+const RetailEntry = lazy(() => import('./retail/RetailEntry.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
 const Gyms = lazy(() => import('./pages/Gyms.jsx'))
 
@@ -47,6 +50,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Suspense fallback={<div role="status" aria-label="Loading MacroStack" style={{ minHeight: '100dvh', background: '#080b12' }} />}>
       {publicPath === '/retailers' || publicPath === '/retail/start' ? <RetailSignup />
+        : isRetailLoginRoute(publicPath, window.location.search) ? <RetailEntry />
         : publicPath === '/gyms' ? <Gyms />
         : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />
         : <App />}

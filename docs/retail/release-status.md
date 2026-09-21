@@ -53,3 +53,12 @@ The retailer workspace now defaults to Customers, with dedicated customer cards 
 Retail workspace links are prominent in the coach sidebar and Library/Settings, and retailer-specific sign-in returns existing staff directly to their retail workspace. Leaving a dirty consultation through store navigation retains the existing save protection. Organization-only administrators continue to land on their permitted store-management view rather than customer records.
 
 Expanded browser coverage exercises card shortcuts, all customer sections, publication, existing-plan reuse, save failures, unsaved-navigation protection, and customer/private controls at four widths. These are interface changes using the existing Supabase commands; no schema or Edge Function deployment is required. Personal nutrition targets are not overwritten by publishing a store plan.
+
+## Separate retailer accounts — September 20, 2026
+
+- Dedicated retailer signup/sign-in, requiring a different work email from a personal/coach account. Isolated browser session storage; no reuse of existing personal sessions.
+- Server registration writes the trusted retailer account type. Database checks reject personal workspace creation/staff enrollment and retailer customer enrollment. No existing hosted retailer staff or self-service workspaces required migration.
+- Customer store connections keep personal login through `/retail/member`; staff invitations carry through dedicated sign-in. Personal/coach login rejects retailer credentials.
+- Validation: core tests, database/RLS acceptance, signup login rejection at four widths, retail workflow checks, production build and dependency audit.
+- Deploy `register` from local source, preserving JWT verification, and the account-separation migration alongside the application release.
+- Existing sender configuration and historical synchronization limitations remain unchanged.

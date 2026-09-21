@@ -267,7 +267,7 @@ const useStore = create(
         if (!supabase) { set({ authLoading: false, isAuthenticated: false }); return }
         const { data: { session } } = await supabase.auth.getSession()
 
-        if (!session) {
+        if (!session || session.user?.app_metadata?.account_type === "retailer") {
           set({ authLoading: false, isAuthenticated: false })
           return
         }
@@ -328,6 +328,10 @@ const useStore = create(
           email: email.trim(), password,
         })
         if (error) return { ok: false, error: 'Invalid email or password.' }
+        if (data.user?.app_metadata?.account_type === 'retailer') {
+          await supabase.auth.signOut({ scope: 'local' })
+          return { ok: false, error: 'This is a retailer account. Sign in at /retailers.' }
+        }
 
         const { data: profileRows, error: profileErr } = await supabase.rpc('get_my_account')
         const profile = profileRows?.[0] ?? null
@@ -820,7 +824,10 @@ const useStore = create(
       },
 
       activePage:   'clients',
-      setActivePage: (page) => set({ activePage: page }),
+      setActivePage: (page) => {
+        if (page === "retail" && get().currentUser?.role !== "client" && get().currentUser?.role !== "superadmin") { window.location.assign("/retailers?signin=1"); return }
+        set({ activePage: page })
+      },
 
       logDate:   today(),
       setLogDate: (date) => set({ logDate: date }),

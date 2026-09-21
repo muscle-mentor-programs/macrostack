@@ -27,7 +27,7 @@ const call = async (action, payload = {}) =>
 try {
   await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid,bucket_id text,name text);alter table storage.objects enable row level security;
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
- create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz,phone text,phone_confirmed_at timestamptz);
+ create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz,phone text,phone_confirmed_at timestamptz,raw_app_meta_data jsonb default '{}');
  create table public.profiles(id uuid primary key,name text,role text,admin_override text,member_subscription jsonb default '{}');
  create table public.clients(id uuid primary key,profile_id uuid,coach_id uuid);
  create table public.food_log(id uuid,client_id uuid,date date,name text,meal text,quantity numeric,serving_unit text,calories numeric,protein numeric,carbs numeric,fat numeric);create table public.weight_log(id uuid,client_id uuid,date date,value numeric,unit text);create table public.checkins(id uuid,weight numeric);
@@ -72,6 +72,8 @@ try {
       "utf8",
     ),
   );
+  await db.exec(readFileSync("supabase/migrations/20260921015932_retail_account_separation.sql", "utf8"));
+  await db.exec("update auth.users set raw_app_meta_data='{\"account_type\":\"retailer\"}' where email in ('manager@example.invalid','specialist@example.invalid','corporate@example.invalid')");
   await as("other");
   await assert.rejects(
     () => call("provision", { name: "Forbidden" }),
@@ -120,7 +122,7 @@ try {
   await as("other");
   await assert.rejects(
     () => call("accept_invite", { token: invite.token, consent: true }),
-    /invited email/,
+    /invited email|separate retailer account/,
   );
   await as("manager");
   await call("accept_invite", { token: invite.token, consent: true });
