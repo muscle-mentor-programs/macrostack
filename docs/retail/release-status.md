@@ -60,5 +60,6 @@ Expanded browser coverage exercises card shortcuts, all customer sections, publi
 - Server registration writes the trusted retailer account type. Database checks reject personal workspace creation/staff enrollment and retailer customer enrollment. No existing hosted retailer staff or self-service workspaces required migration.
 - Customer store connections keep personal login through `/retail/member`; staff invitations carry through dedicated sign-in. Personal/coach login rejects retailer credentials.
 - Validation: core tests, database/RLS acceptance, signup login rejection at four widths, retail workflow checks, production build and dependency audit.
-- Deploy `register` from local source, preserving JWT verification, and the account-separation migration alongside the application release.
+- Hosted migration `20260921020553_retail_account_separation` applied. `register` v12 deployed ACTIVE from local source, preserving JWT verification. Hosted transactional acceptance passed.
+- Live registration and browser checks passed for duplicate-email rejection, rejecting personal credentials, retailer session restoration, and signing out without clearing the separate personal session. Both synthetic accounts and sessions were removed afterward.
 - Existing sender configuration and historical synchronization limitations remain unchanged.

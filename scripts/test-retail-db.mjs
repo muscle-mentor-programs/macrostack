@@ -72,7 +72,7 @@ try {
       "utf8",
     ),
   );
-  await db.exec(readFileSync("supabase/migrations/20260921015932_retail_account_separation.sql", "utf8"));
+  await db.exec(readFileSync("supabase/migrations/20260921020553_retail_account_separation.sql", "utf8"));
   await db.exec("update auth.users set raw_app_meta_data='{\"account_type\":\"retailer\"}' where email in ('manager@example.invalid','specialist@example.invalid','corporate@example.invalid')");
   await as("other");
   await assert.rejects(
