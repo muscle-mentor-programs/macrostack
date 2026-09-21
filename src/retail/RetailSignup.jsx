@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { supabase } from "../lib/supabase";
 import { accountEmail } from "./accountEmail";
 import { isRetailAccount, isVerifiedRetailAccount } from "./authRouting.mjs";
@@ -7,6 +9,8 @@ import { Alert, Button, Field, Select, useAction } from "./ui";
 import useViewport from "./useViewport";
 import "./retail.css";
 import "./retail-signup.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   [
@@ -27,6 +31,29 @@ const features = [
 ];
 export default function RetailSignup() {
   useViewport();
+  const rootRef = useRef(null);
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    const mm = gsap.matchMedia(root);
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const q = gsap.utils.selector(root);
+      gsap.from(q(".retail-hero-word"), {
+        yPercent: 110, duration: 1, stagger: 0.12, ease: "power4.out",
+      });
+      gsap.from(q(".retail-signup-lead, .retail-signup-intro > .retail-button"), {
+        y: 28, opacity: 0, duration: 1, stagger: 0.14, delay: 0.3,
+        clearProps: "transform,opacity",
+      });
+      q(".retail-signup-features > div, .retail-signup-footer").forEach((el) => {
+        gsap.from(el, {
+          y: 32, opacity: 0, duration: 0.75, ease: "power2.out",
+          clearProps: "transform,opacity",
+          scrollTrigger: { trigger: el, scroller: root, start: "top 94%", once: true },
+        });
+      });
+    });
+    return () => mm.revert();
+  }, []);
   const [user, setUser] = useState(null),
     [checking, setChecking] = useState(Boolean(supabase));
   const [mode, setMode] = useState(
@@ -217,7 +244,7 @@ export default function RetailSignup() {
     ]),
   ];
   return (
-    <div className="retail retail-signup">
+    <div ref={rootRef} className="retail retail-signup">
       <header className="retail-top">
         <a className="retail-brand" href="/" aria-label="MacroStack home">
           <BrandWordmark />
@@ -229,7 +256,11 @@ export default function RetailSignup() {
             MACROSTACK FOR RETAILERS
           </span>
           <h1>
-            Turn a store visit into <em>lasting progress.</em>
+            {["Turn", "a", "store", "visit", "into", "lasting", "progress."].map((word, i) => (
+              <span className="retail-hero-mask" key={word}>
+                <span className={`retail-hero-word${i > 4 ? " retail-hero-accent" : ""}`}>{word}</span>
+              </span>
+            ))}
           </h1>
           <p className="retail-signup-lead">
             Your nutrition services, customer relationships and store team. One
