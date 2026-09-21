@@ -222,9 +222,6 @@ export default function RetailSignup() {
         <a className="retail-brand" href="/" aria-label="MacroStack home">
           <BrandWordmark />
         </a>
-        <div className="retail-actions">
-          <a href="/retailers?signin=1">Retailer sign in ↗</a>
-        </div>
       </header>
       <main className="retail-signup-main">
         <section className="retail-signup-intro">
@@ -400,15 +397,6 @@ export default function RetailSignup() {
                 }}
               >
                 Forgot password?
-              </Button>
-              <Button
-                onClick={() => {
-                  setEmailStep("confirm");
-                  setNotice("");
-                  setError("");
-                }}
-              >
-                Resend confirmation email
               </Button>
             </>
           ) : (
