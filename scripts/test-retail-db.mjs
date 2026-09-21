@@ -83,7 +83,7 @@ try {
   );
   await db.exec(
     readFileSync(
-      "supabase/migrations/20260921023127_retail_verified_email_flows.sql",
+      "supabase/migrations/20260921154148_retail_verified_email_flows.sql",
       "utf8",
     ),
   );
