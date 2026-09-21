@@ -156,3 +156,8 @@
 }
 .retail-signup{scroll-behavior:smooth}.retail-signup #retailer-account{scroll-margin-top:110px}
 @media(prefers-reduced-motion:reduce){.retail-signup{scroll-behavior:auto}}
+.retail-email-page { width:min(100%,560px); margin:auto; padding:60px 22px; box-sizing:border-box; }
+.retail-email-page > a { display:inline-block; margin-bottom:32px; }
+.retail-email-page h1 { font-family:var(--font-display); font-size:32px; line-height:1.12; }
+.retail-email-page p { line-height:1.6; }
+.retail-email-page .retail-card { padding:28px; border-top:3px solid #82ade1; }

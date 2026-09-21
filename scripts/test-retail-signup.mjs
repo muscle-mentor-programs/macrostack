@@ -9,7 +9,7 @@ const url = process.env.TEST_URL || "http://127.0.0.1:5198";
 const fixture = `
 let handler;let user=null;
 export const supabase={
- auth:{getUser:async()=>({data:{user}}),onAuthStateChange:fn=>{handler=fn;return {data:{subscription:{unsubscribe(){}}}}},signInWithPassword:async({email})=>{user={id:'owner',email,app_metadata:{account_type:window.personalAccount?'personal':'retailer'}};handler('SIGNED_IN',{user});return {data:{user}}},signOut:async()=>{user=null;handler('SIGNED_OUT',null);return {}}},
+ auth:{getUser:async()=>({data:{user}}),onAuthStateChange:fn=>{handler=fn;return {data:{subscription:{unsubscribe(){}}}}},signInWithPassword:async({email})=>{user={id:'owner',email,email_confirmed_at:'2026-09-21',app_metadata:{account_type:window.personalAccount?'personal':'retailer',retail_verified_email:window.unverified?'':email}};handler('SIGNED_IN',{user});return {data:{user}}},signOut:async()=>{user=null;handler('SIGNED_OUT',null);return {}}},
  functions:{invoke:async(name,body)=>{window.signupBody=body;return {data:{ok:true}}}},
  from:()=>({select(){return this},eq(){return this},limit:async()=>({data:window.existingStaff?[{id:"membership"}]:[]})}),
  rpc:async(action,body)=>{window.workspaceBody=body;if(window.failSave)return {error:{message:'Connection failed. Please retry.'}};return {data:{location_id:'store',organization_id:'business'}}}
@@ -51,11 +51,21 @@ try {
     await page
       .getByRole("button", { name: "Create account →", exact: true })
       .click();
+    await page.getByRole("heading", { name: "Check your email" }).waitFor();
+    assert.equal(await page.getByLabel("Business name", {exact:true}).count(),0);
+    assert.equal(await page.evaluate(() => window.signupBody.body.action),"register");
+    await page.getByRole("button",{name:"Back to sign in"}).click();
+    await page.evaluate(()=>{window.unverified=true;});
+    await page.getByLabel("Password", {exact:true}).fill("SyntheticPassword123");
+    await page.getByRole("button",{name:"Sign in →",exact:true}).click();
+    await page.getByRole("heading", {name:"Check your email"}).waitFor();
+    assert.equal(await page.getByLabel("Business name", {exact:true}).count(),0);
+    await page.getByRole("button",{name:"Back to sign in"}).click();
+    await page.evaluate(()=>{window.unverified=false;});
+    await page.getByLabel("Password", {exact:true}).fill("SyntheticPassword123");
+    await page.getByRole("button",{name:"Sign in →",exact:true}).click();
     await page.getByRole("heading", { name: "Set up your business" }).waitFor();
-    assert.equal(
-      await page.evaluate(() => window.signupBody.body.account_type),
-      "retailer",
-    );
+    await page.getByLabel("Billing contact name").fill("Retail Owner");
     await page
       .getByLabel("Business name", { exact: true })
       .fill("Nutrition Network");

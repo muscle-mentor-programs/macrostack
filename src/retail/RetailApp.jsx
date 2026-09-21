@@ -1,3 +1,4 @@
+import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
 import { createRequestCache } from "./requestCache.mjs";
 import OperationalHealth from "./OperationalHealth";
@@ -282,12 +283,16 @@ export default function RetailApp({ retailerSession = false }) {
       setSection("Store");
     });
   const closeModal = useCallback(() => setModal(null), []);
-  const newLink = (invite) => {
+  const [emailInvite, setEmailInvite] = useState(null);
+  const newLink = async (invite) => {
     const url = new URL(invite.role === "customer" ? "/retail/member" : "/retail", window.location.origin);
     url.searchParams.set("invite", invite.token);
     if (invite.role !== "customer") url.searchParams.set("staff", "1");
     setLink(url.toString());
     setModal(null);
+    setEmailInvite({id:invite.id,sent:false});
+    await accountEmail("invite",{invitation_id:invite.id});
+    setEmailInvite({id:invite.id,sent:true});
   };
   const switchLocation = (id) => {
     if (
@@ -404,7 +409,8 @@ export default function RetailApp({ retailerSession = false }) {
         />
         {link && (
           <div className="retail-card retail-banner">
-            <h2>Invitation ready</h2>
+            <h2>{emailInvite?.sent ? "Invitation email sent" : "Invitation ready"}</h2>
+            {emailInvite && <Button disabled={busy} onClick={()=>run(async()=>{await accountEmail("invite",{invitation_id:emailInvite.id});setEmailInvite({...emailInvite,sent:true});})}>{emailInvite.sent ? "Resend invitation email" : "Send invitation email"}</Button>}
             <p>
               Share this single-use link with the intended recipient. It expires
               in seven days and requires their invited email.
@@ -1187,7 +1193,7 @@ export default function RetailApp({ retailerSession = false }) {
             operators={ctx.operators}
             isOrgAdmin={isOrgAdmin}
             onSaved={async (result) => {
-              if (result?.token) newLink(result);
+              if (result?.token) await newLink(result);
               else setModal(null);
               await reloadContext();
               await refresh();

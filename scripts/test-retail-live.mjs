@@ -37,29 +37,47 @@ const command = async (c, action, payload) =>
   ok(await c.rpc("retail_command", { action, payload }), action);
 if (mode === "register") {
   assert(!state.accounts, "Use a new state file for registration");
+  assert(
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.retailTestEmail || ""),
+    "Supply an unused controlled retailTestEmail for confirmation delivery",
+  );
   state.run = randomUUID();
   state.accounts = {};
   await save();
   for (const role of ["admin", "manager", "member", "outsider"]) {
     const account = {
-      email: `retail-live-${state.run}-${role}@example.invalid`,
+      email:
+        role === "manager"
+          ? state.retailTestEmail
+          : `retail-live-${state.run}-${role}@example.invalid`,
       password: randomBytes(32).toString("base64url"),
     };
     state.accounts[role] = account;
     await save(); // Retain the exact email even if registration loses its response.
     const c = client();
     const registered = ok(
-      await c.functions.invoke("register", {
-        body: {
-          ...account,
-          name: "Synthetic retail acceptance",
-          role: "client",
-          account_type: role === "manager" ? "retailer" : "personal",
+      await c.functions.invoke(
+        role === "manager" ? "retail-auth" : "register",
+        {
+          body: {
+            ...account,
+            action: "register",
+            name: "Synthetic retail acceptance",
+            role: "client",
+            account_type: role === "manager" ? "retailer" : "personal",
+          },
         },
-      }),
+      ),
       "Registration",
     );
     assert(!registered.error, "Registration rejected");
+    if (role === "manager") {
+      assert(
+        (await c.auth.signInWithPassword(account)).error,
+        "Unconfirmed retailer signed in",
+      );
+      continue;
+    }
     const signed = ok(
       await c.auth.signInWithPassword(account),
       "Password sign-in",
@@ -69,7 +87,7 @@ if (mode === "register") {
     await c.auth.signOut();
   }
   console.log(
-    "PASS real registration and password sign-in for four synthetic accounts",
+    "PASS registration; confirm the controlled retailer email before running verify",
   );
   console.log(
     JSON.stringify(
@@ -85,8 +103,14 @@ if (mode === "register") {
   );
   const sessions = {};
   try {
-    for (const [role, account] of Object.entries(state.accounts))
+    for (const [role, account] of Object.entries(state.accounts)) {
       sessions[role] = await login(account);
+      account.id = ok(
+        await sessions[role].auth.getUser(),
+        "User identity",
+      ).user.id;
+      await save();
+    }
     const { admin, manager, member, outsider } = sessions;
     if (!state.organization)
       state.organization = await command(admin, "provision", {
@@ -308,7 +332,11 @@ if (mode === "register") {
   assert(/^[0-9a-f-]{36}$/.test(state.run), "Invalid run ID");
   // Exact run identity only. Storage bytes must be removed with remove-files first.
   console.log(`begin;
-create temporary table qa_users as select id from auth.users where email in (${["admin", "manager", "member", "outsider"].map((role) => `'retail-live-${state.run}-${role}@example.invalid'`).join(",")});
+create temporary table qa_users as select id from auth.users where email in (${Object.values(
+    state.accounts,
+  )
+    .map((account) => "'" + account.email.replaceAll("'", "''") + "'")
+    .join(",")});
 create temporary table qa_orgs as select id from public.retail_organizations where name='Synthetic acceptance ${state.run}';
 create temporary table qa_locations as select id from public.retail_locations where organization_id in(select id from qa_orgs);
 create temporary table qa_relationships as select id from public.retail_relationships where location_id in(select id from qa_locations);
@@ -326,7 +354,11 @@ delete from public.clients where profile_id in(select id from qa_users);
 delete from auth.sessions where user_id in(select id from qa_users);
 delete from auth.users where id in(select id from qa_users);
 commit;
-select count(*) as remaining_test_accounts from auth.users where email in (${["admin", "manager", "member", "outsider"].map((role) => `'retail-live-${state.run}-${role}@example.invalid'`).join(",")});`);
+select count(*) as remaining_test_accounts from auth.users where email in (${Object.values(
+    state.accounts,
+  )
+    .map((account) => "'" + account.email.replaceAll("'", "''") + "'")
+    .join(",")});`);
 } else {
   throw new Error("Use register, verify, remove-files, or cleanup-sql");
 }

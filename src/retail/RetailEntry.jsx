@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
 import useStore from "../store";
-import { isRetailAccount } from "./authRouting.mjs";
+import { isVerifiedRetailAccount } from "./authRouting.mjs";
 import RetailApp from "./RetailApp";
 export default function RetailEntry() {
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState(supabase ? "" : "Account service unavailable. Please try again shortly.");
+  const [error, setError] = useState(
+    supabase ? "" : "Account service unavailable. Please try again shortly.",
+  );
   useEffect(() => {
     let active = true;
     const login = () => {
@@ -24,7 +27,7 @@ export default function RetailEntry() {
           return;
         }
         if (e) throw e;
-        if (!isRetailAccount(data.user)) {
+        if (!isVerifiedRetailAccount(data.user)) {
           await supabase.auth.signOut({ scope: "local" });
           login();
           return;
@@ -48,6 +51,9 @@ export default function RetailEntry() {
           isAuthenticated: true,
         });
         setReady(true);
+        // Confirmation remains valid if the optional welcome delivery needs retry.
+        if (!data.user.app_metadata.retail_welcome_sent)
+          void accountEmail("welcome").catch(() => {});
       })
       .catch((e) => {
         if (active)

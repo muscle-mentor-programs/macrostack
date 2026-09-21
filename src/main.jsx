@@ -21,6 +21,8 @@ const RetailSignup = lazy(() => import('./retail/RetailSignup.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
 const RetailEntry = lazy(() => import('./retail/RetailEntry.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
+const RetailEmailFlow = lazy(() => import('./retail/RetailEmailFlow.jsx'))
+// eslint-disable-next-line react-refresh/only-export-components
 const Gyms = lazy(() => import('./pages/Gyms.jsx'))
 
 // Error monitoring, no-op until VITE_SENTRY_DSN is set in Vercel env
@@ -49,7 +51,7 @@ const publicPath = window.location.pathname.replace(/\/+$/, '')
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Suspense fallback={<div role="status" aria-label="Loading MacroStack" style={{ minHeight: '100dvh', background: '#080b12' }} />}>
-      {publicPath === '/retailers' || publicPath === '/retail/start' ? <RetailSignup />
+      {publicPath === '/retailers' || publicPath === '/retail/start' ? (['confirm','reset'].includes(new URLSearchParams(window.location.search).get('flow')) ? <RetailEmailFlow /> : <RetailSignup />)
         : isRetailLoginRoute(publicPath, window.location.search) ? <RetailEntry />
         : publicPath === '/gyms' ? <Gyms />
         : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />

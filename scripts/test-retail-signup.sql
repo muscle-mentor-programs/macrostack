@@ -11,7 +11,7 @@ begin
  begin perform public.retail_command('start_workspace','{}');exception when others then rejected:=sqlerrm like '%separate retailer account%';end;
  if not rejected then raise exception 'Personal account allowed to create retailer workspace';end if;
  execute 'reset role';
- update auth.users set raw_app_meta_data='{"account_type":"retailer"}' where id=owner_id;
+ update auth.users set raw_app_meta_data=jsonb_build_object('account_type','retailer','retail_verified_email',email) where id=owner_id;
  execute 'set local role authenticated';
  perform set_config('request.jwt.claim.sub',owner_id::text,true);
  rejected:=false;

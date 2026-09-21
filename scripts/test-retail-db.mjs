@@ -72,8 +72,24 @@ try {
       "utf8",
     ),
   );
-  await db.exec(readFileSync("supabase/migrations/20260921020553_retail_account_separation.sql", "utf8"));
-  await db.exec("update auth.users set raw_app_meta_data='{\"account_type\":\"retailer\"}' where email in ('manager@example.invalid','specialist@example.invalid','corporate@example.invalid')");
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/20260921020553_retail_account_separation.sql",
+      "utf8",
+    ),
+  );
+  await db.exec(
+    "update auth.users set raw_app_meta_data='{\"account_type\":\"retailer\"}' where email in ('manager@example.invalid','specialist@example.invalid','corporate@example.invalid')",
+  );
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/20260921023127_retail_verified_email_flows.sql",
+      "utf8",
+    ),
+  );
+  await db.exec(
+    "update auth.users set raw_app_meta_data=raw_app_meta_data||jsonb_build_object('retail_verified_email',email) where raw_app_meta_data->>'account_type'='retailer'",
+  );
   await as("other");
   await assert.rejects(
     () => call("provision", { name: "Forbidden" }),
@@ -565,6 +581,34 @@ try {
     /Manager required/,
   );
   await db.exec("reset role");
+  await db.exec(
+    `update auth.users set raw_app_meta_data=raw_app_meta_data-'retail_verified_email' where id='${ids.manager}'`,
+  );
+  await as("manager");
+  assert.equal(
+    (await db.query("select * from retail_relationships")).rows.length,
+    0,
+  );
+  await assert.rejects(
+    () => call("start_workspace", {}),
+    /Confirm your retailer email/,
+  );
+  await assert.rejects(
+    () => db.query("select retail_email_identity('manager@example.invalid')"),
+    /permission denied/,
+  );
+  await db.exec("reset role");
+  await db.exec(
+    `update auth.users set raw_app_meta_data=raw_app_meta_data||jsonb_build_object('retail_verified_email',email) where id='${ids.manager}'`,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select private.retail_email_limit('qa-global',300,3600) allowed",
+      )
+    ).rows[0].allowed,
+    true,
+  );
   await db.exec(readFileSync("scripts/test-retail-hosted.sql", "utf8"));
   await db.exec(readFileSync("scripts/test-retail-signup.sql", "utf8"));
   console.log(

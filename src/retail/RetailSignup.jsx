@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { isRetailAccount } from "./authRouting.mjs";
+import { accountEmail } from "./accountEmail";
+import { isRetailAccount, isVerifiedRetailAccount } from "./authRouting.mjs";
 import BrandWordmark from "../components/BrandWordmark";
 import { Alert, Button, Field, Select, useAction } from "./ui";
 import useViewport from "./useViewport";
@@ -44,6 +45,14 @@ export default function RetailSignup() {
   const [billingName, setBillingName] = useState(""),
     [billingEmail, setBillingEmail] = useState("");
   const [existing, setExisting] = useState(false);
+  const [emailStep, setEmailStep] = useState(
+    new URLSearchParams(window.location.search).has("recover")
+      ? "recover"
+      : new URLSearchParams(window.location.search).has("confirm")
+        ? "confirm"
+        : "",
+  );
+  const [notice, setNotice] = useState("");
   const { busy, error, run, setError } = useAction();
   useEffect(() => {
     let active = true;
@@ -52,7 +61,14 @@ export default function RetailSignup() {
       .getUser()
       .then(({ data }) => {
         if (active) {
-          setUser(isRetailAccount(data.user) ? data.user : null);
+          setUser(isVerifiedRetailAccount(data.user) ? data.user : null);
+          if (
+            isRetailAccount(data.user) &&
+            !isVerifiedRetailAccount(data.user)
+          ) {
+            setEmail(data.user.email);
+            setEmailStep("confirm");
+          }
           setChecking(false);
         }
       })
@@ -65,7 +81,8 @@ export default function RetailSignup() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) setUser(isRetailAccount(session?.user) ? session.user : null);
+      if (active)
+        setUser(isVerifiedRetailAccount(session?.user) ? session.user : null);
     });
     return () => {
       active = false;
@@ -75,7 +92,9 @@ export default function RetailSignup() {
   useEffect(() => {
     let active = true;
     if (user && new URLSearchParams(window.location.search).has("invite")) {
-      window.location.replace(`/retail?staff=1&invite=${encodeURIComponent(new URLSearchParams(window.location.search).get("invite"))}`);
+      window.location.replace(
+        `/retail?staff=1&invite=${encodeURIComponent(new URLSearchParams(window.location.search).get("invite"))}`,
+      );
       return;
     }
     if (user)
@@ -112,33 +131,29 @@ export default function RetailSignup() {
     run(async () => {
       if (!supabase) throw new Error("Account service unavailable");
       if (mode === "signup") {
-        const result = await supabase.functions.invoke("register", {
-          body: {
-            name: name.trim(),
-            email: email.trim(),
-            password,
-            role: "client",
-            account_type: "retailer",
-          },
+        await accountEmail("register", {
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          invite: new URLSearchParams(window.location.search).get("invite"),
         });
-        if (result.error || result.data?.error) {
-          let detail = result.data;
-          try {
-            if (result.error?.context)
-              detail = await result.error.context.json();
-          } catch {
-            /* fallback */
-          }
-          throw new Error(
-            detail?.error ||
-              "Could not create your retailer account. Use a work email that is not registered to a personal or coach account.",
-          );
-        }
+        setPassword("");
+        setEmailStep("confirm");
+        setNotice(
+          "Check your inbox. Confirm your email before accessing your account.",
+        );
+        return;
       }
       const result = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
+      if (result.error?.code === "email_not_confirmed") {
+        setEmailStep("confirm");
+        setPassword("");
+        setNotice("Confirm your work email before signing in.");
+        return;
+      }
       if (result.error)
         throw new Error(
           mode === "signup"
@@ -150,6 +165,11 @@ export default function RetailSignup() {
         throw new Error(
           "This is a personal or coach account. Create a separate retailer account with a different work email.",
         );
+      }
+      if (!isVerifiedRetailAccount(result.data.user)) {
+        setEmailStep("confirm");
+        setPassword("");
+        return;
       }
       setUser(result.data.user);
       const invite = new URLSearchParams(window.location.search).get("invite");
@@ -267,6 +287,65 @@ export default function RetailSignup() {
           />
           {checking ? (
             <p role="status">Checking your account…</p>
+          ) : emailStep && !user ? (
+            <>
+              <h2>
+                {emailStep === "recover"
+                  ? "Reset your password"
+                  : "Check your email"}
+              </h2>
+              <p>
+                {emailStep === "recover"
+                  ? "Enter your retailer work email. We’ll send a secure reset link if the account is eligible."
+                  : "Confirm your work email to unlock your retailer account. Check spam if you don’t see our message."}
+              </p>
+              {notice && <p role="status">{notice}</p>}
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  run(async () => {
+                    await accountEmail(
+                      emailStep === "recover" ? "recover" : "resend",
+                      {
+                        email: email.trim(),
+                        invite: new URLSearchParams(window.location.search).get(
+                          "invite",
+                        ),
+                      },
+                    );
+                    setNotice(
+                      "If this email is eligible, a new link is on its way. Check your inbox and spam folder.",
+                    );
+                  });
+                }}
+              >
+                <Field
+                  label="Work email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={setEmail}
+                />
+                <Button primary type="submit" disabled={busy}>
+                  {busy
+                    ? "Sending…"
+                    : emailStep === "recover"
+                      ? "Send reset email"
+                      : "Resend confirmation"}
+                </Button>
+              </form>
+              <Button
+                onClick={() => {
+                  setEmailStep("");
+                  setMode("login");
+                  setNotice("");
+                  setError("");
+                }}
+              >
+                Back to sign in
+              </Button>
+            </>
           ) : !user ? (
             <>
               <h2>
@@ -328,9 +407,24 @@ export default function RetailSignup() {
                   ? "Already have a retailer account? Sign in"
                   : "New retailer? Create account"}
               </Button>
-              <a href="mailto:getmacrostack@gmail.com">
-                Need help with your retailer account?
-              </a>
+              <Button
+                onClick={() => {
+                  setEmailStep("recover");
+                  setNotice("");
+                  setError("");
+                }}
+              >
+                Forgot password?
+              </Button>
+              <Button
+                onClick={() => {
+                  setEmailStep("confirm");
+                  setNotice("");
+                  setError("");
+                }}
+              >
+                Resend confirmation email
+              </Button>
             </>
           ) : (
             <>

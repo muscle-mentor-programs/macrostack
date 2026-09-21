@@ -22,8 +22,8 @@ serve(async (req) => {
 
     // Only the two self-serve roles may be created here; superadmin is never
     // self-assignable.
-    const retailer = account_type === 'retailer'
-    const safeRole = !retailer && role === 'coach' ? 'coach' : 'client'
+    if (account_type === 'retailer') return new Response(JSON.stringify({ error: 'Use retailer signup to confirm your email before access.' }), { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
+    const safeRole = role === 'coach' ? 'coach' : 'client'
 
     const admin = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -38,7 +38,7 @@ serve(async (req) => {
       // app_metadata is applied; direct client signup never receives this
       // server-validated value.
       user_metadata: { name: (name || '').trim() || cleanEmail.split('@')[0], role: safeRole },
-      app_metadata: { role: safeRole, account_type: retailer ? 'retailer' : 'personal' },
+      app_metadata: { role: safeRole, account_type: 'personal' },
     })
 
     if (error) {

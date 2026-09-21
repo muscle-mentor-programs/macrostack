@@ -11,3 +11,7 @@ export function isRetailLoginRoute(path, search = "") {
 export function isRetailAccount(user) {
   return user?.app_metadata?.account_type === "retailer";
 }
+
+export function isVerifiedRetailAccount(user) {
+  return isRetailAccount(user) && Boolean(user.email_confirmed_at) && user.app_metadata.retail_verified_email === user.email;
+}
