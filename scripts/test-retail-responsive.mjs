@@ -12,6 +12,7 @@ const staff=[{id:'membership',user_id:'staff',location_id:lid,organization_id:oi
 const loc={id:lid,organization_id:oid,operator_id:'operator',name:'Peak Nutrition — Downtown Wellness Center',timezone:'America/Chicago',join_code:'00000000-0000-4000-8000-000000000000',enabled:true};
 let records={consultations:[],plans:[],assessments:[],tasks:[],notes:[],messages:[],threads:[],checkins:[],notifications:[],read_receipts:[],intakes:[],files:[]};
 export async function setStoreTargets(){}
+export async function customerAvatarURL(){return null} export async function saveCustomerAvatar(){return 'relationship/photo.png'}
 export async function retailerFoods(){return []}
 export async function publishNutrition(){}
 export async function storeMealPlans(){return []}
@@ -172,7 +173,7 @@ try {
       .getByRole("button", { name: "Nutrition", exact: true })
       .click();
     await page
-      .getByRole("heading", { name: "Nutrition plan", exact: true })
+      .getByRole("heading", { name: "Food database & meal plan builder", exact: true })
       .waitFor();
     await page
       .getByRole("button", { name: "← Customers", exact: true })
@@ -260,7 +261,7 @@ try {
       .getByRole("heading", { name: "Build consistency", exact: true })
       .waitFor();
     await page
-      .getByRole("button", { name: "Update nutrition plan", exact: true })
+      .getByRole("button", { name: "Update guidance", exact: true })
       .click();
     assert.equal(
       await page.getByLabel("Plan goal", { exact: true }).inputValue(),
@@ -285,7 +286,7 @@ try {
       .getByRole("button", { name: "Save & close", exact: true })
       .click();
     await page
-      .getByRole("button", { name: "Continue nutrition draft", exact: true })
+      .getByRole("button", { name: "Continue guidance draft", exact: true })
       .waitFor();
     await page
       .getByRole("button", { name: "← Customers", exact: true })

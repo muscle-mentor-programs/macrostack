@@ -334,3 +334,17 @@ export async function retailerFoods() {
     if(page.length<1000)return rows;
   }
 }
+
+export async function customerAvatarURL(path) {
+  return check(await supabase.storage.from('retail-avatars').createSignedUrl(path, 3600)).signedUrl;
+}
+export async function saveCustomerAvatar(rid, file) {
+  let path = null;
+  if (file) {
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 2*1024*1024) throw new Error('Choose a JPG, PNG or WebP photo up to 2 MB.');
+    path = `${rid}/${crypto.randomUUID()}`;
+    check(await supabase.storage.from('retail-avatars').upload(path,file,{contentType:file.type,upsert:false}));
+  }
+  check(await supabase.rpc('retail_set_avatar',{rid,object_path:path}));
+  return path;
+}

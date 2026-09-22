@@ -60,8 +60,8 @@ export default function Branding({ organization, onSaved }) {
     await onSaved();
   }
   return (
-    <section className="retail-card">
-      <h2>Your portal branding</h2>
+    <section id="retail-branding" className="retail-card">
+      <h2>Store logo & portal branding</h2>
       <p className="retail-muted">
         Make this workspace feel like your business. Shared across your
         locations and connected customer store views.
@@ -88,7 +88,7 @@ export default function Branding({ organization, onSaved }) {
           maxLength={80}
         />
         <label className="retail-field">
-          <span>Transparent logo</span>
+          <span>Upload your store logo</span>
           <input
             type="file"
             accept="image/png,image/webp"

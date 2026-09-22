@@ -1,3 +1,4 @@
+import CustomerAvatar from "./CustomerAvatar";
 import NutritionEditor from "./NutritionEditor";
 import LoadingSplash from "../components/LoadingSplash";
 import History from "./History";
@@ -30,6 +31,7 @@ export default function CustomerWorkspace({
   onRefresh,
 }) {
   const now = useClock();
+  const [avatarPath, setAvatarPath] = useState(relationship.avatar_path);
   const [nutritionEditor, setNutritionEditor] = useState(false);
   const userId = useStore((s) => s.currentUser?.id);
   const composingAt = useRef(0);
@@ -154,6 +156,7 @@ export default function CustomerWorkspace({
           <Button onClick={onBack}>
             ← {staff ? "Customers" : "My stores"}
           </Button>
+          <CustomerAvatar customer={{...relationship, avatar_path:avatarPath}} editable={staff} onSaved={async path=>{setAvatarPath(path);await onRefresh?.();}} />
           <h1 style={{ marginTop: 14 }}>
             {staff ? relationship.name : "Your store plan"}
           </h1>
@@ -520,11 +523,15 @@ export default function CustomerWorkspace({
           )}
           {tab === "Plan" && (
             <section className="retail-card">
-              {staff && relationship.status === "active" && <div className="retail-actions"><Button primary onClick={() => setNutritionEditor(true)}>Build app meal plan & targets</Button></div>}
+              <div className="retail-nutrition-builder-entry">
+                <div><h2>Food database & meal plan builder</h2><p>Search foods, set portions and build meals with calculated macros. Publish the plan and daily targets directly to this customer's app.</p></div>
+                {staff && <Button primary disabled={relationship.status !== "active"} onClick={() => setNutritionEditor(true)}>Build nutrition plan</Button>}
+                {staff && relationship.status !== "active" && <p className="retail-muted">The customer must accept their store invitation before you can assign an app meal plan.</p>}
+              </div>
               {nutritionEditor && <NutritionEditor relationship={relationship} onClose={() => setNutritionEditor(false)} />}
               <div className="retail-row">
                 <div>
-                  <h2>Nutrition plan</h2>
+                  <h2>Consultation guidance</h2>
                   <p className="retail-muted">
                     Daily targets, practical meal guidance and agreed habits.
                   </p>
@@ -538,18 +545,18 @@ export default function CustomerWorkspace({
                     }}
                   >
                     {draft
-                      ? "Continue nutrition draft"
+                      ? "Continue guidance draft"
                       : plan
-                        ? "Update nutrition plan"
-                        : "Create nutrition plan"}
+                        ? "Update guidance"
+                        : "Add consultation guidance"}
                   </Button>
                 )}
               </div>
               {!plan ? (
                 <Empty>
-                  No nutrition plan published yet.{" "}
+                  No consultation guidance published yet.{" "}
                   {staff
-                    ? "Create a plan above, review it and publish it to your customer."
+                    ? "Add goals, habits and practical guidance to accompany their meal plan."
                     : "Your store team will share your targets and guidance here."}
                 </Empty>
               ) : (

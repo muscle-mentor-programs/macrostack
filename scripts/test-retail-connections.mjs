@@ -6,6 +6,7 @@ const { chromium } = createRequire(import.meta.url)(
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const origin = process.env.TEST_URL || "http://127.0.0.1:5198";
 const api = `let messages=[{id:'first',author_id:'staff',body:'Welcome to your store chat',created_at:'2026-09-22T10:00:00Z'}];export async function list(){return [{id:'relationship',location_id:'store'}]} export async function conversation(){return {messages}} export function brandLogoURL(){return null} export async function storeBranding(){return {name:'Peak Nutrition'}} export async function command(action,payload){window.commandPayload={action,payload};if(action==='message')messages.push({id:payload.id,author_id:'member',body:payload.body,created_at:new Date().toISOString()});return {relationship_id:'relationship'}} export async function shareAppRecords(){window.shared=true} export async function saveBranding(oid,name,path){window.brandSaved={oid,name,path}} export async function uploadBrandLogo(){return 'org/logo.png'} export async function removeBrandLogo(){} export async function storeMealPlans(){return []} export async function setStoreTargets(){}
+export async function customerAvatarURL(){return null} export async function saveCustomerAvatar(rid,file){window.avatarSaved={rid,name:file?.name};return 'relationship/photo.png'}
 export async function retailerFoods(){return []}
 export async function publishNutrition(...args){window.nutrition=args}`;
 const auth = `let user=null;let listener;export const supabase={rpc:async()=>({data:{email:'member@example.invalid',has_account:!window.newAccount,store:'Downtown',brand:'Peak Nutrition',logo_path:null}}),auth:{getUser:async()=>({data:{user}}),onAuthStateChange:fn=>{listener=fn;window.authenticate=()=>{user={id:'member',email:'member@example.invalid'};listener('SIGNED_IN',{user})};return {data:{subscription:{unsubscribe(){}}}}},signOut:async()=>{user=null;listener('SIGNED_OUT',null)}}};`;
@@ -39,7 +40,7 @@ try {
       const type = new URL(r.request().url()).searchParams.get("type");
       r.fulfill({
         contentType: "text/html",
-        body: `<html class="ocean-dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module">import React from '/node_modules/.vite/deps/react.js';import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';import '/src/index.css';import '/src/retail/retail.css';import Component from '/src/retail/${type}.jsx';ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Component,{organization:{id:'org',name:'Peak Nutrition'},relationship:{id:'relationship',name:'Alex'},onSaved:async()=>{},onClose:()=>{}}));</script></body></html>`,
+        body: `<html class="ocean-dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module">import React from '/node_modules/.vite/deps/react.js';import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';import '/src/index.css';import '/src/retail/retail.css';import Component from '/src/retail/${type}.jsx';ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Component,{customer:{id:'relationship',name:'Alex'},editable:true,organization:{id:'org',name:'Peak Nutrition'},relationship:{id:'relationship',name:'Alex'},onSaved:async()=>{},onClose:()=>{}}));</script></body></html>`,
       });
     });
     await page.route("**/messages?store=1", (r) =>
@@ -97,7 +98,7 @@ try {
       x.fillRect(20, 20, 60, 60);
       return c.toDataURL().split(",")[1];
     });
-    await page.getByLabel("Transparent logo", { exact: false }).setInputFiles({
+    await page.getByLabel("Upload your store logo", { exact: false }).setInputFiles({
       name: "logo.png",
       mimeType: "image/png",
       buffer: Buffer.from(png, "base64"),
@@ -109,6 +110,10 @@ try {
     );
     await page.getByRole("button", { name: "Remove logo" }).click();
     await page.waitForFunction(() => window.brandSaved.path === null);
+    await page.goto(origin + "/qa-retail?type=CustomerAvatar");
+    await page.getByLabel("Customer profile photo").setInputFiles({name:"customer.png",mimeType:"image/png",buffer:Buffer.from(png,"base64")});
+    await page.waitForFunction(()=>window.avatarSaved?.rid==='relationship');
+    assert.equal(await page.evaluate(()=>window.avatarSaved.name),'customer.png');
     await page.goto(origin + "/qa-retail?type=NutritionEditor");
     await page.getByLabel("Plan name").waitFor();
     for (const [label, v] of [

@@ -1,3 +1,4 @@
+import CustomerAvatar from "./CustomerAvatar";
 import ScrambleText from "../components/ScrambleText";
 import LoadingSplash from "../components/LoadingSplash";
 import { accountEmail } from "./accountEmail";
@@ -325,6 +326,11 @@ export default function RetailApp({ retailerSession = false }) {
           <small>{isStaff ? "STORE WORKSPACE" : "YOUR STORE CONNECTION"}</small>
         </div>
         <div className="retail-actions">
+          {isOrgAdmin && org && <Button onClick={() => {
+            if (!window.dispatchEvent(new Event("retail-before-leave", {cancelable:true}))) return;
+            setSelected(null); setSection("Store");
+            requestAnimationFrame(() => document.getElementById("retail-branding")?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}));
+          }}>Brand your portal</Button>}
           {ctx.locations.length > 0 && (
             <select
               aria-label="Choose store"
@@ -726,12 +732,7 @@ export default function RetailApp({ retailerSession = false }) {
                         }}
                       >
                         <div className="retail-customer-identity">
-                          <span
-                            className="retail-customer-avatar"
-                            aria-hidden="true"
-                          >
-                            {c.name?.trim().slice(0, 1).toUpperCase()}
-                          </span>
+                          <CustomerAvatar customer={c} />
                           <div>
                             <h2>{c.name}</h2>
                             <p className="retail-muted">

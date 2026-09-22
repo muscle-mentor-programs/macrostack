@@ -31,3 +31,9 @@ The retailer landing page covers customer care, nutrition, messaging, consultati
 Apply `retail_portal_branding` before `retail_customer_connection`, then release the frontend. No Edge Function edits are necessary: existing customer invitation URLs are handled by the new route. Keep existing historical migration drift separate; do not run a blanket database push.
 
 Local checks: core tests, build, retailer signup/responsive flows, invitation signup/login and consent, branding upload/removal, food gram/serving conversion and nutrition publishing, customer chat read/send, database permission and retry tests. These local fixtures do not replace live deployment and authenticated-flow verification.
+
+## Customer photos and feature entry points
+
+Customer cards and records support store-managed profile photos in the private `retail-avatars` bucket. Only authorized staff for that customer relationship may upload, replace or remove its photo; scoped customer access is required to view it. Images use expiring signed URLs and remain separate from personal app avatars and progress photos. Apply `retail_customer_avatars` before releasing these controls.
+
+Nutrition opens with the food-database meal-plan builder; consultation guidance is a separate secondary action. App plan assignment requires an active, accepted customer connection. Organization administrators can use the persistent Brand your portal shortcut to reach Store logo & portal branding.

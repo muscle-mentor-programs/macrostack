@@ -103,6 +103,7 @@ try {
   );
   await db.exec(readFileSync("supabase/migrations/20260922162552_retail_portal_branding.sql", "utf8"));
   await db.exec(readFileSync("supabase/migrations/20260922162558_retail_customer_connection.sql", "utf8"));
+  await db.exec(readFileSync("supabase/migrations/20260922165259_retail_customer_avatars.sql", "utf8"));
   await db.exec("grant usage on schema storage to authenticated;grant select,insert,delete on storage.objects to authenticated;");
   await db.exec(
     "update auth.users set raw_app_meta_data=raw_app_meta_data||jsonb_build_object('retail_verified_email',email) where raw_app_meta_data->>'account_type'='retailer'",
@@ -183,6 +184,16 @@ try {
     goal: "Build consistent habits",
   });
   const rid = prospect.relationship_id;
+  await db.query("insert into storage.objects(id,bucket_id,name) values(gen_random_uuid(),'retail-avatars',$1)",[rid+'/photo.png']);
+  await db.query('select retail_set_avatar($1,$2)',[rid,rid+'/photo.png']);
+  assert.equal((await db.query('select avatar_path from retail_relationships where id=$1',[rid])).rows[0].avatar_path,rid+'/photo.png');
+  await assert.rejects(()=>db.query('select retail_set_avatar($1,$2)',[rid,b.location_id+'/wrong.png']),/Upload a photo/);
+  await as('other');
+  await assert.rejects(()=>db.query('select retail_set_avatar($1,null)',[rid]),/Authorized/);
+  assert.equal((await db.query("select name from storage.objects where bucket_id='retail-avatars'")).rows.length,0);
+  await as('specialist');
+  await db.query('select retail_set_avatar($1,null)',[rid]);
+
   await db.exec('reset role;set role anon');
   assert.equal((await db.query('select retail_customer_invitation($1) x',[prospect.token])).rows[0].x.has_account,true);
   assert.equal((await db.query('select retail_customer_invitation($1) x',[crypto.randomUUID()])).rows[0].x,null);

@@ -632,3 +632,13 @@
  .retail :is(.retail-button,.retail-nav button,.retail-food-result){transition:background-color var(--motion-feedback,180ms) ease,border-color var(--motion-feedback,180ms) ease,color var(--motion-feedback,180ms) ease,transform var(--motion-feedback,180ms) var(--motion-settle,cubic-bezier(.22,1,.36,1))}
  .retail :is(input,textarea,select){transition:border-color 180ms ease,box-shadow 240ms ease}
 }
+.retail-customer-avatar img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.retail-avatar-editor{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px}
+.retail-avatar-editor>.retail-customer-avatar{width:64px;height:64px;font-size:26px}
+.retail-avatar-editor small{flex-basis:100%;color:var(--color-text-muted)}
+.retail-photo-upload{position:relative;cursor:pointer;overflow:hidden}
+.retail-photo-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.retail-photo-upload:focus-within{outline:2px solid var(--retail-accent);outline-offset:3px}
+.retail-nutrition-builder-entry{padding:24px;margin-bottom:28px;border:1px solid var(--retail-accent);border-radius:16px;background:color-mix(in srgb,var(--retail-accent) 8%,transparent)}
+.retail-nutrition-builder-entry p{margin:12px 0 18px;max-width:75ch}
+#retail-branding{scroll-margin-top:160px}

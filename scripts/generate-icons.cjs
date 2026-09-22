@@ -19,6 +19,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" vi
 
 const outputs = [
   ['public/favicon.png', 96],
+  ['public/macrostack-favicon-v2.png', 96],
   ['public/apple-touch-icon.png', 180],
   ['public/icon-192.png', 192],
   ['public/icon-512.png', 512],
