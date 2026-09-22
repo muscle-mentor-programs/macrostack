@@ -242,9 +242,15 @@ try {
     await page.locator('.retail-profile-more').getByRole('button',{name:'Connection settings',exact:true}).click();
     await page.getByRole('button',{name:'Delete customer',exact:true}).click();
     assert.equal(await page.getByRole('button',{name:'Confirm deletion',exact:true}).isDisabled(),true);
-    await page.getByLabel('Type customer name to confirm').fill('Alexandra Montgomery');
+    const confirmation = page.getByLabel('Type customer name to confirm');
+    await confirmation.click();
+    await confirmation.pressSequentially('Alexandra Montgomery', {delay:20});
+    assert.equal(await confirmation.inputValue(), 'Alexandra Montgomery');
+    assert.equal(await confirmation.evaluate(el => document.activeElement === el), true);
     assert.equal(await page.getByRole('button',{name:'Confirm deletion',exact:true}).isDisabled(),false);
-    await page.getByRole('button',{name:'Keep customer',exact:true}).click();
+    await confirmation.press('Escape');
+    await page.getByRole('dialog',{name:'Delete customer',exact:true}).waitFor({state:'hidden'});
+    assert.equal(await page.getByRole('button',{name:'Delete customer',exact:true}).evaluate(el => document.activeElement === el),true);
     await page.getByRole('navigation',{name:'Customer sections'}).getByRole('button',{name:'Overview',exact:true}).click();
     await page.screenshot({
       path: `outputs/retail/customer-overview-${width}.png`,
