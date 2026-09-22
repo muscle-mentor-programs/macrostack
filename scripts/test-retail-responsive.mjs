@@ -334,22 +334,10 @@ try {
         `${width} customer ${tab}`,
       );
     }
-    await page.evaluate(() => document.documentElement.classList.remove('theme-fade'));
-    const toggle = page.locator('.retail-theme-control button');
-    const before = await toggle.getAttribute('title');
-    await toggle.click();
-    await page.waitForFunction(expected=>document.documentElement.classList.contains(expected), before.includes('light')?'ocean-light':'ocean-dark');
-    for (const theme of ["ocean-dark", "ocean-light"]) {
-      await page.evaluate((theme) => {
-        document.documentElement.className = theme;
-      }, theme);
-      assert.equal(
-        await page.evaluate(
-          () => document.documentElement.scrollWidth > innerWidth,
-        ),
-        false,
-        `${width} ${theme}`,
-      );
+    assert.equal(await page.locator('.retail-theme-control').count(), 0);
+    if (width > 1050) {
+      const controls = await page.locator('.retail-header-controls').evaluate(el => [...el.children].map(child => {const r=child.getBoundingClientRect(); return r.top+r.height/2}));
+      assert.ok(Math.max(...controls)-Math.min(...controls)<3, 'Desktop header controls align on one row');
     }
     if (width < 768) {
       await page.evaluate(() => {

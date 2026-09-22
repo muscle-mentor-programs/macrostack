@@ -775,3 +775,33 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 /* Keep navigation within reach without pinning the large brand above content. */
 .retail .retail-top{position:relative}
 .retail .retail-nav{position:sticky;top:0;z-index:30}
+
+/* Layered workspace: broad surfaces, restrained elevation, open content. */
+.retail:not(.retail-signup){background:radial-gradient(ellipse at 12% 0%,#82ade10d,transparent 55%),var(--color-bg)}
+.retail .retail-top{padding-block:6px}
+.retail .retail-nav{background:linear-gradient(180deg,var(--color-surface),var(--color-bg));box-shadow:0 8px 24px #00000020,inset 0 1px 0 #ffffff05}
+.retail .retail-page-header{padding:24px 28px;background:linear-gradient(110deg,#82ade114,#82ade103 75%)!important;border-bottom-color:#82ade133;box-shadow:inset 3px 0 0 #82ade180!important}
+.retail .retail-page-header::after{opacity:.06}
+.retail .retail-stats{padding:24px;background:linear-gradient(120deg,var(--color-surface),color-mix(in srgb,var(--color-surface) 35%,var(--color-bg)));border:1px solid var(--color-border);border-radius:14px;box-shadow:0 12px 28px #00000020,inset 0 1px 0 #ffffff06}
+.retail .retail-columns>.retail-section{padding:28px 24px;background:linear-gradient(180deg,#82ade108,transparent 320px);border-top-color:#82ade130}
+.retail .retail-card{box-shadow:0 8px 24px #00000020,inset 0 1px 0 #ffffff05}
+.retail .retail-section>.retail-section{background:none;box-shadow:none}
+.retail select{padding-right:40px!important;min-width:0;max-width:100%;line-height:1.5}
+.retail .retail-actions{gap:12px;align-items:center}
+.retail .retail-actions+.retail-section,.retail .retail-button+.retail-section,.retail .retail-field+.retail-section{margin-top:24px}
+.retail .retail-section+.retail-actions,.retail .retail-row+.retail-actions{margin-top:20px}
+.retail .retail-row :is(p,small)+.retail-button{margin-top:12px}
+.retail .retail-location-control>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(min-width:1051px){
+ .retail .retail-top{flex-wrap:nowrap;gap:24px}
+ .retail-header-brand{flex:1 1 380px;min-width:0}
+ .retail .retail-top>.retail-header-controls{flex:0 1 760px;flex-wrap:nowrap;gap:16px}
+ .retail-location-control{flex:1 1 360px;min-width:180px}
+ .retail-header-controls>.retail-button{flex-shrink:0;white-space:nowrap}
+}
+@media(max-width:600px){
+ .retail .retail-page-header{padding:20px}
+ .retail .retail-stats{padding:20px 14px}
+ .retail .retail-columns>.retail-section{padding:24px 16px}
+ .retail .retail-top{padding-block:6px;gap:8px}
+}

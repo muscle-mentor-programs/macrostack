@@ -1,5 +1,4 @@
 import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, Palette, LogOut, ArrowUpRight } from "lucide-react";
-import ThemeToggle from "../components/ThemeToggle";
 import CustomerAvatar from "./CustomerAvatar";
 import ScrambleText from "../components/ScrambleText";
 import LoadingSplash from "../components/LoadingSplash";
@@ -50,11 +49,10 @@ const emptyContext = {
 };
 export default function RetailApp({ retailerSession = false }) {
   useViewport();
-  const theme = useStore(s => s.theme);
   useEffect(() => {
     document.documentElement.classList.remove('ocean-dark', 'ocean-light');
-    document.documentElement.classList.add(theme === 'ocean-light' ? 'ocean-light' : 'ocean-dark');
-  }, [theme]);
+    document.documentElement.classList.add('ocean-dark');
+  }, []);
   const now = useClock();
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
@@ -333,7 +331,6 @@ export default function RetailApp({ retailerSession = false }) {
 
         </div>
         <div className="retail-actions retail-header-controls">
-          <div className="retail-theme-control"><ThemeToggle compact /></div>
           {isOrgAdmin && org && <Button onClick={() => {
             if (!window.dispatchEvent(new Event("retail-before-leave", {cancelable:true}))) return;
             setSelected(null); setSection("Store");
