@@ -15,14 +15,25 @@ export default function Consultation({
   templates = [],
   startingStep,
   previousPlan,
+  intake,
+  followups = [],
 }) {
   const [draftId] = useState(() => existing?.id || crypto.randomUUID());
   const [draft, setDraft] = useState({
       ...initialDraft,
+      goal: intake?.goal || relationship.goal || "",
+      preferences: intake?.preferences || "",
+      barriers: intake?.barriers || "",
       ...previousPlan,
       ...existing?.draft,
+      flow_version: 2,
     }),
-    [step, setStep] = useState(startingStep ?? existing?.step ?? 0),
+    [step, setStep] = useState(
+      startingStep ??
+        (existing?.draft?.flow_version === 2
+          ? existing.step
+          : [0, 0, 0, 1, 2, 3][existing?.step || 0]),
+    ),
     [record, setRecord] = useState(existing || null),
     [status, setStatus] = useState(existing ? "Saved" : "Not saved");
   const { busy, error, run, setError } = useAction();
@@ -149,7 +160,7 @@ export default function Consultation({
         ))}
       </div>
       <div className="retail-progress">
-        <span style={{ width: `${((step + 1) / 6) * 100}%` }} />
+        <span style={{ width: `${((step + 1) / 4) * 100}%` }} />
       </div>
       <div className="retail-card">
         {step === 0 && (
@@ -166,16 +177,18 @@ export default function Consultation({
               You can prepare a draft now. Publishing requires the customer to
               connect their own account and confirm sharing.
             </p>
-            <Field
-              label="Primary goal"
-              value={draft.goal}
-              onChange={field("goal")}
-              maxLength={500}
-            />
-          </>
-        )}
-        {step === 1 && (
-          <>
+            {intake && (
+              <details>
+                <summary>Original customer intake</summary>
+                {Object.entries(intake).map(([k, v]) => (
+                  <p key={k}>
+                    <strong>{k.replaceAll("_", " ")}: </strong>
+                    {String(v)}
+                  </p>
+                ))}
+              </details>
+            )}
+
             <Field
               label="Customer goal"
               value={draft.goal}
@@ -194,6 +207,12 @@ export default function Consultation({
               multiline
             />
             <Field
+              label="Assessment observations — staff only"
+              value={draft.assessment_note || ""}
+              onChange={field("assessment_note")}
+              multiline
+            />
+            <Field
               label="Staff-only consultation notes — never published"
               value={draft.private_note}
               onChange={field("private_note")}
@@ -201,34 +220,8 @@ export default function Consultation({
             />
           </>
         )}
-        {step === 2 && (
+        {step === 1 && (
           <>
-            <h2>Review the assessment</h2>
-            <p>
-              Record scans in the customer’s Progress section. Measurements
-              retain their date, source and units.
-            </p>
-            <p className="retail-muted">
-              Review the scan and the customer’s goals together before choosing
-              nutrition targets. No automatic scan-based prescription is
-              applied.
-            </p>
-            <Field
-              label="Assessment observations — staff only"
-              value={draft.assessment_notes}
-              onChange={field("assessment_notes")}
-              multiline
-            />
-          </>
-        )}
-        {step === 3 && (
-          <>
-            <Field
-              label="Plan goal"
-              value={draft.goal}
-              onChange={field("goal")}
-              maxLength={500}
-            />
             <Select
               label="Start with an approved nutrition template"
               value=""
@@ -254,19 +247,10 @@ export default function Consultation({
                   </option>
                 ))}
             </Select>
-            <div className="retail-fields">
-              {["calories", "protein", "carbs", "fat"].map((k) => (
-                <Field
-                  key={k}
-                  label={k === "calories" ? "Calories / day" : `${k} (g / day)`}
-                  type="number"
-                  min="0"
-                  max={k === "calories" ? 15000 : 3000}
-                  value={draft[k]}
-                  onChange={field(k)}
-                />
-              ))}
-            </div>
+            <p className="retail-muted">
+              Daily targets are managed in Nutrition. Publishing guidance does
+              not change current targets.
+            </p>
             <Field
               label="Nutrition guidance — visible to customer"
               value={draft.guidance}
@@ -287,12 +271,23 @@ export default function Consultation({
             />
           </>
         )}
-        {step === 4 && (
+        {step === 2 && (
           <>
             <p>
-              Choose the dates agreed with the customer. Follow-ups use the
-              store’s timezone.
+              Choose the dates agreed with the customer. Publishing replaces
+              open consultation follow-ups; completed actions remain in history.
+              Follow-ups use the store’s timezone.
             </p>
+            {followups.length > 0 && (
+              <details>
+                <summary>Existing open follow-ups ({followups.length})</summary>
+                {followups.map((t) => (
+                  <p key={t.id}>
+                    {t.title} · {t.due_at}
+                  </p>
+                ))}
+              </details>
+            )}
             <div className="retail-fields">
               <Field
                 label="First check-in"
@@ -319,19 +314,14 @@ export default function Consultation({
             </p>
           </>
         )}
-        {step === 5 && (
+        {step === 3 && (
           <>
             <div className="retail-eyebrow">Customer preview</div>
             <h2>{draft.goal || "Add a goal"}</h2>
-            <div className="retail-stats">
-              {["calories", "protein", "carbs"].map((k) => (
-                <div key={k}>
-                  <strong>{draft[k] || "—"}</strong>
-                  <small>{k}</small>
-                </div>
-              ))}
-            </div>
-            <p>Fat: {draft.fat || "—"} g</p>
+            <p className="retail-muted">
+              Publishes guidance and the follow-up schedule. Current app targets
+              and the active meal plan remain unchanged.
+            </p>
             <p className="retail-pre">{draft.guidance}</p>
             <h3>Habits</h3>
             <p className="retail-pre">{draft.habits || "None added"}</p>
@@ -359,7 +349,7 @@ export default function Consultation({
         <Button disabled={step === 0 || busy} onClick={() => move(step - 1)}>
           Back
         </Button>
-        {step < 5 && (
+        {step < 3 && (
           <Button primary disabled={busy} onClick={() => move(step + 1)}>
             Continue
           </Button>

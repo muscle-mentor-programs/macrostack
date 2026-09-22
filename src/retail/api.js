@@ -348,3 +348,7 @@ export async function saveCustomerAvatar(rid, file) {
   check(await supabase.rpc('retail_set_avatar',{rid,object_path:path}));
   return path;
 }
+
+export async function nutritionState(rid) {
+ return check(await supabase.rpc('retail_nutrition_state',{rid}));
+}

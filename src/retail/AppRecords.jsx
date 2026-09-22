@@ -1,4 +1,3 @@
-import LoadingSplash from "../components/LoadingSplash";
 import { useEffect, useState } from "react";
 import { appRecords, shareAppRecords, appPhotoURL } from "./api";
 import { Alert, Button, Empty, Select, useAction } from "./ui";
@@ -35,6 +34,47 @@ const labels = {
   apply_on: "Scheduled for",
   applied: "Applied",
 };
+function WeightTrend({ rows }) {
+  const units = [...new Set(rows.map((r) => r.unit))];
+  return units.map((unit) => {
+    const points = rows
+      .filter((r) => r.unit === unit && Number.isFinite(Number(r.value)))
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    if (points.length < 2) return null;
+    const values = points.map((p) => Number(p.value));
+    const low = Math.min(...values),
+      high = Math.max(...values),
+      range = high - low || 1;
+    const coords = values
+      .map(
+        (v, i) =>
+          `${12 + (i / (values.length - 1)) * 576},${108 - ((v - low) / range) * 80}`,
+      )
+      .join(" ");
+    return (
+      <figure className="retail-weight-trend" key={unit}>
+        <figcaption>Weight trend · {unit} · records on this page</figcaption>
+        <svg
+          viewBox="0 0 600 130"
+          role="img"
+          aria-label={`Weight from ${values[0]} to ${values.at(-1)} ${unit}`}
+        >
+          <polyline
+            points={coords}
+            fill="none"
+            stroke="var(--color-accent)"
+            strokeWidth="3"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+        <p>
+          {displayDate(points[0].date)} — {displayDate(points.at(-1).date)} ·{" "}
+          {values[0]} → {values.at(-1)} {unit}
+        </p>
+      </figure>
+    );
+  });
+}
 function Values({ value }) {
   if (value == null || value === "") return <span>—</span>;
   if (typeof value !== "object") return <span>{String(value)}</span>;
@@ -42,7 +82,7 @@ function Values({ value }) {
     <dl className="retail-record-values">
       {Object.entries(value)
         .filter(
-          ([k]) => !["id", "client_id", "active_meal_plan_id"].includes(k),
+          ([k]) => !["id", "client_id", "active_meal_plan_id","goal_calories","goal_protein","goal_carbs","goal_fat"].includes(k),
         )
         .map(([k, v]) => (
           <div key={k}>
@@ -89,8 +129,15 @@ function MealDays({ days }) {
     </details>
   ));
 }
-export default function AppRecords({ relationship, staff, onRefresh }) {
-  const [kind, setKind] = useState("profile"),
+export default function AppRecords({
+  relationship,
+  staff,
+  onRefresh,
+  recordTypes,
+  title,
+  sharing = false,
+}) {
+  const [kind, setKind] = useState(recordTypes?.[0] || "profile"),
     [offset, setOffset] = useState(0),
     [data, setData] = useState(null),
     [loading, setLoading] = useState(true),
@@ -125,11 +172,8 @@ export default function AppRecords({ relationship, staff, onRefresh }) {
     <section className="retail-section">
       <div className="retail-header">
         <div>
-          <h2>Customer app records</h2>
-          <p className="retail-muted">
-            Connected to the customer’s MacroStack account. Browse all available
-            history.
-          </p>
+          <h2>{title || "Customer app records"}</h2>
+          <p className="retail-muted">Customer app · Shared records</p>
         </div>
         <Button
           onClick={() => {
@@ -140,7 +184,7 @@ export default function AppRecords({ relationship, staff, onRefresh }) {
           Refresh
         </Button>
       </div>
-      {!staff && (
+      {!staff && sharing && (
         <div className="retail-sharing-card">
           <h3>Share your app records with this store</h3>
           <p>
@@ -180,22 +224,27 @@ export default function AppRecords({ relationship, staff, onRefresh }) {
           setOffset(0);
         }}
       >
-        {types.map(([k, l]) => (
-          <option key={k} value={k}>
-            {l}
-          </option>
-        ))}
+        {types
+          .filter(([k]) => !recordTypes || recordTypes.includes(k))
+          .map(([k, l]) => (
+            <option key={k} value={k}>
+              {l}
+            </option>
+          ))}
       </Select>
       <Alert error={error} />
       {loading ? (
-        <LoadingSplash label="Loading records…" />
+        <p role="status" className="retail-inline-loading">
+          Loading records…
+        </p>
       ) : !data ? null : !data.shared ? (
         <Empty>
           The customer needs to enable app record sharing in their store
-          workspace → App records.
+          workspace → Connection settings.
         </Empty>
       ) : (
         <>
+          {kind === "weights" && <WeightTrend rows={data.rows} />}
           <div className="retail-app-records">
             {data.rows.map((r, i) => (
               <article className="retail-card" key={r.id || i}>

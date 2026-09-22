@@ -1,6 +1,9 @@
+import { CurrentNutrition, ConsultationNotes } from "./CustomerDetails";
+import FoodJournal from "./FoodJournal";
+import CustomerNav from "./CustomerNav";
+import {normalizeSection} from "./customerNavigation";
 import CustomerAvatar from "./CustomerAvatar";
 import NutritionEditor from "./NutritionEditor";
-import LoadingSplash from "../components/LoadingSplash";
 import History from "./History";
 import AppRecords from "./AppRecords";
 import ContactPreferences from "./ContactPreferences";
@@ -9,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import useStore from "../store";
 import { command, customer, intakeForm, conversation } from "./api";
 import { displayDate, parseAssessmentCSV } from "./model";
-import { Button, Field, Select, Check, Empty, Alert, useAction } from "./ui";
+import { Button, Field, Select, Empty, Alert, useAction } from "./ui";
 import Consultation from "./Consultation";
 import Progress from "./Progress";
 const blankAssessment = {
@@ -33,10 +36,11 @@ export default function CustomerWorkspace({
   const now = useClock();
   const [avatarPath, setAvatarPath] = useState(relationship.avatar_path);
   const [nutritionEditor, setNutritionEditor] = useState(false);
+  const [nutritionRevision,setNutritionRevision]=useState(0);
   const userId = useStore((s) => s.currentUser?.id);
   const composingAt = useRef(0);
   const [data, setData] = useState(null),
-    [tab, setTab] = useState(initialTab),
+    [tab, setTab] = useState(normalizeSection(initialTab)),
     [consult, setConsult] = useState(false),
     [consultStep, setConsultStep] = useState(undefined),
     [loading, setLoading] = useState(true),
@@ -54,15 +58,11 @@ export default function CustomerWorkspace({
       question: "",
     }),
     [checkinId, setCheckinId] = useState(() => crypto.randomUUID());
-  const [preferences, setPreferences] = useState({
-    share_activity: relationship.share_activity,
-    service_reminders: relationship.service_reminders,
-    marketing_consent: relationship.marketing_consent,
-  });
   const [task, setTask] = useState({ title: "", kind: "followup", due_at: "" }),
     [taskNotes, setTaskNotes] = useState({}),
     [taskDates, setTaskDates] = useState({}),
     [assignment, setAssignment] = useState(relationship.assigned_to || ""),
+    [threadOwner, setThreadOwner] = useState(null),
     [relStatus, setRelStatus] = useState(relationship.status);
   const refresh = async () => {
     const result = await customer(relationship.id);
@@ -110,6 +110,10 @@ export default function CustomerWorkspace({
   const mutate = (action, payload, after) =>
     run(async () => {
       await command(action, { relationship_id: relationship.id, ...payload });
+      if (action === "task" && payload.id) {
+        setTaskNotes((n) => ({ ...n, [payload.id]: "" }));
+        setTaskDates((n) => ({ ...n, [payload.id]: "" }));
+      }
       after?.();
       await refresh();
       await onRefresh?.();
@@ -124,12 +128,51 @@ export default function CustomerWorkspace({
   const tasks = (data?.tasks || [])
     .filter((t) => t.status === "open")
     .sort((a, b) => a.due_at.localeCompare(b.due_at));
+  const pendingProfileEdits = Boolean(
+    note.trim() ||
+    message.trim() ||
+    task.title.trim() || task.due_at ||
+    Object.values(checkin).some(Boolean) ||
+    [assessment.weight,assessment.body_fat,assessment.muscle_mass,assessment.note].some(Boolean) ||
+    (!staff && data && JSON.stringify(intake)!==JSON.stringify(data.intakes?.[0]?.answers || {})) ||
+    Object.values(taskNotes).some(Boolean) ||
+    Object.values(taskDates).some(Boolean),
+  );
+  useEffect(() => {
+    const protect = (e) => {
+      if (pendingProfileEdits) {
+        e.preventDefault();
+        setError(
+          "Save or clear your unfinished profile edits before leaving this customer.",
+        );
+        if (e.type === "beforeunload") e.returnValue = "";
+      }
+    };
+    window.addEventListener("retail-before-leave", protect);
+    window.addEventListener("beforeunload", protect);
+    return () => {
+      window.removeEventListener("retail-before-leave", protect);
+      window.removeEventListener("beforeunload", protect);
+    };
+  }, [pendingProfileEdits, setError]);
+  const leaveProfile = () => {
+    if (pendingProfileEdits) {
+      setError(
+        "Save or clear your unfinished profile edits before leaving this customer.",
+      );
+      return;
+    }
+    if(!window.dispatchEvent(new Event("retail-section-leave",{cancelable:true})))return;
+    onBack();
+  };
   if (consult)
     return (
       <Consultation
         relationship={relationship}
         existing={draft}
         previousPlan={plan?.content}
+        intake={data?.intakes?.[0]?.answers}
+        followups={tasks}
         startingStep={consultStep}
         templates={templates}
         onDone={() => {
@@ -143,6 +186,7 @@ export default function CustomerWorkspace({
       />
     );
   const selectTab = (name) => {
+    if(!window.dispatchEvent(new Event("retail-section-leave",{cancelable:true})))return;
     setTab(name);
     if (name === "Messages")
       command("read", { relationship_id: relationship.id }).catch((e) =>
@@ -151,17 +195,24 @@ export default function CustomerWorkspace({
   };
   return (
     <section>
-      <div className="retail-header retail-page-header glass-panel accent-line anim-fade-in-down">
+      <div className="retail-header retail-page-header retail-customer-header glass-panel accent-line anim-fade-in-down">
         <div>
-          <Button onClick={onBack}>
+          <Button onClick={leaveProfile}>
             ← {staff ? "Customers" : "My stores"}
           </Button>
-          <CustomerAvatar customer={{...relationship, avatar_path:avatarPath}} editable={staff} onSaved={async path=>{setAvatarPath(path);await onRefresh?.();}} />
-          <h1 style={{ marginTop: 14 }}>
-            {staff ? relationship.name : "Your store plan"}
-          </h1>
+          <CustomerAvatar
+            customer={{ ...relationship, avatar_path: avatarPath }}
+            editable={staff}
+            onSaved={async (path) => {
+              setAvatarPath(path);
+              await onRefresh?.();
+            }}
+          />
+          <h1>{staff ? relationship.name : "Your store plan"}</h1>
           <p className="retail-muted">
-            {relationship.goal || "Your next chapter starts with a plan."}
+            {relationship.status} ·{" "}
+            {employees.find((e) => e.user_id === relationship.assigned_to)
+              ?.name || "No specialist assigned"}
           </p>
         </div>
         {staff && (
@@ -170,106 +221,43 @@ export default function CustomerWorkspace({
           </Button>
         )}
       </div>
-      <div className="retail-actions retail-customer-primary-actions"><Button primary onClick={() => selectTab("Messages")}>Customer chat</Button><Button onClick={() => selectTab("App records")}>View app records</Button></div>
       <Alert error={error} />
-      <div
-        className="retail-tabbar"
-        role="navigation"
-        aria-label="Customer sections"
-      >
-        {[
-          "Overview",
-          "Intake",
-          "Plan",
-          "Food journal",
-          "App records",
-          "Progress",
-          "Check-ins",
-          "Messages",
-          "History",
-          ...(!staff ? ["Preferences"] : []),
-        ].map((t) => (
-          <Button
-            key={t}
-            primary={t === tab}
-            aria-current={t === tab ? "page" : undefined}
-            onClick={() => selectTab(t)}
-          >
-            {t === "Plan" ? "Nutrition" : t === "Messages" ? "Customer chat" : t}
-          </Button>
-        ))}
-      </div>
+      <CustomerNav tab={tab} onChange={selectTab} staff={staff} />
       {loading ? (
-        <LoadingSplash label="Loading customer workspace…" />
+        <p role="status" className="retail-inline-loading">
+          Loading customer workspace…
+        </p>
       ) : !data ? (
         <Button onClick={() => run(refresh)}>Retry</Button>
       ) : (
         <>
-          {tab === "Overview" && staff && (
-            <div className="retail-care-actions">
-              {[
-                [
-                  "Plan",
-                  "Nutrition plan",
-                  "Set calories, macros, habits and product guidance",
-                ],
-                [
-                  "Food journal",
-                  "Food journal",
-                  "Review shared daily meals and intake",
-                ],
-                [
-                  "Progress",
-                  "Progress & assessments",
-                  "Review measurements, scans and photos",
-                ],
-                [
-                  "Check-ins",
-                  "Check-ins",
-                  "Review updates and keep customers on track",
-                ],
-              ].map(([target, title, description]) => (
-                <button
-                  className="retail-card"
-                  key={target}
-                  onClick={() => selectTab(target)}
-                >
-                  <h2>{title} →</h2>
-                  <p className="retail-muted">{description}</p>
-                </button>
-              ))}
-            </div>
-          )}
           {tab === "Overview" && (
             <div className="retail-columns">
               <div>
-                <section className="retail-card retail-banner">
-                  <div className="retail-eyebrow">Next action</div>
-                  <h2>
-                    {staff
-                      ? tasks[0]?.title || "Plan the next follow-up"
-                      : plan
-                        ? "Follow your plan and keep your team updated"
-                        : "Your store is preparing your plan"}
-                  </h2>
-                  {staff && tasks[0] && (
-                    <p>Due {displayDate(tasks[0].due_at)}</p>
-                  )}
-                  {!staff && (
-                    <Button
-                      primary
-                      onClick={() => selectTab(plan ? "Check-ins" : "Messages")}
-                    >
-                      {plan ? "Complete check-in" : "Contact your store"}
-                    </Button>
-                  )}
+                <section className="retail-section">
+                  <h2>Customer focus</h2>
+                  <p>
+                    {relationship.goal ||
+                      "Add a goal during your first consultation."}
+                  </p>
+                  <CurrentNutrition
+                    relationship={relationship}
+                    compact
+                    staff={staff}
+                  />
                 </section>
                 {staff ? (
                   <section className="retail-section">
                     <h2>Follow-ups</h2>
                     {tasks.length === 0 && <Empty>No open follow-ups.</Empty>}
-                    {tasks.map((t) => (
-                      <div key={t.id} className="retail-card">
+                    {tasks.map((t, index) => (
+                      <div
+                        key={t.id}
+                        className={`retail-followup${index === 0 ? " next" : ""}`}
+                      >
+                        {index === 0 && (
+                          <span className="retail-eyebrow">Next follow-up</span>
+                        )}
                         <strong>{t.title}</strong>
                         <p className="retail-muted">
                           {displayDate(t.due_at)} · {t.kind}
@@ -400,77 +388,130 @@ export default function CustomerWorkspace({
                 )}
               </div>
               <aside>
-                {staff && (
-                  <section className="retail-section">
-                    <div className="retail-eyebrow">Staff only</div>
-                    <h2>Private notes</h2>
-                    <Field
-                      label="Add a note"
-                      value={note}
-                      onChange={setNote}
-                      multiline
-                    />
-                    <Button
-                      disabled={busy || !note.trim()}
-                      onClick={() =>
-                        mutate("note", { body: note }, () => setNote(""))
-                      }
-                    >
-                      Save private note
-                    </Button>
-                    {[...data.notes].reverse().map((n) => (
-                      <div className="retail-row" key={n.id}>
+                <section className="retail-section">
+                  <h2>Recent updates</h2>
+                  {[
+                    ...(data.checkins || []).map((r) => ({
+                      ...r,
+                      label: "Check-in received",
+                      target: "Check-ins",
+                    })),
+                    ...(data.files || []).map((r) => ({
+                      ...r,
+                      label: "File shared",
+                      target: "Progress",
+                    })),
+                    ...(data.plans || []).map((r) => ({
+                      ...r,
+                      created_at: r.published_at,
+                      label: "Guidance published",
+                      target: "Plan",
+                    })),
+                  ]
+                    .sort((a, b) =>
+                      String(b.created_at).localeCompare(String(a.created_at)),
+                    )
+                    .slice(0, 5)
+                    .map((r) => (
+                      <div className="retail-row" key={`${r.target}:${r.id}`}>
                         <div>
-                          <p className="retail-pre">{n.body}</p>
-                          <small>{displayDate(n.created_at)}</small>
+                          <strong>{r.label}</strong>
+                          <p>{displayDate(r.created_at)}</p>
                         </div>
+                        <Button onClick={() => selectTab(r.target)}>
+                          View
+                        </Button>
                       </div>
                     ))}
-                  </section>
-                )}
-                {manager && (
-                  <section className="retail-section">
-                    <h2>Store relationship</h2>
-                    <Select
-                      label="Assigned specialist"
-                      value={assignment}
-                      onChange={setAssignment}
-                    >
-                      <option value="">Unassigned</option>
-                      {employees.map((e) => (
-                        <option key={e.id} value={e.user_id}>
-                          {e.name || e.user_id.slice(0, 8)} · {e.role}
-                        </option>
-                      ))}
-                    </Select>
-                    <Select
-                      label="Status"
-                      value={relStatus}
-                      onChange={setRelStatus}
-                    >
-                      {["invited", "active", "paused", "ended"].map((s) => (
-                        <option key={s}>{s}</option>
-                      ))}
-                    </Select>
-                    <p className="retail-muted">
-                      Pausing or ending cancels open follow-ups and stops
-                      sponsorship. Customer records are retained.
-                    </p>
-                    <Button
-                      disabled={busy}
-                      onClick={() =>
-                        mutate("relationship", {
-                          assigned_to: assignment,
-                          status: relStatus,
-                          revision: relationship.revision,
-                        })
-                      }
-                    >
-                      Update relationship
-                    </Button>
-                  </section>
-                )}
+                  {!data.checkins?.length &&
+                    !data.files?.length &&
+                    !data.plans?.length && <Empty>No recent updates.</Empty>}
+                </section>
               </aside>
+            </div>
+          )}
+          {tab === "Private notes" && staff && (
+            <div>
+              {" "}
+              {staff && (
+                <section className="retail-section">
+                  <div className="retail-eyebrow">Staff only</div>
+                  <h2>Private notes</h2>
+                  <Field
+                    label="Add a note"
+                    value={note}
+                    onChange={setNote}
+                    multiline
+                  />
+                  <Button
+                    disabled={busy || !note.trim()}
+                    onClick={() =>
+                      mutate("note", { body: note }, () => setNote(""))
+                    }
+                  >
+                    Save private note
+                  </Button>
+                  <ConsultationNotes
+                    consultations={data.consultations || []}
+                    notes={data.notes || []}
+                  />
+                </section>
+              )}
+            </div>
+          )}
+          {tab === "Preferences" && (
+            <div>
+              {" "}
+              {manager && (
+                <section className="retail-section">
+                  <h2>Store relationship</h2>
+                  <Select
+                    label="Assigned specialist"
+                    value={assignment}
+                    onChange={setAssignment}
+                  >
+                    <option value="">Unassigned</option>
+                    {employees.map((e) => (
+                      <option key={e.id} value={e.user_id}>
+                        {e.name || e.user_id.slice(0, 8)} · {e.role}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    label="Status"
+                    value={relStatus}
+                    onChange={setRelStatus}
+                  >
+                    {["invited", "active", "paused", "ended"].map((s) => (
+                      <option key={s}>{s}</option>
+                    ))}
+                  </Select>
+                  <p className="retail-muted">
+                    Pausing or ending cancels open follow-ups and stops
+                    sponsorship. Customer records are retained.
+                  </p>
+                  <Button
+                    disabled={busy}
+                    onClick={() =>
+                      mutate("relationship", {
+                        assigned_to: assignment,
+                        status: relStatus,
+                        revision: relationship.revision,
+                      })
+                    }
+                  >
+                    Update relationship
+                  </Button>
+                </section>
+              )}
+              <AppRecords
+                key="sharing"
+                relationship={relationship}
+                staff={staff}
+                onRefresh={onRefresh}
+                recordTypes={["profile"]}
+                title="App profile"
+              />
             </div>
           )}
           {tab === "Intake" && (
@@ -523,12 +564,45 @@ export default function CustomerWorkspace({
           )}
           {tab === "Plan" && (
             <section className="retail-section">
+              <CurrentNutrition key={`targets:${nutritionRevision}`} relationship={relationship} staff={staff} />
               <div className="retail-nutrition-builder-entry">
-                <div><h2>Food database & meal plan builder</h2><p>Search foods, set portions and build meals with calculated macros. Publish the plan and daily targets directly to this customer's app.</p></div>
-                {staff && <Button primary disabled={relationship.status !== "active"} onClick={() => setNutritionEditor(true)}>Build nutrition plan</Button>}
-                {staff && relationship.status !== "active" && <p className="retail-muted">The customer must accept their store invitation before you can assign an app meal plan.</p>}
+                <div>
+                  <h2>Food database & meal plan builder</h2>
+                  <p>
+                    Search foods, set portions and build meals with calculated
+                    macros. Publish the plan and daily targets directly to this
+                    customer's app.
+                  </p>
+                </div>
+                {staff && (
+                  <Button
+                    primary
+                    disabled={relationship.status !== "active"}
+                    onClick={() => setNutritionEditor(true)}
+                  >
+                    Build nutrition plan
+                  </Button>
+                )}
+                {staff && relationship.status !== "active" && (
+                  <p className="retail-muted">
+                    The customer must accept their store invitation before you
+                    can assign an app meal plan.
+                  </p>
+                )}
               </div>
-              {nutritionEditor && <NutritionEditor relationship={relationship} onClose={() => setNutritionEditor(false)} />}
+              <AppRecords
+                key={`plans:${nutritionRevision}`}
+                relationship={relationship}
+                staff={staff}
+                recordTypes={["plans", "schedules"]}
+                title="App meal plans & scheduled targets"
+              />
+              {nutritionEditor && (
+                <NutritionEditor
+                  relationship={relationship}
+                  onClose={() => {setNutritionEditor(false);setNutritionRevision(v=>v+1)}}
+                />
+              )}
               <div className="retail-row">
                 <div>
                   <h2>Consultation guidance</h2>
@@ -540,7 +614,7 @@ export default function CustomerWorkspace({
                   <Button
                     primary
                     onClick={() => {
-                      setConsultStep(3);
+                      setConsultStep(1);
                       setConsult(true);
                     }}
                   >
@@ -568,6 +642,10 @@ export default function CustomerWorkspace({
                   <Button onClick={() => window.print()}>
                     Print / save plan
                   </Button>
+                  <p className="retail-muted">
+                    Targets recorded when this guidance was published. Current
+                    app targets are shown above.
+                  </p>
                   <div className="retail-nutrition-targets">
                     {["calories", "protein", "carbs", "fat"].map((k) => (
                       <div key={k}>
@@ -613,11 +691,7 @@ export default function CustomerWorkspace({
             </section>
           )}
           {tab === "Food journal" && (
-            <Progress
-              relationship={relationship}
-              mode="journal"
-              targets={plan?.content}
-            />
+            <FoodJournal relationship={relationship} />
           )}
           {tab === "Progress" && (
             <>
@@ -635,6 +709,13 @@ export default function CustomerWorkspace({
                   Request progress photos
                 </Button>
               )}
+              <AppRecords
+                key="progress"
+                relationship={relationship}
+                staff={staff}
+                recordTypes={["weights", "photos"]}
+                title="App weight & progress photos"
+              />
               <Progress relationship={relationship} mode="files" />
               <div className="retail-section">
                 <h2>Assessment history</h2>
@@ -820,7 +901,14 @@ export default function CustomerWorkspace({
           )}
           {tab === "Check-ins" && (
             <section className="retail-section">
-              <h2>{staff ? "Customer check-ins" : "Your check-in"}</h2>
+              <h2>{staff ? "Store check-ins" : "Your check-in"}</h2>
+              <AppRecords
+                key="checkins"
+                relationship={relationship}
+                staff={staff}
+                recordTypes={["checkins", "forms"]}
+                title="App check-ins & form responses"
+              />
               {!staff && (
                 <>
                   {[
@@ -882,7 +970,10 @@ export default function CustomerWorkspace({
           {tab === "Messages" && (
             <section className="retail-section">
               <h2>{staff ? "Customer chat" : "Chat with your store"}</h2>
-              <p className="retail-muted">A direct conversation between this customer and their authorized store team.</p>
+              <p className="retail-muted">
+                A direct conversation between this customer and their authorized
+                store team.
+              </p>
               {data.threads?.[0]?.composing_by &&
                 data.threads[0].composing_by !== userId &&
                 Date.parse(data.threads[0].composing_until) > now && (
@@ -897,28 +988,50 @@ export default function CustomerWorkspace({
                     onClick={() =>
                       mutate("thread", {
                         revision: data.threads?.[0]?.revision,
-                        assigned_to: assignment,
+                        assigned_to:
+                          data.threads?.[0]?.assigned_to || assignment,
                         status: "resolved",
                       })
                     }
                   >
                     Resolve conversation
                   </Button>
+                  <Select
+                    label="Conversation owner"
+                    value={
+                      threadOwner ??
+                      data.threads?.[0]?.assigned_to ??
+                      assignment
+                    }
+                    onChange={setThreadOwner}
+                  >
+                    <option value="">Customer’s assigned specialist</option>
+                    {employees.map((e) => (
+                      <option key={e.id} value={e.user_id}>
+                        {e.name || e.role}
+                      </option>
+                    ))}
+                  </Select>
                   <Button
                     disabled={busy}
                     onClick={() =>
                       mutate("thread", {
                         revision: data.threads?.[0]?.revision,
-                        assigned_to: assignment,
+                        assigned_to: threadOwner === "" ? assignment : (threadOwner ?? data.threads?.[0]?.assigned_to ?? assignment),
                         status: "open",
                       })
                     }
                   >
-                    Assign to selected specialist
+                    Save conversation owner
                   </Button>
                 </div>
               )}
-              <div className="retail-chat-log" role="log" aria-label="Store conversation" aria-live="polite">
+              <div
+                className="retail-chat-log"
+                role="log"
+                aria-label="Store conversation"
+                aria-live="polite"
+              >
                 {[...data.messages]
                   .sort((a, b) => a.created_at.localeCompare(b.created_at))
                   .map((m) => (
@@ -964,54 +1077,19 @@ export default function CustomerWorkspace({
               </Button>
             </section>
           )}
-          {tab === "Preferences" && (
-            <ContactPreferences relationship={relationship} />
+          {tab === "Preferences" && !staff && (
+            <ContactPreferences
+              relationship={relationship}
+              onRefresh={onRefresh}
+            />
           )}
-          {tab === "App records" && <AppRecords relationship={relationship} staff={staff} onRefresh={onRefresh} />}
+
           {tab === "History" && (
             <History relationship={relationship} staff={staff} />
           )}
-          {tab === "Preferences" && (
+          {tab === "Preferences" && !staff && (
             <section className="retail-section">
-              <h2>Sharing and communication</h2>
-              <p>
-                Published plans, check-ins, assessments and store messages are
-                shared with your authorized store team. Staff-only notes are not
-                part of your customer view.
-              </p>
-              <Check
-                checked={preferences.share_activity}
-                onChange={(v) =>
-                  setPreferences((p) => ({ ...p, share_activity: v }))
-                }
-              >
-                Allow authorized store staff to read my nutrition and weight
-                activity.
-              </Check>
-              <Check
-                checked={preferences.service_reminders}
-                onChange={(v) =>
-                  setPreferences((p) => ({ ...p, service_reminders: v }))
-                }
-              >
-                Receive in-app service reminders.
-              </Check>
-              <Check
-                checked={preferences.marketing_consent}
-                onChange={(v) =>
-                  setPreferences((p) => ({ ...p, marketing_consent: v }))
-                }
-              >
-                I would like promotional communication when those channels are
-                available.
-              </Check>
-              <Button
-                primary
-                disabled={busy}
-                onClick={() => mutate("preferences", preferences)}
-              >
-                Save preferences
-              </Button>
+              <h2>Store connection</h2>
               <Button
                 disabled={busy || relationship.status === "ended"}
                 onClick={() => {

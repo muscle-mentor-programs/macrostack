@@ -1,4 +1,3 @@
-import LoadingSplash from "../components/LoadingSplash";
 import { useEffect, useState, useRef } from "react";
 import { historyPage } from "./api";
 import { Button, Field, Select, Alert, Empty, useAction } from "./ui";
@@ -173,12 +172,17 @@ export default function History({ relationship, staff }) {
           }}
         />
       </div>
-      <Button disabled={!rows.length || loading} onClick={exportPage}>
-        Export this page
-      </Button>
-      <Button disabled={busy || loading} onClick={exportAll}>
-        Export date range
-      </Button>
+      <details className="retail-export-menu">
+        <summary>Export ▾</summary>
+        <div className="retail-actions">
+          <Button disabled={!rows.length || loading} onClick={exportPage}>
+            Export this page
+          </Button>
+          <Button disabled={busy || loading} onClick={exportAll}>
+            Export date range
+          </Button>
+        </div>
+      </details>
       {busy && (
         <Button
           onClick={() => {
@@ -189,7 +193,7 @@ export default function History({ relationship, staff }) {
         </Button>
       )}
       {loading ? (
-        <LoadingSplash label="Loading history…" />
+        <p role="status">Loading history…</p>
       ) : rows.length ? (
         rows.map((r) => (
           <details key={r.id} className="retail-card">

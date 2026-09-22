@@ -5,7 +5,7 @@ const { chromium } = createRequire(import.meta.url)(
 );
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const origin = process.env.TEST_URL || "http://127.0.0.1:5198";
-const api = `let messages=[{id:'first',author_id:'staff',body:'Welcome to your store chat',created_at:'2026-09-22T10:00:00Z'}];export async function list(){return [{id:'relationship',location_id:'store'}]} export async function conversation(){return {messages}} export function brandLogoURL(){return null} export async function storeBranding(){return {name:'Peak Nutrition'}} export async function command(action,payload){window.commandPayload={action,payload};if(action==='message')messages.push({id:payload.id,author_id:'member',body:payload.body,created_at:new Date().toISOString()});return {relationship_id:'relationship'}} export async function shareAppRecords(){window.shared=true} export async function saveBranding(oid,name,path){window.brandSaved={oid,name,path}} export async function uploadBrandLogo(){return 'org/logo.png'} export async function removeBrandLogo(){} export async function storeMealPlans(){return []} export async function setStoreTargets(){}
+const api = `let messages=[{id:'first',author_id:'staff',body:'Welcome to your store chat',created_at:'2026-09-22T10:00:00Z'}];export async function list(){return [{id:'relationship',location_id:'store'}]} export async function conversation(){return {messages}} export function brandLogoURL(){return null} export async function storeBranding(){return {name:'Peak Nutrition'}} export async function command(action,payload){window.commandPayload={action,payload};if(action==='message')messages.push({id:payload.id,author_id:'member',body:payload.body,created_at:new Date().toISOString()});return {relationship_id:'relationship'}} export async function shareAppRecords(){window.shared=true} export async function saveBranding(oid,name,path){window.brandSaved={oid,name,path}} export async function uploadBrandLogo(){return 'org/logo.png'} export async function removeBrandLogo(){} export async function storeMealPlans(){return []} export async function setStoreTargets(){} export async function nutritionState(){return {client_id:"client",version:"v1",targets:{calories:2200,protein:160,carbs:220,fat:70},active_plan_id:null}}
 export async function customerAvatarURL(){return null} export async function saveCustomerAvatar(rid,file){window.avatarSaved={rid,name:file?.name};return 'relationship/photo.png'}
 export async function retailerFoods(){return []}
 export async function publishNutrition(...args){window.nutrition=args}`;
@@ -98,11 +98,13 @@ try {
       x.fillRect(20, 20, 60, 60);
       return c.toDataURL().split(",")[1];
     });
-    await page.getByLabel("Upload your store logo", { exact: false }).setInputFiles({
-      name: "logo.png",
-      mimeType: "image/png",
-      buffer: Buffer.from(png, "base64"),
-    });
+    await page
+      .getByLabel("Upload your store logo", { exact: false })
+      .setInputFiles({
+        name: "logo.png",
+        mimeType: "image/png",
+        buffer: Buffer.from(png, "base64"),
+      });
     await page.getByText("Logo saved.", { exact: false }).waitFor();
     assert.equal(
       await page.evaluate(() => window.brandSaved.path),
@@ -111,52 +113,114 @@ try {
     await page.getByRole("button", { name: "Remove logo" }).click();
     await page.waitForFunction(() => window.brandSaved.path === null);
     await page.goto(origin + "/qa-retail?type=CustomerAvatar");
-    await page.getByLabel("Customer profile photo").setInputFiles({name:"customer.png",mimeType:"image/png",buffer:Buffer.from(png,"base64")});
-    await page.waitForFunction(()=>window.avatarSaved?.rid==='relationship');
-    assert.equal(await page.evaluate(()=>window.avatarSaved.name),'customer.png');
+    await page
+      .getByLabel("Customer profile photo")
+      .setInputFiles({
+        name: "customer.png",
+        mimeType: "image/png",
+        buffer: Buffer.from(png, "base64"),
+      });
+    await page.waitForFunction(
+      () => window.avatarSaved?.rid === "relationship",
+    );
+    assert.equal(
+      await page.evaluate(() => window.avatarSaved.name),
+      "customer.png",
+    );
     await page.goto(origin + "/qa-retail?type=NutritionEditor");
-    await page.locator('#meal-plan-name').fill('Retail weekly plan');
-    await page.locator('.retail-builder-targets summary').click();
-    for (const [label,value] of [['Calories · kcal','2200'],['protein · g','150'],['carbs · g','250'],['fat · g','65']]) await page.getByLabel(label,{exact:true}).fill(value);
-    await page.locator('.retail-builder-targets summary').click();
-    if(width<768) await page.getByRole('button',{name:'Add food to Breakfast',exact:true}).click();
-    await page.locator('.mp-foods input').first().fill('Rice');
-    await page.locator('.mp-results button').filter({hasText:'White Rice'}).click();
-    await page.getByLabel('SERVINGS',{exact:true}).fill('0.5');
-    await page.getByRole('button',{name:'ADD TO BREAKFAST',exact:true}).click();
-    await page.getByRole('button',{name:'PUBLISH PLAN',exact:true}).click();
-    await page.waitForFunction(()=>!!window.nutrition);
-    assert.equal(await page.evaluate(()=>window.nutrition[4].calories),2200);
-    assert.equal(await page.evaluate(()=>window.nutrition[3][0].meals.Breakfast[0].calories),125);
-    assert.equal(await page.evaluate(()=>window.nutrition[3][0].meals.Breakfast[0].servingSize),100);
-    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-    await page.screenshot({path:`outputs/retail/shared-builder-${width}.png`});
+    await page.locator("#meal-plan-name").fill("Retail weekly plan");
+    await page.locator(".retail-builder-targets summary").click();
+    for (const [label, value] of [
+      ["Calories · kcal", "2200"],
+      ["protein · g", "150"],
+      ["carbs · g", "250"],
+      ["fat · g", "65"],
+    ])
+      await page.getByLabel(label, { exact: true }).fill(value);
+    await page.locator(".retail-builder-targets summary").click();
+    if (width < 768)
+      await page
+        .getByRole("button", { name: "Add food to Breakfast", exact: true })
+        .click();
+    await page.locator(".mp-foods input").first().fill("Rice");
+    await page
+      .locator(".mp-results button")
+      .filter({ hasText: "White Rice" })
+      .click();
+    await page.getByLabel("SERVINGS", { exact: true }).fill("0.5");
+    await page
+      .getByRole("button", { name: "ADD TO BREAKFAST", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "PUBLISH PLAN", exact: true })
+      .click();
+    await page.waitForFunction(() => !!window.nutrition);
+    assert.equal(await page.evaluate(() => window.nutrition[4].calories), 2200);
+    assert.equal(
+      await page.evaluate(
+        () => window.nutrition[3][0].meals.Breakfast[0].calories,
+      ),
+      125,
+    );
+    assert.equal(
+      await page.evaluate(
+        () => window.nutrition[3][0].meals.Breakfast[0].servingSize,
+      ),
+      100,
+    );
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+      false,
+    );
+    await page.screenshot({
+      path: `outputs/retail/shared-builder-${width}.png`,
+    });
     await page.goto(origin + "/qa-retail?type=CustomerMessages");
     await page.getByRole("button", { name: /Coach Taylor/ }).click();
-    await page.getByText('Coach conversation retained').waitFor();
-    await page.getByRole('button',{name:'All conversations'}).click();
-    await page.getByRole("button", { name: /Store team · open conversation/ }).click();
+    await page.getByText("Coach conversation retained").waitFor();
+    await page.getByRole("button", { name: "All conversations" }).click();
+    await page
+      .getByRole("button", { name: /Store team · open conversation/ })
+      .click();
     await page.getByText("Welcome to your store chat").waitFor();
     await page
-      .getByLabel("Message", {exact:true})
+      .getByLabel("Message", { exact: true })
       .fill("Thanks, I can see my plan.");
-    await page
-      .getByRole("button", { name: "Send", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Send", exact: true }).click();
     await page.getByText("Thanks, I can see my plan.").waitFor();
     await page.screenshot({
       path: `outputs/retail/customer-chat-${width}.png`,
       fullPage: true,
     });
-    if (width===390) {
-      await page.evaluate(()=>{Object.defineProperty(visualViewport,'height',{configurable:true,value:450});visualViewport.dispatchEvent(new Event('resize'));});
+    if (width === 390) {
+      await page.evaluate(() => {
+        Object.defineProperty(visualViewport, "height", {
+          configurable: true,
+          value: 450,
+        });
+        visualViewport.dispatchEvent(new Event("resize"));
+      });
       await page.waitForTimeout(100);
-      assert.ok(await page.locator('.member-chat-composer').evaluate(el=>el.getBoundingClientRect().bottom<=451),'Composer fits above keyboard');
-      assert.ok(await page.getByRole('button',{name:'Send',exact:true}).evaluate(el=>el.getBoundingClientRect().bottom<=450),'Send stays visible');
+      assert.ok(
+        await page
+          .locator(".member-chat-composer")
+          .evaluate((el) => el.getBoundingClientRect().bottom <= 451),
+        "Composer fits above keyboard",
+      );
+      assert.ok(
+        await page
+          .getByRole("button", { name: "Send", exact: true })
+          .evaluate((el) => el.getBoundingClientRect().bottom <= 450),
+        "Send stays visible",
+      );
     }
-    await page.getByRole('button',{name:'All conversations'}).click();
-    await page.getByRole('button',{name:/Coach Taylor/}).waitFor();
-    await page.getByRole('button',{name:/Store team · open conversation/}).waitFor();
+    await page.getByRole("button", { name: "All conversations" }).click();
+    await page.getByRole("button", { name: /Coach Taylor/ }).waitFor();
+    await page
+      .getByRole("button", { name: /Store team · open conversation/ })
+      .waitFor();
     assert.deepEqual(errors, []);
     await page.close();
     console.log(

@@ -54,7 +54,7 @@ export default function Progress({ relationship, mode = "all", targets }) {
           <Alert error={error} />
           <p className="retail-muted">
             Files uploaded here are shared with this customer and their
-            authorized store team. With customer permission, personal app photos are also available under App records.
+            authorized store team. Customer app photos are shown separately above when shared.
           </p>
           {relationship.status === "active" && (
             <>

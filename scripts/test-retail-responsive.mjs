@@ -11,6 +11,7 @@ const relation={id:rid,location_id:lid,name:'Alexandra Montgomery',email:'alex@e
 const staff=[{id:'membership',user_id:'staff',location_id:lid,organization_id:oid,name:'Store Manager',role:'manager',active:true}];
 const loc={id:lid,organization_id:oid,operator_id:'operator',name:'Peak Nutrition — Downtown Wellness Center',timezone:'America/Chicago',join_code:'00000000-0000-4000-8000-000000000000',enabled:true};
 let records={consultations:[],plans:[],assessments:[],tasks:[],notes:[],messages:[],threads:[],checkins:[],notifications:[],read_receipts:[],intakes:[],files:[]};
+export async function nutritionState(){return {client_id:"client",version:"v1",targets:{calories:2200,protein:160,carbs:220,fat:70},active_plan_id:null}}
 export async function setStoreTargets(){}
 export async function customerAvatarURL(){return null} export async function saveCustomerAvatar(){return 'relationship/photo.png'}
 export async function retailerFoods(){return []}
@@ -97,10 +98,12 @@ try {
     await page
       .getByRole("heading", { name: "Customers", exact: true })
       .waitFor();
-    await page.locator('.retail-top .retail-store-identity img').waitFor()
-    const logoBox = await page.locator('.retail-top .retail-store-identity img').boundingBox()
-    assert.equal(Math.round(logoBox.width), width <= 600 ? 138 : 192)
-    assert.equal(Math.round(logoBox.height), width <= 600 ? 108 : 132)
+    await page.locator(".retail-top .retail-store-identity img").waitFor();
+    const logoBox = await page
+      .locator(".retail-top .retail-store-identity img")
+      .boundingBox();
+    assert.equal(Math.round(logoBox.width), width <= 600 ? 138 : 192);
+    assert.equal(Math.round(logoBox.height), width <= 600 ? 108 : 132);
     for (const tab of ["Today", "Customers", "Inbox", "Library", "Store"]) {
       await page
         .getByRole("navigation", { name: "Store navigation" })
@@ -177,7 +180,10 @@ try {
       .getByRole("button", { name: "Nutrition", exact: true })
       .click();
     await page
-      .getByRole("heading", { name: "Food database & meal plan builder", exact: true })
+      .getByRole("heading", {
+        name: "Food database & meal plan builder",
+        exact: true,
+      })
       .waitFor();
     await page
       .getByRole("button", { name: "← Customers", exact: true })
@@ -197,17 +203,31 @@ try {
       "Intake",
       "Nutrition",
       "Food journal",
-      "App records",
+
       "Progress",
-      "History",
+      "History & exports",
       "Check-ins",
-      "Customer chat",
+      "Chat",
       "Overview",
     ]) {
-      await page
-        .locator(".retail-tabbar")
-        .getByRole("button", { name: tab, exact: true })
-        .click();
+      if (
+        [
+          "Intake",
+          "History & exports",
+          "Connection settings",
+          "Private notes",
+        ].includes(tab)
+      ) {
+        await page.locator(".retail-profile-more>summary").click();
+        await page
+          .locator(".retail-profile-more")
+          .getByRole("button", { name: tab, exact: true })
+          .click();
+      } else
+        await page
+          .locator(".retail-tabbar")
+          .getByRole("button", { name: tab, exact: true })
+          .click();
       assert.equal(
         await page.evaluate(
           () => document.documentElement.scrollWidth > innerWidth,
@@ -216,18 +236,21 @@ try {
         `${width} ${tab}: overflow`,
       );
     }
+    await page.screenshot({
+      path: `outputs/retail/customer-overview-${width}.png`,
+    });
     await page.getByRole("button", { name: "Start consultation" }).click();
     await page.evaluate(() => {
       window.failRetailSave = true;
     });
-    await page.getByLabel("Primary goal").fill("Build consistency");
+    await page.getByLabel("Customer goal").fill("Build consistency");
     await page.getByRole("button", { name: "Save draft", exact: true }).click();
     await page
       .getByRole("alert")
       .filter({ hasText: "Simulated connection failure" })
       .waitFor();
     assert.equal(
-      await page.getByLabel("Primary goal").inputValue(),
+      await page.getByLabel("Customer goal").inputValue(),
       "Build consistency",
     );
     await page.evaluate(() => {
@@ -235,16 +258,20 @@ try {
     });
     await page.getByRole("button", { name: "Save draft", exact: true }).click();
     await page.getByRole("status").filter({ hasText: "Saved" }).waitFor();
-    await page.getByRole("button", { name: "4. Plan", exact: true }).click();
+    await page
+      .getByRole("button", { name: "2. Build recommendations", exact: true })
+      .click();
     await page
       .getByLabel("Nutrition guidance — visible to customer")
       .fill("Prioritize consistent meals.");
     await page
-      .getByRole("button", { name: "5. Follow-up", exact: true })
+      .getByRole("button", { name: "3. Schedule follow-up", exact: true })
       .click();
     await page.getByLabel("First check-in", { exact: true }).fill("2026-10-01");
     await page.getByLabel("Return scan", { exact: true }).fill("2026-10-20");
-    await page.getByRole("button", { name: "6. Review", exact: true }).click();
+    await page
+      .getByRole("button", { name: "4. Review & publish", exact: true })
+      .click();
     assert.equal(
       await page
         .locator(".retail-tabbar button")
@@ -268,16 +295,14 @@ try {
       .getByRole("button", { name: "Update guidance", exact: true })
       .click();
     assert.equal(
-      await page.getByLabel("Plan goal", { exact: true }).inputValue(),
-      "Build consistency",
-    );
-    assert.equal(
       await page
         .getByLabel("Nutrition guidance — visible to customer")
         .inputValue(),
       "Prioritize consistent meals.",
     );
-    await page.getByLabel("Calories / day", { exact: true }).fill("2300");
+    await page
+      .getByLabel("Agreed habits — visible to customer", { exact: true })
+      .fill("Consistent breakfast");
     await page
       .getByRole("navigation", { name: "Store navigation" })
       .getByRole("button", { name: "Customers", exact: true })
@@ -318,14 +343,28 @@ try {
     for (const tab of [
       "Intake",
       "Check-ins",
-      "Customer chat",
-      "History",
-      "Preferences",
+      "Chat",
+      "History & exports",
+      "Connection settings",
     ]) {
-      await page
-        .locator(".retail-tabbar")
-        .getByRole("button", { name: tab, exact: true })
-        .click();
+      if (
+        [
+          "Intake",
+          "History & exports",
+          "Connection settings",
+          "Private notes",
+        ].includes(tab)
+      ) {
+        await page.locator(".retail-profile-more>summary").click();
+        await page
+          .locator(".retail-profile-more")
+          .getByRole("button", { name: tab, exact: true })
+          .click();
+      } else
+        await page
+          .locator(".retail-tabbar")
+          .getByRole("button", { name: tab, exact: true })
+          .click();
       assert.equal(
         await page.evaluate(
           () => document.documentElement.scrollWidth > innerWidth,
@@ -334,10 +373,26 @@ try {
         `${width} customer ${tab}`,
       );
     }
-    assert.equal(await page.locator('.retail-theme-control').count(), 0);
+    await page.getByRole('checkbox',{name:'Enable service reminders',exact:true}).click();
+    await page.getByRole('navigation',{name:'Customer sections'}).getByRole('button',{name:'Overview',exact:true}).click();
+    await page.getByRole('alert').filter({hasText:'Save or discard'}).waitFor();
+    await page.getByRole('button',{name:'Discard unsaved changes',exact:true}).click();
+    await page.getByRole('navigation',{name:'Customer sections'}).getByRole('button',{name:'Overview',exact:true}).click();
+    await page.getByRole('heading',{name:'Customer focus',exact:true}).waitFor();
+    assert.equal(await page.locator(".retail-theme-control").count(), 0);
     if (width > 1050) {
-      const controls = await page.locator('.retail-header-controls').evaluate(el => [...el.children].map(child => {const r=child.getBoundingClientRect(); return r.top+r.height/2}));
-      assert.ok(Math.max(...controls)-Math.min(...controls)<3, 'Desktop header controls align on one row');
+      const controls = await page
+        .locator(".retail-header-controls")
+        .evaluate((el) =>
+          [...el.children].map((child) => {
+            const r = child.getBoundingClientRect();
+            return r.top + r.height / 2;
+          }),
+        );
+      assert.ok(
+        Math.max(...controls) - Math.min(...controls) < 3,
+        "Desktop header controls align on one row",
+      );
     }
     if (width < 768) {
       await page.evaluate(() => {
