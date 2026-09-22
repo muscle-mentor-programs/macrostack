@@ -14,7 +14,7 @@ try {
     insert into marketplace_profiles values('${coach}',true);
     insert into coach_billing values('${coach}',true,'preserved');`)
   await db.exec(readFileSync('supabase/migrations/20260913160540_stripe_existing_account_connections.sql', 'utf8'))
-  await db.exec(readFileSync('supabase/migrations/20260922172031_coach_stripe_unlink.sql', 'utf8'))
+  await db.exec(readFileSync('supabase/migrations/20260922174015_coach_stripe_unlink.sql', 'utf8'))
   await db.exec(`grant select,update on marketplace_profiles,coach_billing to service_role;
     insert into coach_stripe_connections(coach_id,stripe_account_id,livemode,charges_enabled,payouts_enabled) values('${coach}','acct_test',true,true,true);
     insert into stripe_connect_oauth_states(state_hash,coach_id) values(repeat('a',64),'${coach}');`)
