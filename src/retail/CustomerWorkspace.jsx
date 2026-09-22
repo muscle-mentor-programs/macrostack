@@ -1,4 +1,5 @@
 import History from "./History";
+import AppRecords from "./AppRecords";
 import ContactPreferences from "./ContactPreferences";
 import useClock from "./useClock";
 import { useEffect, useRef, useState } from "react";
@@ -163,6 +164,7 @@ export default function CustomerWorkspace({
           </Button>
         )}
       </div>
+      <div className="retail-actions retail-customer-primary-actions"><Button primary onClick={() => selectTab("Messages")}>Customer chat</Button><Button onClick={() => selectTab("App records")}>View app records</Button></div>
       <Alert error={error} />
       <div
         className="retail-tabbar"
@@ -174,6 +176,7 @@ export default function CustomerWorkspace({
           "Intake",
           "Plan",
           "Food journal",
+          "App records",
           "Progress",
           "Check-ins",
           "Messages",
@@ -186,7 +189,7 @@ export default function CustomerWorkspace({
             aria-current={t === tab ? "page" : undefined}
             onClick={() => selectTab(t)}
           >
-            {t === "Plan" ? "Nutrition" : t}
+            {t === "Plan" ? "Nutrition" : t === "Messages" ? "Customer chat" : t}
           </Button>
         ))}
       </div>
@@ -867,7 +870,8 @@ export default function CustomerWorkspace({
           )}
           {tab === "Messages" && (
             <section className="retail-card">
-              <h2>Your conversation</h2>
+              <h2>{staff ? "Customer chat" : "Chat with your store"}</h2>
+              <p className="retail-muted">A direct conversation between this customer and their authorized store team.</p>
               {data.threads?.[0]?.composing_by &&
                 data.threads[0].composing_by !== userId &&
                 Date.parse(data.threads[0].composing_until) > now && (
@@ -903,7 +907,7 @@ export default function CustomerWorkspace({
                   </Button>
                 </div>
               )}
-              <div style={{ marginTop: 16 }}>
+              <div className="retail-chat-log" role="log" aria-label="Store conversation" aria-live="polite">
                 {[...data.messages]
                   .sort((a, b) => a.created_at.localeCompare(b.created_at))
                   .map((m) => (
@@ -952,6 +956,7 @@ export default function CustomerWorkspace({
           {tab === "Preferences" && (
             <ContactPreferences relationship={relationship} />
           )}
+          {tab === "App records" && <AppRecords relationship={relationship} staff={staff} onRefresh={onRefresh} />}
           {tab === "History" && (
             <History relationship={relationship} staff={staff} />
           )}

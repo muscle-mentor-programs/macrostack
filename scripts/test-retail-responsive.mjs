@@ -23,6 +23,9 @@ export async function queueCounts(){return {open:0,due:0,invited:0}}
 export async function reports(){return {customers:1,activated:1,consultations:0,scans:0,repeat_scans:0,tasks_due:0,tasks_completed:0,active_staff:1}}
 export async function joinInfo(){return {name:'Pilot Store'}}
 export async function intakeForm(){return [{id:'goal',label:'Your goals'}]}
+export async function appRecords(){return {shared:true,rows:[{id:'record',name:'Customer',goal_calories:2200}],has_more:false}}
+export async function shareAppRecords(){}
+export async function appPhotoURL(){return ''}
 export async function activity(){return {shared:true,foods:[],weights:[]}}
 export async function uploadFile(){}
 export async function historyPage(){return {items:[],next:null}}
@@ -180,10 +183,11 @@ try {
       "Intake",
       "Nutrition",
       "Food journal",
+      "App records",
       "Progress",
       "History",
       "Check-ins",
-      "Messages",
+      "Customer chat",
       "Overview",
     ]) {
       await page
@@ -300,7 +304,7 @@ try {
     for (const tab of [
       "Intake",
       "Check-ins",
-      "Messages",
+      "Customer chat",
       "History",
       "Preferences",
     ]) {

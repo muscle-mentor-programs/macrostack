@@ -87,6 +87,20 @@ try {
       "utf8",
     ),
   );
+  await db.exec(`
+    alter table clients add column name text,add column height text,add column dob text,add column phone text,add column bio text,add column goal_calories int,add column goal_protein int,add column goal_carbs int,add column goal_fat int,add column active_meal_plan_id uuid,add column created_at timestamptz default now();
+    alter table checkins add column client_id uuid,add column weight_unit text,add column adherence int,add column hunger int,add column energy int,add column notes text,add column answers jsonb,add column created_at timestamptz;
+    create table progress_photos(id uuid,client_id uuid,path text,note text,taken_at date);
+    create table meal_plans(id uuid,client_id uuid,plan_name text,days jsonb,created_at timestamptz);
+    create table target_schedules(id uuid,client_id uuid,apply_on date,calories int,protein int,carbs int,fat int,applied boolean);
+    create table form_submissions(id uuid,client_id uuid,form_title text,form_kind text,answers jsonb,created_at timestamptz);
+  `);
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/20260922153037_retail_customer_app_access.sql",
+      "utf8",
+    ),
+  );
   await db.exec(
     "update auth.users set raw_app_meta_data=raw_app_meta_data||jsonb_build_object('retail_verified_email',email) where raw_app_meta_data->>'account_type'='retailer'",
   );
@@ -324,6 +338,79 @@ try {
   assert.equal(
     (await db.query("select retail_activity($1) x", [rid])).rows[0].x.shared,
     true,
+  );
+  // Expanded app records require a separate, customer-owned consent grant.
+  const records = async (kind, page = 0) =>
+    (await db.query("select retail_app_records($1,$2,$3) x", [rid, kind, page]))
+      .rows[0].x;
+  assert.equal((await records("profile")).shared, false);
+  await assert.rejects(
+    () => db.query("select retail_share_app_records($1,true)", [rid]),
+    /Only the linked customer/,
+  );
+  await db.exec("reset role");
+  await db.query(
+    "insert into food_log(id,client_id,date,name,calories) select gen_random_uuid(),c.id,current_date-400,'Historical food',100 from clients c cross join generate_series(1,51) where c.profile_id=$1",
+    [ids.member],
+  );
+  const appPhotoPath = `clients/${(await db.query("select id from clients where profile_id=$1", [ids.member])).rows[0].id}/shared.jpg`;
+  await db.query(
+    "insert into progress_photos(id,client_id,path,note,taken_at) select gen_random_uuid(),id,$1,'Customer photo',current_date from clients where profile_id=$2",
+    [appPhotoPath, ids.member],
+  );
+  await db.query(
+    "insert into storage.objects values(gen_random_uuid(),'progress-photos',$1)",
+    [appPhotoPath],
+  );
+  await as("specialist");
+  assert.equal(
+    (
+      await db.query(
+        "select * from storage.objects where bucket_id='progress-photos'",
+      )
+    ).rows.length,
+    0,
+  );
+  await as("member");
+  await db.query("select retail_share_app_records($1,true)", [rid]);
+  await as("specialist");
+  for (const kind of [
+    "profile",
+    "foods",
+    "weights",
+    "photos",
+    "plans",
+    "checkins",
+    "forms",
+    "schedules",
+  ])
+    assert.equal((await records(kind)).shared, true);
+  assert.equal((await records("foods")).rows.length, 50);
+  assert.equal((await records("foods", 50)).rows.length, 1);
+  assert.equal((await records("photos")).rows[0].path, appPhotoPath);
+  assert.equal(
+    (
+      await db.query(
+        "select * from storage.objects where bucket_id='progress-photos'",
+      )
+    ).rows.length,
+    1,
+  );
+  await assert.rejects(() => records("private_notes"), /Unknown record/);
+  await assert.rejects(() => records("foods", -1), /Invalid page/);
+  await as("other");
+  await assert.rejects(() => records("profile"), /Customer unavailable/);
+  await as("member");
+  await db.query("select retail_share_app_records($1,false)", [rid]);
+  await as("specialist");
+  assert.equal((await records("photos")).shared, false);
+  assert.equal(
+    (
+      await db.query(
+        "select * from storage.objects where bucket_id='progress-photos'",
+      )
+    ).rows.length,
+    0,
   );
   const retryId = crypto.randomUUID(),
     retryPayload = {

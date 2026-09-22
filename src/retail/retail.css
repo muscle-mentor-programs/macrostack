@@ -560,3 +560,14 @@
 .retail-nutrition-targets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}.retail-nutrition-targets>div{padding:16px;background:color-mix(in srgb,var(--retail-accent) 7%,transparent);border-radius:12px}.retail-nutrition-targets strong{display:block;font-size:22px}.retail-nutrition-targets small{display:block;color:var(--color-muted);margin-top:5px}
 .retail-tabbar[aria-label="Customer sections"]{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding-bottom:10px}.retail-tabbar[aria-label="Customer sections"] button{flex-shrink:0}
 @media(max-width:800px){.retail-care-actions{grid-template-columns:1fr 1fr}.retail-nutrition-targets{grid-template-columns:1fr 1fr}.retail-nav{overflow-x:auto;flex-wrap:nowrap}.retail-nav button{flex-shrink:0}}
+
+.retail-customer-primary-actions { margin: 0 0 20px; }
+.retail-app-records { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:16px; margin:20px 0; align-items:start; }
+.retail-app-records > .retail-card { margin:0; box-shadow:none; }
+.retail-record-values { display:grid; gap:10px; margin:12px 0; }
+.retail-record-values > div { border-bottom:1px solid var(--color-border); padding-bottom:8px; }
+.retail-record-values dt { font-size:12px; color:var(--color-muted); text-transform:capitalize; }
+.retail-record-values dd { margin:4px 0 0; overflow-wrap:anywhere; }
+.retail-sharing-card { background:color-mix(in srgb,var(--retail-accent) 8%,transparent); border:1px solid var(--color-border); padding:20px; border-radius:14px; margin-bottom:20px; }
+.retail-photo-preview img { display:block; max-width:100%; max-height:70vh; object-fit:contain; margin:16px auto; border-radius:14px; }
+.retail-chat-log { max-height:55dvh; overflow:auto; overscroll-behavior:contain; padding:16px 0; margin:16px 0; }

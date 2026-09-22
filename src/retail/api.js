@@ -279,3 +279,23 @@ export async function conversation(id) {
     ),
   );
 }
+
+export async function appRecords(rid, kind, pageOffset = 0) {
+  return check(
+    await supabase.rpc("retail_app_records", {
+      rid,
+      kind,
+      page_offset: pageOffset,
+    }),
+  );
+}
+export async function shareAppRecords(rid, enabled) {
+  return check(
+    await supabase.rpc("retail_share_app_records", { rid, enabled }),
+  );
+}
+export async function appPhotoURL(path) {
+  return check(
+    await supabase.storage.from("progress-photos").createSignedUrl(path, 120),
+  ).signedUrl;
+}
