@@ -966,8 +966,8 @@ try {
   await db.exec(readFileSync("scripts/test-retail-hosted.sql", "utf8"));
   await db.exec(readFileSync("scripts/test-retail-signup.sql", "utf8"));
   await db.exec('reset role');
-  await db.exec(readFileSync('supabase/migrations/20260922190925_retail_customer_removal.sql','utf8'));
-  await db.exec(readFileSync('supabase/migrations/20260922192021_retail_brand_colors.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260922192503_retail_customer_removal.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260922192513_retail_brand_colors.sql','utf8'));
   await as('admin');
   const palette = {primary:'#aa3344',secondary:'#66bbcc'};
   await db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Test brand',palette]);
