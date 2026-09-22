@@ -35,7 +35,7 @@ export async function queueCounts(){return {open:0,due:0,invited:0}}
 export async function reports(){return {customers:1,activated:1,consultations:0,scans:0,repeat_scans:0,tasks_due:0,tasks_completed:0,active_staff:1}}
 export async function joinInfo(){return {name:'Pilot Store'}}
 export async function intakeForm(){return [{id:'goal',label:'Your goals'}]}
-export async function appRecords(){return {shared:true,rows:[{id:'record',name:'Customer',goal_calories:2200}],has_more:false}}
+export async function appRecords(rid,kind){if(kind==='foods')return {shared:true,rows:[{id:'f1',date:'2026-09-22',meal:'Breakfast',name:'Greek yogurt and berries',quantity:1,serving_unit:'bowl',calories:320,protein:24,carbs:38,fat:8},{id:'f2',date:'2026-09-22',meal:'Lunch',name:'Chipotle chicken avocado sandwich with fresh vegetables',quantity:1,serving_unit:'sandwich',calories:690,protein:42,carbs:63,fat:28},{id:'f3',date:'2026-09-21',meal:'Dinner',name:'Chicken, rice and greens',quantity:1,serving_unit:'plate',calories:540,protein:40,carbs:55,fat:17}],has_more:false};return {shared:true,rows:[{id:'record',name:'Customer',goal_calories:2200}],has_more:false}}
 export async function shareAppRecords(){}
 export async function appPhotoURL(){return ''}
 export async function activity(){return {shared:true,foods:[],weights:[]}}
@@ -197,6 +197,21 @@ try {
     await page
       .getByRole("heading", { name: "Food journal", exact: true })
       .waitFor();
+    await page.locator('.retail-journal-day').first().waitFor();
+    assert.equal(await page.locator('.retail-journal-day').count(),2);
+    assert.equal(await page.locator('.retail-journal-day[open]').count(),0);
+    const firstDay=page.locator('.retail-journal-day').first();
+    assert.match(await firstDay.locator('summary').innerText(),/1010/);
+    await page.screenshot({path:`outputs/retail/journal-collapsed-${width}.png`});
+    await firstDay.locator('summary').click();
+    assert.equal(await firstDay.locator('.retail-plan-meal').count(),2);
+    assert.equal(await firstDay.locator('.retail-plan-food').first().isVisible(),true);
+    assert.equal(await page.locator('.retail-journal-day').last().getAttribute('open'),null);
+    await page.screenshot({path:`outputs/retail/journal-expanded-${width}.png`});
+    await firstDay.locator('summary').focus();
+    await firstDay.locator('summary').press('Enter');
+    assert.equal(await firstDay.getAttribute('open'),null);
+
     await page
       .getByRole("button", { name: "← Customers", exact: true })
       .click();

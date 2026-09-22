@@ -1,3 +1,4 @@
+import { ChevronDown, Utensils } from "lucide-react";
 import { useEffect, useState } from "react";
 import { appRecords } from "./api";
 import { Alert, Button, Empty } from "./ui";
@@ -57,26 +58,32 @@ export default function FoodJournal({ relationship }) {
         <p role="status">Loading meals…</p>
       ) : data?.shared ? (
         <>
-          {days.map((d) => (
-            <details className="retail-journal-day" key={d.date}>
+          <div className="retail-journal-days">
+          {days.map((d) => {
+            const meals=d.foods.reduce((all,food)=>{const key=food.meal||'Other';(all[key]??=[]).push(food);return all;},{});
+            const order=['breakfast','lunch','dinner','snack','snacks'];
+            const groups=Object.entries(meals).sort(([a],[b])=>{
+              const ai=order.indexOf(a.toLowerCase()),bi=order.indexOf(b.toLowerCase());
+              return (ai<0?99:ai)-(bi<0?99:bi);
+            });
+            return <details className="retail-journal-day" key={`${relationship.id}:${offset}:${d.date}`}>
               <summary>
-                {displayDate(d.date)} · {Math.round(d.calories)} kcal ·{" "}
-                {Math.round(d.protein)}p · {Math.round(d.carbs)}c ·{" "}
-                {Math.round(d.fat)}f
+                <div className="retail-journal-date"><span className="retail-plan-status">Daily food log</span><strong>{displayDate(d.date)}</strong><span className="retail-journal-count">{d.foods.length} {d.foods.length===1?'entry':'entries'} · {groups.length} {groups.length===1?'meal':'meals'}</span></div>
+                <div className="retail-journal-summary-totals">{[['calories','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g']].map(([key,label,unit])=><span key={key}><span>{label}</span><strong>{Math.round(d[key])}<small>{unit}</small></strong></span>)}</div>
+                <span className="retail-journal-toggle"><span className="retail-journal-show">View log</span><span className="retail-journal-hide">Close log</span><ChevronDown size={18} aria-hidden="true"/></span>
               </summary>
-              {d.foods.map((f) => (
-                <div className="retail-row" key={f.id}>
-                  <div>
-                    <strong>{f.name}</strong>
-                    <p>
-                      {f.meal} · {f.quantity} {f.serving_unit}
-                    </p>
-                  </div>
-                  <span>{Math.round(f.calories)} kcal</span>
+              <div className="retail-journal-content">
+                <div className="retail-plan-meals">
+                {groups.map(([meal,foods])=><section className="retail-plan-meal" key={meal}>
+                  <header><h4><Utensils size={15} aria-hidden="true"/>{meal}</h4><span>{Math.round(foods.reduce((sum,f)=>sum+(Number(f.calories)||0),0))} kcal</span></header>
+                  <ul>{foods.map(f=><li key={f.id}><div className="retail-plan-food"><strong>{f.name}</strong><span>{f.quantity ?? ''} {f.serving_unit || 'servings'}</span></div><div className="retail-plan-food-macros"><strong>{Math.round(Number(f.calories)||0)} <small>kcal</small></strong><span>{Math.round(Number(f.protein)||0)}g P · {Math.round(Number(f.carbs)||0)}g C · {Math.round(Number(f.fat)||0)}g F</span></div></li>)}</ul>
+                </section>)}
                 </div>
-              ))}
-            </details>
-          ))}
+                <p className="retail-journal-total-note">Logged totals reflect the entries shown for this day.</p>
+              </div>
+            </details>;
+          })}
+          </div>
           {!days.length && <Empty>No food entries.</Empty>}
         </>
        ) : error ? null : (
