@@ -16,8 +16,8 @@ export async function customerAvatarURL(){return null} export async function sav
 export async function retailerFoods(){return []}
 export async function publishNutrition(){}
 export async function storeMealPlans(){return []}
-export async function storeBranding(){return {name:'Retail Network',logo_path:null}}
-export function brandLogoURL(){return null}
+export async function storeBranding(){return {name:'Retail Network',logo_path:'fixture-logo'}}
+export function brandLogoURL(path){return path?'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 132%22%3E%3Crect width=%22192%22 height=%22132%22 rx=%2212%22 fill=%22%2382ade1%22/%3E%3C/svg%3E':null}
 export async function saveBranding(){}
 export async function uploadBrandLogo(){return 'logo.png'}
 export async function removeBrandLogo(){}
@@ -97,6 +97,10 @@ try {
     await page
       .getByRole("heading", { name: "Customers", exact: true })
       .waitFor();
+    await page.locator('.retail-top .retail-store-identity img').waitFor()
+    const logoBox = await page.locator('.retail-top .retail-store-identity img').boundingBox()
+    assert.equal(Math.round(logoBox.width), width <= 600 ? 138 : 192)
+    assert.equal(Math.round(logoBox.height), width <= 600 ? 108 : 132)
     for (const tab of ["Today", "Customers", "Inbox", "Library", "Store"]) {
       await page
         .getByRole("navigation", { name: "Store navigation" })

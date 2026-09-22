@@ -1,9 +1,8 @@
+import { unlinkStripe } from './stripe-unlink.ts'
 // Database and Stripe clients are injected for focused tests without live payments.
 // deno-lint-ignore-file no-explicit-any
-export class ConnectError extends Error {
-  status: number
-  constructor(message: string, status = 400) { super(message); this.status = status }
-}
+import { ConnectError } from './stripe-connect-error.ts'
+export { ConnectError } from './stripe-connect-error.ts'
 
 export async function stateHash(value: string) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
@@ -17,7 +16,13 @@ export async function connectCoach(ctx: {db: any; stripe: any; userId: string; c
   const { data: connection, error: connectionError } = await db.from('coach_stripe_connections').select('*').eq('coach_id', userId).maybeSingle()
   if (connectionError) throw new ConnectError('Stripe connection storage is unavailable.', 503)
   const action = input.action || 'begin'
-  if (!['begin', 'complete', 'status'].includes(action)) throw new ConnectError('Unknown connection action.')
+  if (!['begin', 'complete', 'status', 'disconnect'].includes(action)) throw new ConnectError('Unknown connection action.')
+
+  if (action === 'disconnect') return await unlinkStripe(ctx, connection, input.confirm === true)
+  if (connection?.disconnect_pending) {
+    if (action === 'status') return { ok: true, connected: true, ready: false, disconnect_pending: true }
+    throw new ConnectError('Finish unlinking Stripe before connecting again.', 409)
+  }
 
   if (action === 'complete') {
     if (typeof input.state !== 'string' || !/^[a-f0-9]{64}$/.test(input.state)) throw new ConnectError('Invalid authorization state. Start again from the coach portal.')
@@ -35,11 +40,11 @@ export async function connectCoach(ctx: {db: any; stripe: any; userId: string; c
     }
     const account = await stripe.accounts.retrieve(grant.stripe_user_id)
     if (account.type !== 'standard') throw new ConnectError('Connect your own Stripe Dashboard account, not an Express account.')
-    if (connection && connection.stripe_account_id !== account.id) throw new ConnectError('A different Stripe account is already linked. Contact support before switching accounts so existing payments stay intact.')
+    if (connection && !connection.disconnected_at && connection.stripe_account_id !== account.id) throw new ConnectError('A different Stripe account is already linked. Contact support before switching accounts so existing payments stay intact.')
     const saved = await db.from('coach_stripe_connections').upsert({ coach_id: userId, stripe_account_id: account.id,
       livemode: grant.livemode, charges_enabled: !!account.charges_enabled, payouts_enabled: !!account.payouts_enabled,
-      updated_at: new Date().toISOString(), disconnected_at: null,
-    }, { onConflict: 'coach_id', ignoreDuplicates: true })
+      updated_at: new Date().toISOString(), connected_at: new Date().toISOString(), disconnected_at: null, disconnect_pending: false,
+    }, { onConflict: 'coach_id', ignoreDuplicates: false })
     if (saved.error) throw new ConnectError('This Stripe account could not be saved. It may already be linked to another coach. Contact support before retrying.')
     const refreshed = await db.from('coach_stripe_connections').update({ charges_enabled: !!account.charges_enabled,
       payouts_enabled: !!account.payouts_enabled, disconnected_at: null, updated_at: new Date().toISOString() })

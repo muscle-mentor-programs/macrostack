@@ -1,3 +1,4 @@
+import { withStripeOperationLock } from '../_shared/stripe-operation-lock.ts'
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
@@ -17,7 +18,7 @@ serve(async req => {
   const account = event.account, options = { stripeAccount: account }
   const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
   try {
-    const owner = await db.from('coach_stripe_connections').select('coach_id,livemode').eq('stripe_account_id', account).maybeSingle()
+    const owner = await db.from('coach_stripe_connections').select('coach_id,livemode,connected_at,disconnected_at,disconnect_pending').eq('stripe_account_id', account).maybeSingle()
     if (owner.error) throw owner.error
     if (!owner.data || owner.data.livemode !== event.livemode) return new Response('Ignored', { status: 200 })
     const object = event.data.object
@@ -39,22 +40,29 @@ serve(async req => {
         if (invoice.subscription) await syncMarketplaceSubscription(stripe, db, invoice.subscription as string, account)
         break
       }
-      case 'account.updated': {
-        const current = object as Stripe.Account
-        if (current.id !== account) throw new Error('Account mismatch')
-        const saved = await db.from('coach_stripe_connections').update({ charges_enabled: !!current.charges_enabled,
-          payouts_enabled: !!current.payouts_enabled, updated_at: new Date().toISOString() }).eq('stripe_account_id', account)
-        if (saved.error) throw saved.error
-        const listing = await db.from('marketplace_profiles').update({ stripe_ready: directReady(current) }).eq('coach_id', owner.data.coach_id)
-        if (listing.error) throw listing.error
-        break
-      }
+      case 'account.updated':
       case 'account.application.deauthorized': {
-        const removed = await db.from('coach_stripe_connections').update({ disconnected_at: new Date().toISOString(),
-          charges_enabled: false, payouts_enabled: false }).eq('stripe_account_id', account)
-        if (removed.error) throw removed.error
-        const listing = await db.from('marketplace_profiles').update({ stripe_ready: false }).eq('coach_id', owner.data.coach_id)
-        if (listing.error) throw listing.error
+        await withStripeOperationLock(db, owner.data.coach_id, async () => {
+          const latest = await db.from('coach_stripe_connections').select('*').eq('stripe_account_id', account).maybeSingle()
+          if (latest.error) throw latest.error
+          if (!latest.data || latest.data.disconnected_at) return
+          // Ignore delayed events from an earlier authorization of the same account.
+          if (event.created < Math.floor(new Date(latest.data.connected_at).getTime() / 1000)) return
+          if (event.type === 'account.application.deauthorized') {
+            const removed = await db.from('coach_stripe_connections').update({ disconnected_at: new Date().toISOString(),
+              disconnect_pending: false, charges_enabled: false, payouts_enabled: false }).eq('stripe_account_id', account)
+            if (removed.error) throw removed.error
+            // The database trigger clears listing/billing eligibility and OAuth states atomically.
+            return
+          }
+          if (latest.data.disconnect_pending) return
+          const current = await stripe.accounts.retrieve(account)
+          const saved = await db.from('coach_stripe_connections').update({ charges_enabled: !!current.charges_enabled,
+            payouts_enabled: !!current.payouts_enabled, updated_at: new Date().toISOString() }).eq('stripe_account_id', account)
+          if (saved.error) throw saved.error
+          const listing = await db.from('marketplace_profiles').update({ stripe_ready: directReady(current) }).eq('coach_id', latest.data.coach_id)
+          if (listing.error) throw listing.error
+        })
         break
       }
       case 'charge.refunded': {

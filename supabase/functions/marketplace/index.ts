@@ -1,3 +1,4 @@
+import {withStripeOperationLock} from '../_shared/stripe-operation-lock.ts'
 import {serve} from 'https://deno.land/std@0.168.0/http/server.ts'
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
@@ -31,6 +32,7 @@ serve(async req=>{
     const stripe=new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!,{apiVersion:'2024-06-20',httpClient:Stripe.createFetchHttpClient()})
     const base=new URL(Deno.env.get('SITE_URL') || 'https://www.getmacrostack.com').origin
     if(action==='save') {
+      return await withStripeOperationLock(db,user.id,async()=>{
       if(!['coach','superadmin'].includes(profile.role)) return json({error:'Coach account required.'},403)
       const listing=validateListing(input.profile || {})
       const connection=await coachConnection(db,user.id)
@@ -50,6 +52,7 @@ serve(async req=>{
       if(error) throw error
       if(!data) throw new Error('Your profile changed while saving. Refresh and try again.')
       return json({ok:true,ready,profile:data})
+      })
     }
     if(action==='my-profile') {
       if(!['coach','superadmin'].includes(profile.role)) return json({error:'Coach account required.'},403)
@@ -87,6 +90,7 @@ serve(async req=>{
       return json({access:{...latest,recurring:!!order?.subscription_id,active:accessActive(latest),coach_name:coach?.name,coach_code:accessActive(latest)?coach?.coach_code:null}})
     }
     if(action==='checkout') {
+      return await withStripeOperationLock(db,input.coach_id,async()=>{
       const {data:listing,error}=await db.from('marketplace_profiles').select('*').eq('coach_id',input.coach_id).eq('published',true).eq('approval_status','approved').single()
       if(error || !listing) throw new Error('This coach is not currently accepting marketplace purchases.')
       if(client.coach_id && client.coach_id!==listing.coach_id) throw new Error('You are already connected to another coach. Contact your coach before changing connections.')
@@ -152,6 +156,7 @@ serve(async req=>{
       const saved=await db.from('marketplace_orders').update({session_id:session.id}).eq('id',order.id)
       if(saved.error) throw saved.error
       return json({url:session.url})
+      })
     }
     return json({error:'Unknown marketplace action.'},400)
   } catch(error) {

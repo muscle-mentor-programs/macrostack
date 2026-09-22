@@ -16,6 +16,7 @@ import ScrambleText from '../../components/ScrambleText'
 import ClientAvatar from '../../components/ClientAvatar'
 import AvatarCropModal from '../../components/AvatarCropModal'
 import CoachActivation from '../../components/CoachActivation'
+import CustomerStoreLinks from '../../retail/CustomerStoreLinks'
 import CoachMarketplace from '../../components/CoachMarketplace'
 
 /* Enable browser push, new messages from the coach ping the home screen. */
@@ -438,6 +439,8 @@ export default function ClientProfile() {
         )}
       </div>
 
+      <CustomerStoreLinks />
+
       {/* My targets, every user (free or Pro) can edit; a linked coach can
           override from their portal at any time */}
       <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '190ms' }}>
@@ -787,7 +790,6 @@ export default function ClientProfile() {
         </button>
       </div>
     </div>
-    <div className="mx-5 mb-8 glass-card rounded-lg p-5"><h2 className="font-display font-bold text-xl">YOUR STORE</h2><p className="text-muted text-sm mt-2 mb-4">Open your store plan, check-ins and conversations.</p><button className="btn-accent rounded-lg px-5 py-3" onClick={() => useStore.getState().setActivePage('retail')}>Open store workspace</button></div>
     <CoachActivation />
 
     <div className="mx-5 mb-8 glass-card rounded-lg p-5">

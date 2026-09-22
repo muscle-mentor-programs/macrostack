@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import useStore from '../../store'
-import { startStripeConnection } from '../../lib/stripeConnect'
+import CoachStripeConnection from '../../components/CoachStripeConnection'
 import { marketplace, coachingPrice } from '../../lib/marketplace'
 import '../Marketplace.css'
 import MarketplacePhotoUpload from '../../components/MarketplacePhotoUpload'
@@ -28,13 +28,6 @@ export default function MarketplaceSetup() {
     }
     catch (e) { setError(e.message) } finally { setBusy(false) }
   }
-  async function connect() {
-    setBusy(true); setError('')
-    try {
-      const data = await startStripeConnection('marketplace')
-      if (!data.url) setMessage('Stripe is connected. Save your profile to verify publishing eligibility.')
-    } catch (e) { setError(e.message) } finally { setBusy(false) }
-  }
   return <main className="marketplace-page app-page-gutter md:h-full md:min-h-0 md:overflow-y-auto md:overscroll-contain px-5 pt-mobile-header md:pt-8 pb-28 text-cream">
     <header className="mb-6"><p className="font-mono text-xs tracking-widest text-muted mb-2">COACH PORTAL</p><h1 className="font-display text-4xl">MARKETPLACE</h1><p className="text-muted mt-2">Build your coaching profile and submit it for superadmin approval before it goes live.</p></header>
     {loading ? <p role="status">Loading your profile...</p> : <form onSubmit={save} className="grid lg:grid-cols-[2fr_1fr] gap-6">
@@ -53,7 +46,7 @@ export default function MarketplaceSetup() {
         <label className="block text-sm space-y-2"><span>Price (USD)</span><input type="number" required min="1" max="10000" step="0.01" className={inputClass} value={form.price_cents / 100} onChange={e => change('price_cents', Math.round(Number(e.target.value) * 100))} /></label>
         {form.billing_mode === 'one_time' && <label className="block text-sm space-y-2"><span>Access duration (days)</span><input type="number" required min="1" max="730" step="1" className={inputClass} value={form.duration_days || ''} onChange={e => change('duration_days', Number(e.target.value))} /></label>}
         <p className="font-display text-xl">{coachingPrice(form)}</p><p className="text-sm text-muted">When paid access ends, the client connection and history remain. Payment reactivates coaching.</p>
-        <button type="button" disabled={busy} onClick={connect} className="btn-ghost w-full">Connect / verify Stripe</button>
+        <CoachStripeConnection />
         <label className="flex gap-3 text-sm"><input type="checkbox" checked={form.published} onChange={e => change('published', e.target.checked)} /><span>List my profile once approved</span></label>
         <p className="text-xs text-muted">Listing requires superadmin approval and Stripe readiness. Saving changes to your public profile or package sends it back for review and hides it until approved again. Existing paid access stays intact. Uncheck to save privately.</p>
         <button disabled={busy} className="btn-primary w-full">{busy ? 'Saving...' : form.published && form.approval_status !== 'approved' ? 'Submit for review' : 'Save marketplace profile'}</button>

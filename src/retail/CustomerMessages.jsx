@@ -58,7 +58,7 @@ export default function CustomerMessages({CoachConversation}) {
   const [connections,setConnections]=useState(null),[selected,setSelected]=useState(null),[error,setError]=useState('');
   useEffect(()=>{
     let active=true;
-    if(userId)list('relationships',{profile_id:userId,status:'active'}).then(rows=>Promise.all(rows.map(async r=>({...r,brand:await storeBranding(r.location_id).catch(()=>null)})))).then(rows=>{if(active)setConnections(rows);}).catch(()=>{if(active)setError('Could not load store conversations. Please refresh to try again.');});
+    if(userId)list('relationships',{profile_id:userId,status:'active'}).then(rows=>Promise.all(rows.map(async r=>({...r,brand:await storeBranding(r.location_id).catch(()=>null)})))).then(rows=>{if(active){setConnections(rows);const url=new URL(window.location.href);const target=rows.find(row=>row.id===url.searchParams.get('store'));if(target){setSelected(target);url.searchParams.delete('store');window.history.replaceState({},'',url);}}}).catch(()=>{if(active)setError('Could not load store conversations. Please refresh to try again.');});
     return()=>{active=false;};
   },[userId]);
   if(selected==='coach')return <CoachConversation onBack={()=>setSelected(null)}/>;

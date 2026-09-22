@@ -1,3 +1,4 @@
+import { withStripeOperationLock } from '../_shared/stripe-operation-lock.ts'
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14?target=deno'
@@ -34,6 +35,7 @@ serve(async (req) => {
       .select('id, name, coach_id').eq('profile_id', user.id).maybeSingle()
     if (!clientRow?.coach_id) throw new Error('No coach linked to your account.')
 
+    return await withStripeOperationLock(admin, clientRow.coach_id, async () => {
     const [{ data: coach }, { data: billing }] = await Promise.all([
       admin.from('profiles').select('name, stripe_connect_id').eq('id', clientRow.coach_id).single(),
       admin.from('coach_billing').select('price, connect_ready').eq('coach_id', clientRow.coach_id).maybeSingle(),
@@ -81,6 +83,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ ok: true, url: session.url }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
+    })
     })
   } catch (e) {
     return new Response(JSON.stringify({ error: (e as Error).message }), {

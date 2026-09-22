@@ -587,14 +587,14 @@
 .retail-card > :last-child { margin-bottom: 0; }
 .retail-photo-preview { margin-top: 20px; }
 .retail-photo-preview > img { display: block; margin-top: 16px; }
-.retail-store-brand{display:flex;flex-direction:column;gap:8px;min-width:0;max-width:340px}
+.retail-store-brand{display:flex;flex-direction:column;gap:8px;min-width:0;max-width:540px}
 .retail-store-identity{display:flex;align-items:center;gap:12px;min-width:0}
-.retail-store-identity img{width:64px;height:44px;object-fit:contain;flex-shrink:0}
+.retail-store-identity img{width:192px;height:132px;object-fit:contain;flex-shrink:0}
 .retail-store-identity strong{font-size:18px;line-height:1.3;overflow-wrap:anywhere}
 .retail-powered{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--color-muted);letter-spacing:0}
 .retail-powered .macrostack-wordmark{font-size:14px}
 .retail-brand-preview{padding:24px;border:1px solid var(--color-border);border-radius:12px;margin:20px 0;background:var(--color-surface)}
-@media(max-width:600px){.retail-store-brand{max-width:220px}.retail-store-identity strong{font-size:15px}.retail-store-identity img{width:46px;height:36px}}
+@media(max-width:600px){.retail-store-brand{max-width:100%}.retail-store-identity strong{font-size:15px}.retail-store-identity img{width:138px;height:108px}}
 .retail-invite-page{min-height:100dvh;display:grid;place-items:center;padding:32px 20px;overflow:auto}
 .retail-invite-card{width:100%;max-width:520px}
 .retail-invite-card h1{margin:28px 0 12px;font-size:26px;line-height:1.2}
@@ -633,12 +633,17 @@
  .retail :is(input,textarea,select){transition:border-color 180ms ease,box-shadow 240ms ease}
 }
 .retail-customer-avatar img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
-.retail-avatar-editor{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px}
-.retail-avatar-editor>.retail-customer-avatar{width:64px;height:64px;font-size:26px}
-.retail-avatar-editor small{flex-basis:100%;color:var(--color-text-muted)}
-.retail-photo-upload{position:relative;cursor:pointer;overflow:hidden}
-.retail-photo-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
-.retail-photo-upload:focus-within{outline:2px solid var(--retail-accent);outline-offset:3px}
+/* Photo actions stay behind the avatar instead of occupying the header. */
+.retail-avatar-editor{position:relative;display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px}
+.retail-avatar-trigger{position:relative;display:block;padding:0;border:0;border-radius:18px;background:transparent;cursor:pointer}
+.retail-avatar-trigger .retail-customer-avatar{width:64px;height:64px;font-size:26px;border-radius:18px}
+.retail-avatar-trigger:focus-visible{outline:2px solid var(--retail-accent);outline-offset:4px}
+.retail-avatar-badge{position:absolute;right:-4px;bottom:-4px;display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:var(--color-card);color:var(--retail-accent);border:1px solid var(--color-border)}
+.retail-avatar-menu{position:absolute;top:72px;left:0;z-index:20;display:grid;min-width:180px;padding:6px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-card);box-shadow:0 8px 24px #0003}
+.retail-avatar-menu button{min-height:44px;padding:10px 12px;text-align:left;border:0;border-radius:8px;background:transparent;color:var(--color-cream);font-size:13px}
+.retail-avatar-menu button:hover,.retail-avatar-menu button:focus-visible{background:color-mix(in srgb,var(--retail-accent) 12%,transparent)}
+.retail-avatar-menu .retail-avatar-remove{color:#d65a68}
+
 .retail-nutrition-builder-entry{padding:24px;margin-bottom:28px;border:1px solid var(--retail-accent);border-radius:16px;background:color-mix(in srgb,var(--retail-accent) 8%,transparent)}
 .retail-nutrition-builder-entry p{margin:12px 0 18px;max-width:75ch}
 #retail-branding{scroll-margin-top:160px}

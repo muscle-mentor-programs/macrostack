@@ -1,4 +1,4 @@
-import { Monitor, LogOut, Store } from 'lucide-react'
+import { Monitor, LogOut } from 'lucide-react'
 import BottomNav from '../components/BottomNav'
 import ThemeToggle from '../components/ThemeToggle'
 import useStore from '../store'
@@ -57,7 +57,6 @@ export default function ClientLayout({ children }) {
             <span className="font-display font-bold text-[10px] tracking-widest">COACH</span>
           </button>
         )}
-        <a href="/messages?store=1" title="Chat with your store" aria-label="Chat with your store" className="h-9 px-3 flex items-center gap-1.5 rounded-xl bg-card border border-border text-cream"><Store size={15}/><span className="font-mono text-xs">Store chat</span></a>
         <ThemeToggle compact />
         <button
           onClick={logout}

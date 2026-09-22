@@ -6,10 +6,10 @@ import { orderOptions, verifyOrderAccount, directReady } from '../supabase/funct
 import { fulfillMarketplace } from '../supabase/functions/_shared/marketplace-payments.ts'
 
 function fixture(role = 'coach') {
-  const tables = { profiles: [{ id: 'coach1', role }], coach_stripe_connections: [], stripe_connect_oauth_states: [], coach_billing: [] }
+  const tables = { profiles: [{ id: 'coach1', role }], coach_stripe_connections: [], stripe_connect_oauth_states: [], coach_billing: [], marketplace_orders: [] }
   const writes = [], calls = []
   const db = { from(table) {
-    let action = 'select', value, predicates = [], ignoreDuplicates = false
+    let action = 'select', value, predicates = [], ignoreDuplicates = false, single = false
     const run = () => {
       const rows = tables[table].filter(row => predicates.every(p => p(row)))
       if (action !== 'select') writes.push(table)
@@ -20,7 +20,7 @@ function fixture(role = 'coach') {
         else if (!ignoreDuplicates) Object.assign(existing, value)
       }
       if (action === 'update') rows.forEach(row => Object.assign(row, value))
-      return { data: rows[0] || null, error: null }
+      return { data: single ? rows[0] || null : rows, error: null }
     }
     const q = {
       select() { return q }, eq(key, value) { predicates.push(row => row[key] === value); return q },
@@ -29,13 +29,13 @@ function fixture(role = 'coach') {
       update(v) { action = 'update'; value = v; return q },
       insert(v) { action = 'insert'; value = v; return q },
       upsert(v, options) { action = 'upsert'; value = v; ignoreDuplicates = options?.ignoreDuplicates; return q },
-      single: async () => run(), maybeSingle: async () => run(), then(resolve, reject) { return Promise.resolve(run()).then(resolve, reject) },
+      single: async () => { single = true; return run() }, maybeSingle: async () => { single = true; return run() }, then(resolve, reject) { return Promise.resolve(run()).then(resolve, reject) },
     }
     return q
   } }
   const account = { id: 'acct_testCoach', type: 'standard', charges_enabled: true, payouts_enabled: true }
   const grant = { stripe_user_id: account.id, scope: 'read_write', livemode: true }
-  const stripe = { oauth: { token: async () => { calls.push('exchange'); return grant } }, accounts: { retrieve: async () => account } }
+  const stripe = { checkout: { sessions: { list: async () => ({ data: [], has_more: false }) } }, subscriptions: { list: async () => ({ data: [], has_more: false }) }, oauth: { deauthorize: async params => { calls.push(['deauthorize', params]); return { stripe_user_id: account.id } }, token: async () => { calls.push('exchange'); return grant } }, accounts: { retrieve: async () => account } }
   return { tables, calls, writes, account, grant, ctx: { db, stripe, userId: 'coach1', clientId: 'ca_example', base: 'https://www.getmacrostack.com', live: true } }
 }
 
@@ -168,4 +168,97 @@ test('legacy destination purchase still verifies transfer destination on platfor
   await fulfillMarketplace(stripe, f.ctx.db, { id: 'cs_1', client_reference_id: 'buyer1', amount_total: 10000,
     currency: 'usd', payment_status: 'paid', payment_intent: 'pi_1', metadata: { kind: 'marketplace_coaching', marketplace_order_id: 'o1' } })
   assert.deepEqual(requests, [{}])
+})
+
+async function linkedFixture() {
+  const f = fixture(), state = await begin(f)
+  await connectCoach(f.ctx, { action: 'complete', state, code: 'ac_example' })
+  f.calls.length = 0
+  return f
+}
+test('unlink requires confirmation and never accepts an account ID supplied by the caller', async () => {
+  const f = await linkedFixture()
+  await assert.rejects(connectCoach(f.ctx, { action: 'disconnect' }), /Confirm/)
+  assert.equal(f.calls.length, 0)
+  const result = await connectCoach(f.ctx, { action: 'disconnect', confirm: true, stripe_account_id: 'acct_someoneElse' })
+  assert.equal(result.connected, false)
+  assert.deepEqual(f.calls, [['deauthorize', { client_id: 'ca_example', stripe_user_id: 'acct_testCoach' }]])
+  assert.ok(f.tables.coach_stripe_connections[0].disconnected_at)
+  assert.equal(f.tables.coach_stripe_connections[0].disconnect_pending, false)
+  assert.ok(!f.writes.includes('profiles'))
+  await connectCoach(f.ctx, { action: 'disconnect', confirm: true })
+  assert.equal(f.calls.length, 1)
+})
+test('ongoing MacroStack subscriptions block unlinking, including subscriptions on later pages', async () => {
+  const f = await linkedFixture(), cursors = []
+  f.ctx.stripe.subscriptions.list = async params => {
+    cursors.push(params.starting_after)
+    return params.starting_after ? { data: [{ id: 'sub_active', status: 'past_due', metadata: { kind: 'marketplace_coaching' } }], has_more: false }
+      : { data: [{ id: 'sub_other', status: 'active', metadata: {} }], has_more: true }
+  }
+  await assert.rejects(connectCoach(f.ctx, { action: 'disconnect', confirm: true }), /ongoing/)
+  assert.deepEqual(cursors, [undefined, 'sub_other'])
+  assert.equal(f.calls.length, 0)
+  assert.equal(f.tables.coach_stripe_connections[0].disconnect_pending, false)
+})
+test('unused coaching checkout links expire before subscription checks; unrelated sessions stay intact', async () => {
+  const f = await linkedFixture(), expired = []
+  f.ctx.stripe.checkout.sessions.list = async () => ({ data: [{ id: 'cs_coach', metadata: { kind: 'coach_payment' } }, { id: 'cs_other', metadata: {} }], has_more: false })
+  f.ctx.stripe.checkout.sessions.expire = async (id, _, options) => expired.push([id, options])
+  await connectCoach(f.ctx, { action: 'disconnect', confirm: true })
+  assert.deepEqual(expired, [['cs_coach', { stripeAccount: 'acct_testCoach' }]])
+})
+test('completed but unfulfilled payments prevent revocation', async () => {
+  const f = await linkedFixture()
+  f.tables.marketplace_orders.push({ id: 'pending', coach_id: 'coach1', destination: 'acct_testCoach', payment_flow: 'direct', state: 'pending', session_id: 'cs_paid' })
+  f.ctx.stripe.checkout.sessions.retrieve = async () => ({ status: 'complete' })
+  await assert.rejects(connectCoach(f.ctx, { action: 'disconnect', confirm: true }), /still being confirmed/)
+  assert.equal(f.calls.length, 0)
+})
+test('uncertain revocation stays pending, blocks reconnection, and retries safely', async () => {
+  const f = await linkedFixture(), revoke = f.ctx.stripe.oauth.deauthorize
+  f.ctx.stripe.oauth.deauthorize = async () => { throw new Error('network timeout') }
+  await assert.rejects(connectCoach(f.ctx, { action: 'disconnect', confirm: true }), /could not be confirmed/)
+  assert.equal((await connectCoach(f.ctx, { action: 'status' })).disconnect_pending, true)
+  await assert.rejects(connectCoach(f.ctx, { action: 'begin' }), /Finish unlinking/)
+  f.ctx.stripe.oauth.deauthorize = revoke
+  await connectCoach(f.ctx, { action: 'disconnect', confirm: true })
+  assert.equal((await connectCoach(f.ctx, { action: 'status' })).connected, false)
+})
+test('a fully unlinked coach can authorize a different Standard account', async () => {
+  const f = await linkedFixture()
+  await connectCoach(f.ctx, { action: 'disconnect', confirm: true })
+  f.account.id = 'acct_newCoach'; f.grant.stripe_user_id = f.account.id
+  const state = await begin(f)
+  const result = await connectCoach(f.ctx, { action: 'complete', state, code: 'ac_new' })
+  assert.equal(result.connected, true)
+  assert.equal(f.tables.coach_stripe_connections[0].stripe_account_id, 'acct_newCoach')
+  assert.equal(f.tables.coach_stripe_connections[0].disconnected_at, null)
+})
+test('an active connection cannot be swapped for another account', async () => {
+  const f = fixture(), state = await begin(f)
+  f.tables.coach_stripe_connections.push({ coach_id: 'coach1', stripe_account_id: 'acct_old' })
+  await assert.rejects(connectCoach(f.ctx, { action: 'complete', state, code: 'ac_new' }), /different Stripe account/)
+})
+
+test('non-coach and mismatched Stripe mode cannot unlink accounts', async () => {
+  const member = fixture('client')
+  await assert.rejects(connectCoach(member.ctx, { action: 'disconnect', confirm: true }), /coach account/)
+  assert.deepEqual(member.calls, [])
+  const f = await linkedFixture()
+  f.ctx.live = false
+  await assert.rejects(connectCoach(f.ctx, { action: 'disconnect', confirm: true }), /not configured/)
+  assert.deepEqual(f.calls, [])
+})
+test('Stripe lease rejects competing requests and releases its own token after failure', async () => {
+  const { withStripeOperationLock } = await import('../supabase/functions/_shared/stripe-operation-lock.ts')
+  let allowed = false, worked = false, token
+  const filters = []
+  const chain = { delete() { return chain }, eq(k,v) { filters.push([k,v]); return chain }, then(resolve) { resolve({error:null}) } }
+  const db = { rpc: async (_, args) => { token = args.p_token; return {data:allowed} }, from: table => { assert.equal(table, 'coach_stripe_operation_locks'); return chain } }
+  await assert.rejects(withStripeOperationLock(db, 'coach1', async () => { worked = true }), /already in progress/)
+  assert.equal(worked, false); assert.deepEqual(filters, [])
+  allowed = true
+  await assert.rejects(withStripeOperationLock(db, 'coach1', async () => { throw new Error('Stripe unavailable') }), /Stripe unavailable/)
+  assert.deepEqual(filters, [['coach_id', 'coach1'], ['token', token]])
 })

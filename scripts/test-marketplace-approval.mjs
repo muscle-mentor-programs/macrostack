@@ -36,7 +36,7 @@ const source=stripTypeScriptTypes(readFileSync('supabase/functions/marketplace/i
 async function call(f,input){
  let handler
  class Stripe{static createFetchHttpClient(){};accounts={retrieve:async()=>({})}}
- vm.runInNewContext(source,{serve:fn=>{handler=fn},createClient:()=>f.db,Stripe,Deno:{env:{get:key=>key==='SITE_URL'?'https://example.invalid':'fixture'}},Response,URL,console:{error(){}},marketplaceReview,validateListing,coachConnection:async()=>({stripe_account_id:'acct_fixture'}),directReady:()=>true})
+ vm.runInNewContext(source,{serve:fn=>{handler=fn},createClient:()=>f.db,Stripe,Deno:{env:{get:key=>key==='SITE_URL'?'https://example.invalid':'fixture'}},Response,URL,console:{error(){}},marketplaceReview,validateListing,withStripeOperationLock:async(_db,_coach,work)=>work(),coachConnection:async()=>({stripe_account_id:'acct_fixture'}),directReady:()=>true})
  const response=await handler(new Request('https://example.invalid',{method:'POST',headers:{Authorization:'Bearer fixture','Content-Type':'application/json'},body:JSON.stringify(input)}))
  return {status:response.status,body:await response.json()}
 }
