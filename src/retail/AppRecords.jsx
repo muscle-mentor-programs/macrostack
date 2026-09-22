@@ -1,3 +1,4 @@
+import LoadingSplash from "../components/LoadingSplash";
 import { useEffect, useState } from "react";
 import { appRecords, shareAppRecords, appPhotoURL } from "./api";
 import { Alert, Button, Empty, Select, useAction } from "./ui";
@@ -187,7 +188,7 @@ export default function AppRecords({ relationship, staff, onRefresh }) {
       </Select>
       <Alert error={error} />
       {loading ? (
-        <Empty>Loading records…</Empty>
+        <LoadingSplash label="Loading records…" />
       ) : !data ? null : !data.shared ? (
         <Empty>
           The customer needs to enable app record sharing in their store

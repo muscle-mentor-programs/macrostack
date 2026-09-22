@@ -85,7 +85,7 @@ export function useAction() {
   };
   return { busy, error, run, setError };
 }
-export function Modal({ title, onClose, children }) {
+export function Modal({ title, onClose, children, wide = false }) {
   const ref = useRef();
   useEffect(() => {
     const previous = document.activeElement;
@@ -121,7 +121,7 @@ export function Modal({ title, onClose, children }) {
       <section
         ref={ref}
         tabIndex={-1}
-        className="retail-dialog"
+        className={`retail-dialog${wide ? " retail-dialog-wide" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label={title}

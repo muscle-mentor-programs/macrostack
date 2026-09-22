@@ -17,7 +17,7 @@ export const supabase={
 try {
   await mkdir("outputs/retail", { recursive: true });
   for (const width of [320, 390, 768, 1440]) {
-    const page = await browser.newPage({ viewport: { width, height: 1000 } }),
+    const page = await browser.newPage({ viewport: { width, height: 1000 }, reducedMotion: width === 390 ? "reduce" : "no-preference" }),
       errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
     await page.route("**/src/lib/supabase.js*", (r) =>
@@ -39,10 +39,18 @@ try {
       ),
       false,
     );
+    await page.waitForTimeout(1800);
     await page.screenshot({
       path: `outputs/retail/signup-${width}.png`,
       fullPage: true,
     });
+    await page.getByRole('link',{name:'Features',exact:true}).click();
+    await page.locator('#retailer-features h2').waitFor();
+    assert.equal(await page.locator('#retailer-features article').count(),6);
+    await page.locator('#retailer-faq summary').first().click();
+    await page.locator('#retailer-faq details[open]').waitFor();
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    await page.locator('#retailer-account').scrollIntoViewIfNeeded();
     await page.getByLabel("Your name", { exact: true }).fill("Retail Owner");
     await page.getByLabel("Work email").fill("owner@example.invalid");
     await page
@@ -132,6 +140,16 @@ try {
     await page
       .getByRole("heading", { name: "Retail workspace", exact: true })
       .waitFor();
+    await page.goto(url + "/retailers");
+    await page.getByRole("button", { name: "Already have a retailer account? Sign in" }).click();
+    await page.getByLabel("Work email").fill("staff@example.invalid");
+    await page.getByLabel("Password", { exact: true }).fill("SyntheticPassword123");
+    await page.getByRole("button", { name: "Sign in →", exact: true }).click();
+    await page.getByText("Your workspace is ready.", { exact: false }).waitFor();
+    assert.equal(await page.getByLabel("Business name", { exact: true }).count(), 0);
+    assert.equal(await page.getByRole("button", { name: "Create my workspace →" }).count(), 0);
+    assert.equal(await page.locator(".retail-signup-steps").count(), 0);
+    await page.screenshot({ path: `outputs/retail/returning-${width}.png`, fullPage: true });
     await page.close();
     console.log(
       "PASS retailer signup, workspace setup and retry at " + width + "px",

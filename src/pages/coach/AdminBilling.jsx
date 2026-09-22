@@ -1,3 +1,4 @@
+import LoadingSplash from "../../components/LoadingSplash";
 import { useState, useEffect, useMemo } from 'react'
 import {
   Lock, Unlock, RotateCcw, Search, Shield, ChevronDown,
@@ -270,10 +271,7 @@ export default function AdminBilling() {
             </button>
           </div>
         ) : !adminAccountsLoaded ? (
-          <div className="flex flex-col items-center justify-center h-48 anim-fade-in">
-            <div className="w-8 h-8 border-2 border-brown border-t-transparent rounded-full animate-spin" />
-            <p className="font-mono text-xs text-dim mt-4 tracking-widest">LOADING ACCOUNTS…</p>
-          </div>
+          <LoadingSplash label="Loading accounts…" />
         ) : visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 anim-fade-in">
             <p className="font-display font-bold text-lg text-muted tracking-widest">NO ACCOUNTS</p>

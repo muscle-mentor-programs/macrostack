@@ -299,3 +299,38 @@ export async function appPhotoURL(path) {
     await supabase.storage.from("progress-photos").createSignedUrl(path, 120),
   ).signedUrl;
 }
+
+export async function storeBranding(lid) {
+  return check(await supabase.rpc('retail_branding', { lid }));
+}
+export function brandLogoURL(path) {
+  return path ? supabase.storage.from('retail-branding').getPublicUrl(path).data.publicUrl : null;
+}
+export async function saveBranding(oid, name, path) {
+  return check(await supabase.rpc('retail_save_branding', { oid, display_name: name, object_path: path }));
+}
+export async function uploadBrandLogo(oid, file) {
+  const path = `${oid}/${crypto.randomUUID()}.png`;
+  check(await supabase.storage.from('retail-branding').upload(path, file, { contentType: 'image/png', upsert: false }));
+  return path;
+}
+export async function removeBrandLogo(path) {
+  return check(await supabase.storage.from('retail-branding').remove([path]));
+}
+export async function publishNutrition(rid, requestId, name, days, targets) {
+  return check(await supabase.rpc('retail_publish_nutrition', {rid,request_id:requestId,plan_name:name,days,targets}));
+}
+
+export async function storeMealPlans(rid) {
+ return check(await supabase.from("meal_plans").select("id,plan_name,days,retail_targets,created_at").eq("retail_relationship_id",rid).order("created_at",{ascending:false}).limit(20));
+}
+
+export async function setStoreTargets(rid,targets) { return check(await supabase.rpc("retail_set_targets",{rid,targets})); }
+export async function retailerFoods() {
+  const rows=[];
+  for(let offset=0;;offset+=1000){
+    const page=check(await supabase.from('custom_foods').select('id,name,brand,serving_size,serving_unit,calories,protein,carbs,fat').order('id').range(offset,offset+999)) || [];
+    rows.push(...page.map(f=>({...f,servingSize:f.serving_size,servingUnit:f.serving_unit})));
+    if(page.length<1000)return rows;
+  }
+}

@@ -1,3 +1,5 @@
+import NutritionEditor from "./NutritionEditor";
+import LoadingSplash from "../components/LoadingSplash";
 import History from "./History";
 import AppRecords from "./AppRecords";
 import ContactPreferences from "./ContactPreferences";
@@ -28,6 +30,7 @@ export default function CustomerWorkspace({
   onRefresh,
 }) {
   const now = useClock();
+  const [nutritionEditor, setNutritionEditor] = useState(false);
   const userId = useStore((s) => s.currentUser?.id);
   const composingAt = useRef(0);
   const [data, setData] = useState(null),
@@ -194,7 +197,7 @@ export default function CustomerWorkspace({
         ))}
       </div>
       {loading ? (
-        <Empty>Loading customer workspace…</Empty>
+        <LoadingSplash label="Loading customer workspace…" />
       ) : !data ? (
         <Button onClick={() => run(refresh)}>Retry</Button>
       ) : (
@@ -517,6 +520,8 @@ export default function CustomerWorkspace({
           )}
           {tab === "Plan" && (
             <section className="retail-card">
+              {staff && relationship.status === "active" && <div className="retail-actions"><Button primary onClick={() => setNutritionEditor(true)}>Build app meal plan & targets</Button></div>}
+              {nutritionEditor && <NutritionEditor relationship={relationship} onClose={() => setNutritionEditor(false)} />}
               <div className="retail-row">
                 <div>
                   <h2>Nutrition plan</h2>
@@ -739,8 +744,7 @@ export default function CustomerWorkspace({
                   <h3>Import this customer’s scan history</h3>
                   <p className="retail-muted">
                     CSV header: date,weight,unit,body_fat,muscle_mass. ISO
-                    dates; kg or lbs. Up to 100 rows. No automatic InBody
-                    connection.
+                    dates; kg or lbs. Up to 100 rows.
                   </p>
                   <input
                     aria-label="Import assessment CSV"

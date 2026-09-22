@@ -1,3 +1,4 @@
+import CustomerMessages from "../../retail/CustomerMessages"
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { MessageCircle, UserCircle2, Lock } from 'lucide-react'
 import useStore from '../../store'
@@ -7,7 +8,7 @@ import {
   accentA, buildThread, lastSeenSelfId, DaySep, Bubble, Composer,
 } from '../../components/ChatKit'
 
-export default function ClientMessages() {
+function CoachConversation() {
   const {
     activeClientId, clients, messages, sendMessage, markMessagesRead,
     setNavHidden, setActivePage, coachProfile, loadCoachProfile,
@@ -204,3 +205,5 @@ export default function ClientMessages() {
     </div>
   )
 }
+
+export default function ClientMessages() { return <CustomerMessages CoachConversation={CoachConversation} /> }

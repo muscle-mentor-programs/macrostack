@@ -1,3 +1,4 @@
+import LoadingSplash from "../components/LoadingSplash";
 import { useEffect, useState } from "react";
 import { billing, command, list } from "./api";
 import { Alert, Button, Check, Field, useAction } from "./ui";
@@ -91,7 +92,7 @@ export default function Operations({
         </p>
         <Alert error={error} />
         {!loaded ? (
-          <p>Loading billing details…</p>
+          <LoadingSplash label="Loading billing details…" />
         ) : (
           <>
             <p>Status: {contract?.status || "Not configured"}</p>
@@ -226,7 +227,6 @@ export default function Operations({
             )}
             <p className="retail-muted">
               Add approved resources in Library and invite staff from Store.
-              InBody and POS integrations are deferred.
             </p>
           </form>
         )}

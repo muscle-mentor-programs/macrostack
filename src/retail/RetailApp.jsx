@@ -1,3 +1,5 @@
+import ScrambleText from "../components/ScrambleText";
+import LoadingSplash from "../components/LoadingSplash";
 import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
 import { createRequestCache } from "./requestCache.mjs";
@@ -33,7 +35,8 @@ import {
   useAction,
 } from "./ui";
 import CustomerWorkspace from "./CustomerWorkspace";
-import BrandWordmark from "../components/BrandWordmark";
+import StoreBrand from "./StoreBrand";
+import Branding from "./Branding";
 import JoinQR from "./JoinQR";
 import "./retail.css";
 const emptyContext = {
@@ -317,7 +320,7 @@ export default function RetailApp({ retailerSession = false }) {
       <header className="retail-top">
         <div>
           <div className="retail-brand">
-            <BrandWordmark />
+            <StoreBrand locationId={locationId} revision={ctx} />
           </div>
           <small>{isStaff ? "STORE WORKSPACE" : "YOUR STORE CONNECTION"}</small>
         </div>
@@ -474,7 +477,7 @@ export default function RetailApp({ retailerSession = false }) {
           </section>
         )}
         {loading ? (
-          <Empty>Loading your stores…</Empty>
+          <LoadingSplash label="Loading your stores…" />
         ) : selected ? (
           <CustomerWorkspace
             key={`${selected.id}:${customerTab}`}
@@ -555,7 +558,7 @@ export default function RetailApp({ retailerSession = false }) {
                 <div className="retail-eyebrow">
                   {org?.name} · {location.name}
                 </div>
-                <h1>{section}</h1>
+                <h1 aria-label={section}><ScrambleText text={section} duration={700} /></h1>
                 <p className="retail-muted">
                   {
                     {
@@ -899,6 +902,7 @@ export default function RetailApp({ retailerSession = false }) {
             )}
             {section === "Store" && (
               <>
+                {isOrgAdmin && org && <Branding key={org.id} organization={org} onSaved={reloadContext} />}
                 {manager && org && (
                   <Operations
                     key={location.id}
@@ -990,27 +994,7 @@ export default function RetailApp({ retailerSession = false }) {
                         ))}
                       </div>
                     )}
-                    <div className="retail-card">
-                      <h2>Integration readiness</h2>
-                      <p>
-                        <strong>InBody:</strong> manual entry and CSV import
-                        available.
-                      </p>
-                      <p>
-                        <strong>POS / loyalty:</strong> provider access needed
-                        before connecting.
-                      </p>
-                      <p>
-                        <strong>Reminders:</strong> in-app reminders run every
-                        five minutes after the database scheduler is verified at
-                        release.
-                      </p>
-                      <p className="retail-muted">
-                        No purchase attribution, SMS delivery or automatic scan
-                        synchronization is claimed until those providers are
-                        connected and verified.
-                      </p>
-                    </div>
+
                   </section>
                   <aside>
                     {manager && (
@@ -1061,7 +1045,7 @@ export default function RetailApp({ retailerSession = false }) {
                               Activation counts use activation dates; new
                               relationships use creation dates. These are
                               separate cohorts, not a conversion-rate
-                              calculation. Purchase impact requires POS data.
+                              calculation.
                             </p>
                           </>
                         )}

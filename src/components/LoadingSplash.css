@@ -1,0 +1,70 @@
+.loading-splash {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(240px, 48dvh, 520px);
+  padding: 32px 24px;
+  color: var(--color-cream, #d8e6f4);
+  text-align: center;
+  box-sizing: border-box;
+}
+.loading-splash-full {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  min-height: 100dvh;
+  background: var(--color-bg, #080b12);
+}
+.loading-splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 320px;
+}
+.loading-splash-content > img {
+  width: 72px;
+  height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px #82ade128);
+}
+.loading-splash-content > .macrostack-wordmark {
+  font-size: 30px;
+}
+.loading-splash-content > p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-muted, #96a7bd);
+}
+.loading-splash-track {
+  width: 144px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #82ade124;
+}
+.loading-splash-track > span {
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: inherit;
+  background: #82ade1;
+  animation: macrostack-loading 1.6s ease-in-out infinite;
+}
+@keyframes macrostack-loading {
+  0% {
+    transform: translateX(-105%);
+  }
+  100% {
+    transform: translateX(325%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-splash-track > span {
+    animation: none;
+    width: 100%;
+    opacity: 0.65;
+  }
+}

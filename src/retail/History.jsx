@@ -1,3 +1,4 @@
+import LoadingSplash from "../components/LoadingSplash";
 import { useEffect, useState, useRef } from "react";
 import { historyPage } from "./api";
 import { Button, Field, Select, Alert, Empty, useAction } from "./ui";
@@ -188,7 +189,7 @@ export default function History({ relationship, staff }) {
         </Button>
       )}
       {loading ? (
-        <Empty>Loading history…</Empty>
+        <LoadingSplash label="Loading history…" />
       ) : rows.length ? (
         rows.map((r) => (
           <details key={r.id} className="retail-card">

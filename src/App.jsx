@@ -1,3 +1,4 @@
+import LoadingSplash from "./components/LoadingSplash"
 import { useEffect, useState, useRef, lazy, Suspense } from 'react'
 import useStore from './store'
 import useIsMobile from './hooks/useIsMobile'
@@ -54,23 +55,7 @@ const Marketplace = lazy(() => import('./pages/Marketplace'))
 const RetailApp = lazy(() => import('./retail/RetailApp'))
 const MarketplaceSetup = lazy(() => import('./pages/coach/MarketplaceSetup'))
 
-// Shared suspense fallback, branded skeleton so page swaps feel intentional,
-// not like a loading failure. Mirrors the typical page anatomy.
-function PageLoader() {
-  return (
-    <div className="app-page-gutter h-full w-full bg-bg px-5 pt-mobile-header anim-fade-in">
-      <div className="skeleton h-8 w-44 mb-2" />
-      <div className="skeleton h-3 w-28 mb-8" />
-      <div className="skeleton h-36 w-full mb-4 !rounded-2xl" />
-      <div className="flex gap-3 mb-4">
-        <div className="skeleton h-24 flex-1 !rounded-2xl" />
-        <div className="skeleton h-24 flex-1 !rounded-2xl" />
-        <div className="skeleton h-24 flex-1 !rounded-2xl" />
-      </div>
-      <div className="skeleton h-28 w-full !rounded-2xl" />
-    </div>
-  )
-}
+function PageLoader() { return <LoadingSplash /> }
 
 const COACH_PAGES_DESKTOP = {
   library: CoachLibrary,
@@ -242,7 +227,7 @@ export default function App() {
 
   useEffect(() => {
     if (!isAuthenticated) return
-    const refresh = () => { if (document.visibilityState === 'visible') useStore.getState().refreshRetailSponsorship() }
+    const refresh = () => { if (document.visibilityState === 'visible') { useStore.getState().refreshRetailSponsorship(); useStore.getState().refreshClientNutrition(); } }
     refresh()
     const timer = setInterval(refresh, 60000)
     document.addEventListener('visibilitychange', refresh)
@@ -292,12 +277,7 @@ export default function App() {
     )
   }
 
-  // Keep the startup surface neutral while the saved session is checked.
-  // The landing page is rendered as soon as auth resolves, without a logo
-  // splash animation.
-  if (authLoading) {
-    return <div className="fixed inset-0" style={{ background: '#000' }} />
-  }
+  if (authLoading) return <LoadingSplash fullScreen label="Opening MacroStack…" />
 
   if (!isAuthenticated) {
     return (

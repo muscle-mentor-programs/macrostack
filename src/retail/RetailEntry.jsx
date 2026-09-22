@@ -1,3 +1,4 @@
+import LoadingSplash from "../components/LoadingSplash";
 import { useEffect, useState } from "react";
 import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
@@ -83,6 +84,6 @@ export default function RetailEntry() {
   return ready ? (
     <RetailApp retailerSession />
   ) : (
-    <p role="status">Opening retailer workspace…</p>
+    <LoadingSplash fullScreen label="Opening retailer workspace…" />
   );
 }

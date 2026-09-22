@@ -1,3 +1,5 @@
+import RetailLandingSections from "./RetailLandingSections";
+import LoadingSplash from "../components/LoadingSplash";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -38,19 +40,39 @@ export default function RetailSignup() {
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const q = gsap.utils.selector(root);
       gsap.from(q(".retail-hero-word"), {
-        yPercent: 110, duration: 1, stagger: 0.12, ease: "power4.out",
+        yPercent: 110,
+        duration: 1,
+        stagger: 0.12,
+        ease: "power4.out",
       });
-      gsap.from(q(".retail-signup-lead, .retail-signup-intro > .retail-button"), {
-        y: 28, opacity: 0, duration: 1, stagger: 0.14, delay: 0.3,
-        clearProps: "transform,opacity",
-      });
-      q(".retail-signup-features > div, .retail-signup-footer").forEach((el) => {
-        gsap.from(el, {
-          y: 32, opacity: 0, duration: 0.75, ease: "power2.out",
+      gsap.from(
+        q(".retail-signup-lead, .retail-signup-intro > .retail-button"),
+        {
+          y: 28,
+          opacity: 0,
+          duration: 1,
+          stagger: 0.14,
+          delay: 0.3,
           clearProps: "transform,opacity",
-          scrollTrigger: { trigger: el, scroller: root, start: "top 94%", once: true },
-        });
-      });
+        },
+      );
+      q(".retail-signup-features > div, .retail-signup-footer, .retail-marketing-section").forEach(
+        (el) => {
+          gsap.from(el, {
+            y: 32,
+            opacity: 0,
+            duration: 0.75,
+            ease: "power2.out",
+            clearProps: "transform,opacity",
+            scrollTrigger: {
+              trigger: el,
+              scroller: root,
+              start: "top 94%",
+              once: true,
+            },
+          });
+        },
+      );
     });
     return () => mm.revert();
   }, []);
@@ -71,7 +93,10 @@ export default function RetailSignup() {
   );
   const [billingName, setBillingName] = useState(""),
     [billingEmail, setBillingEmail] = useState("");
-  const [existing, setExisting] = useState(false);
+  const [workspaceCheck, setWorkspaceCheck] = useState(null);
+  const workspaceStatus =
+    workspaceCheck?.userId === user?.id ? workspaceCheck?.status : null;
+  const existing = workspaceStatus === "existing";
   const [emailStep, setEmailStep] = useState(
     new URLSearchParams(window.location.search).has("recover")
       ? "recover"
@@ -133,7 +158,10 @@ export default function RetailSignup() {
         .limit(1)
         .then(({ data, error: e }) => {
           if (active) {
-            setExisting(Boolean(data?.length));
+            setWorkspaceCheck({
+              userId: user.id,
+              status: e ? "error" : data?.length ? "existing" : "new",
+            });
             if (
               data?.length &&
               new URLSearchParams(window.location.search).has("signin")
@@ -148,6 +176,9 @@ export default function RetailSignup() {
                 "Could not check your existing workspace. Refresh before continuing.",
               );
           }
+        })
+        .catch(() => {
+          if (active) setWorkspaceCheck({ userId: user.id, status: "error" });
         });
     return () => {
       active = false;
@@ -214,6 +245,8 @@ export default function RetailSignup() {
   const createWorkspace = (event) => {
     event.preventDefault();
     run(async () => {
+      if (workspaceStatus !== "new")
+        throw new Error("Please verify your workspace before continuing.");
       const { error: e } = await supabase.rpc("retail_command", {
         action: "start_workspace",
         payload: {
@@ -249,6 +282,7 @@ export default function RetailSignup() {
         <a className="retail-brand" href="/" aria-label="MacroStack home">
           <BrandWordmark />
         </a>
+        {mode === "signup" && !user && !emailStep && <nav className="retail-marketing-nav" aria-label="Retailer page sections"><a href="#retailer-features">Features</a><a href="#retailer-workflow">How it works</a><a href="#retailer-team">Your team</a><a href="#retailer-faq">FAQs</a><a className="retail-button primary" href="#retailer-account">Get started</a></nav>}
       </header>
       <main className="retail-signup-main">
         <section className="retail-signup-intro">
@@ -256,9 +290,21 @@ export default function RetailSignup() {
             MACROSTACK FOR RETAILERS
           </span>
           <h1>
-            {["Turn", "a", "store", "visit", "into", "lasting", "progress."].map((word, i) => (
+            {[
+              "Turn",
+              "a",
+              "store",
+              "visit",
+              "into",
+              "lasting",
+              "progress.",
+            ].map((word, i) => (
               <span className="retail-hero-mask" key={word}>
-                <span className={`retail-hero-word${i > 4 ? " retail-hero-accent" : ""}`}>{word}</span>
+                <span
+                  className={`retail-hero-word${i > 4 ? " retail-hero-accent" : ""}`}
+                >
+                  {word}
+                </span>
               </span>
             ))}
           </h1>
@@ -266,8 +312,11 @@ export default function RetailSignup() {
             Your nutrition services, customer relationships and store team. One
             connected workspace.
           </p>
-          <a className="retail-button primary" href="#retailer-account">
-            Get started →
+          <a
+            className="retail-button primary"
+            href={existing ? "/retail" : "#retailer-account"}
+          >
+            {existing ? "Open your workspace →" : "Get started →"}
           </a>
           <div className="retail-signup-features">
             {features.map(([number, title, body]) => (
@@ -286,11 +335,13 @@ export default function RetailSignup() {
           className="retail-card retail-signup-form"
           aria-label="Retailer account setup"
         >
-          <ol className="retail-signup-steps">
-            <li aria-current={!user ? "step" : undefined}>01 Account</li>
-            <li aria-current={user ? "step" : undefined}>02 Business</li>
-            <li>03 Workspace</li>
-          </ol>
+          {(!user || workspaceStatus === "new") && (
+            <ol className="retail-signup-steps">
+              <li aria-current={!user ? "step" : undefined}>01 Account</li>
+              <li aria-current={user ? "step" : undefined}>02 Business</li>
+              <li>03 Workspace</li>
+            </ol>
+          )}
           <Alert
             error={
               !supabase
@@ -299,7 +350,7 @@ export default function RetailSignup() {
             }
           />
           {checking ? (
-            <p role="status">Checking your account…</p>
+            <LoadingSplash label="Checking your account…" />
           ) : emailStep && !user ? (
             <>
               <h2>
@@ -430,69 +481,84 @@ export default function RetailSignup() {
                 Forgot password?
               </Button>
             </>
+          ) : !workspaceStatus ? (
+            <LoadingSplash label="Finding your workspace…" />
+          ) : workspaceStatus === "error" ? (
+            <>
+              <h2>We couldn’t load your workspace</h2>
+              <p>Try again before setting up a new business.</p>
+              <Button onClick={() => window.location.reload()}>
+                Try again
+              </Button>
+            </>
           ) : (
             <>
-              <h2>Set up your business</h2>
+              <h2>{existing ? "Welcome back" : "Set up your business"}</h2>
               <p>Signed in as {user.email}</p>
               {existing && (
                 <div className="retail-signup-existing">
-                  <p>You already have access to a store workspace.</p>
+                  <p>
+                    Your workspace is ready. Continue to your customers,
+                    conversations and store tools.
+                  </p>
                   <a className="retail-button primary" href="/retail">
                     Open your workspace →
                   </a>
                 </div>
               )}
-              <form onSubmit={createWorkspace}>
-                <Field
-                  label="Business name"
-                  placeholder="e.g. Peak Nutrition"
-                  required
-                  maxLength={120}
-                  value={business}
-                  onChange={setBusiness}
-                />
-                <Field
-                  label="First store name"
-                  placeholder="e.g. Downtown location"
-                  required
-                  maxLength={120}
-                  value={store}
-                  onChange={setStore}
-                />
-                <Select
-                  label="Store timezone"
-                  value={timezone}
-                  onChange={setTimezone}
-                >
-                  {zones.map((z) => (
-                    <option key={z} value={z}>
-                      {z.replaceAll("_", " ")}
-                    </option>
-                  ))}
-                </Select>
-                <Field
-                  label="Billing contact name"
-                  required
-                  maxLength={150}
-                  value={billingName}
-                  onChange={setBillingName}
-                />
-                <Field
-                  label="Billing email"
-                  type="email"
-                  required
-                  value={billingEmail || user.email}
-                  onChange={setBillingEmail}
-                />
-                <p className="retail-muted">
-                  Creating a workspace does not charge you. Prepare your team
-                  and resources, then activate your first store through the
-                  $599/month checkout. Add more locations from your workspace.
-                </p>
-                <Button primary type="submit" disabled={busy}>
-                  {busy ? "Creating workspace…" : "Create my workspace →"}
-                </Button>
-              </form>
+              {!existing && (
+                <form onSubmit={createWorkspace}>
+                  <Field
+                    label="Business name"
+                    placeholder="e.g. Peak Nutrition"
+                    required
+                    maxLength={120}
+                    value={business}
+                    onChange={setBusiness}
+                  />
+                  <Field
+                    label="First store name"
+                    placeholder="e.g. Downtown location"
+                    required
+                    maxLength={120}
+                    value={store}
+                    onChange={setStore}
+                  />
+                  <Select
+                    label="Store timezone"
+                    value={timezone}
+                    onChange={setTimezone}
+                  >
+                    {zones.map((z) => (
+                      <option key={z} value={z}>
+                        {z.replaceAll("_", " ")}
+                      </option>
+                    ))}
+                  </Select>
+                  <Field
+                    label="Billing contact name"
+                    required
+                    maxLength={150}
+                    value={billingName}
+                    onChange={setBillingName}
+                  />
+                  <Field
+                    label="Billing email"
+                    type="email"
+                    required
+                    value={billingEmail || user.email}
+                    onChange={setBillingEmail}
+                  />
+                  <p className="retail-muted">
+                    Creating a workspace does not charge you. Prepare your team
+                    and resources, then activate your first store through the
+                    $599/month checkout. Add more locations from your workspace.
+                  </p>
+                  <Button primary type="submit" disabled={busy}>
+                    {busy ? "Creating workspace…" : "Create my workspace →"}
+                  </Button>
+                </form>
+              )}
               <Button
                 disabled={busy}
                 onClick={() =>
@@ -500,7 +566,7 @@ export default function RetailSignup() {
                     const { error: e } = await supabase.auth.signOut();
                     if (e) throw e;
                     setUser(null);
-                    setExisting(false);
+                    setWorkspaceCheck(null);
                   })
                 }
               >
@@ -510,6 +576,7 @@ export default function RetailSignup() {
           )}
         </section>
       </main>
+      {mode === "signup" && !user && !emailStep && <RetailLandingSections />}
       <footer className="retail-signup-footer">
         Questions before getting started?{" "}
         <a href="mailto:getmacrostack@gmail.com">getmacrostack@gmail.com</a>

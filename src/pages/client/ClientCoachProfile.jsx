@@ -1,3 +1,4 @@
+import LoadingSplash from "../../components/LoadingSplash";
 import { useEffect, useRef, useState } from 'react'
 import { Globe, Award, User, BookOpen, MessageCircle, Check, ClipboardCheck, ClipboardList, ImagePlus, X, ChevronDown, Banknote, Loader2 } from 'lucide-react'
 import useStore from '../../store'
@@ -440,10 +441,7 @@ export default function ClientCoachProfile() {
       </div>
 
       {!profile ? (
-        <div className="app-page-gutter flex flex-col items-center justify-center py-24 text-center px-8 anim-fade-in">
-          <div className="w-8 h-8 border-2 border-brown border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="font-mono text-sm text-muted">Loading coach profile…</p>
-        </div>
+        <LoadingSplash label="Loading coach profile…" />
       ) : (
         <div className="app-page-gutter px-4 py-6 space-y-6 pb-24 anim-fade-in">
 

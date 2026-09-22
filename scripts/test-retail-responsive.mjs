@@ -9,8 +9,17 @@ const fixture = `
 const rid='customer',lid='store',oid='org';
 const relation={id:rid,location_id:lid,name:'Alexandra Montgomery',email:'alex@example.invalid',status:'active',goal:'Build consistent habits',assigned_to:'staff',revision:1,share_activity:true};
 const staff=[{id:'membership',user_id:'staff',location_id:lid,organization_id:oid,name:'Store Manager',role:'manager',active:true}];
-const loc={id:lid,organization_id:oid,operator_id:'operator',name:'Pilot Store',timezone:'America/Chicago',join_code:'00000000-0000-4000-8000-000000000000',enabled:true};
+const loc={id:lid,organization_id:oid,operator_id:'operator',name:'Peak Nutrition — Downtown Wellness Center',timezone:'America/Chicago',join_code:'00000000-0000-4000-8000-000000000000',enabled:true};
 let records={consultations:[],plans:[],assessments:[],tasks:[],notes:[],messages:[],threads:[],checkins:[],notifications:[],read_receipts:[],intakes:[],files:[]};
+export async function setStoreTargets(){}
+export async function retailerFoods(){return []}
+export async function publishNutrition(){}
+export async function storeMealPlans(){return []}
+export async function storeBranding(){return {name:'Retail Network',logo_path:null}}
+export function brandLogoURL(){return null}
+export async function saveBranding(){}
+export async function uploadBrandLogo(){return 'logo.png'}
+export async function removeBrandLogo(){}
 export async function context(){return {locations:[loc],organizations:[{id:oid,name:'Retail Network'}],staff,operators:[]}}
 export async function relationships(){return {rows:[relation],count:1}}
 export async function list(t){return t==='relationships'?[relation]:records[t]||[]}
@@ -43,7 +52,7 @@ export async function command(action,p){
 }`;
 await mkdir("outputs/retail", { recursive: true });
 try {
-  for (const width of [320, 390, 768, 1440]) {
+  for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } }),
       errors = [];
     page.on("pageerror", (e) => errors.push(e.message));

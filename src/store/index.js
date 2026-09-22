@@ -389,6 +389,14 @@ const useStore = create(
       },
 
       // ── DATA LOADING ──────────────────────────────────────────────────────
+      refreshClientNutrition: async () => {
+        const {activeClientId, currentUser, activeRole}=get();
+        if(!supabase || !activeClientId || activeRole!=='client')return;
+        const {data,error}=await supabase.from('clients').select('id,goal_calories,goal_protein,goal_carbs,goal_fat,active_meal_plan_id,meal_plans(*)').eq('id',activeClientId).single();
+        if(error || !data || get().currentUser?.id!==currentUser?.id)return;
+        set(s=>({clients:s.clients.map(c=>c.id===data.id?{...c,goals:{calories:data.goal_calories,protein:data.goal_protein,carbs:data.goal_carbs,fat:data.goal_fat},activeMealPlanId:data.active_meal_plan_id,mealPlans:(data.meal_plans||[]).map(dbToPlan)}:c)}));
+      },
+
       loadAllData: async () => {
         // food_log is fetched separately and PAGINATED: Supabase caps every
         // response (including embedded arrays) at 1000 rows, so an embedded

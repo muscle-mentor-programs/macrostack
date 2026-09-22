@@ -101,6 +101,9 @@ try {
       "utf8",
     ),
   );
+  await db.exec(readFileSync("supabase/migrations/20260922162552_retail_portal_branding.sql", "utf8"));
+  await db.exec(readFileSync("supabase/migrations/20260922162558_retail_customer_connection.sql", "utf8"));
+  await db.exec("grant usage on schema storage to authenticated;grant select,insert,delete on storage.objects to authenticated;");
   await db.exec(
     "update auth.users set raw_app_meta_data=raw_app_meta_data||jsonb_build_object('retail_verified_email',email) where raw_app_meta_data->>'account_type'='retailer'",
   );
@@ -122,6 +125,15 @@ try {
     location_name: "Store B",
     timezone: "America/Chicago",
   });
+  await db.query("insert into storage.objects(id,bucket_id,name) values(gen_random_uuid(),'retail-branding',$1)", [a.organization_id + '/logo.png']);
+  await db.query("select retail_save_branding($1,'Peak Nutrition',$2)", [a.organization_id,a.organization_id + '/logo.png']);
+  assert.equal((await db.query("select retail_branding($1) x", [a.location_id])).rows[0].x.name, 'Peak Nutrition');
+  await assert.rejects(() => db.query("select retail_save_branding($1,'Peak',$2)", [a.organization_id,b.organization_id + '/logo.png']), /Upload a logo/);
+  await as('other');
+  await assert.rejects(() => db.query("select retail_save_branding($1,'Hijacked',null)", [a.organization_id]), /administrator/);
+  await assert.rejects(() => db.query("select retail_branding($1)", [a.location_id]), /unavailable/);
+  await assert.rejects(() => db.query("insert into storage.objects(id,bucket_id,name) values(gen_random_uuid(),'retail-branding',$1)", [a.organization_id + '/bad.png']), /row-level security/);
+  await as('admin');
   const contract = await call("contract", {
     location_id: a.location_id,
     billing_name: "Test Store",
@@ -171,6 +183,10 @@ try {
     goal: "Build consistent habits",
   });
   const rid = prospect.relationship_id;
+  await db.exec('reset role;set role anon');
+  assert.equal((await db.query('select retail_customer_invitation($1) x',[prospect.token])).rows[0].x.has_account,true);
+  assert.equal((await db.query('select retail_customer_invitation($1) x',[crypto.randomUUID()])).rows[0].x,null);
+
   await as("other");
   assert.equal(
     (await db.query("select * from retail_relationships")).rows.length,
@@ -282,7 +298,22 @@ try {
     crypto.randomUUID(),
     ids.member,
   ]);
-  await as("member");
+  await as('specialist');
+  const nutritionId=crypto.randomUUID();
+  const nutritionDays=[{id:'day',label:'Day 1',meals:{Breakfast:[{id:'food',name:'Oats',quantity:1,calories:150,protein:5,carbs:27,fat:3}]}}];
+  const targets={calories:2200,protein:150,carbs:250,fat:65};
+  const publish=()=>db.query('select retail_publish_nutrition($1,$2,$3,$4,$5)',[rid,nutritionId,'Store plan',JSON.stringify(nutritionDays),JSON.stringify(targets)]);
+  await publish();await publish();
+  await db.query('select retail_set_targets($1,$2)',[rid,JSON.stringify({...targets,calories:2300})]);
+  await assert.rejects(()=>db.query('select retail_set_targets($1,$2)',[rid,JSON.stringify({...targets,calories:-1})]),/targets|required|range/);
+
+  await db.exec('reset role');
+  assert.equal((await db.query('select goal_calories,active_meal_plan_id from clients where profile_id=$1',[ids.member])).rows[0].active_meal_plan_id,nutritionId);
+  assert.equal((await db.query('select count(*)::int n from meal_plans where id=$1',[nutritionId])).rows[0].n,1);
+  assert.equal((await db.query('select goal_calories from clients where profile_id=$1',[ids.member])).rows[0].goal_calories,2300);
+
+  await as('other');await assert.rejects(publish,/authorized store staff/);
+  await as('member');await assert.rejects(publish,/authorized store staff/);
   const fileId = crypto.randomUUID(),
     filePath = `${rid}/${ids.member}/${fileId}`;
   await db.query("insert into storage.objects values($1,'retail-files',$2)", [

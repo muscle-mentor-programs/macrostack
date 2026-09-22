@@ -1,4 +1,4 @@
-export const sections = ["Customers", "Today", "Inbox", "Library", "Store"];
+export const sections = ["Today", "Customers", "Inbox", "Library", "Store"];
 export const steps = [
   "Connect",
   "Goals",

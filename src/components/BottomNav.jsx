@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
 import { Home, BookOpen, Scale, User, MessageCircle } from 'lucide-react'
 import useStore from '../store'
 import { tapHaptic } from '../utils/haptics'
@@ -13,9 +15,18 @@ const NAV = [
 export default function BottomNav() {
   const { activePage, setActivePage, activeClientId, messages, navHidden } = useStore()
 
+  const userId = useStore(s => s.currentUser?.id)
+  const [storeUnread, setStoreUnread] = useState({userId:null,count:0})
+  useEffect(() => {
+    let active=true
+    const refresh=async()=>{if(!userId||!supabase)return;const {data,error}=await supabase.rpc('retail_customer_unread');if(active&&!error)setStoreUnread({userId,count:Number(data)||0})}
+    refresh();const timer=setInterval(()=>{if(document.visibilityState==='visible')refresh()},30000)
+    window.addEventListener('focus',refresh);window.addEventListener('retail-messages-read',refresh)
+    return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',refresh);window.removeEventListener('retail-messages-read',refresh)}
+  },[userId])
   const unread = (messages[activeClientId] || []).filter(
     (m) => m.from === 'coach' && !m.readByClient
-  ).length
+  ).length + (storeUnread.userId===userId ? storeUnread.count : 0)
 
   return (
     <nav

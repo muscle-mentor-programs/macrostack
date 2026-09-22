@@ -1,3 +1,4 @@
+import LoadingSplash from "./components/LoadingSplash"
 import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
@@ -16,6 +17,8 @@ const App = lazy(() => import('./App.jsx'))
 const StripeConnectCallback = lazy(() => import('./pages/StripeConnectCallback.jsx'))
 
 // The root entry mounts the lazy public route rather than exporting components.
+// eslint-disable-next-line react-refresh/only-export-components
+const CustomerInvite = lazy(() => import('./retail/CustomerInvite.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
 const RetailSignup = lazy(() => import('./retail/RetailSignup.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
@@ -50,8 +53,8 @@ if (window.location.hash.includes('type=invite')) {
 const publicPath = window.location.pathname.replace(/\/+$/, '')
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Suspense fallback={<div role="status" aria-label="Loading MacroStack" style={{ minHeight: '100dvh', background: '#080b12' }} />}>
-      {publicPath === '/retailers' || publicPath === '/retail/start' ? (['confirm','reset'].includes(new URLSearchParams(window.location.search).get('flow')) ? <RetailEmailFlow /> : <RetailSignup />)
+    <Suspense fallback={<LoadingSplash fullScreen label="Opening MacroStack…" />}>
+      {((publicPath === '/retail/member' || publicPath === '/retail/connect') && new URLSearchParams(window.location.search).has('invite')) ? <CustomerInvite /> : publicPath === '/retailers' || publicPath === '/retail/start' ? (['confirm','reset'].includes(new URLSearchParams(window.location.search).get('flow')) ? <RetailEmailFlow /> : <RetailSignup />)
         : isRetailLoginRoute(publicPath, window.location.search) ? <RetailEntry />
         : publicPath === '/gyms' ? <Gyms />
         : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />

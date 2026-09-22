@@ -9,6 +9,13 @@ const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&?@'
  * @param {number} delay    - Delay before starting in ms (default 0)
  */
 export function useScramble(text, duration = 1100, delay = 0) {
+  const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  useEffect(() => {
+    const media=window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update=()=>setReduced(media.matches)
+    media.addEventListener('change',update)
+    return()=>media.removeEventListener('change',update)
+  },[])
   const [output, setOutput] = useState(
     () => text.split('').map((c) => (c === ' ' ? ' ' : CHARS[Math.floor(Math.random() * CHARS.length)])).join('')
   )
@@ -19,6 +26,7 @@ export function useScramble(text, duration = 1100, delay = 0) {
     clearInterval(intervalRef.current)
     clearTimeout(timeoutRef.current)
 
+    if (reduced) return
     let frame = 0
     const fps = 30
     const totalFrames = Math.round((duration / 1000) * fps)
@@ -50,7 +58,7 @@ export function useScramble(text, duration = 1100, delay = 0) {
       clearInterval(intervalRef.current)
       clearTimeout(timeoutRef.current)
     }
-  }, [text, duration, delay])
+  }, [text, duration, delay, reduced])
 
-  return output
+  return reduced ? text : output
 }

@@ -121,7 +121,7 @@ function MealPlanSection({ client, onLogMeal }) {
       <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-5 text-center anim-fade-in-up" style={{ animationDelay: '360ms' }}>
         <BookOpen size={28} className="text-dim mx-auto mb-2" />
         <p className="font-display font-bold text-sm text-muted tracking-widest">NO ACTIVE MEAL PLAN</p>
-        <p className="font-mono text-xs text-dim mt-1">Your coach hasn't assigned a meal plan yet</p>
+        <p className="font-mono text-xs text-dim mt-1">Your coach or store hasn’t assigned a meal plan yet</p>
       </div>
     )
   }
