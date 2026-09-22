@@ -1011,7 +1011,7 @@ try {
   assert.equal((await db.query('select count(*)::int n from meal_plans where id=$1',[nutritionId])).rows[0].n,0);
   assert.equal((await db.query('select count(*)::int n from meal_plans where id=$1',[coachPlan])).rows[0].n,1);
   await db.exec('reset role');
-  await db.exec(readFileSync('supabase/migrations/20260922200218_retail_theme_customization.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260922200951_retail_theme_customization.sql','utf8'));
   const fullTheme={primary:'#82ADE1',secondary:'#91B8AD',background:'#102030',backgroundEnd:'#403020',backgroundGradient:true,backgroundAngle:135,text:'#EEDDCC'};
   await as('admin');
   await db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Theme test',fullTheme]);
