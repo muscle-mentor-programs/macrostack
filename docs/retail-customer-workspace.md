@@ -8,7 +8,7 @@ between the relevant destinations. Customer-controlled sharing remains separate 
 staff-controlled relationship management.
 
 ## Nutrition contract
-Migration `20260922183826_retail_customer_workspace.sql` must ship with the frontend.
+Migration `20260922190300_retail_customer_workspace.sql` must ship with the frontend.
 - `retail_nutrition_state` returns current targets, the app client ID, active plan,
   and a snapshot version after checking relationship access and app-record consent.
 - Every target/plan write must include `_client_id` and `_version`. The database locks
