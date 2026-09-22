@@ -1,3 +1,4 @@
+import {resourceCommand} from './resourcesApi';
 import {RetailThemeContext} from "./ThemeContext";
 import {withCalculatedCalories} from "./nutritionTargets";
 import { useEffect, useState, useContext } from "react";
@@ -11,7 +12,7 @@ import {
   nutritionState,
 } from "./api";
 import { Alert, Button, Field, Modal, useAction } from "./ui";
-export default function NutritionEditor({ relationship, onClose }) {
+export default function NutritionEditor({ relationship, onClose, resource, resourceMessage, requestIdOverride, onPublished }) {
   const themeStyle=useContext(RetailThemeContext);
   const [loaded, setLoaded] = useState(null);
   const [targets, setTargets] = useState({
@@ -37,7 +38,7 @@ export default function NutritionEditor({ relationship, onClose }) {
         setLoaded({
           foods,
           state,
-          plan: plan ? { ...plan, planName: plan.plan_name } : null,
+          plan: resource ? {id:resource.id, planName:resource.title, days:structuredClone(resource.content.days)} : plan ? { ...plan, planName: plan.plan_name } : null,
         });
       })
       .catch((e) => {
@@ -46,7 +47,7 @@ export default function NutritionEditor({ relationship, onClose }) {
     return () => {
       active = false;
     };
-  }, [relationship.id, setError]);
+  }, [relationship.id, resource, setError]);
   const computedTargets=withCalculatedCalories(targets);
   function validTargets() {
     for (const [k, v] of Object.entries(computedTargets))
@@ -121,7 +122,10 @@ export default function NutritionEditor({ relationship, onClose }) {
           throw new Error(
             "Publishing canceled. Your draft is still available.",
           );
-        await publishNutrition(
+        if(resource) {
+          await resourceCommand('assign',{resource_id:resource.id,resource_version:resource.version,relationship_id:relationship.id,request_id:requestIdOverride||requestId,title:plan.planName,days:plan.days,targets:t,message:resourceMessage||''});
+          await onPublished?.();
+        } else await publishNutrition(
           relationship.id,
           requestId,
           plan.planName,

@@ -1,0 +1,6 @@
+import {Field,Select} from './ui';
+export default function ResourceContent({resource,answers={},onAnswer,readOnly=true}) {
+  const c=resource.content||{};
+  if(resource.kind==='meal_plan') return <div className="resource-meal-preview">{(c.days||[]).map((day,i)=><details key={day.id||i}><summary>{day.label||`Day ${i+1}`}</summary>{Object.entries(day.meals||{}).map(([meal,foods])=>foods.length>0&&<section key={meal}><h3>{meal}</h3>{foods.map((f,j)=><div className="retail-row" key={f.id||j}><strong>{f.name}</strong><span>{f.quantity} {f.servingUnit} · {Math.round(f.calories)} kcal</span></div>)}</section>)}</details>)}</div>;
+  return <div className="resource-content">{c.body&&<p className="retail-pre">{c.body}</p>}{resource.kind==='form'&&(c.questions||[]).map(q=>q.type==='select'?<Select key={q.id} label={`${q.label}${q.required?' *':''}`} value={answers[q.id]||''} onChange={v=>onAnswer?.(q.id,v)} disabled={readOnly} required={q.required}><option value="">Choose a response</option>{(q.options||[]).map(v=><option key={v}>{v}</option>)}</Select>:<Field key={q.id} label={`${q.label}${q.required?' *':''}`} type={q.type==='number'?'number':'text'} multiline={q.type==='long'} value={answers[q.id]||''} readOnly={readOnly} required={q.required} maxLength={5000} onChange={v=>onAnswer?.(q.id,v)}/>)}</div>;
+}

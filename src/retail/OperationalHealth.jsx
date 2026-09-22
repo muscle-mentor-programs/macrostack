@@ -36,7 +36,7 @@ export default function OperationalHealth({ location, onNavigate }) {
   const steps = data
     ? [
         ["Staff access", data.setup.staff > 0, "Store", "retail-team"],
-        ["Published resources", data.setup.resources > 0, "Library"],
+        ["Published resources", data.setup.resources > 0, "Resources"],
         [
           "Billing arranged",
           ["active", "trialing"].includes(data.setup.billing),

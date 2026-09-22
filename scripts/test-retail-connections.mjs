@@ -5,7 +5,7 @@ const { chromium } = createRequire(import.meta.url)(
 );
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const origin = process.env.TEST_URL || "http://127.0.0.1:5198";
-const api = `let messages=[{id:'first',author_id:'staff',body:'Welcome to your store chat',created_at:'2026-09-22T10:00:00Z'}];export async function list(){return [{id:'relationship',location_id:'store'}]} export async function conversation(){return {messages}} export function brandLogoURL(){return null} export async function removeMealPlan(){window.planRemoved=true} export async function storeBranding(){return {name:'Peak Nutrition'}} export async function command(action,payload){window.commandPayload={action,payload};if(action==='message')messages.push({id:payload.id,author_id:'member',body:payload.body,created_at:new Date().toISOString()});return {relationship_id:'relationship'}} export async function shareAppRecords(){window.shared=true} export async function saveBranding(oid,name,path,colors){window.brandSaved={oid,name,path,colors}} export async function uploadBrandLogo(){return 'org/logo.png'} export async function removeBrandLogo(){} export async function storeMealPlans(){return []} export async function setStoreTargets(rid,targets){window.savedTargets=targets} export async function nutritionState(){return {client_id:"client",version:"v1",targets:{calories:2200,protein:160,carbs:220,fat:70},active_plan_id:null}}
+const api = `export async function relationships(){return {rows:[],count:0}} let messages=[{id:'first',author_id:'staff',body:'Welcome to your store chat',created_at:'2026-09-22T10:00:00Z'}];export async function list(){return [{id:'relationship',location_id:'store'}]} export async function conversation(){return {messages}} export function brandLogoURL(){return null} export async function removeMealPlan(){window.planRemoved=true} export async function storeBranding(){return {name:'Peak Nutrition'}} export async function command(action,payload){window.commandPayload={action,payload};if(action==='message')messages.push({id:payload.id,author_id:'member',body:payload.body,created_at:new Date().toISOString()});return {relationship_id:'relationship'}} export async function shareAppRecords(){window.shared=true} export async function saveBranding(oid,name,path,colors){window.brandSaved={oid,name,path,colors}} export async function uploadBrandLogo(){return 'org/logo.png'} export async function removeBrandLogo(){} export async function storeMealPlans(){return []} export async function setStoreTargets(rid,targets){window.savedTargets=targets} export async function nutritionState(){return {client_id:"client",version:"v1",targets:{calories:2200,protein:160,carbs:220,fat:70},active_plan_id:null}}
 export async function customerAvatarURL(){return null} export async function saveCustomerAvatar(rid,file){window.avatarSaved={rid,name:file?.name};return 'relationship/photo.png'}
 export async function retailerFoods(){return []}
 export async function publishNutrition(...args){window.nutrition=args}`;
@@ -18,6 +18,7 @@ try {
       errors.push(e.message);
       console.error(e.message);
     });
+    await page.route("**/src/retail/resourcesApi.js*",r=>r.fulfill({contentType:'text/javascript',body:'export async function resources(){return []} export async function resourceAssignments(){return []} export async function resourceCommand(){} export async function resourceStore(){return {id:"store",organization_id:"org"}}'}));
     await page.route("**/src/retail/api.js*", (r) =>
       r.fulfill({ contentType: "text/javascript", body: api }),
     );
@@ -213,6 +214,10 @@ try {
       .getByRole("button", { name: /Store team · open conversation/ })
       .click();
     await page.getByText("Welcome to your store chat").waitFor();
+    await page.getByRole('button',{name:'Resources',exact:true}).click();
+    await page.getByRole('heading',{name:'Resources from your store',exact:true}).waitFor();
+    await page.getByText('No resources shared yet.',{exact:true}).waitFor();
+    await page.getByRole('dialog').getByRole('button',{name:'Close dialog',exact:true}).click();
     await page
       .getByLabel("Message", { exact: true })
       .fill("Thanks, I can see my plan.");

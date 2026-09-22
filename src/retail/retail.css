@@ -966,3 +966,54 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
   margin-top: 16px;
 }
 .retail-setup-target { scroll-margin-top: 180px; }
+
+/* Resources use an editorial list: concise summaries, deliberate actions. */
+.retail-resources { min-width:0; }
+.resource-toolbar { display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:28px; }
+.resource-toolbar h2 { margin:0 0 8px;font-size:22px; }
+.resource-toolbar p { margin:0;color:var(--color-muted);max-width:65ch; }
+.resource-filters { display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:20px;margin-bottom:20px; }
+.resource-types { display:flex;gap:8px;overflow:auto;padding:4px 0 20px;border-bottom:1px solid var(--color-border); }
+.resource-types .retail-button { white-space:nowrap; }
+.resource-types [aria-pressed=true] { color:var(--retail-brand-ink,var(--color-bg));background:var(--retail-brand-primary,var(--color-accent)); }
+.resource-list { border-bottom:1px solid var(--color-border); }
+.resource-row { display:flex;align-items:center;gap:20px;padding:24px 8px;border-top:1px solid var(--color-border);transition:background 180ms ease; }
+.resource-row:first-child { border-top:0; }
+.resource-row:hover { background:color-mix(in srgb,var(--color-accent) 4%,transparent); }
+.resource-icon { flex:0 0 48px;width:48px;height:48px;display:grid;place-items:center;color:var(--color-accent);background:color-mix(in srgb,var(--color-accent) 9%,var(--color-card));border:1px solid color-mix(in srgb,var(--color-accent) 20%,var(--color-border));border-radius:14px; }
+.retail .resource-title { background:none;border:0;padding:0;min-width:0;flex:1;text-align:left;color:var(--color-cream); }
+.resource-title strong { display:block;font:600 17px/1.4 var(--font-mono);overflow-wrap:anywhere; }
+.resource-title span { display:block;margin-top:6px;font-size:13px;color:var(--color-muted);line-height:1.6; }
+.resource-title small { display:block;margin-top:10px;font-size:11px;color:var(--color-muted);line-height:1.6; }
+.resource-row-actions { display:flex;align-items:center;gap:12px;flex-shrink:0; }
+.resource-menu { position:relative; }
+.resource-menu summary { cursor:pointer;padding:12px;list-style:none;border-radius:8px; }
+.resource-menu summary::-webkit-details-marker { display:none; }
+.resource-menu>div { position:absolute;right:0;top:100%;z-index:40;width:210px;padding:10px;display:grid;gap:8px;background:var(--color-card);border:1px solid var(--color-border);border-radius:12px;box-shadow:0 16px 36px #0006; }
+.resource-editor,.resource-use,.resource-preview { display:grid;gap:24px;margin-top:24px; }
+.resource-editor>p,.resource-use>p,.resource-preview>p { margin:0; }
+.resource-editor textarea { min-height:160px; }
+.resource-question { margin:20px 0;padding:20px;border-left:2px solid var(--color-accent);background:color-mix(in srgb,var(--color-accent) 4%,transparent);display:grid;gap:16px; }
+.resource-content { display:grid;gap:20px;line-height:1.75; }
+.resource-content>p { margin:0;white-space:pre-wrap;overflow-wrap:anywhere; }
+.resource-meal-preview details { border-top:1px solid var(--color-border);padding:16px 0; }
+.resource-meal-preview summary { cursor:pointer;font-weight:600; }
+.resource-meal-preview section { padding:20px 0 0; }
+.resource-history { margin-top:12px;padding-top:24px;border-top:1px solid var(--color-border); }
+.retail .resource-customer,.retail .resource-assignment { width:100%;background:transparent;color:var(--color-cream);border:0;border-bottom:1px solid var(--color-border);padding:20px 0;display:flex;align-items:center;justify-content:space-between;gap:20px;text-align:left; }
+.resource-customer span,.resource-assignment span { color:var(--color-muted);font-size:12px; }
+.resource-assignment div>span { display:block;margin-top:8px; }
+.resource-message { border-left:2px solid var(--color-accent);padding:12px 20px;background:color-mix(in srgb,var(--color-accent) 5%,transparent);white-space:pre-wrap; }
+@media(max-width:600px) {
+ .resource-toolbar { align-items:stretch;flex-direction:column;gap:18px; }
+ .resource-filters { grid-template-columns:minmax(0,1fr);gap:16px; }
+ .resource-row { flex-wrap:wrap;gap:14px;padding:22px 0; }
+ .resource-title { flex-basis:calc(100% - 62px)!important; }
+ .resource-row-actions { width:100%;justify-content:flex-end; }
+ .resource-row-actions>.retail-button { flex:1; }
+ .resource-customer { flex-wrap:wrap; }
+ .resource-question { padding:16px; }
+}
+.resource-response { margin-top:14px;max-width:520px; }
+.resource-response summary { cursor:pointer;padding:10px 0;font-size:13px; }
+.resource-response .resource-content { margin-top:16px; }

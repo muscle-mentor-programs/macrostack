@@ -1,3 +1,4 @@
+import CustomerResources from './CustomerResources';
 import { CurrentNutrition, ConsultationNotes } from "./CustomerDetails";
 import FoodJournal from "./FoodJournal";
 import CustomerNav from "./CustomerNav";
@@ -38,6 +39,7 @@ export default function CustomerWorkspace({
   const [deleteOpen,setDeleteOpen]=useState(false);
   const [deleteName,setDeleteName]=useState("");
   const [nutritionEditor, setNutritionEditor] = useState(false);
+  const [openResourcePicker,setOpenResourcePicker]=useState(false);
   const [nutritionRevision,setNutritionRevision]=useState(0);
   const userId = useStore((s) => s.currentUser?.id);
   const composingAt = useRef(0);
@@ -218,9 +220,9 @@ export default function CustomerWorkspace({
           </p>
         </div>
         {staff && (
-          <Button primary onClick={() => setConsult(true)}>
+          <div className="retail-actions"><Button disabled={relationship.status !== "active"} onClick={() => {setOpenResourcePicker(true);selectTab("Resources")}}>Add from Resources</Button><Button primary onClick={() => setConsult(true)}>
             {draft ? "Continue consultation" : "Start consultation"}
-          </Button>
+          </Button></div>
         )}
       </div>
       <Alert error={error} />
@@ -519,6 +521,7 @@ export default function CustomerWorkspace({
               />
             </div>
           )}
+          {tab === "Resources" && <CustomerResources relationship={relationship} staff={staff} onRefresh={refresh} openPicker={openResourcePicker} onPickerOpened={()=>setOpenResourcePicker(false)} />}
           {tab === "Intake" && (
             <section className="retail-section">
               <h2>Customer intake</h2>
@@ -599,6 +602,7 @@ export default function CustomerWorkspace({
                 key={`plans:${nutritionRevision}`}
                 relationship={relationship}
                 staff={staff}
+                manager={manager}
                 recordTypes={["plans", "schedules"]}
                 title="App meal plans & scheduled targets"
                 onRefresh={()=>setNutritionRevision(v=>v+1)}

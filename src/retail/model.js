@@ -1,4 +1,4 @@
-export const sections = ["Today", "Customers", "Inbox", "Library", "Store"];
+export const sections = ["Today", "Customers", "Inbox", "Resources", "Store"];
 export const steps = ["Review customer", "Build recommendations", "Schedule follow-up", "Review & publish"];
 export const initialDraft = {
   goal: "",

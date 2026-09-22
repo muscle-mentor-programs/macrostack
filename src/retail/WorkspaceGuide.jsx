@@ -11,9 +11,9 @@ const help = {
     "Assign the conversation before replying, and resolve it when the next step is agreed.",
     "A new customer reply reopens the conversation. Never include private consultation notes in a reply.",
   ],
-  Library: [
-    "Use a draft outline or create a resource. Adapt it to your store and review before publishing.",
-    "Publishing a resource does not change plans already shared with customers.",
+  Resources: [
+    "Choose a published meal plan, form or guide, select a customer, then review and share it. Staff-only guides stay within your team.",
+    "Managers can save, duplicate or archive resources. Edits never change copies already assigned to customers.",
   ],
   Store: [
     "Confirm store details and staff access, approve your resources, and complete the practice workflow before enrolling customers.",

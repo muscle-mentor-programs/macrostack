@@ -226,7 +226,7 @@ export default function Operations({
               </>
             )}
             <p className="retail-muted">
-              Add approved resources in Library and invite staff from Store.
+              Add approved resources in Resources and invite staff from Store.
             </p>
           </form>
         )}

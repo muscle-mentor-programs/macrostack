@@ -95,6 +95,7 @@ export function Modal({ title, onClose, children, wide = false }) {
     const previous = document.activeElement;
     ref.current?.focus();
     const key = (e) => {
+      if ([...document.querySelectorAll('[role="dialog"]')].at(-1) !== ref.current) return;
       if (e.key === "Escape") closeRef.current();
       if (e.key === "Tab") {
         const nodes = [

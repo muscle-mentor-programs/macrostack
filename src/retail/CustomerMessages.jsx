@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import {Modal} from './ui';
+import {brandStyle} from './brandColors';
+import './retail.css';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+const CustomerResources = lazy(() => import('./CustomerResources'));
 import { ArrowLeft, ChevronRight, MessageCircle, Store, UserCircle2 } from 'lucide-react';
 import useStore from '../store';
 import { buildThread, DaySep, Bubble, Composer } from '../components/ChatKit';
@@ -37,9 +41,11 @@ function StoreConversation({connection,onBack}) {
     return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',refresh);};
   },[connection.id]);
   const items=useMemo(()=>buildThread((rows||[]).map(m=>({id:m.id,text:m.body,timestamp:m.created_at,from:m.author_id===userId?'client':'store'})).sort((a,b)=>a.timestamp.localeCompare(b.timestamp))).reverse(),[rows,userId]);
+  const [resourceOpen,setResourceOpen]=useState(false);
   const name=connection.brand?.name||'Your store';
   return <ChatFrame>
-    <header className="member-chat-heading glass-panel accent-line"><button onClick={onBack} aria-label="All conversations"><ArrowLeft size={20}/></button><div className="member-chat-avatar">{connection.brand?.logo_path?<img alt="" src={brandLogoURL(connection.brand.logo_path)}/>:<Store size={22}/>}</div><div><h1>{name}</h1><p>Your store team · private conversation</p></div></header>
+    <header className="member-chat-heading glass-panel accent-line"><button onClick={onBack} aria-label="All conversations"><ArrowLeft size={20}/></button><div className="member-chat-avatar">{connection.brand?.logo_path?<img alt="" src={brandLogoURL(connection.brand.logo_path)}/>:<Store size={22}/>}</div><div><h1>{name}</h1><p>Your store team · private conversation</p></div><button className="member-chat-resources" onClick={()=>setResourceOpen(true)}>Resources</button></header>
+    {resourceOpen&&<div className="retail" style={brandStyle(connection.brand?.brand_colors)}><Modal wide title={`${name} · Resources`} onClose={()=>setResourceOpen(false)}><Suspense fallback={<p role="status">Loading resources…</p>}><CustomerResources relationship={connection} staff={false}/></Suspense></Modal></div>}
     {error&&<p className="member-chat-error" role="alert">{error}</p>}
     <div className="member-chat-thread" role="log" aria-label="Store messages">
       {rows===null&&!error?<p role="status" className="member-chat-empty">Loading messages…</p>:items.length?items.map(item=>item.type==='sep'?<DaySep key={item.id} label={item.label}/>:<Bubble key={item.id} msg={item.msg} isSelf={item.msg.from==='client'} first={item.first} last={item.last} senderLabel={name} maxW="max-w-[80%]"/>):<div className="member-chat-empty"><MessageCircle size={30}/><h2>No messages yet</h2><p>Start a conversation with your store team.</p></div>}

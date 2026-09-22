@@ -4,6 +4,7 @@ export const primarySections = [
   "Food journal",
   "Progress",
   "Check-ins",
+  "Resources",
   "Messages",
 ];
 export const secondarySections = [

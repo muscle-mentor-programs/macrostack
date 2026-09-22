@@ -60,6 +60,7 @@ try {
       errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
     await page.route("**/*.supabase.co/**", (r) => r.abort());
+    await page.route("**/src/retail/resourcesApi.js*",r=>r.fulfill({contentType:'text/javascript',body:'export async function resources(){return []} export async function resourceAssignments(){return []} export async function resourceCommand(){} export async function resourceStore(){return {id:"store",organization_id:"org"}}'}));
     await page.route("**/src/retail/api.js*", (r) =>
       r.fulfill({ contentType: "text/javascript", body: fixture }),
     );
@@ -106,7 +107,7 @@ try {
       .boundingBox();
     assert.equal(Math.round(logoBox.width), width <= 600 ? 138 : 192);
     assert.equal(Math.round(logoBox.height), width <= 600 ? 108 : 132);
-    for (const tab of ["Today", "Customers", "Inbox", "Library", "Store"]) {
+    for (const tab of ["Today", "Customers", "Inbox", "Resources", "Store"]) {
       await page
         .getByRole("navigation", { name: "Store navigation" })
         .getByRole("button", { name: tab, exact: true })
@@ -142,33 +143,13 @@ try {
     await page.screenshot({ path: `outputs/retail/store-${width}.png` });
     await page
       .getByRole("navigation", { name: "Store navigation" })
-      .getByRole("button", { name: "Library", exact: true })
+      .getByRole("button", { name: "Resources", exact: true })
       .click();
-    await page
-      .getByText("Start with an editable draft", { exact: true })
-      .click();
-    await page
-      .getByRole("button", { name: "Review draft", exact: true })
-      .first()
-      .click();
-    await page.getByRole("dialog").waitFor();
-    assert.equal(
-      await page.getByLabel("Resource title").inputValue(),
-      "New customer intake",
-    );
-    assert.equal(
-      await page.getByLabel("Publish for staff use").isChecked(),
-      false,
-    );
-    await page
-      .getByRole("dialog")
-      .getByRole("button", { name: "Save", exact: true })
-      .click();
-    await page.getByRole("dialog").waitFor({ state: "hidden" });
-    assert.equal(
-      await page.evaluate(() => window.lastRetailCommand.p.published),
-      false,
-    );
+    await page.getByRole('heading',{name:'Your reusable resources',exact:true}).waitFor();
+    await page.getByRole('button',{name:'Create resource',exact:true}).click();
+    await page.getByRole('dialog').getByRole('combobox',{name:/^Start with/}).selectOption('welcome');
+    assert.equal(await page.getByLabel('Resource name').inputValue(),'New customer intake');
+    await page.getByRole('dialog').getByRole('button',{name:'Close dialog',exact:true}).click();
 
     await page
       .getByRole("navigation")

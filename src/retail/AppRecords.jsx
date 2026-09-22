@@ -99,6 +99,7 @@ function Values({ value }) {
 export default function AppRecords({
   relationship,
   staff,
+  manager=false,
   onRefresh,
   recordTypes,
   title,
@@ -214,7 +215,7 @@ export default function AppRecords({
           {kind === "weights" && <WeightTrend rows={data.rows} />}
           <div className="retail-app-records">
             {data.rows.map((r, i) => kind === "plans" ? (
-              <PublishedPlan key={r.id || i} plan={r} relationship={relationship} staff={staff} onRemoved={async()=>{prepareLoad();setRevision(v=>v+1);await onRefresh?.();}}/>
+              <PublishedPlan key={r.id || i} plan={r} relationship={relationship} staff={staff} manager={manager} onRemoved={async()=>{prepareLoad();setRevision(v=>v+1);await onRefresh?.();}}/>
             ) : (
               <article className="retail-card" key={r.id || i}>
                 <h3>

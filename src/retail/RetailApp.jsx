@@ -1,3 +1,4 @@
+import Resources from './Resources';
 import {RetailThemeContext} from "./ThemeContext";
 import { brandStyle } from "./brandColors";
 import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, LogOut, ArrowUpRight } from "lucide-react";
@@ -8,7 +9,6 @@ import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
 import { createRequestCache } from "./requestCache.mjs";
 import OperationalHealth from "./OperationalHealth";
-import StarterResources from "./StarterResources";
 import WorkspaceGuide from "./WorkspaceGuide";
 import Operations from "./Operations";
 import useViewport from "./useViewport";
@@ -149,7 +149,7 @@ export default function RetailApp({ retailerSession = false }) {
   const section =
     isStaff &&
     !locationStaff &&
-    !["Library", "Store"].includes(requestedSection)
+    !["Resources", "Store"].includes(requestedSection)
       ? "Store"
       : requestedSection;
   const employees = staffDirectory;
@@ -365,7 +365,7 @@ export default function RetailApp({ retailerSession = false }) {
       </header>
       {isStaff && (
         <nav className="retail-nav" aria-label="Store navigation">
-          {(locationStaff ? sections : ["Library", "Store"]).map((s) => (
+          {(locationStaff ? sections : ["Resources", "Store"]).map((s) => (
             <button
               key={s}
               aria-current={
@@ -385,7 +385,7 @@ export default function RetailApp({ retailerSession = false }) {
                 if (s === "Store" && manager) showReports();
               }}
             >
-              {(() => { const Icon = { Today: LayoutDashboard, Customers: Users, Inbox: MessageCircle, Library: BookOpen, Store: Settings2 }[s]; return Icon ? <Icon size={17} aria-hidden="true"/> : null; })()}<span>{s}</span>
+              {(() => { const Icon = { Today: LayoutDashboard, Customers: Users, Inbox: MessageCircle, Resources: BookOpen, Store: Settings2 }[s]; return Icon ? <Icon size={17} aria-hidden="true"/> : null; })()}<span>{s}</span>
             </button>
           ))}
         </nav>
@@ -574,7 +574,7 @@ export default function RetailApp({ retailerSession = false }) {
                       Customers:
                         "Manage nutrition plans, food journals, progress and follow-ups for every customer.",
                       Inbox: "One team. Every conversation accounted for.",
-                      Library: "Approved resources, ready to personalize.",
+                      Resources: "Create once. Personalize and share with your customers.",
                       Store: "Your team, operations and pilot results.",
                     }[section]
                   }
@@ -866,42 +866,8 @@ export default function RetailApp({ retailerSession = false }) {
                 </div>
               </section>
             )}
-            {section === "Library" && (
-              <>
-                {manager && <StarterResources onChoose={setModal} />}
-                <div className="retail-actions" style={{ marginBottom: 18 }}>
-                  {manager && (
-                    <Button primary onClick={() => setModal("template")}>
-                      Create resource
-                    </Button>
-                  )}
-                </div>
-                <div className="retail-grid">
-                  {templates.map((t) => (
-                    <article className="retail-card" key={t.id}>
-                      <div className="retail-eyebrow">
-                        {t.location_id ? "Store" : "Corporate"} · {t.category}
-                      </div>
-                      <h2>{t.title}</h2>
-                      <p className="retail-pre">{t.content.body}</p>
-                      <div className="retail-row">
-                        <span className="retail-badge">
-                          {t.published ? "Published" : "Draft"} · v{t.version}
-                        </span>
-                        {manager && (
-                          <Button onClick={() => setModal(t)}>Edit</Button>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-                {!templates.length && (
-                  <Empty>
-                    No resources yet. Managers can create approved guidance
-                    here.
-                  </Empty>
-                )}
-              </>
+            {section === "Resources" && (
+              <Resources location={location} organizationId={org?.id} manager={manager} corporate={isOrgAdmin} />
             )}
             {section === "Store" && (
               <>
