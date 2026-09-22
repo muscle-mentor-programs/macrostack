@@ -62,38 +62,95 @@ export function generateRetailPlanPDF(plan, client, brand) {
     doc.setDrawColor(...mix(secondary,bg,.45));doc.line(P,y, W-P,y);y+=24;
   }
   function newPage(){doc.addPage();page();}
-  function room(height){if(y+height>H-54)newPage();}
   function wrapped(value,size,width){doc.setFont('Space','normal');doc.setFontSize(size);return doc.splitTextToSize(String(value),width);}
+  const rounded = value => Math.round(Number(value) || 0);
+  const totalsFor = items => items.reduce((acc,item)=>{
+    for(const key of Object.keys(acc)) acc[key]+=Number(item[key])||0;
+    return acc;
+  },{calories:0,protein:0,carbs:0,fat:0});
+  const surface=mix(secondary,bg,.055), border=mix(secondary,bg,.22);
+  function panel(top,height) {
+    doc.setFillColor(4,6,11);doc.roundedRect(P,top+3,INNER,height,9,9,'F');
+    doc.setFillColor(...surface);doc.setDrawColor(...border);doc.setLineWidth(.5);
+    doc.roundedRect(P,top,INNER,height,9,9,'FD');
+  }
+  function daySummary(day,index,continued=false) {
+    const dayLines=wrapped(day.label || `Day ${index+1}`,15,INNER-120);
+    label(dayLines,P,y+14,15);
+    label(continued?'CONTINUED':'DAILY NUTRITION',W-P,y+12,8,muted,'Space',{align:'right'});
+    y+=dayLines.length*18+18;
+    const totals=totalsFor(Object.values(day.meals || {}).flat());
+    panel(y,66);
+    const col=INNER/4;
+    [['calories','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g']].forEach(([key,name,unit],i)=>{
+      const x=P+i*col+16;
+      if(i){doc.setDrawColor(...border);doc.line(x-16,y+14,x-16,y+52);}
+      label(name,x,y+18,8,muted);
+      label(String(rounded(totals[key])),x,y+45,21,text,'Barlow');
+      doc.setFont('Barlow','normal');doc.setFontSize(21);
+      const valueWidth=doc.getTextWidth(String(rounded(totals[key])));
+      label(unit,x+valueWidth+5,y+45,8,muted);
+    });
+    y+=84;
+  }
   page();
-  const title=wrapped(plan.planName || 'Nutrition plan',21,INNER);
-  label(title,P,y,21);y+=title.length*25+12;
-  if(client){const lines=wrapped(`Prepared for ${client.name || 'Customer'}`,10,INNER);label(lines,P,y,10,muted);y+=lines.length*13+10;}
-  if(client?.goals){const g=client.goals;label(`${g.calories ?? '-'} kcal  |  ${g.protein ?? '-'}g protein  |  ${g.carbs ?? '-'}g carbs  |  ${g.fat ?? '-'}g fat`,P,y,9,muted);y+=24;}
+  const title=wrapped(plan.planName || 'Nutrition plan',20,INNER-36);
+  const clientLines=client?wrapped(`Prepared for ${client.name || 'Customer'}`,9,INNER-36):[];
+  const g=client?.goals;
+  const targetLines=g?wrapped(`Daily targets: ${g.calories ?? '-'} kcal · ${g.protein ?? '-'}g protein · ${g.carbs ?? '-'}g carbs · ${g.fat ?? '-'}g fat`,8,INNER-36):[];
+  const heroHeight=38+title.length*23+clientLines.length*12+targetLines.length*12+14;
+  panel(y,heroHeight);
+  label('PERSONALIZED MEAL PLAN',P+18,y+20,8,mix(primary,text,.5));
+  label(title,P+18,y+44,20);
+  if(clientLines.length)label(clientLines,P+18,y+44+title.length*23,9,muted);
+  if(targetLines.length)label(targetLines,P+18,y+44+title.length*23+clientLines.length*12,8,muted);
+  y+=heroHeight+22;
   for(const [index,day] of (plan.days || []).entries()){
-    room(80);
-    doc.setFillColor(...mix(secondary,bg,.13));doc.roundedRect(P,y,INNER,36,5,5,'F');
-    doc.setFillColor(...secondary);doc.rect(P,y,3,36,'F');
-    const dayName=wrapped(day.label || `Day ${index+1}`,12,220);
-    label(dayName,P+13,y+22,12);y+=48;
+    if(index)newPage();
+    daySummary(day,index);
     for(const meal of ['Breakfast','Lunch','Dinner','Snack']){
-      const items=day.meals?.[meal] || [];if(!items.length)continue;
-      room(48);label(meal.toUpperCase(),P+8,y,9,mix(primary,text,.45));y+=18;
-      for(const item of items){
-        const name=`${item.name || 'Food'}${item.brand ? `, ${item.brand}` : ''}`;
-        const lines=wrapped(name,10,INNER-160);const height=Math.max(36,lines.length*14+24);room(height);
-        label(lines,P+8,y,10);
+      const items=Array.isArray(day.meals?.[meal])?day.meals[meal]:[];
+      if(!items.length)continue;
+      const rows=items.map(item=>{
+        const lines=wrapped(`${item.name || 'Food'}${item.brand ? `, ${item.brand}` : ''}`,10,INNER-165);
         const quantity=Number(item.quantity)||1;
         const serving=['g','oz','ml','lb','fl oz','L'].includes(item.servingUnit)&&item.servingSize ? `${Math.round(quantity*Number(item.servingSize)*100)/100} ${item.servingUnit}` : `${quantity} x ${item.servingUnit || 'serving'}`;
-        label(serving,P+8,y+lines.length*14,8,muted);
-        label(`${Math.round(item.calories || 0)} kcal`,W-P-8,y,10,text,'Space',{align:'right'});
-        label(`${Math.round(item.protein || 0)}P  ${Math.round(item.carbs || 0)}C  ${Math.round(item.fat || 0)}F`,W-P-8,y+13,8,muted,'Space',{align:'right'});
-        y+=height;
+        const portions=wrapped(serving,8,INNER-165);
+        return {item,lines,portions,height:Math.max(46,lines.length*13+portions.length*10+21)};
+      });
+      let cursor=0;
+      while(cursor<rows.length){
+        if(y+34+rows[cursor].height>H-54){newPage();daySummary(day,index,true);}
+        const top=y;
+        let used=34,end=cursor;
+        while(end<rows.length&&top+used+rows[end].height<=H-54){used+=rows[end].height;end++;}
+        // Continue unusually long imported names on the next page without dropping text.
+        if(end===cursor){
+          const row=rows[cursor],available=H-54-top-34;
+          const maxLines=Math.max(1,Math.floor((available-row.portions.length*10-21)/13));
+          const remainder=row.lines.slice(maxLines);
+          if(remainder.length)rows.splice(cursor+1,0,{...row,lines:remainder,height:Math.max(46,remainder.length*13+row.portions.length*10+21)});
+          row.lines=row.lines.slice(0,maxLines);
+          if(remainder.length)row.portions=[];
+          row.height=available;used+=available;end++;
+        }
+        panel(top,used);
+        doc.setFillColor(...mix(secondary,bg,.11));doc.roundedRect(P+1,top+1,INNER-2,31,8,8,'F');
+        label(`${meal}${cursor?' · continued':''}`,P+16,top+21,11,text);
+        label(`${rounded(totalsFor(items).calories)} kcal`,W-P-16,top+21,9,muted,'Space',{align:'right'});
+        y=top+34;
+        for(let r=cursor;r<end;r++){
+          const {item,lines,portions,height}=rows[r];
+          if(r>cursor){doc.setDrawColor(...border);doc.line(P+16,y,W-P-16,y);}
+          label(lines,P+16,y+18,10);
+          label(portions,P+16,y+18+lines.length*13,8,muted);
+          label(`${rounded(item.calories)} kcal`,W-P-16,y+18,10,text,'Space',{align:'right'});
+          label(`${rounded(item.protein)}g P · ${rounded(item.carbs)}g C · ${rounded(item.fat)}g F`,W-P-16,y+33,8,muted,'Space',{align:'right'});
+          y+=height;
+        }
+        y+=14;cursor=end;
       }
-      y+=8;
     }
-    const totals=Object.values(day.meals || {}).flat().reduce((a,i)=>{for(const key of Object.keys(a))a[key]+=Number(i[key])||0;return a;},{calories:0,protein:0,carbs:0,fat:0});
-    room(35);doc.setDrawColor(...mix(secondary,bg,.35));doc.line(P,y, W-P,y);y+=17;
-    label(`Daily total: ${Math.round(totals.calories)} kcal  |  ${Math.round(totals.protein)}g protein  |  ${Math.round(totals.carbs)}g carbs  |  ${Math.round(totals.fat)}g fat`,P+8,y,9,muted);y+=28;
   }
   const pages=doc.getNumberOfPages();
   for(let n=1;n<=pages;n++){doc.setPage(n);doc.setDrawColor(...mix(primary,bg,.35));doc.line(P,H-38,W-P,H-38);label(`Powered by MacroStack  |  ${new Date().toLocaleDateString()}`,P,H-23,8,muted);label(`${n} / ${pages}`,W-P,H-23,8,muted,'Space',{align:'right'});}
