@@ -993,7 +993,7 @@ try {
   assert.equal((await db.query('select * from retail_relationships where id=$1',[deletionId])).rows.length,0);
   assert.equal((await db.query('select private.retail_customer_access($1) allowed',[deletionId])).rows[0].allowed,false);
   await db.exec('reset role');
-  await db.exec(readFileSync('supabase/migrations/20260922194039_retail_remove_meal_plan.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260922194530_retail_remove_meal_plan.sql','utf8'));
   await db.query("update retail_relationships set status='active',share_app_records=true where id=$1",[rid]);
   await db.query("update clients set active_meal_plan_id=$1 where id=$2",[nutritionId,initial.client_id]);
   const coachPlan=crypto.randomUUID();
