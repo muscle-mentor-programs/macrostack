@@ -16,7 +16,7 @@ Resources replaces the retail Library navigation with a reusable catalog of meal
 
 ## Data and authorization
 
-Migration: `20260922203818_retail_resources_workspace.sql`.
+Migration: `20260922210354_retail_resources_workspace.sql`.
 New tables: `retail_resources`, `retail_resource_assignments`. Browser roles receive SELECT under RLS; writes go through `retail_resource_command` with explicit permission and revision checks. The catalog returns usage counts limited to assignments the caller can access.
 
 One request ID identifies an assignment and its chat message. Transaction locking and retries prevent duplicate assignments/notifications. Meal publication and assignment insertion happen in one transaction.

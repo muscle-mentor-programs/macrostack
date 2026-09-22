@@ -1021,7 +1021,7 @@ try {
   await as('member');await assert.rejects(()=>db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Unauthorized',fullTheme]),/administrator required/);
   await db.exec('reset role');
   await db.exec('alter table public.meal_plans add primary key(id)');
-  await db.exec(readFileSync('supabase/migrations/20260922203818_retail_resources_workspace.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260922210354_retail_resources_workspace.sql','utf8'));
   await db.query("update retail_relationships set status='active',share_app_records=true where id=$1",[rid]);
   const resourceCall=async(action,payload)=>(await db.query('select retail_resource_command($1,$2) id',[action,payload])).rows[0].id;
   const resourceDraft={organization_id:a.organization_id,location_id:a.location_id,title:'Reusable guide',description:'A guide',kind:'guide',audience:'customer',status:'published',content:{body:'Original guidance'},allow_copy:true};
