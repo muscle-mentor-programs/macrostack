@@ -1,6 +1,6 @@
-import { brandColors, brandStyle, validBrandColor } from "./brandColors";
+import { brandColors, brandStyle, validBrandColor, validBrandColors, defaultBrandColors, themeColorFields, gradientLayers } from "./brandColors";
 import { useState } from "react";
-import { Alert, Button, Field, useAction } from "./ui";
+import { Alert, Button, Field, Select, Check, useAction } from "./ui";
 import {
   brandLogoURL,
   uploadBrandLogo,
@@ -53,7 +53,7 @@ export default function Branding({ organization, onSaved }) {
   );
   const [logo, setLogo] = useState(organization.logo_path);
   const [colors, setColors] = useState(() => brandColors(organization.brand_colors));
-  const colorsValid = Object.values(colors).every(validBrandColor);
+  const colorsValid = validBrandColors(colors);
   const [notice, setNotice] = useState("");
   const { busy, error, run } = useAction();
   async function persist(path) {
@@ -69,12 +69,10 @@ export default function Branding({ organization, onSaved }) {
         Make this workspace feel like your business. Shared across your
         locations and connected customer store views.
       </p>
-      <div className="retail-brand-preview" style={brandStyle(colors)}>
-        <BrandIdentity
-          name={name || organization.name}
-          logo={brandLogoURL(logo)}
-        />
-        <div className="retail-brand-color-preview"><span>Customer workspace</span><span className="retail-brand-preview-action">Primary action</span></div>
+      <div className="retail-theme-preview" style={brandStyle(colors)}>
+        <header><BrandIdentity name={name || organization.name} logo={brandLogoURL(logo)}/></header>
+        <nav><strong>Today</strong><span>Customers</span><span>Inbox</span></nav>
+        <div className="retail-theme-preview-body"><h3>Your store workspace</h3><p>A preview of your colors, surfaces, and typography.</p><article><h4>Customer nutrition</h4><p>Meal plans, progress, and conversations in one place.</p><span className="retail-theme-preview-input">Customer name</span><span className="retail-brand-preview-action">Open customer</span></article></div>
       </div>
       <Alert error={error} />
       {notice && <p role="status">{notice}</p>}
@@ -91,10 +89,17 @@ export default function Branding({ organization, onSaved }) {
           required
           maxLength={80}
         />
-        <div className="retail-fields retail-brand-color-fields">
-          {['primary', 'secondary'].map(key => <Field key={key} label={`${key === 'primary' ? 'Primary' : 'Secondary'} brand color`} value={colors[key]} onChange={value => setColors(current => ({...current, [key]: value.trim()}))} placeholder="#82ADE1" pattern="#[0-9a-fA-F]{6}" maxLength={7} required />)}
+        <div className="retail-theme-settings">
+          <div className="retail-theme-settings-heading"><div><h3>Portal colors</h3><p>Use hex codes or the color picker. Changes preview above; Save branding applies them.</p></div><Button type="button" disabled={busy} onClick={()=>{setColors({...defaultBrandColors});setNotice('MacroStack default colors restored in the preview. Save branding to apply.');}}>Reset to MacroStack defaults</Button></div>
+          {[
+            ['Brand & buttons',['primary','secondary','buttonEnd','buttonText'],'button'],
+            ['Page background',['background','backgroundEnd'],'background'],
+            ['Cards & panels',['card','cardEnd'],'card'],
+            ['Text, borders & inputs',['text','muted','heading','border','input','inputText'],null],
+            ['Navigation bar',['nav','navEnd','navText'],'nav'],
+            ['Headers',['header','headerEnd','headerText'],'header'],
+          ].map(([title,keys,layer])=><details className="retail-theme-group" key={title} open={title==='Brand & buttons'}><summary>{title}</summary><div className="retail-theme-fields">{keys.map(key=><div className="retail-theme-color" key={key}><Field label={themeColorFields[key]} value={colors[key]} onChange={value=>setColors(c=>({...c,[key]:value.trim()}))} placeholder={defaultBrandColors[key]} pattern="#[0-9a-fA-F]{6}" maxLength={7} required/><input aria-label={`${themeColorFields[key]} picker`} type="color" value={validBrandColor(colors[key])?colors[key]:defaultBrandColors[key]} onChange={e=>setColors(c=>({...c,[key]:e.target.value.toUpperCase()}))}/></div>)}</div>{layer&&<div className="retail-theme-gradient"><Check checked={colors[`${layer}Gradient`]} onChange={value=>setColors(c=>({...c,[`${layer}Gradient`]:value}))}>{gradientLayers[layer]} gradient</Check><Select label={`${gradientLayers[layer]} gradient direction`} value={colors[`${layer}Angle`]} onChange={value=>setColors(c=>({...c,[`${layer}Angle`]:Number(value)}))}>{[0,45,90,100,115,135,180,225,270,315,360].map(angle=><option key={angle} value={angle}>{angle}°</option>)}</Select></div>}</details>)}
         </div>
-        <p className="retail-muted">Enter your six-digit hex codes. Primary colors style actions and navigation; secondary colors add subtle depth.</p>
         <label className="retail-field">
           <span>Upload your store logo</span>
           <input

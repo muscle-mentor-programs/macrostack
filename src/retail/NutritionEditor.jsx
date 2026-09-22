@@ -1,5 +1,6 @@
+import {RetailThemeContext} from "./ThemeContext";
 import {withCalculatedCalories} from "./nutritionTargets";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import MealPlanBuilder from "../pages/coach/MealPlanBuilder";
 import LoadingSplash from "../components/LoadingSplash";
 import {
@@ -11,6 +12,7 @@ import {
 } from "./api";
 import { Alert, Button, Field, Modal, useAction } from "./ui";
 export default function NutritionEditor({ relationship, onClose }) {
+  const themeStyle=useContext(RetailThemeContext);
   const [loaded, setLoaded] = useState(null);
   const [targets, setTargets] = useState({
     calories: "",
@@ -77,6 +79,7 @@ export default function NutritionEditor({ relationship, onClose }) {
     );
   return (
     <MealPlanBuilder
+      themeStyle={themeStyle}
       createPDF={async (plan, client) => {
         const {loadPlanBranding,generateRetailPlanPDF} = await import("./planPDF");
         return generateRetailPlanPDF(plan, client, await loadPlanBranding(relationship.location_id));

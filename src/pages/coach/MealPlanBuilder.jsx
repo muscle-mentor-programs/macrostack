@@ -51,7 +51,7 @@ function makeEmptyDay(label) {
   }
 }
 
-export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose, additionalFoods, toolbarContent, saveLabel = "SAVE PLAN", allowEmail = true, draftScope = "coach", maxDays = Infinity, createPDF }) {
+export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose, additionalFoods, toolbarContent, saveLabel = "SAVE PLAN", allowEmail = true, draftScope = "coach", maxDays = Infinity, themeStyle, createPDF }) {
   const { customFoods, clients, setNavHidden, hiddenFoodIds } = useStore()
   const isMobile = useIsMobile()
   const userId = useStore(s => s.currentUser?.id)
@@ -262,7 +262,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   const goals   = client?.goals || { calories: 2000, protein: 150, carbs: 200, fat: 65 }
 
   return createPortal(
-    <div className="mp-editor bg-bg anim-fade-in" role="dialog" aria-modal="true" aria-label="Meal plan editor" aria-busy={saving}>
+    <div style={themeStyle} className={`mp-editor bg-bg anim-fade-in${themeStyle ? " retail-theme-editor" : ""}`} role="dialog" aria-modal="true" aria-label="Meal plan editor" aria-busy={saving}>
       <fieldset disabled={saving} className="mp-fieldset">
       {/* ── Top bar ─────────────────────────────────────────── */}
       <div

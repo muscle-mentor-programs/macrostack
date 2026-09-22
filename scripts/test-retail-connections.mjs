@@ -40,7 +40,7 @@ try {
       const type = new URL(r.request().url()).searchParams.get("type");
       r.fulfill({
         contentType: "text/html",
-        body: `<html class="ocean-dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module">import React from '/node_modules/.vite/deps/react.js';import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';import '/src/index.css';import '/src/retail/retail.css';${type === 'CurrentNutrition' ? "import {CurrentNutrition as Component} from '/src/retail/CustomerDetails.jsx';" : `import Component from '/src/retail/${type}.jsx';`}ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Component,{staff:true,CoachConversation:({onBack})=>React.createElement('div',null,React.createElement('p',null,'Coach conversation retained'),React.createElement('button',{onClick:onBack},'All conversations')),customer:{id:'relationship',name:'Alex'},editable:true,organization:{id:'org',name:'Peak Nutrition'},relationship:{id:'relationship',location_id:'store',name:'Alex'},onSaved:async()=>{},onClose:()=>{}}));</script></body></html>`,
+        body: `<html class="ocean-dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module">import React from '/node_modules/.vite/deps/react.js';import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';import '/src/index.css';import '/src/retail/retail.css';${type === 'CurrentNutrition' ? "import {CurrentNutrition as Component} from '/src/retail/CustomerDetails.jsx';" : `import Component from '/src/retail/${type}.jsx';`}ReactDOM.createRoot(document.getElementById('root')).render(React.createElement('div',{className:${JSON.stringify(type === 'Branding' ? 'retail' : '')}},React.createElement(Component,{staff:true,CoachConversation:({onBack})=>React.createElement('div',null,React.createElement('p',null,'Coach conversation retained'),React.createElement('button',{onClick:onBack},'All conversations')),customer:{id:'relationship',name:'Alex'},editable:true,organization:{id:'org',name:'Peak Nutrition'},relationship:{id:'relationship',location_id:'store',name:'Alex'},onSaved:async()=>{},onClose:()=>{}})));</script></body></html>`,
       });
     });
     await page.route("**/messages?store=1", (r) =>
@@ -84,10 +84,21 @@ try {
     }
     await page.goto(origin + "/qa-retail?type=Branding");
     await page.getByLabel("Portal display name").fill("Peak Wellness");
-    await page.getByLabel("Primary brand color").fill("#AABBCC");
-    await page.getByLabel("Secondary brand color").fill("#88AA99");
+    await page.getByLabel("Primary brand color",{exact:true}).fill("#112233");
+    await page.getByRole('button',{name:'Reset to MacroStack defaults'}).click();
+    assert.equal(await page.getByLabel('Primary brand color',{exact:true}).inputValue(),'#82ADE1');
+    assert.equal(await page.getByLabel('Portal display name').inputValue(),'Peak Wellness');
+    await page.locator('.retail-theme-group>summary').filter({hasText:'Page background'}).click();
+    await page.getByLabel('Background color',{exact:true}).fill('#152035');
+    await page.getByLabel('Background gradient end',{exact:true}).fill('#352045');
+    await page.getByLabel('Page background gradient',{exact:true}).check();
+    await page.getByLabel("Primary brand color",{exact:true}).fill("#AABBCC");
+    await page.getByLabel("Secondary brand color",{exact:true}).fill("#88AA99");
     await page.getByRole("button", { name: "Save branding" }).click();
     assert.equal(await page.evaluate(() => window.brandSaved.colors.primary), "#AABBCC");
+    assert.equal(await page.evaluate(() => window.brandSaved.colors.backgroundGradient),true);
+    await page.locator(".retail").evaluate(el=>el.scrollTop=0);
+    await page.screenshot({path:`outputs/retail/theme-settings-${width}.png`,fullPage:true});
     assert.equal(
       await page.evaluate(() => window.brandSaved.name),
       "Peak Wellness",

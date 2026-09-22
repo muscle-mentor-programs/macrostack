@@ -1010,6 +1010,15 @@ try {
   assert.equal(afterRemoval.active_meal_plan_id,null);assert.equal(afterRemoval.goal_calories,targetsBefore);
   assert.equal((await db.query('select count(*)::int n from meal_plans where id=$1',[nutritionId])).rows[0].n,0);
   assert.equal((await db.query('select count(*)::int n from meal_plans where id=$1',[coachPlan])).rows[0].n,1);
+  await db.exec('reset role');
+  await db.exec(readFileSync('supabase/migrations/20260922200218_retail_theme_customization.sql','utf8'));
+  const fullTheme={primary:'#82ADE1',secondary:'#91B8AD',background:'#102030',backgroundEnd:'#403020',backgroundGradient:true,backgroundAngle:135,text:'#EEDDCC'};
+  await as('admin');
+  await db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Theme test',fullTheme]);
+  const storedTheme=(await db.query('select retail_branding($1) brand',[a.location_id])).rows[0].brand.brand_colors;
+  assert.deepEqual(storedTheme,fullTheme);
+  for(const invalid of [{...fullTheme,background:'url(x)'},{...fullTheme,backgroundAngle:400},{...fullTheme,backgroundGradient:'true'},{...fullTheme,unknown:'#123456'}])await assert.rejects(()=>db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Bad theme',invalid]),/valid hex/);
+  await as('member');await assert.rejects(()=>db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Unauthorized',fullTheme]),/administrator required/);
   console.log(
     "PASS retail database: provisioning, invitation identity, store isolation, staff/private visibility, immutable publishing, retry deduplication, sponsorship pause and corporate aggregate-only reporting",
   );

@@ -27,7 +27,7 @@ try {
   await download.saveAs(`outputs/retail/store-plan-${width}.pdf`);
   assert.equal(await page.evaluate(()=>window.brandFetches),1);
   await page.getByRole('button',{name:'Download PDF'}).waitFor();
-  await page.evaluate(()=>{window.currentBrand={...window.currentBrand,name:'Updated Store',brand_colors:{primary:'#9988CC',secondary:'#BB9988'}}});
+  await page.evaluate(()=>{window.currentBrand={...window.currentBrand,name:'Updated Store',brand_colors:{primary:'#9988CC',secondary:'#BB9988',background:'#101526',backgroundEnd:'#201326',backgroundGradient:true,card:'#142232',cardEnd:'#241C32',cardGradient:true,header:'#132130',headerEnd:'#24182C',headerGradient:true}}});
   const [updated]=await Promise.all([page.waitForEvent('download',{timeout:15000}).catch(async e=>{throw new Error(e.message+' '+await page.locator('body').innerText())}),page.getByRole('button',{name:'Download PDF'}).click()]);await updated.saveAs(`outputs/retail/store-plan-updated-${width}.pdf`);
   assert.equal(await page.evaluate(()=>window.brandFetches),2);
   await page.getByRole('button',{name:'Day 2',exact:true}).click();assert.equal(await page.locator('.retail-plan-meal li').count(),45);

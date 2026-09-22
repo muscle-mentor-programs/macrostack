@@ -23,7 +23,7 @@ export function brandLogoURL(path){return path?'data:image/svg+xml,%3Csvg xmlns=
 export async function saveBranding(){}
 export async function uploadBrandLogo(){return 'logo.png'}
 export async function removeBrandLogo(){}
-export async function context(){return {locations:[loc],organizations:[{id:oid,name:'Retail Network',brand_colors:{primary:'#CCAABB',secondary:'#88AA99'}}],staff,operators:[]}}
+export async function context(){return {locations:[loc],organizations:[{id:oid,name:'Retail Network',brand_colors:{primary:'#CCAABB',secondary:'#88AA99',background:'#101426',backgroundEnd:'#201A2A',backgroundGradient:true,card:'#141C2C',cardEnd:'#241C32',cardGradient:true,header:'#102435',headerEnd:'#242035',headerGradient:true,nav:'#152333',navEnd:'#1C152A',navGradient:true,text:'#EFE4D9',heading:'#FFEEDD'}}],staff,operators:[]}}
 export async function relationships(){return {rows:[relation],count:1}}
 export async function list(t){return t==='relationships'?[relation]:records[t]||[]}
 export async function customer(){return structuredClone(records)}
@@ -129,6 +129,9 @@ try {
       .getByText("Delivery issues and queued reminders (0)", { exact: true })
       .waitFor();
     assert.equal(await page.locator('.retail').first().evaluate(el => el.style.getPropertyValue('--retail-brand-primary')), '#CCAABB');
+    assert.match(await page.locator('.retail').first().evaluate(el=>getComputedStyle(el).backgroundImage),/linear-gradient/);
+    assert.match(await page.locator('.retail-top').evaluate(el=>getComputedStyle(el).backgroundImage),/linear-gradient/);
+    assert.match(await page.locator('.retail-nav').evaluate(el=>getComputedStyle(el).backgroundImage),/linear-gradient/);
     await page.screenshot({ path: `outputs/retail/store-${width}.png` });
     await page
       .getByRole("navigation", { name: "Store navigation" })

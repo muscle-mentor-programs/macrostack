@@ -1,3 +1,4 @@
+import {RetailThemeContext} from "./ThemeContext";
 import { brandStyle } from "./brandColors";
 import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, LogOut, ArrowUpRight } from "lucide-react";
 import CustomerAvatar from "./CustomerAvatar";
@@ -323,7 +324,7 @@ export default function RetailApp({ retailerSession = false }) {
     setThreads([]);
   };
   return (
-    <div className="retail" style={brandStyle(org?.brand_colors)}>
+    <RetailThemeContext.Provider value={brandStyle(org?.brand_colors)}><div className="retail" style={brandStyle(org?.brand_colors)}>
       <header className="retail-top">
         <div className="retail-header-brand">
           <div className="retail-brand">
@@ -1187,7 +1188,7 @@ export default function RetailApp({ retailerSession = false }) {
           />
         </Modal>
       )}
-    </div>
+    </div></RetailThemeContext.Provider>
   );
 }
 function SetupForm({

@@ -32,14 +32,31 @@ export function generateRetailPlanPDF(plan, client, brand) {
   doc.addFont('BarlowCondensed-Black.ttf','Barlow','normal');
   doc.setProperties({title:plan.planName || 'Nutrition plan',author:brand.name,creator:'MacroStack'});
   const W=612,H=792,P=40,INNER=W-P*2;
-  const bg=[8,11,18],text=[216,230,244],muted=[164,179,197];
-  const primary=rgb(brand.colors.primary),secondary=rgb(brand.colors.secondary);
+  const palette=brandColors(brand.colors);
+  const bg=rgb(palette.background),text=rgb(palette.text),muted=rgb(palette.muted),heading=rgb(palette.heading),headerText=rgb(palette.headerText);
+  const primary=rgb(palette.primary),secondary=rgb(palette.secondary);
+  const paints=new Map();
+  function paint(layer,x,top,width,height,radius=0){
+    doc.saveGraphicsState();
+    if(radius){doc.roundedRect(x,top,width,height,radius,radius,null);doc.clip();doc.discardPath();}
+    if(palette[`${layer}Gradient`]){
+      const key=`${layer}:${width}:${height}`;
+      if(!paints.has(key)){
+        const canvas=document.createElement('canvas');canvas.width=Math.ceil(width*2);canvas.height=Math.ceil(height*2);const ctx=canvas.getContext('2d');
+        const angle=palette[`${layer}Angle`]*Math.PI/180,dx=Math.sin(angle),dy=-Math.cos(angle),extent=(Math.abs(dx)*canvas.width+Math.abs(dy)*canvas.height)/2;
+        const gradient=ctx.createLinearGradient(canvas.width/2-dx*extent,canvas.height/2-dy*extent,canvas.width/2+dx*extent,canvas.height/2+dy*extent);gradient.addColorStop(0,palette[layer]);gradient.addColorStop(1,palette[`${layer}End`]);ctx.fillStyle=gradient;ctx.fillRect(0,0,canvas.width,canvas.height);paints.set(key,canvas.toDataURL('image/png'));
+      }
+      doc.addImage(paints.get(key),'PNG',x,top,width,height);
+    }else{doc.setFillColor(...rgb(palette[layer]));doc.rect(x,top,width,height,'F');}
+    doc.restoreGraphicsState();
+  }
   let y=0;
   function label(value,x,baseline,size=10,color=text,font='Space',options={}) {
     doc.setFont(font,'normal');doc.setFontSize(size);doc.setTextColor(...color);doc.text(Array.isArray(value) ? value : String(value),x,baseline,options);
   }
   function page() {
-    doc.setFillColor(...bg);doc.rect(0,0,W,H,'F');
+    paint('background',0,0,W,H);
+    paint('header',P,40,INNER,64,8);
     doc.setFillColor(...primary);doc.rect(P,28,INNER,3,'F');
     let nameX=P;
     if(brand.logo){
@@ -51,7 +68,7 @@ export function generateRetailPlanPDF(plan, client, brand) {
     }
     doc.setFont('Space','normal');doc.setFontSize(15);
     const nameLines=doc.splitTextToSize(brand.name,W-P-nameX);
-    label(nameLines,nameX,brand.logo?62:58,15);
+    label(nameLines,nameX,brand.logo?62:58,15,headerText);
     // Keep the store name unrestricted while giving long names room to wrap.
     const nameBottom=(brand.logo?62:58)+(nameLines.length-1)*18;
     label('Powered by',nameX,nameBottom+19,8,muted);
@@ -68,15 +85,15 @@ export function generateRetailPlanPDF(plan, client, brand) {
     for(const key of Object.keys(acc)) acc[key]+=Number(item[key])||0;
     return acc;
   },{calories:0,protein:0,carbs:0,fat:0});
-  const surface=mix(secondary,bg,.055), border=mix(secondary,bg,.22);
+  const border=rgb(palette.border);
   function panel(top,height) {
     doc.setFillColor(4,6,11);doc.roundedRect(P,top+3,INNER,height,9,9,'F');
-    doc.setFillColor(...surface);doc.setDrawColor(...border);doc.setLineWidth(.5);
-    doc.roundedRect(P,top,INNER,height,9,9,'FD');
+    paint('card',P,top,INNER,height,9);doc.setDrawColor(...border);doc.setLineWidth(.5);
+    doc.roundedRect(P,top,INNER,height,9,9,'S');
   }
   function daySummary(day,index,continued=false) {
     const dayLines=wrapped(day.label || `Day ${index+1}`,15,INNER-120);
-    label(dayLines,P,y+14,15);
+    label(dayLines,P,y+14,15,heading);
     label(continued?'CONTINUED':'DAILY NUTRITION',W-P,y+12,8,muted,'Space',{align:'right'});
     y+=dayLines.length*18+18;
     const totals=totalsFor(Object.values(day.meals || {}).flat());
@@ -101,7 +118,7 @@ export function generateRetailPlanPDF(plan, client, brand) {
   const heroHeight=38+title.length*23+clientLines.length*12+targetLines.length*12+14;
   panel(y,heroHeight);
   label('PERSONALIZED MEAL PLAN',P+18,y+20,8,mix(primary,text,.5));
-  label(title,P+18,y+44,20);
+  label(title,P+18,y+44,20,heading);
   if(clientLines.length)label(clientLines,P+18,y+44+title.length*23,9,muted);
   if(targetLines.length)label(targetLines,P+18,y+44+title.length*23+clientLines.length*12,8,muted);
   y+=heroHeight+22;
@@ -135,8 +152,8 @@ export function generateRetailPlanPDF(plan, client, brand) {
           row.height=available;used+=available;end++;
         }
         panel(top,used);
-        doc.setFillColor(...mix(secondary,bg,.11));doc.roundedRect(P+1,top+1,INNER-2,31,8,8,'F');
-        label(`${meal}${cursor?' · continued':''}`,P+16,top+21,11,text);
+        paint('header',P+1,top+1,INNER-2,31,8);
+        label(`${meal}${cursor?' · continued':''}`,P+16,top+21,11,headerText);
         label(`${rounded(totalsFor(items).calories)} kcal`,W-P-16,top+21,9,muted,'Space',{align:'right'});
         y=top+34;
         for(let r=cursor;r<end;r++){
