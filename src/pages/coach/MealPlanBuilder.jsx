@@ -51,11 +51,11 @@ function makeEmptyDay(label) {
   }
 }
 
-export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose }) {
+export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose, additionalFoods, toolbarContent, saveLabel = "SAVE PLAN", allowEmail = true, draftScope = "coach", maxDays = Infinity }) {
   const { customFoods, clients, setNavHidden, hiddenFoodIds } = useStore()
   const isMobile = useIsMobile()
   const userId = useStore(s => s.currentUser?.id)
-  const draftKey = `${userId}:${client.id}:${initialPlan?.id || 'new'}`
+  const draftKey = `${draftScope}:${userId}:${client.id}:${initialPlan?.id || 'new'}`
   const restored = planDrafts.get(draftKey)
 
   // Hide the bottom nav while this full-screen overlay is open
@@ -73,8 +73,8 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     return () => { active = false }
   }, [foodRetry])
   const allFoods = useMemo(
-    () => [...baseFoods.filter((f) => !(hiddenFoodIds || []).includes(f.id)), ...(customFoods || [])],
-    [baseFoods, customFoods, hiddenFoodIds]
+    () => [...baseFoods.filter((f) => !(hiddenFoodIds || []).includes(f.id)), ...(additionalFoods ?? customFoods ?? [])],
+    [baseFoods, customFoods, hiddenFoodIds, additionalFoods]
   )
 
   // Foods used by any client in the last 30 days float to the top
@@ -179,6 +179,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
   }
 
   const addDay = () => {
+    if (days.length >= maxDays) return;
     const newDay = makeEmptyDay(`Day ${days.length + 1}`)
     setDays((prev) => [...prev, newDay])
     setActiveDayIdx(days.length)
@@ -288,7 +289,7 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
         </button>
 
         {/* Email PDF */}
-        {client?.email && (
+        {allowEmail && client?.email && (
           <button
             onClick={handleEmailPDF}
             disabled={!planName.trim() || emailStatus === 'sending'}
@@ -318,9 +319,10 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
               : 'bg-brown hover:bg-brown-light text-bg glow-hover'
           }`}
         >
-          {saving ? 'SAVING…' : saved ? <><Check size={14} /> SAVED</> : 'SAVE PLAN'}
+          {saving ? 'SAVING…' : saved ? <><Check size={14} /> SAVED</> : saveLabel}
         </button>
       </div>
+      {toolbarContent}
       {saveError && <p className="px-4 py-3 text-red-400" role="alert">{saveError}</p>}
 
       <div className="mp-body">

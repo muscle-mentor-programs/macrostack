@@ -323,7 +323,7 @@ export default function App() {
     const ClientPage = CLIENT_PAGES[activePage] || ClientDashboard
     return (
       <ClientLayout>
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={<div className="app-page-gutter px-5 pt-mobile-header" role="status" aria-label="Loading page"><div className="skeleton h-8 w-44 mb-6" /><div className="skeleton h-28 w-full !rounded-2xl" /></div>}>
           {/* keyed so the motion engine re-choreographs on every page switch */}
           <MotionPage key={activePage}>
             <ClientPage />

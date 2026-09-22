@@ -330,6 +330,11 @@ try {
         `${width} customer ${tab}`,
       );
     }
+    await page.evaluate(() => document.documentElement.classList.remove('theme-fade'));
+    const toggle = page.locator('.retail-theme-control button');
+    const before = await toggle.getAttribute('title');
+    await toggle.click();
+    await page.waitForFunction(expected=>document.documentElement.classList.contains(expected), before.includes('light')?'ocean-light':'ocean-dark');
     for (const theme of ["ocean-dark", "ocean-light"]) {
       await page.evaluate((theme) => {
         document.documentElement.className = theme;

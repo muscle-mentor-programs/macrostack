@@ -151,7 +151,7 @@ export default function CustomerWorkspace({
   };
   return (
     <section>
-      <div className="retail-header">
+      <div className="retail-header retail-page-header glass-panel accent-line anim-fade-in-down">
         <div>
           <Button onClick={onBack}>
             ← {staff ? "Customers" : "My stores"}

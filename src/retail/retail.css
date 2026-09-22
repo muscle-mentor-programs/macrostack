@@ -642,3 +642,49 @@
 .retail-nutrition-builder-entry{padding:24px;margin-bottom:28px;border:1px solid var(--retail-accent);border-radius:16px;background:color-mix(in srgb,var(--retail-accent) 8%,transparent)}
 .retail-nutrition-builder-entry p{margin:12px 0 18px;max-width:75ch}
 #retail-branding{scroll-margin-top:160px}
+/* Coach typography and header treatment, scoped to the retail workspace. */
+.retail :is(h1,h2,h3){font-family:var(--font-display)}
+.retail h2{font-size:22px;line-height:1.2;font-weight:700}
+.retail h3{font-size:20px;line-height:1.25;font-weight:700}
+.retail .retail-customer-identity h2{font:600 19px/1.3 var(--font-mono);letter-spacing:-.025em}
+.retail .retail-nav button{font:700 16px/1.3 var(--font-display);letter-spacing:.035em}
+.retail .retail-page-header{position:relative;isolation:isolate;padding:24px 32px;border:1px solid var(--color-border);border-radius:12px;background:linear-gradient(115deg,color-mix(in srgb,var(--retail-accent) 9%,var(--color-bg)),var(--color-bg))!important;margin-bottom:24px}
+.retail .retail-page-header h1{font:900 28px/1.15 var(--font-display);letter-spacing:.025em;text-transform:uppercase;color:var(--retail-accent);margin:0}
+.retail .retail-page-header p{font:12px/1.5 var(--font-mono);margin-top:6px;color:var(--color-muted)}
+.retail .retail-page-header .retail-eyebrow{margin-bottom:8px}
+.retail .retail-page-header::after{content:'';position:absolute;z-index:-1;pointer-events:none;width:200px;height:100%;right:12%;top:0;background:url('/macrostack-mark-transparent.png') center/contain no-repeat;opacity:.035;transform:rotate(-12deg)}
+.retail-theme-control{flex-shrink:0}
+.retail-theme-control button{min-width:44px;min-height:44px}
+html.ocean-light .retail .retail-page-header h1{color:#315f96}
+@media(max-width:767px){.retail .retail-page-header{padding:20px 16px 16px}.retail .retail-page-header h1{font-size:26px}.retail .retail-page-header::after{right:0;width:160px}.retail h2{font-size:21px}.retail h3{font-size:19px}}
+.retail-top>.retail-actions{display:flex;flex-wrap:wrap;align-items:center}
+.retail-top>.retail-actions>select{flex:1 1 240px;min-width:0}
+.retail-top>.retail-actions>.retail-theme-control{flex:0 0 44px}
+.retail-builder-targets{height:auto;max-height:35dvh;flex-shrink:0;overflow:auto;padding:10px 20px;border-bottom:1px solid var(--color-border);font-size:12px}
+.retail-builder-targets summary{cursor:pointer;font-weight:600;min-height:30px;align-content:center}
+.retail-builder-targets summary span{font-weight:400;margin-left:12px;color:var(--color-muted)}
+.retail-builder-targets .retail-fields{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}
+@media(max-width:767px){.retail-builder-targets .retail-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.retail-builder-targets{padding:8px 12px}}
+/* Shared spacing rhythm for retail records, settings and dialogs. */
+.retail-card>h3:not(:first-child),.retail-dialog>h3:not(:first-child){margin-top:24px;margin-bottom:12px}
+.retail-card>h2:not(:first-child){margin-top:24px}
+.retail-card>p+.retail-actions,.retail-card>p+.retail-button,.retail-card>.retail-fields+.retail-actions{margin-top:16px}
+.retail-card>.retail-actions+form,.retail-card>.retail-row+.retail-fields,.retail-card>form+form{margin-top:24px}
+.retail-field{gap:9px;margin-bottom:20px}
+.retail-field>small{line-height:1.5;margin-top:3px}
+.retail-fields{column-gap:18px;row-gap:4px}
+.retail-actions{gap:12px}
+.retail-row{padding-block:18px;row-gap:14px}
+.retail-row p{margin-block:6px;line-height:1.55}
+.retail-dialog header{gap:20px;padding-bottom:16px;margin-bottom:24px;border-bottom:1px solid var(--color-border)}
+.retail-dialog header>.retail-button{flex-shrink:0}
+.retail-card>details+details{margin-top:16px}
+.retail-card>details>summary{padding-block:12px;line-height:1.5}
+.retail-card>details[open]>summary{margin-bottom:16px}
+.retail-card>form>.retail-button,.retail-dialog>form>.retail-actions{margin-top:8px}
+.retail-card>.retail-grid,.retail-card>.retail-fields{margin-top:18px}
+.retail-check+.retail-button,.retail-check+.retail-actions{margin-top:18px}
+.retail-card>ul,.retail-card>ol{padding-left:20px;margin-block:16px}
+.retail-card li+li{margin-top:8px}
+.retail-builder-targets .retail-field{margin-bottom:12px}
+.retail.retail-builder-targets{position:static;inset:auto;width:100%;height:auto;max-height:35dvh}

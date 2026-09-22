@@ -1,3 +1,4 @@
+import ThemeToggle from "../components/ThemeToggle";
 import CustomerAvatar from "./CustomerAvatar";
 import ScrambleText from "../components/ScrambleText";
 import LoadingSplash from "../components/LoadingSplash";
@@ -48,6 +49,11 @@ const emptyContext = {
 };
 export default function RetailApp({ retailerSession = false }) {
   useViewport();
+  const theme = useStore(s => s.theme);
+  useEffect(() => {
+    document.documentElement.classList.remove('ocean-dark', 'ocean-light');
+    document.documentElement.classList.add(theme === 'ocean-light' ? 'ocean-light' : 'ocean-dark');
+  }, [theme]);
   const now = useClock();
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
@@ -326,6 +332,7 @@ export default function RetailApp({ retailerSession = false }) {
           <small>{isStaff ? "STORE WORKSPACE" : "YOUR STORE CONNECTION"}</small>
         </div>
         <div className="retail-actions">
+          <div className="retail-theme-control"><ThemeToggle compact /></div>
           {isOrgAdmin && org && <Button onClick={() => {
             if (!window.dispatchEvent(new Event("retail-before-leave", {cancelable:true}))) return;
             setSelected(null); setSection("Store");
@@ -535,13 +542,13 @@ export default function RetailApp({ retailerSession = false }) {
           </section>
         ) : !isStaff ? (
           <>
-            <div className="retail-header">
+            <header className="retail-header retail-page-header glass-panel accent-line anim-fade-in-down" key={section}>
               <div>
                 <div className="retail-eyebrow">Your team</div>
                 <h1>{location.name}</h1>
                 <p className="retail-muted">{location.response_expectation}</p>
               </div>
-            </div>
+            </header>
             {customers.map((c) => (
               <button
                 className="retail-card retail-customer-card"
@@ -559,12 +566,12 @@ export default function RetailApp({ retailerSession = false }) {
           </>
         ) : (
           <>
-            <div className="retail-header">
+            <header className="retail-header retail-page-header glass-panel accent-line anim-fade-in-down" key={section}>
               <div>
                 <div className="retail-eyebrow">
                   {org?.name} · {location.name}
                 </div>
-                <h1 aria-label={section}><ScrambleText text={section} duration={700} /></h1>
+                <h1 aria-label={section}><ScrambleText text={section.toUpperCase()} duration={800} /></h1>
                 <p className="retail-muted">
                   {
                     {
@@ -583,7 +590,7 @@ export default function RetailApp({ retailerSession = false }) {
                   Add customer
                 </Button>
               )}
-            </div>
+            </header>
             <WorkspaceGuide section={section} />
             {section === "Today" && (
               <>

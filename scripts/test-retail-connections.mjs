@@ -33,7 +33,7 @@ try {
     await page.route("**/src/store/index.js*", (r) =>
       r.fulfill({
         contentType: "text/javascript",
-        body: `function useStore(selector){return selector({currentUser:{id:"member"}})};useStore.getState=()=>({signup:async()=>{window.signedUp=true;window.authenticate();return {ok:true}},login:async()=>{window.signedIn=true;window.authenticate();return {ok:true}},loadAllData:async()=>{}});export default useStore;`,
+        body: `function useStore(selector){const state={currentUser:{id:"member"},customFoods:[],clients:[],hiddenFoodIds:[],setNavHidden:()=>{}};return selector?selector(state):state};useStore.getState=()=>({signup:async()=>{window.signedUp=true;window.authenticate();return {ok:true}},login:async()=>{window.signedIn=true;window.authenticate();return {ok:true}},loadAllData:async()=>{}});export default useStore;`,
       }),
     );
     await page.route("**/qa-retail**", (r) => {
@@ -115,69 +115,22 @@ try {
     await page.waitForFunction(()=>window.avatarSaved?.rid==='relationship');
     assert.equal(await page.evaluate(()=>window.avatarSaved.name),'customer.png');
     await page.goto(origin + "/qa-retail?type=NutritionEditor");
-    await page.getByLabel("Plan name").waitFor();
-    for (const [label, v] of [
-      ["Calories · kcal", "2200"],
-      ["protein · g", "150"],
-      ["carbs · g", "250"],
-      ["fat · g", "65"],
-    ])
-      await page.getByLabel(label, { exact: true }).first().fill(v);
-    await page
-      .getByRole("button", { name: "Add food", exact: true })
-      .first()
-      .click();
-    await page.getByLabel("Food name", { exact: true }).fill("Oats");
-    for (const [label, v] of [
-      ["Calories · kcal", "150"],
-      ["protein · g", "5"],
-      ["carbs · g", "27"],
-      ["fat · g", "3"],
-    ])
-      await page.getByLabel(label, { exact: true }).last().fill(v);
-    await page
-      .getByRole("button", { name: "Search food database", exact: true })
-      .first()
-      .click();
-    await page.getByLabel("Search food database", { exact: true }).fill("Rice");
-    await page.getByRole("button", { name: /White Rice/ }).click();
-    await page.getByLabel("Amount · g", { exact: true }).fill("50");
-    await page
-      .getByText("125 kcal · 2.5g protein · 25g carbs · 0.5g fat", {
-        exact: true,
-      })
-      .waitFor();
-    await page.getByRole("button", { name: "Add selected food" }).click();
-    await page.getByLabel("Servings", { exact: true }).fill("1");
-    await page
-      .getByRole("button", { name: "Publish meal plan & targets" })
-      .click();
-    await page
-      .getByText("Published. Their active meal plan", { exact: false })
-      .waitFor();
-    assert.equal(await page.evaluate(() => window.nutrition[4].calories), 2200);
-    assert.equal(
-      await page.evaluate(() => window.nutrition[3][0].meals.Breakfast[0].name),
-      "Oats",
-    );
-    assert.equal(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth > innerWidth,
-      ),
-      false,
-    );
-    assert.equal(
-      await page.evaluate(
-        () => window.nutrition[3][0].meals.Breakfast[1].calories,
-      ),
-      250,
-    );
-    assert.equal(
-      await page.evaluate(
-        () => window.nutrition[3][0].meals.Breakfast[1].servingSize,
-      ),
-      100,
-    );
+    await page.locator('#meal-plan-name').fill('Retail weekly plan');
+    await page.locator('.retail-builder-targets summary').click();
+    for (const [label,value] of [['Calories · kcal','2200'],['protein · g','150'],['carbs · g','250'],['fat · g','65']]) await page.getByLabel(label,{exact:true}).fill(value);
+    await page.locator('.retail-builder-targets summary').click();
+    if(width<768) await page.getByRole('button',{name:'Add food to Breakfast',exact:true}).click();
+    await page.locator('.mp-foods input').first().fill('Rice');
+    await page.locator('.mp-results button').filter({hasText:'White Rice'}).click();
+    await page.getByLabel('SERVINGS',{exact:true}).fill('0.5');
+    await page.getByRole('button',{name:'ADD TO BREAKFAST',exact:true}).click();
+    await page.getByRole('button',{name:'PUBLISH PLAN',exact:true}).click();
+    await page.waitForFunction(()=>!!window.nutrition);
+    assert.equal(await page.evaluate(()=>window.nutrition[4].calories),2200);
+    assert.equal(await page.evaluate(()=>window.nutrition[3][0].meals.Breakfast[0].calories),125);
+    assert.equal(await page.evaluate(()=>window.nutrition[3][0].meals.Breakfast[0].servingSize),100);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    await page.screenshot({path:`outputs/retail/shared-builder-${width}.png`});
     await page.goto(origin + "/qa-retail?type=CustomerMessages");
     await page.getByRole("button", { name: /Open store chat/ }).click();
     await page.getByText("Welcome to your store chat").waitFor();
