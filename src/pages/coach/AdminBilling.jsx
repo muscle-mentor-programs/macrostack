@@ -1,3 +1,4 @@
+import Collapse from '../../components/Collapse'
 import LoadingSplash from "../../components/LoadingSplash";
 import { useState, useEffect, useMemo } from 'react'
 import {
@@ -297,7 +298,7 @@ export default function AdminBilling() {
               >
                 {/* Header row, click to minimize/maximize */}
                 <button
-                  onClick={() => setExpandedId(expanded ? null : a.id)}
+                  aria-expanded={expanded} onClick={() => setExpandedId(expanded ? null : a.id)}
                   className="w-full px-5 py-4 flex items-center gap-4 text-left"
                 >
                   <div className="w-2.5 h-2.5 rounded-full flex-shrink-0"
@@ -345,8 +346,7 @@ export default function AdminBilling() {
                 </button>
 
                 {/* Expanded detail */}
-                {expanded && (
-                  <div className="px-5 pb-5 border-t border-border/50 pt-4 space-y-5 anim-fade-in">
+                <Collapse open={expanded}><div className="px-5 pb-5 border-t border-border/50 pt-4 space-y-5 anim-fade-in">
                     {/* Contact */}
                     <div className="space-y-2">
                       <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>CONTACT</p>
@@ -423,8 +423,7 @@ export default function AdminBilling() {
                         )}
                       </div>
                     )}
-                  </div>
-                )}
+                  </div></Collapse>
               </div>
             )
           })

@@ -1,3 +1,4 @@
+import Collapse from '../../components/Collapse'
 import useSessionDraft from '../../hooks/useSessionDraft'
 import useCoachPreference from '../../hooks/useCoachPreference'
 import ClientSections from '../../components/coach/ClientSections'
@@ -494,7 +495,7 @@ function MealPlansTab({ clientId }) {
                 {/* Plan header row */}
                 <div className="flex items-center gap-3 px-4 py-3">
                   <button
-                    onClick={() => setExpandedPlanId(isExpanded ? null : plan.id)}
+                    aria-expanded={isExpanded} onClick={() => setExpandedPlanId(isExpanded ? null : plan.id)}
                     className="flex-1 text-left min-w-0"
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -540,9 +541,8 @@ function MealPlansTab({ clientId }) {
                 </div>
 
                 {/* Expanded day preview */}
-                {isExpanded && plan.days?.length > 0 && (
-                  <div className="border-t border-border px-4 py-3 space-y-2 anim-fade-in">
-                    {plan.days.map((day) => {
+                <Collapse open={isExpanded && plan.days?.length > 0}><div className="border-t border-border px-4 py-3 space-y-2 anim-fade-in">
+                    {plan.days?.map((day) => {
                       const dayTotal = ['Breakfast','Lunch','Dinner','Snack'].reduce((acc, m) => {
                         const items = day.meals?.[m] || []
                         return {
@@ -575,8 +575,7 @@ function MealPlansTab({ clientId }) {
                         </div>
                       )
                     })}
-                  </div>
-                )}
+                  </div></Collapse>
               </div>
             )
           })}

@@ -1,3 +1,4 @@
+import Collapse from '../../components/Collapse'
 import { useState, useEffect, useMemo } from 'react'
 import {
   Search, Shield, ChevronDown, Mail, Phone, CreditCard, CalendarClock,
@@ -176,7 +177,7 @@ export default function AdminCoaches() {
               <div key={coach.id} style={{ animationDelay: `${Math.min(i, 16) * 25}ms` }}
                 className="anim-fade-in-up glass-card border border-border rounded-2xl card-dim overflow-hidden">
                 {/* Header, minimize/maximize */}
-                <button onClick={() => setExpandedId(expanded ? null : coach.id)} className="w-full px-5 py-4 flex items-center gap-4 text-left">
+                <button aria-expanded={expanded} onClick={() => setExpandedId(expanded ? null : coach.id)} className="w-full px-5 py-4 flex items-center gap-4 text-left">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: `linear-gradient(135deg, ${accentA(28)}, ${accentA(10)})`, border: `1px solid ${accentA(32)}` }}>
                     <span className="font-display font-black text-sm" style={{ color: 'var(--color-accent)' }}>
@@ -199,8 +200,7 @@ export default function AdminCoaches() {
                   <ChevronDown size={16} className="text-dim flex-shrink-0 transition-transform" style={{ transform: expanded ? 'rotate(180deg)' : 'none' }} />
                 </button>
 
-                {expanded && (
-                  <div className="px-5 pb-5 border-t border-border/50 pt-4 space-y-5 anim-fade-in">
+                <Collapse open={expanded}><div className="px-5 pb-5 border-t border-border/50 pt-4 space-y-5 anim-fade-in">
                     {/* Coach contact + billing */}
                     <div className="space-y-2">
                       <p className="font-mono text-[9px] tracking-[0.3em]" style={{ color: accentA(70) }}>COACH INFO</p>
@@ -253,8 +253,7 @@ export default function AdminCoaches() {
                         </div>
                       )}
                     </div>
-                  </div>
-                )}
+                  </div></Collapse>
               </div>
             )
           })

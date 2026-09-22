@@ -1,3 +1,4 @@
+import { installDisclosureMotion } from './motion/disclosures'
 import LoadingSplash from "./components/LoadingSplash"
 import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -15,6 +16,8 @@ import './coach-responsive.css'
 const App = lazy(() => import('./App.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
 const StripeConnectCallback = lazy(() => import('./pages/StripeConnectCallback.jsx'))
+
+installDisclosureMotion()
 
 // The root entry mounts the lazy public route rather than exporting components.
 // eslint-disable-next-line react-refresh/only-export-components

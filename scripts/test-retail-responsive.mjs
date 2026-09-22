@@ -85,6 +85,7 @@ try {
       );
       await import("/src/index.css");
       await import("/src/software.css");
+      (await import("/src/motion/disclosures.js")).installDisclosureMotion();
       document.documentElement.className = "ocean-light";
       window.retailTestStore = store;
       store.setState({
@@ -213,6 +214,7 @@ try {
     await page.screenshot({path:`outputs/retail/journal-expanded-${width}.png`});
     await firstDay.locator('summary').focus();
     await firstDay.locator('summary').press('Enter');
+    await page.waitForFunction(()=>!document.querySelector('.retail-journal-day')?.open);
     assert.equal(await firstDay.getAttribute('open'),null);
 
     await page

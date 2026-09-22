@@ -1,3 +1,4 @@
+import Collapse from '../../../components/Collapse'
 import useCoachPreference from '../../../hooks/useCoachPreference'
 import ClientSections from '../../../components/coach/ClientSections'
 import { Suspense, useState, useEffect } from 'react'
@@ -327,7 +328,7 @@ function MealPlansTab({ clientId }) {
                 className={`bg-card border rounded-2xl overflow-hidden card-dim ${isActive ? 'border-brown/50' : 'border-border'}`}
                 style={{ animationDelay: `${pi * 40}ms` }}>
                 <div className="flex items-center gap-3 px-4 py-3">
-                  <button onClick={() => setExpandedPlanId(isExpanded ? null : plan.id)} className="flex-1 text-left min-w-0">
+                  <button aria-expanded={isExpanded} onClick={() => setExpandedPlanId(isExpanded ? null : plan.id)} className="flex-1 text-left min-w-0">
                     <div className="flex items-center gap-2">
                       {isActive && <div className="w-1.5 h-1.5 rounded-full bg-brown flex-shrink-0" />}
                       <p className="font-display font-bold text-sm text-cream truncate">{plan.planName}</p>
@@ -351,9 +352,8 @@ function MealPlansTab({ clientId }) {
                     </button>
                   </div>
                 </div>
-                {isExpanded && plan.days?.length > 0 && (
-                  <div className="border-t border-border px-4 py-3 space-y-2 anim-fade-in">
-                    {plan.days.map((day) => {
+                <Collapse open={isExpanded && plan.days?.length > 0}><div className="border-t border-border px-4 py-3 space-y-2 anim-fade-in">
+                    {plan.days?.map((day) => {
                       const meals = ['Breakfast','Lunch','Dinner','Snack']
                       const dayTotal = meals.reduce((acc, m) => {
                         const items = day.meals?.[m] || []
@@ -382,8 +382,7 @@ function MealPlansTab({ clientId }) {
                         </div>
                       )
                     })}
-                  </div>
-                )}
+                  </div></Collapse>
               </div>
             )
           })}
