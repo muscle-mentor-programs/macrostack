@@ -1,3 +1,4 @@
+import {withCalculatedCalories} from "./nutritionTargets";
 import useDraftProtection from "./useDraftProtection";
 import { useEffect, useState } from "react";
 import { nutritionState, setStoreTargets } from "./api";
@@ -10,6 +11,7 @@ export function CurrentNutrition({ relationship, compact = false, staff }) {
     [values, setValues] = useState({}),
     [notice, setNotice] = useState("");
   const action = useAction();
+  const computedValues=withCalculatedCalories(values);
   const dirty=editing&&Object.keys(values).some(k=>String(values[k]??"")!==String(state?.targets?.[k]??""));
   useDraftProtection(dirty,action.setError);
   useEffect(() => {
@@ -52,7 +54,12 @@ export function CurrentNutrition({ relationship, compact = false, staff }) {
                 key={k}
                 type="number"
                 label={k === "calories" ? "Calories / day" : `${k} · g`}
-                value={values[k] ?? ""}
+                value={computedValues[k] ?? ""}
+                readOnly={k === "calories"}
+                aria-readonly={k === "calories" || undefined}
+                className={k === "calories" ? "retail-calculated-calories" : undefined}
+                min={0}
+                step="any"
                 onChange={(v) => setValues((t) => ({ ...t, [k]: v }))}
               />
             ))}
@@ -64,7 +71,7 @@ export function CurrentNutrition({ relationship, compact = false, staff }) {
             onClick={() =>
               action.run(async () => {
                 await setStoreTargets(relationship.id, {
-                  ...values,
+                  ...computedValues,
                   _client_id: state.client_id,
                   _version: state.version,
                 });

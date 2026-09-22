@@ -5,7 +5,7 @@ const { chromium } = createRequire(import.meta.url)(
 );
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const origin = process.env.TEST_URL || "http://127.0.0.1:5198";
-const api = `let messages=[{id:'first',author_id:'staff',body:'Welcome to your store chat',created_at:'2026-09-22T10:00:00Z'}];export async function list(){return [{id:'relationship',location_id:'store'}]} export async function conversation(){return {messages}} export function brandLogoURL(){return null} export async function storeBranding(){return {name:'Peak Nutrition'}} export async function command(action,payload){window.commandPayload={action,payload};if(action==='message')messages.push({id:payload.id,author_id:'member',body:payload.body,created_at:new Date().toISOString()});return {relationship_id:'relationship'}} export async function shareAppRecords(){window.shared=true} export async function saveBranding(oid,name,path){window.brandSaved={oid,name,path}} export async function uploadBrandLogo(){return 'org/logo.png'} export async function removeBrandLogo(){} export async function storeMealPlans(){return []} export async function setStoreTargets(){} export async function nutritionState(){return {client_id:"client",version:"v1",targets:{calories:2200,protein:160,carbs:220,fat:70},active_plan_id:null}}
+const api = `let messages=[{id:'first',author_id:'staff',body:'Welcome to your store chat',created_at:'2026-09-22T10:00:00Z'}];export async function list(){return [{id:'relationship',location_id:'store'}]} export async function conversation(){return {messages}} export function brandLogoURL(){return null} export async function storeBranding(){return {name:'Peak Nutrition'}} export async function command(action,payload){window.commandPayload={action,payload};if(action==='message')messages.push({id:payload.id,author_id:'member',body:payload.body,created_at:new Date().toISOString()});return {relationship_id:'relationship'}} export async function shareAppRecords(){window.shared=true} export async function saveBranding(oid,name,path,colors){window.brandSaved={oid,name,path,colors}} export async function uploadBrandLogo(){return 'org/logo.png'} export async function removeBrandLogo(){} export async function storeMealPlans(){return []} export async function setStoreTargets(rid,targets){window.savedTargets=targets} export async function nutritionState(){return {client_id:"client",version:"v1",targets:{calories:2200,protein:160,carbs:220,fat:70},active_plan_id:null}}
 export async function customerAvatarURL(){return null} export async function saveCustomerAvatar(rid,file){window.avatarSaved={rid,name:file?.name};return 'relationship/photo.png'}
 export async function retailerFoods(){return []}
 export async function publishNutrition(...args){window.nutrition=args}`;
@@ -40,7 +40,7 @@ try {
       const type = new URL(r.request().url()).searchParams.get("type");
       r.fulfill({
         contentType: "text/html",
-        body: `<html class="ocean-dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module">import React from '/node_modules/.vite/deps/react.js';import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';import '/src/index.css';import '/src/retail/retail.css';import Component from '/src/retail/${type}.jsx';ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Component,{CoachConversation:({onBack})=>React.createElement('div',null,React.createElement('p',null,'Coach conversation retained'),React.createElement('button',{onClick:onBack},'All conversations')),customer:{id:'relationship',name:'Alex'},editable:true,organization:{id:'org',name:'Peak Nutrition'},relationship:{id:'relationship',name:'Alex'},onSaved:async()=>{},onClose:()=>{}}));</script></body></html>`,
+        body: `<html class="ocean-dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module">import React from '/node_modules/.vite/deps/react.js';import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';import '/src/index.css';import '/src/retail/retail.css';${type === 'CurrentNutrition' ? "import {CurrentNutrition as Component} from '/src/retail/CustomerDetails.jsx';" : `import Component from '/src/retail/${type}.jsx';`}ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Component,{staff:true,CoachConversation:({onBack})=>React.createElement('div',null,React.createElement('p',null,'Coach conversation retained'),React.createElement('button',{onClick:onBack},'All conversations')),customer:{id:'relationship',name:'Alex'},editable:true,organization:{id:'org',name:'Peak Nutrition'},relationship:{id:'relationship',name:'Alex'},onSaved:async()=>{},onClose:()=>{}}));</script></body></html>`,
       });
     });
     await page.route("**/messages?store=1", (r) =>
@@ -84,7 +84,10 @@ try {
     }
     await page.goto(origin + "/qa-retail?type=Branding");
     await page.getByLabel("Portal display name").fill("Peak Wellness");
-    await page.getByRole("button", { name: "Save display name" }).click();
+    await page.getByLabel("Primary brand color").fill("#AABBCC");
+    await page.getByLabel("Secondary brand color").fill("#88AA99");
+    await page.getByRole("button", { name: "Save branding" }).click();
+    assert.equal(await page.evaluate(() => window.brandSaved.colors.primary), "#AABBCC");
     assert.equal(
       await page.evaluate(() => window.brandSaved.name),
       "Peak Wellness",
@@ -127,16 +130,28 @@ try {
       await page.evaluate(() => window.avatarSaved.name),
       "customer.png",
     );
+    await page.goto(origin + '/qa-retail?type=CurrentNutrition');
+    await page.getByRole('button',{name:'Edit targets',exact:true}).click();
+    assert.equal(await page.getByLabel('Calories / day',{exact:true}).inputValue(),'2150');
+    assert.equal(await page.getByLabel('Calories / day',{exact:true}).getAttribute('readonly'),'');
+    await page.getByLabel('protein · g',{exact:true}).fill('150');
+    assert.equal(await page.getByLabel('Calories / day',{exact:true}).inputValue(),'2110');
+    await page.getByRole('button',{name:'Save targets',exact:true}).click();
+    await page.waitForFunction(()=>window.savedTargets?.calories===2110);
     await page.goto(origin + "/qa-retail?type=NutritionEditor");
     await page.locator("#meal-plan-name").fill("Retail weekly plan");
     await page.locator(".retail-builder-targets summary").click();
     for (const [label, value] of [
-      ["Calories · kcal", "2200"],
       ["protein · g", "150"],
       ["carbs · g", "250"],
       ["fat · g", "65"],
     ])
       await page.getByLabel(label, { exact: true }).fill(value);
+    assert.equal(await page.getByLabel('Calories · kcal',{exact:true}).inputValue(),'2185');
+    assert.equal(await page.getByLabel('Calories · kcal',{exact:true}).getAttribute('readonly'),'');
+    await page.getByLabel('fat · g',{exact:true}).fill('65.5');
+    assert.equal(await page.getByLabel('Calories · kcal',{exact:true}).inputValue(),'2190');
+    await page.getByLabel('fat · g',{exact:true}).fill('65');
     await page.locator(".retail-builder-targets summary").click();
     if (width < 768)
       await page
@@ -155,7 +170,7 @@ try {
       .getByRole("button", { name: "PUBLISH PLAN", exact: true })
       .click();
     await page.waitForFunction(() => !!window.nutrition);
-    assert.equal(await page.evaluate(() => window.nutrition[4].calories), 2200);
+    assert.equal(await page.evaluate(() => window.nutrition[4].calories), 2185);
     assert.equal(
       await page.evaluate(
         () => window.nutrition[3][0].meals.Breakfast[0].calories,

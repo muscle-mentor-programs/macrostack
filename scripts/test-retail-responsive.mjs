@@ -11,6 +11,7 @@ const relation={id:rid,location_id:lid,name:'Alexandra Montgomery',email:'alex@e
 const staff=[{id:'membership',user_id:'staff',location_id:lid,organization_id:oid,name:'Store Manager',role:'manager',active:true}];
 const loc={id:lid,organization_id:oid,operator_id:'operator',name:'Peak Nutrition — Downtown Wellness Center',timezone:'America/Chicago',join_code:'00000000-0000-4000-8000-000000000000',enabled:true};
 let records={consultations:[],plans:[],assessments:[],tasks:[],notes:[],messages:[],threads:[],checkins:[],notifications:[],read_receipts:[],intakes:[],files:[]};
+export async function deleteCustomer(rid,revision){window.deletedCustomer={rid,revision}}
 export async function nutritionState(){return {client_id:"client",version:"v1",targets:{calories:2200,protein:160,carbs:220,fat:70},active_plan_id:null}}
 export async function setStoreTargets(){}
 export async function customerAvatarURL(){return null} export async function saveCustomerAvatar(){return 'relationship/photo.png'}
@@ -22,7 +23,7 @@ export function brandLogoURL(path){return path?'data:image/svg+xml,%3Csvg xmlns=
 export async function saveBranding(){}
 export async function uploadBrandLogo(){return 'logo.png'}
 export async function removeBrandLogo(){}
-export async function context(){return {locations:[loc],organizations:[{id:oid,name:'Retail Network'}],staff,operators:[]}}
+export async function context(){return {locations:[loc],organizations:[{id:oid,name:'Retail Network',brand_colors:{primary:'#CCAABB',secondary:'#88AA99'}}],staff,operators:[]}}
 export async function relationships(){return {rows:[relation],count:1}}
 export async function list(t){return t==='relationships'?[relation]:records[t]||[]}
 export async function customer(){return structuredClone(records)}
@@ -96,7 +97,7 @@ try {
       );
     });
     await page
-      .getByRole("heading", { name: "Customers", exact: true })
+      .getByRole("heading", { name: "Today", exact: true })
       .waitFor();
     await page.locator(".retail-top .retail-store-identity img").waitFor();
     const logoBox = await page
@@ -127,6 +128,7 @@ try {
     await page
       .getByText("Delivery issues and queued reminders (0)", { exact: true })
       .waitFor();
+    assert.equal(await page.locator('.retail').first().evaluate(el => el.style.getPropertyValue('--retail-brand-primary')), '#CCAABB');
     await page.screenshot({ path: `outputs/retail/store-${width}.png` });
     await page
       .getByRole("navigation", { name: "Store navigation" })
@@ -236,6 +238,14 @@ try {
         `${width} ${tab}: overflow`,
       );
     }
+    await page.locator('.retail-profile-more>summary').click();
+    await page.locator('.retail-profile-more').getByRole('button',{name:'Connection settings',exact:true}).click();
+    await page.getByRole('button',{name:'Delete customer',exact:true}).click();
+    assert.equal(await page.getByRole('button',{name:'Confirm deletion',exact:true}).isDisabled(),true);
+    await page.getByLabel('Type customer name to confirm').fill('Alexandra Montgomery');
+    assert.equal(await page.getByRole('button',{name:'Confirm deletion',exact:true}).isDisabled(),false);
+    await page.getByRole('button',{name:'Keep customer',exact:true}).click();
+    await page.getByRole('navigation',{name:'Customer sections'}).getByRole('button',{name:'Overview',exact:true}).click();
     await page.screenshot({
       path: `outputs/retail/customer-overview-${width}.png`,
     });

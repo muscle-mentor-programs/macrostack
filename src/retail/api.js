@@ -306,8 +306,8 @@ export async function storeBranding(lid) {
 export function brandLogoURL(path) {
   return path ? supabase.storage.from('retail-branding').getPublicUrl(path).data.publicUrl : null;
 }
-export async function saveBranding(oid, name, path) {
-  return check(await supabase.rpc('retail_save_branding', { oid, display_name: name, object_path: path }));
+export async function saveBranding(oid, name, path, colors) {
+  return check(await supabase.rpc('retail_save_branding', { oid, display_name: name, object_path: path, ...(colors ? { colors } : {}) }));
 }
 export async function uploadBrandLogo(oid, file) {
   const path = `${oid}/${crypto.randomUUID()}.png`;
@@ -352,3 +352,5 @@ export async function saveCustomerAvatar(rid, file) {
 export async function nutritionState(rid) {
  return check(await supabase.rpc('retail_nutrition_state',{rid}));
 }
+
+export async function deleteCustomer(rid,revision) {return check(await supabase.rpc('retail_delete_customer',{rid,expected_revision:revision}));}

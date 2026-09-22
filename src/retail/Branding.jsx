@@ -1,3 +1,4 @@
+import { brandColors, brandStyle, validBrandColor } from "./brandColors";
 import { useState } from "react";
 import { Alert, Button, Field, useAction } from "./ui";
 import {
@@ -51,10 +52,12 @@ export default function Branding({ organization, onSaved }) {
     organization.brand_name || organization.name,
   );
   const [logo, setLogo] = useState(organization.logo_path);
+  const [colors, setColors] = useState(() => brandColors(organization.brand_colors));
+  const colorsValid = Object.values(colors).every(validBrandColor);
   const [notice, setNotice] = useState("");
   const { busy, error, run } = useAction();
   async function persist(path) {
-    await saveBranding(organization.id, name.trim(), path);
+    await saveBranding(organization.id, name.trim(), path, colors);
     setLogo(path);
     setNotice("Branding saved. Your store portal is updated.");
     await onSaved();
@@ -66,11 +69,12 @@ export default function Branding({ organization, onSaved }) {
         Make this workspace feel like your business. Shared across your
         locations and connected customer store views.
       </p>
-      <div className="retail-brand-preview">
+      <div className="retail-brand-preview" style={brandStyle(colors)}>
         <BrandIdentity
           name={name || organization.name}
           logo={brandLogoURL(logo)}
         />
+        <div className="retail-brand-color-preview"><span>Customer workspace</span><span className="retail-brand-preview-action">Primary action</span></div>
       </div>
       <Alert error={error} />
       {notice && <p role="status">{notice}</p>}
@@ -87,12 +91,16 @@ export default function Branding({ organization, onSaved }) {
           required
           maxLength={80}
         />
+        <div className="retail-fields retail-brand-color-fields">
+          {['primary', 'secondary'].map(key => <Field key={key} label={`${key === 'primary' ? 'Primary' : 'Secondary'} brand color`} value={colors[key]} onChange={value => setColors(current => ({...current, [key]: value.trim()}))} placeholder="#82ADE1" pattern="#[0-9a-fA-F]{6}" maxLength={7} required />)}
+        </div>
+        <p className="retail-muted">Enter your six-digit hex codes. Primary colors style actions and navigation; secondary colors add subtle depth.</p>
         <label className="retail-field">
           <span>Upload your store logo</span>
           <input
             type="file"
             accept="image/png,image/webp"
-            disabled={busy || !name.trim()}
+            disabled={busy || !name.trim() || !colorsValid}
             onChange={(e) => {
               const file = e.target.files?.[0];
               e.target.value = "";
@@ -101,7 +109,7 @@ export default function Branding({ organization, onSaved }) {
                 const png = await transparentPNG(file);
                 const path = await uploadBrandLogo(organization.id, png);
                 try {
-                  await saveBranding(organization.id, name.trim(), path);
+                  await saveBranding(organization.id, name.trim(), path, colors);
                 } catch (e) {
                   await removeBrandLogo(path).catch(() => {});
                   throw e;
@@ -114,18 +122,18 @@ export default function Branding({ organization, onSaved }) {
           />
           <small>
             PNG or WebP, transparent background, up to 2 MB. Uploading saves
-            your logo and display name. Logos are publicly viewable brand
+            your logo, display name, and colors. Logos are publicly viewable brand
             assets.
           </small>
         </label>
         <div className="retail-actions">
-          <Button primary type="submit" disabled={busy}>
-            {busy ? "Saving…" : "Save display name"}
+          <Button primary type="submit" disabled={busy || !colorsValid}>
+            {busy ? "Saving…" : "Save branding"}
           </Button>
           {logo && (
             <Button
               type="button"
-              disabled={busy}
+              disabled={busy || !colorsValid}
               onClick={() => run(() => persist(null))}
             >
               Remove logo

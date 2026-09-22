@@ -1,4 +1,5 @@
-import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, Palette, LogOut, ArrowUpRight } from "lucide-react";
+import { brandStyle } from "./brandColors";
+import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, LogOut, ArrowUpRight } from "lucide-react";
 import CustomerAvatar from "./CustomerAvatar";
 import ScrambleText from "../components/ScrambleText";
 import LoadingSplash from "../components/LoadingSplash";
@@ -72,7 +73,7 @@ export default function RetailApp({ retailerSession = false }) {
       new URLSearchParams(window.location.search).has("setup") ||
         new URLSearchParams(window.location.search).has("billing")
         ? "Store"
-        : "Customers",
+        : "Today",
     ),
     [customers, setCustomers] = useState([]),
     [templates, setTemplates] = useState([]),
@@ -322,7 +323,7 @@ export default function RetailApp({ retailerSession = false }) {
     setThreads([]);
   };
   return (
-    <div className="retail">
+    <div className="retail" style={brandStyle(org?.brand_colors)}>
       <header className="retail-top">
         <div className="retail-header-brand">
           <div className="retail-brand">
@@ -331,11 +332,6 @@ export default function RetailApp({ retailerSession = false }) {
 
         </div>
         <div className="retail-actions retail-header-controls">
-          {isOrgAdmin && org && <Button onClick={() => {
-            if (!window.dispatchEvent(new Event("retail-before-leave", {cancelable:true}))) return;
-            setSelected(null); setSection("Store");
-            requestAnimationFrame(() => document.getElementById("retail-branding")?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}));
-          }}><Palette size={15} aria-hidden="true"/>Brand your portal</Button>}
           {ctx.locations.length > 0 && (
             <label className="retail-location-control"><span><MapPin size={12} aria-hidden="true"/>{isStaff ? "STORE WORKSPACE" : "YOUR STORE CONNECTION"}</span><select
               aria-label="Choose store"

@@ -10,9 +10,9 @@ import ContactPreferences from "./ContactPreferences";
 import useClock from "./useClock";
 import { useEffect, useRef, useState } from "react";
 import useStore from "../store";
-import { command, customer, intakeForm, conversation } from "./api";
+import { command, customer, intakeForm, conversation, deleteCustomer } from "./api";
 import { displayDate, parseAssessmentCSV } from "./model";
-import { Button, Field, Select, Empty, Alert, useAction } from "./ui";
+import { Button, Field, Select, Empty, Alert, Modal, useAction } from "./ui";
 import Consultation from "./Consultation";
 import Progress from "./Progress";
 const blankAssessment = {
@@ -35,6 +35,8 @@ export default function CustomerWorkspace({
 }) {
   const now = useClock();
   const [avatarPath, setAvatarPath] = useState(relationship.avatar_path);
+  const [deleteOpen,setDeleteOpen]=useState(false);
+  const [deleteName,setDeleteName]=useState("");
   const [nutritionEditor, setNutritionEditor] = useState(false);
   const [nutritionRevision,setNutritionRevision]=useState(0);
   const userId = useStore((s) => s.currentUser?.id);
@@ -502,6 +504,9 @@ export default function CustomerWorkspace({
                   >
                     Update relationship
                   </Button>
+                  <div className="retail-delete-customer"><h3>Remove customer</h3><p>Remove this customer from this store and end their connection. Their personal account and other connections stay active. Store history is retained.</p><Button onClick={()=>{setDeleteName("");setDeleteOpen(true)}}>Delete customer</Button></div>
+                  {deleteOpen&&<Modal title="Delete customer" onClose={()=>{if(!busy)setDeleteOpen(false)}}><p>Remove {relationship.name} from this store? Open follow-ups and store access will end. Their personal MacroStack account is not deleted. Historical store records are retained.</p><Field label="Type customer name to confirm" value={deleteName} onChange={setDeleteName}/><Alert error={error}/><div className="retail-actions"><Button disabled={busy} onClick={()=>setDeleteOpen(false)}>Keep customer</Button><Button disabled={busy||deleteName.trim()!==relationship.name.trim()} onClick={()=>run(async()=>{await deleteCustomer(relationship.id,relationship.revision);setDeleteOpen(false);onBack();await onRefresh?.();})}>Confirm deletion</Button></div></Modal>}
+
                 </section>
               )}
               <AppRecords

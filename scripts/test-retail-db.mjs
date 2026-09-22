@@ -965,6 +965,33 @@ try {
   );
   await db.exec(readFileSync("scripts/test-retail-hosted.sql", "utf8"));
   await db.exec(readFileSync("scripts/test-retail-signup.sql", "utf8"));
+  await db.exec('reset role');
+  await db.exec(readFileSync('supabase/migrations/20260922190925_retail_customer_removal.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260922192021_retail_brand_colors.sql','utf8'));
+  await as('admin');
+  const palette = {primary:'#aa3344',secondary:'#66bbcc'};
+  await db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Test brand',palette]);
+  const branded = (await db.query('select retail_branding($1) brand',[a.location_id])).rows[0].brand;
+  assert.deepEqual(branded.brand_colors,{primary:'#AA3344',secondary:'#66BBCC'});
+  await assert.rejects(()=>db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Invalid',{primary:'red',secondary:'#66BBCC'}]),/valid six-digit/);
+  await as('member');
+  await assert.rejects(()=>db.query('select retail_save_branding($1,$2,null,$3)',[a.organization_id,'Unauthorized',palette]),/administrator required/);
+  await db.exec('reset role');
+  const deletionId=crypto.randomUUID();
+  await db.query("insert into retail_relationships(id,location_id,profile_id,name,email,status) values($1,$2,$3,'Removal test','removal@example.invalid','active')",[deletionId,b.location_id,ids.member]);
+  await as('specialist');await assert.rejects(()=>db.query('select retail_delete_customer($1,1)',[deletionId]),/management permission/);
+  await as('manager');await assert.rejects(()=>db.query('select retail_delete_customer($1,1)',[deletionId]),/management permission/);
+  await as('member');await assert.rejects(()=>db.query('select retail_delete_customer($1,1)',[deletionId]),/management permission/);
+  await as('admin');await assert.rejects(()=>db.query('select retail_delete_customer($1,99)',[deletionId]),/changed/);
+  await db.query('select retail_delete_customer($1,1)',[deletionId]);
+  await db.query('select retail_delete_customer($1,1)',[deletionId]);
+  await db.exec('reset role');
+  assert.equal((await db.query('select status,deleted_at from retail_relationships where id=$1',[deletionId])).rows[0].status,'ended');
+  assert.equal((await db.query('select count(*)::int n from auth.users where id=$1',[ids.member])).rows[0].n,1);
+  await assert.rejects(()=>db.query("update retail_relationships set status='active' where id=$1",[deletionId]),/cannot be reactivated/);
+  await as('member');
+  assert.equal((await db.query('select * from retail_relationships where id=$1',[deletionId])).rows.length,0);
+  assert.equal((await db.query('select private.retail_customer_access($1) allowed',[deletionId])).rows[0].allowed,false);
   console.log(
     "PASS retail database: provisioning, invitation identity, store isolation, staff/private visibility, immutable publishing, retry deduplication, sponsorship pause and corporate aggregate-only reporting",
   );

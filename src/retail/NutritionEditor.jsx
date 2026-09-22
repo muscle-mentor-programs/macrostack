@@ -1,3 +1,4 @@
+import {withCalculatedCalories} from "./nutritionTargets";
 import { useEffect, useState } from "react";
 import MealPlanBuilder from "../pages/coach/MealPlanBuilder";
 import LoadingSplash from "../components/LoadingSplash";
@@ -44,8 +45,9 @@ export default function NutritionEditor({ relationship, onClose }) {
       active = false;
     };
   }, [relationship.id, setError]);
+  const computedTargets=withCalculatedCalories(targets);
   function validTargets() {
-    for (const [k, v] of Object.entries(targets))
+    for (const [k, v] of Object.entries(computedTargets))
       if (
         v === "" ||
         !Number.isFinite(Number(v)) ||
@@ -57,7 +59,7 @@ export default function NutritionEditor({ relationship, onClose }) {
         );
     return {
       ...Object.fromEntries(
-        Object.entries(targets).map(([k, v]) => [k, Number(v)]),
+        Object.entries(computedTargets).map(([k, v]) => [k, Number(v)]),
       ),
       _client_id: loaded.state.client_id,
       _version: loaded.state.version,
@@ -79,7 +81,7 @@ export default function NutritionEditor({ relationship, onClose }) {
         id: relationship.id,
         name: relationship.name,
         goals: Object.fromEntries(
-          Object.entries(targets).map(([k, v]) => [k, Number(v)]),
+          Object.entries(computedTargets).map(([k, v]) => [k, Number(v)]),
         ),
       }}
       initialPlan={loaded.plan}
@@ -125,8 +127,8 @@ export default function NutritionEditor({ relationship, onClose }) {
           <summary>
             Daily calorie & macro targets{" "}
             <span>
-              {targets.calories
-                ? `${targets.calories} kcal · ${targets.protein}p · ${targets.carbs}c · ${targets.fat}f`
+              {computedTargets.calories
+                ? `${computedTargets.calories} kcal · ${targets.protein}p · ${targets.carbs}c · ${targets.fat}f`
                 : "Set targets before publishing"}
             </span>
           </summary>
@@ -139,7 +141,10 @@ export default function NutritionEditor({ relationship, onClose }) {
                 min={k === "calories" ? 1 : 0}
                 max={k === "calories" ? 20000 : 2000}
                 step="any"
-                value={targets[k]}
+                value={computedTargets[k]}
+                readOnly={k === "calories"}
+                aria-readonly={k === "calories" || undefined}
+                className={k === "calories" ? "retail-calculated-calories" : undefined}
                 onChange={(v) => setTargets((t) => ({ ...t, [k]: v }))}
               />
             ))}

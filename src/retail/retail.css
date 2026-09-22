@@ -777,13 +777,13 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 .retail .retail-nav{position:sticky;top:0;z-index:30}
 
 /* Layered workspace: broad surfaces, restrained elevation, open content. */
-.retail:not(.retail-signup){background:radial-gradient(ellipse at 12% 0%,#82ade10d,transparent 55%),var(--color-bg)}
+.retail:not(.retail-signup){background:radial-gradient(ellipse at 12% 0%,color-mix(in srgb, var(--retail-accent) 5%, transparent),transparent 55%),var(--color-bg)}
 .retail .retail-top{padding-block:6px}
 .retail .retail-nav{background:linear-gradient(180deg,var(--color-surface),var(--color-bg));box-shadow:0 8px 24px #00000020,inset 0 1px 0 #ffffff05}
-.retail .retail-page-header{padding:24px 28px;background:linear-gradient(110deg,#82ade114,#82ade103 75%)!important;border-bottom-color:#82ade133;box-shadow:inset 3px 0 0 #82ade180!important}
+.retail .retail-page-header{padding:24px 28px;background:linear-gradient(110deg,color-mix(in srgb, var(--retail-accent) 8%, transparent),color-mix(in srgb, var(--retail-accent) 1%, transparent) 75%)!important;border-bottom-color:color-mix(in srgb, var(--retail-accent) 20%, transparent);box-shadow:inset 3px 0 0 color-mix(in srgb, var(--retail-accent) 50%, transparent)!important}
 .retail .retail-page-header::after{opacity:.06}
 .retail .retail-stats{padding:24px;background:linear-gradient(120deg,var(--color-surface),color-mix(in srgb,var(--color-surface) 35%,var(--color-bg)));border:1px solid var(--color-border);border-radius:14px;box-shadow:0 12px 28px #00000020,inset 0 1px 0 #ffffff06}
-.retail .retail-columns>.retail-section{padding:28px 24px;background:linear-gradient(180deg,#82ade108,transparent 320px);border-top-color:#82ade130}
+.retail .retail-columns>.retail-section{padding:28px 24px;background:linear-gradient(180deg,color-mix(in srgb, var(--retail-accent) 3%, transparent),transparent 320px);border-top-color:color-mix(in srgb, var(--retail-accent) 19%, transparent)}
 .retail .retail-card{box-shadow:0 8px 24px #00000020,inset 0 1px 0 #ffffff05}
 .retail .retail-section>.retail-section{background:none;box-shadow:none}
 .retail select{padding-right:40px!important;min-width:0;max-width:100%;line-height:1.5}
@@ -816,13 +816,13 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 .retail-profile-navigation{display:flex;position:relative;align-items:start;gap:12px;margin-bottom:28px;padding-bottom:12px;border-bottom:1px solid var(--color-border)}
 .retail-profile-navigation .retail-tabbar{flex:1;min-width:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;border:0;margin:0;padding:0 0 8px}
 .retail-profile-more{flex-shrink:0;position:relative}
-.retail-profile-more>summary{padding:10px 14px;min-height:44px;cursor:pointer;color:var(--color-accent);list-style:none}
+.retail-profile-more>summary{padding:10px 14px;min-height:44px;cursor:pointer;color:var(--retail-accent);list-style:none}
 .retail-profile-more>div{position:absolute;right:0;top:100%;z-index:35;min-width:210px;padding:8px;background:var(--color-card);border:1px solid var(--color-border);border-radius:12px;box-shadow:0 16px 40px #0008;display:grid;gap:4px}
 .retail-profile-more .retail-button{text-align:left;background:transparent;border-color:transparent}
 .retail-profile-scroll{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--color-surface);overflow:hidden;border-radius:4px}
-.retail-profile-scroll>span{display:block;height:100%;background:var(--color-accent);border-radius:4px;will-change:transform}
+.retail-profile-scroll>span{display:block;height:100%;background:var(--retail-accent);border-radius:4px;will-change:transform}
 .retail .retail-followup{padding:20px 0;border-bottom:1px solid var(--color-border)}
-.retail .retail-followup.next{border-left:2px solid var(--color-accent);padding-left:20px;background:linear-gradient(90deg,#82ade10b,transparent)}
+.retail .retail-followup.next{border-left:2px solid var(--retail-accent);padding-left:20px;background:linear-gradient(90deg,color-mix(in srgb, var(--retail-accent) 4%, transparent),transparent)}
 .retail-followup>.retail-eyebrow{display:block;margin-bottom:8px}
 .retail .retail-current-targets{padding:20px 0;margin-bottom:24px;border-bottom:1px solid var(--color-border)}
 .retail .retail-current-targets .retail-nutrition-targets{margin-block:16px}
@@ -830,13 +830,31 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 .retail .retail-journal-day,.retail .retail-note-entry{padding:16px 0;border-bottom:1px solid var(--color-border)}
 .retail :is(.retail-journal-day,.retail-note-entry)>summary{padding:8px 0;cursor:pointer;line-height:1.7}
 .retail .retail-export-menu{margin:20px 0}
-.retail .retail-export-menu>summary{cursor:pointer;color:var(--color-accent);padding:10px 0}
+.retail .retail-export-menu>summary{cursor:pointer;color:var(--retail-accent);padding:10px 0}
 .retail .retail-export-menu .retail-actions{margin-top:12px}
 .retail .retail-record-values{overflow-wrap:anywhere}
 .retail .retail-chat-log{min-height:240px;max-height:55dvh}
 @media(max-width:600px){.retail .retail-customer-header{padding:18px;gap:16px}.retail-customer-header h1{font-size:24px}.retail-customer-header>div{gap:8px 12px}.retail-profile-navigation{gap:4px}.retail-profile-more>summary{padding-inline:10px;font-size:12px}.retail-profile-navigation .retail-button{min-height:44px}.retail .retail-current-targets{padding-top:8px}.retail .retail-field :is(input,textarea,select){font-size:16px}}
-.retail-weight-trend{margin:20px 0;padding:20px;background:linear-gradient(120deg,#82ade10a,transparent);border-block:1px solid var(--color-border)}
+.retail-weight-trend{margin:20px 0;padding:20px;background:linear-gradient(120deg,color-mix(in srgb, var(--retail-accent) 4%, transparent),transparent);border-block:1px solid var(--color-border)}
 .retail-weight-trend svg{display:block;width:100%;max-height:180px}
 .retail-weight-trend :is(figcaption,p){font-size:12px;color:var(--color-muted)}
-.retail-profile-navigation button[aria-current=page]{color:var(--color-accent);background:#82ade114;border-color:#82ade140}
+.retail-profile-navigation button[aria-current=page]{color:var(--retail-accent);background:color-mix(in srgb, var(--retail-accent) 8%, transparent);border-color:color-mix(in srgb, var(--retail-accent) 25%, transparent)}
 @media(min-width:768px){.retail-customer-header>div{grid-template-columns:auto auto minmax(0,1fr)}.retail-customer-header>div>.retail-button{grid-column:1;grid-row:1/3;align-self:center;margin:0 8px 0 0}.retail-customer-header :is(.retail-avatar-editor,.retail-customer-avatar){grid-column:2;grid-row:1/3}.retail-customer-header h1{grid-column:3;grid-row:1}.retail-customer-header>div>p{grid-column:3;grid-row:2}}
+.retail input.retail-calculated-calories[readonly]{background:color-mix(in srgb,var(--color-muted) 10%,var(--color-bg));color:#9aa7b7;border-color:color-mix(in srgb,var(--color-muted) 25%,var(--color-border));cursor:default;box-shadow:none}
+.retail-delete-customer{margin-top:32px;padding-top:24px;border-top:1px solid var(--color-border)}
+.retail-delete-customer p{margin-bottom:16px;color:var(--color-muted)}
+
+/* Organization colors remain scoped to the store workspace. */
+.retail { --retail-brand-primary: #82ade1; --retail-brand-secondary: #91b8ad; --retail-brand-ink: #080d16; }
+.retail .retail-button.primary, .retail-brand-preview-action { background: var(--retail-brand-primary); border-color: var(--retail-brand-primary); color: var(--retail-brand-ink); }
+.retail .retail-page-header { background: linear-gradient(115deg, color-mix(in srgb, var(--retail-brand-secondary) 9%, #0a0e17), #080b12 80%) !important; }
+.retail .retail-nav { background: linear-gradient(100deg, color-mix(in srgb, var(--retail-brand-secondary) 6%, #0a0e17), #080b12); }
+.retail-brand-color-preview { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 24px; margin-top: 24px; border-top: 1px solid color-mix(in srgb, var(--retail-brand-secondary) 40%, transparent); color: var(--retail-accent); }
+.retail-brand-preview-action { padding: 12px 18px; border-radius: 10px; font-weight: 600; }
+.retail-brand-color-fields { margin-block: 24px 16px; }
+@media (min-width: 769px) {
+ .retail .retail-top > .retail-header-controls { flex: 0 1 540px; justify-content: flex-end; gap: 12px; }
+ .retail .retail-location-control { flex: 0 1 400px; width: 400px; min-width: 180px; }
+}
+
+.retail .retail { --retail-brand-primary: inherit; --retail-brand-secondary: inherit; --retail-brand-ink: inherit; --retail-accent: inherit; }
