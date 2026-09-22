@@ -122,7 +122,7 @@ export default function AppRecords({ relationship, staff, onRefresh }) {
     };
   }, [relationship.id, kind, offset, revision, setError]);
   return (
-    <section className="retail-card">
+    <section className="retail-section">
       <div className="retail-header">
         <div>
           <h2>Customer app records</h2>

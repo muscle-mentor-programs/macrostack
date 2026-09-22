@@ -2,7 +2,7 @@ import { Button } from "./ui";
 import { starterTemplates } from "./starterTemplates.mjs";
 export default function StarterResources({ onChoose }) {
   return (
-    <details className="retail-card retail-help">
+    <details className="retail-help retail-section">
       <summary>Start with an editable draft</summary>
       <p>
         These outlines are starting points for your team. Review and adapt them

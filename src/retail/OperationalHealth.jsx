@@ -50,7 +50,7 @@ export default function OperationalHealth({ location, onNavigate }) {
     now - Date.parse(worker.last_started_at) > 15 * 60000;
   return (
     <>
-      <section className="retail-card">
+      <section className="retail-section">
         <div className="retail-row">
           <div>
             <h2>Launch checklist</h2>
@@ -84,7 +84,7 @@ export default function OperationalHealth({ location, onNavigate }) {
           </>
         )}
       </section>
-      <section className="retail-card">
+      <section className="retail-section">
         <div className="retail-row">
           <div>
             <h2>Operations health</h2>

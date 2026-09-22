@@ -1,3 +1,4 @@
+import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, Palette, LogOut, ArrowUpRight } from "lucide-react";
 import ThemeToggle from "../components/ThemeToggle";
 import CustomerAvatar from "./CustomerAvatar";
 import ScrambleText from "../components/ScrambleText";
@@ -325,21 +326,21 @@ export default function RetailApp({ retailerSession = false }) {
   return (
     <div className="retail">
       <header className="retail-top">
-        <div>
+        <div className="retail-header-brand">
           <div className="retail-brand">
             <StoreBrand locationId={locationId} revision={ctx} />
           </div>
-          <small>{isStaff ? "STORE WORKSPACE" : "YOUR STORE CONNECTION"}</small>
+
         </div>
-        <div className="retail-actions">
+        <div className="retail-actions retail-header-controls">
           <div className="retail-theme-control"><ThemeToggle compact /></div>
           {isOrgAdmin && org && <Button onClick={() => {
             if (!window.dispatchEvent(new Event("retail-before-leave", {cancelable:true}))) return;
             setSelected(null); setSection("Store");
             requestAnimationFrame(() => document.getElementById("retail-branding")?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}));
-          }}>Brand your portal</Button>}
+          }}><Palette size={15} aria-hidden="true"/>Brand your portal</Button>}
           {ctx.locations.length > 0 && (
-            <select
+            <label className="retail-location-control"><span><MapPin size={12} aria-hidden="true"/>{isStaff ? "STORE WORKSPACE" : "YOUR STORE CONNECTION"}</span><select
               aria-label="Choose store"
               value={locationId}
               onChange={(e) => switchLocation(e.target.value)}
@@ -349,7 +350,7 @@ export default function RetailApp({ retailerSession = false }) {
                   {l.name}
                 </option>
               ))}
-            </select>
+            </select></label>
           )}
           <Button
             onClick={() => {
@@ -364,7 +365,7 @@ export default function RetailApp({ retailerSession = false }) {
               back("dashboard");
             }}
           >
-            {retailerSession ? "Sign out" : "Back to app"}
+            {retailerSession ? <LogOut size={15} aria-hidden="true"/> : <ArrowUpRight size={15} aria-hidden="true"/>}{retailerSession ? "Sign out" : "Back to app"}
           </Button>
         </div>
       </header>
@@ -390,7 +391,7 @@ export default function RetailApp({ retailerSession = false }) {
                 if (s === "Store" && manager) showReports();
               }}
             >
-              {s}
+              {(() => { const Icon = { Today: LayoutDashboard, Customers: Users, Inbox: MessageCircle, Library: BookOpen, Store: Settings2 }[s]; return Icon ? <Icon size={17} aria-hidden="true"/> : null; })()}<span>{s}</span>
             </button>
           ))}
         </nav>
@@ -517,7 +518,7 @@ export default function RetailApp({ retailerSession = false }) {
             }}
           />
         ) : !locationId ? (
-          <section className="retail-card">
+          <section className="retail-section">
             {!code && (
               <a className="retail-button primary" href="/retailers">
                 Retailer? Create your business workspace →
@@ -607,7 +608,7 @@ export default function RetailApp({ retailerSession = false }) {
                   ))}
                 </div>
                 <div className="retail-columns">
-                  <section className="retail-card">
+                  <section className="retail-section">
                     <h2>Follow-up queue</h2>
                     <p className="retail-muted">
                       25 actions per page, oldest due first.
@@ -656,7 +657,7 @@ export default function RetailApp({ retailerSession = false }) {
                       </Button>
                     </div>
                   </section>
-                  <aside className="retail-card">
+                  <aside className="retail-section">
                     <h2>Continue a conversation</h2>
                     {threads
                       .filter((t) => t.status === "open")
@@ -825,7 +826,7 @@ export default function RetailApp({ retailerSession = false }) {
               </>
             )}
             {section === "Inbox" && (
-              <section className="retail-card">
+              <section className="retail-section">
                 {threads.length ? (
                   threads.slice(0, 50).map((t) => (
                     <div className="retail-row" key={t.relationship_id}>
@@ -938,7 +939,7 @@ export default function RetailApp({ retailerSession = false }) {
 
                 <div className="retail-columns">
                   <section>
-                    <div className="retail-card">
+                    <div className="retail-section">
                       <h2>Store onboarding link</h2>
                       <p>
                         Customers sign in or create an account, then explicitly
@@ -966,7 +967,7 @@ export default function RetailApp({ retailerSession = false }) {
                       </Button>
                     </div>
                     {manager && (
-                      <div className="retail-card">
+                      <div className="retail-section">
                         <h2>Team</h2>
                         <Button primary onClick={() => setModal("staff")}>
                           Invite employee
@@ -1006,7 +1007,7 @@ export default function RetailApp({ retailerSession = false }) {
                   </section>
                   <aside>
                     {manager && (
-                      <section className="retail-card">
+                      <section className="retail-section">
                         <h2>Last 30 days</h2>
                         <Button onClick={showReports} disabled={busy}>
                           Refresh metrics
@@ -1060,7 +1061,7 @@ export default function RetailApp({ retailerSession = false }) {
                       </section>
                     )}
                     {isOrgAdmin && (
-                      <section className="retail-card">
+                      <section className="retail-section">
                         <h2>Organization setup</h2>
                         <Button
                           disabled={busy}
@@ -1409,7 +1410,7 @@ function SetupForm({
             ))}
           </Select>
           {form.category === "consultation" && (
-            <section className="retail-card">
+            <section className="retail-section">
               <h3>Intake questions</h3>
               {form.questions.map((q, i) => (
                 <div key={q.id} className="retail-row">

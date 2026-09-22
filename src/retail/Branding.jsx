@@ -60,7 +60,7 @@ export default function Branding({ organization, onSaved }) {
     await onSaved();
   }
   return (
-    <section id="retail-branding" className="retail-card">
+    <section id="retail-branding" className="retail-section">
       <h2>Store logo & portal branding</h2>
       <p className="retail-muted">
         Make this workspace feel like your business. Shared across your

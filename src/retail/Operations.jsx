@@ -81,7 +81,7 @@ export default function Operations({
     });
   return (
     <div className="retail-columns">
-      <section className="retail-card">
+      <section className="retail-section">
         <h2>Store subscription</h2>
         <p>
           <strong>$599 / store / month</strong>
@@ -169,7 +169,7 @@ export default function Operations({
           </>
         )}
       </section>
-      <section className="retail-card">
+      <section className="retail-section">
         <h2>Pilot readiness</h2>
         {pilot && (
           <form

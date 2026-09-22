@@ -265,7 +265,7 @@ export default function CustomerWorkspace({
                   )}
                 </section>
                 {staff ? (
-                  <section className="retail-card">
+                  <section className="retail-section">
                     <h2>Follow-ups</h2>
                     {tasks.length === 0 && <Empty>No open follow-ups.</Empty>}
                     {tasks.map((t) => (
@@ -382,7 +382,7 @@ export default function CustomerWorkspace({
                     </Button>
                   </section>
                 ) : (
-                  <section className="retail-card">
+                  <section className="retail-section">
                     <h2>Updates</h2>
                     {data.notifications.length === 0 ? (
                       <Empty>No updates yet.</Empty>
@@ -401,7 +401,7 @@ export default function CustomerWorkspace({
               </div>
               <aside>
                 {staff && (
-                  <section className="retail-card">
+                  <section className="retail-section">
                     <div className="retail-eyebrow">Staff only</div>
                     <h2>Private notes</h2>
                     <Field
@@ -429,7 +429,7 @@ export default function CustomerWorkspace({
                   </section>
                 )}
                 {manager && (
-                  <section className="retail-card">
+                  <section className="retail-section">
                     <h2>Store relationship</h2>
                     <Select
                       label="Assigned specialist"
@@ -474,7 +474,7 @@ export default function CustomerWorkspace({
             </div>
           )}
           {tab === "Intake" && (
-            <section className="retail-card">
+            <section className="retail-section">
               <h2>Customer intake</h2>
               <p className="retail-muted">
                 Shared with your authorized store team. Answer only what you are
@@ -522,7 +522,7 @@ export default function CustomerWorkspace({
             </section>
           )}
           {tab === "Plan" && (
-            <section className="retail-card">
+            <section className="retail-section">
               <div className="retail-nutrition-builder-entry">
                 <div><h2>Food database & meal plan builder</h2><p>Search foods, set portions and build meals with calculated macros. Publish the plan and daily targets directly to this customer's app.</p></div>
                 {staff && <Button primary disabled={relationship.status !== "active"} onClick={() => setNutritionEditor(true)}>Build nutrition plan</Button>}
@@ -636,7 +636,7 @@ export default function CustomerWorkspace({
                 </Button>
               )}
               <Progress relationship={relationship} mode="files" />
-              <div className="retail-card">
+              <div className="retail-section">
                 <h2>Assessment history</h2>
                 <p className="retail-muted">
                   Measurements are recorded observations. Compare scans taken
@@ -687,7 +687,7 @@ export default function CustomerWorkspace({
                 )}
               </div>
               {staff && (
-                <section className="retail-card">
+                <section className="retail-section">
                   <h2>Record assessment</h2>
                   <div className="retail-fields">
                     <Field
@@ -819,7 +819,7 @@ export default function CustomerWorkspace({
             </>
           )}
           {tab === "Check-ins" && (
-            <section className="retail-card">
+            <section className="retail-section">
               <h2>{staff ? "Customer check-ins" : "Your check-in"}</h2>
               {!staff && (
                 <>
@@ -880,7 +880,7 @@ export default function CustomerWorkspace({
             </section>
           )}
           {tab === "Messages" && (
-            <section className="retail-card">
+            <section className="retail-section">
               <h2>{staff ? "Customer chat" : "Chat with your store"}</h2>
               <p className="retail-muted">A direct conversation between this customer and their authorized store team.</p>
               {data.threads?.[0]?.composing_by &&
@@ -972,7 +972,7 @@ export default function CustomerWorkspace({
             <History relationship={relationship} staff={staff} />
           )}
           {tab === "Preferences" && (
-            <section className="retail-card">
+            <section className="retail-section">
               <h2>Sharing and communication</h2>
               <p>
                 Published plans, check-ins, assessments and store messages are

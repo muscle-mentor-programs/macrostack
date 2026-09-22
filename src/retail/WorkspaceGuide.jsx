@@ -22,7 +22,7 @@ const help = {
 };
 export default function WorkspaceGuide({ section }) {
   return (
-    <details className="retail-card retail-help">
+    <details className="retail-help retail-section">
       <summary>Quick guide · {section}</summary>
       <ol>
         {(help[section] || help.Today).map((x) => (
