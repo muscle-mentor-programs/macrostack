@@ -207,8 +207,15 @@ try {
     () => call("note", { relationship_id: rid, body: "No access" }),
     /Customer unavailable/,
   );
+  await db.exec('reset role');
+  const coexistClient=crypto.randomUUID();
+  await db.query('insert into clients(id,profile_id,coach_id) values($1,$2,$3)',[coexistClient,ids.member,ids.manager]);
   await as("member");
   await call("accept_invite", { token: prospect.token, consent: true });
+  await db.exec('reset role');
+  assert.equal((await db.query('select coach_id from clients where id=$1',[coexistClient])).rows[0].coach_id,ids.manager,'Joining a store preserves the existing coach');
+  await db.query('delete from clients where id=$1',[coexistClient]);
+  await as('member');
   assert.equal((await db.query("select retail_sponsored() x")).rows[0].x, true);
   await assert.rejects(
     () => call("note", { relationship_id: rid, body: "Forged staff note" }),

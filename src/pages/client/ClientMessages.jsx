@@ -8,7 +8,7 @@ import {
   accentA, buildThread, lastSeenSelfId, DaySep, Bubble, Composer,
 } from '../../components/ChatKit'
 
-function CoachConversation() {
+function CoachConversation({ onBack }) {
   const {
     activeClientId, clients, messages, sendMessage, markMessagesRead,
     setNavHidden, setActivePage, coachProfile, loadCoachProfile,
@@ -81,6 +81,7 @@ function CoachConversation() {
     return (
       <div className="fixed inset-x-0 top-0 bottom-0 flex flex-col bg-bg z-10">
         <div className="app-page-gutter px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
+          {onBack && <button onClick={onBack} className="mb-3 text-sm text-muted">← All conversations</button>}
           <h1 className="font-display font-black text-2xl tracking-wide text-cream leading-none">COACH</h1>
           <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
         </div>
@@ -106,6 +107,7 @@ function CoachConversation() {
     return (
       <div className="fixed inset-x-0 top-0 bottom-0 flex flex-col bg-bg z-10">
         <div className="app-page-gutter px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 glass-panel accent-line">
+          {onBack && <button onClick={onBack} className="mb-3 text-sm text-muted">← All conversations</button>}
           <h1 className="font-display font-black text-2xl tracking-wide text-cream leading-none">COACH</h1>
           <p className="font-mono text-xs text-muted mt-1">Direct line to your coach</p>
         </div>
@@ -143,6 +145,7 @@ function CoachConversation() {
     >
       {/* Header, the coach's real identity */}
       <div className="app-page-gutter flex items-center gap-3 px-5 pt-mobile-header pb-4 border-b border-border flex-shrink-0 anim-fade-in-down glass-panel accent-line">
+        {onBack && <button onClick={onBack} aria-label="All conversations" className="shrink-0 w-11 h-11 text-muted">←</button>}
         <div
           className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 font-display font-black text-base"
           style={{ background: accentA(14), border: `1px solid ${accentA(32)}`, color: 'var(--color-accent)' }}

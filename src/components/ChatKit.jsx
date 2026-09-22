@@ -265,7 +265,7 @@ export function Composer({
       )}
 
       <div className="flex items-center gap-2 flex-shrink-0 pb-0.5">
-        <AttachmentButtons clientId={clientId} onSend={onSendAttachment} />
+        {onSendAttachment && <AttachmentButtons clientId={clientId} onSend={onSendAttachment} />}
         {templates && (
           <button
             type="button"

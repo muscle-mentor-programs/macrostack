@@ -33,14 +33,14 @@ try {
     await page.route("**/src/store/index.js*", (r) =>
       r.fulfill({
         contentType: "text/javascript",
-        body: `function useStore(selector){const state={currentUser:{id:"member"},customFoods:[],clients:[],hiddenFoodIds:[],setNavHidden:()=>{}};return selector?selector(state):state};useStore.getState=()=>({signup:async()=>{window.signedUp=true;window.authenticate();return {ok:true}},login:async()=>{window.signedIn=true;window.authenticate();return {ok:true}},loadAllData:async()=>{}});export default useStore;`,
+        body: `function useStore(selector){const state={currentUser:{id:"member"},customFoods:[],activeClientId:"client",coachProfile:{name:"Coach Taylor"},clients:[{id:"client",coachId:"coach"}],hiddenFoodIds:[],setNavHidden:()=>{}};return selector?selector(state):state};useStore.getState=()=>({signup:async()=>{window.signedUp=true;window.authenticate();return {ok:true}},login:async()=>{window.signedIn=true;window.authenticate();return {ok:true}},loadAllData:async()=>{}});export default useStore;`,
       }),
     );
     await page.route("**/qa-retail**", (r) => {
       const type = new URL(r.request().url()).searchParams.get("type");
       r.fulfill({
         contentType: "text/html",
-        body: `<html class="ocean-dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module">import React from '/node_modules/.vite/deps/react.js';import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';import '/src/index.css';import '/src/retail/retail.css';import Component from '/src/retail/${type}.jsx';ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Component,{customer:{id:'relationship',name:'Alex'},editable:true,organization:{id:'org',name:'Peak Nutrition'},relationship:{id:'relationship',name:'Alex'},onSaved:async()=>{},onClose:()=>{}}));</script></body></html>`,
+        body: `<html class="ocean-dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;</script><script type="module">import React from '/node_modules/.vite/deps/react.js';import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';import '/src/index.css';import '/src/retail/retail.css';import Component from '/src/retail/${type}.jsx';ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Component,{CoachConversation:({onBack})=>React.createElement('div',null,React.createElement('p',null,'Coach conversation retained'),React.createElement('button',{onClick:onBack},'All conversations')),customer:{id:'relationship',name:'Alex'},editable:true,organization:{id:'org',name:'Peak Nutrition'},relationship:{id:'relationship',name:'Alex'},onSaved:async()=>{},onClose:()=>{}}));</script></body></html>`,
       });
     });
     await page.route("**/messages?store=1", (r) =>
@@ -132,19 +132,31 @@ try {
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.screenshot({path:`outputs/retail/shared-builder-${width}.png`});
     await page.goto(origin + "/qa-retail?type=CustomerMessages");
-    await page.getByRole("button", { name: /Open store chat/ }).click();
+    await page.getByRole("button", { name: /Coach Taylor/ }).click();
+    await page.getByText('Coach conversation retained').waitFor();
+    await page.getByRole('button',{name:'All conversations'}).click();
+    await page.getByRole("button", { name: /Store team · open conversation/ }).click();
     await page.getByText("Welcome to your store chat").waitFor();
     await page
-      .getByLabel("Message your store")
+      .getByLabel("Message", {exact:true})
       .fill("Thanks, I can see my plan.");
     await page
-      .getByRole("button", { name: "Send message", exact: true })
+      .getByRole("button", { name: "Send", exact: true })
       .click();
     await page.getByText("Thanks, I can see my plan.").waitFor();
     await page.screenshot({
       path: `outputs/retail/customer-chat-${width}.png`,
       fullPage: true,
     });
+    if (width===390) {
+      await page.evaluate(()=>{Object.defineProperty(visualViewport,'height',{configurable:true,value:450});visualViewport.dispatchEvent(new Event('resize'));});
+      await page.waitForTimeout(100);
+      assert.ok(await page.locator('.member-chat-composer').evaluate(el=>el.getBoundingClientRect().bottom<=451),'Composer fits above keyboard');
+      assert.ok(await page.getByRole('button',{name:'Send',exact:true}).evaluate(el=>el.getBoundingClientRect().bottom<=450),'Send stays visible');
+    }
+    await page.getByRole('button',{name:'All conversations'}).click();
+    await page.getByRole('button',{name:/Coach Taylor/}).waitFor();
+    await page.getByRole('button',{name:/Store team · open conversation/}).waitFor();
     assert.deepEqual(errors, []);
     await page.close();
     console.log(

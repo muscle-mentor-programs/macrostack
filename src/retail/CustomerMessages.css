@@ -1,0 +1,17 @@
+.member-conversations{position:fixed;inset-inline:0;z-index:10;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-cream);overflow:hidden;font-family:var(--font-mono)}
+.member-conversations *{min-width:0;box-sizing:border-box}
+.member-chat-heading{position:relative;display:flex;align-items:center;gap:12px;padding:var(--chat-top) max(20px,calc((100vw - 900px)/2)) 16px;flex-shrink:0;border-bottom:1px solid var(--color-border)}
+.member-chat-heading>button{width:44px;height:44px;display:grid;place-items:center;flex-shrink:0;color:var(--color-muted);border-radius:12px}
+.member-chat-heading h1{font:900 26px/1.15 var(--font-display);letter-spacing:.025em;text-transform:uppercase;margin:0;overflow-wrap:anywhere}
+.member-chat-heading p{font-size:12px;color:var(--color-muted);margin:6px 0 0;line-height:1.4}
+.member-chat-avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;background:color-mix(in srgb,var(--color-accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--color-accent) 32%,transparent);color:var(--color-accent);display:grid;place-items:center;overflow:hidden}
+.member-chat-avatar img{width:100%;height:100%;object-fit:contain;padding:5px}
+.member-chat-thread{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column-reverse;gap:6px;padding:20px max(20px,calc((100vw - 900px)/2))}
+.member-chat-composer{flex-shrink:0;border-top:1px solid var(--color-border);padding:12px max(16px,calc((100vw - 900px)/2)) var(--chat-bottom)}
+.member-chat-empty{margin:auto;text-align:center;display:grid;justify-items:center;gap:10px;color:var(--color-muted);font-size:13px}
+.member-chat-empty h2{font:700 20px var(--font-display);text-transform:uppercase}
+.member-chat-directory{flex:1;min-height:0;overflow:auto;padding:20px max(16px,calc((100vw - 900px)/2)) var(--chat-bottom)}
+.member-conversation-row{width:100%;display:flex;align-items:center;gap:14px;padding:18px;margin-bottom:14px;border:1px solid var(--color-border);border-radius:16px;background:var(--color-card);text-align:left;color:var(--color-cream)}
+.member-conversation-row>span:nth-child(2){flex:1}.member-conversation-row strong{display:block;font-size:16px;font-weight:600;overflow-wrap:anywhere}.member-conversation-row small{display:block;font-size:12px;line-height:1.5;color:var(--color-muted);margin-top:6px}
+.member-chat-error{padding:10px 20px;font-size:13px;color:var(--color-cream)}
+.member-conversations :focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}

@@ -39,3 +39,5 @@ Customer cards and records support store-managed profile photos in the private `
 Nutrition opens with the food-database meal-plan builder; consultation guidance is a separate secondary action. App plan assignment requires an active, accepted customer connection. Organization administrators can use the persistent Brand your portal shortcut to reach Store logo & portal branding.
 
 Retail page headers and typography follow the coach header system without changing retail navigation. The existing saved light/dark switch is available in the retail toolbar. Customer app tab loading uses lightweight skeletons; branded loading remains for startup. Shared retail spacing separates form labels/help, headings, dialog controls, action groups, rows and expandable sections.
+
+Customer store chat uses the same ChatKit bubbles, date separators and compact composer as coach chat. Its viewport follows the software keyboard, measured app controls and bottom navigation. The conversation directory keeps coach and store threads separate; store invitations preserve existing coach relationships. Store message drafts use a relationship-specific key and failed sends retain their text.
