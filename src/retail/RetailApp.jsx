@@ -927,7 +927,18 @@ export default function RetailApp({ retailerSession = false }) {
                   <OperationalHealth
                     key={`health-${location.id}`}
                     location={location}
-                    onNavigate={setSection}
+                    onNavigate={(target, anchor) => {
+                      setSection(target);
+                      requestAnimationFrame(() => {
+                        const destination = anchor && document.getElementById(anchor);
+                        if (destination) {
+                          destination.focus({ preventScroll: true });
+                          destination.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+                        } else {
+                          window.scrollTo({ top: 0, behavior: "instant" });
+                        }
+                      });
+                    }}
                   />
                 )}
 
@@ -961,7 +972,7 @@ export default function RetailApp({ retailerSession = false }) {
                       </Button>
                     </div>
                     {manager && (
-                      <div className="retail-section">
+                      <div className="retail-section retail-setup-target" id="retail-team" tabIndex={-1} aria-label="Team">
                         <h2>Team</h2>
                         <Button primary onClick={() => setModal("staff")}>
                           Invite employee

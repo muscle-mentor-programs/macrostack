@@ -35,12 +35,13 @@ export default function OperationalHealth({ location, onNavigate }) {
   }, [location.id, setError]);
   const steps = data
     ? [
-        ["Staff access", data.setup.staff > 0, "Store"],
+        ["Staff access", data.setup.staff > 0, "Store", "retail-team"],
         ["Published resources", data.setup.resources > 0, "Library"],
         [
           "Billing arranged",
           ["active", "trialing"].includes(data.setup.billing),
           "Store",
+          "retail-billing",
         ],
       ]
     : [];
@@ -65,13 +66,13 @@ export default function OperationalHealth({ location, onNavigate }) {
               value={steps.filter((x) => x[1]).length}
             />
             <div className="retail-grid">
-              {steps.map(([title, done, target]) => (
+              {steps.map(([title, done, target, anchor]) => (
                 <div key={title}>
                   <span className="retail-badge">
                     {done ? "Ready" : "To do"}
                   </span>
                   <h3>{title}</h3>
-                  <Button onClick={() => onNavigate(target)}>
+                  <Button onClick={() => onNavigate(target, anchor)}>
                     {done ? "Review" : "Set up"}
                   </Button>
                 </div>

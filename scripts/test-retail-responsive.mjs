@@ -120,6 +120,12 @@ try {
         `${width} ${tab}: overflow`,
       );
     }
+    const billingStep=page.locator('.retail-grid > div').filter({has:page.getByRole('heading',{name:'Billing arranged',exact:true})});
+    await billingStep.getByRole('button',{name:'Set up',exact:true}).click();
+    await page.waitForFunction(()=>document.activeElement?.id==='retail-billing');
+    const staffStep=page.locator('.retail-grid > div').filter({has:page.getByRole('heading',{name:'Staff access',exact:true})});
+    await staffStep.getByRole('button',{name:'Review',exact:true}).click();
+    await page.waitForFunction(()=>document.activeElement?.id==='retail-team');
     await page
       .getByText("Delivery issues and queued reminders (1)", { exact: true })
       .click();
