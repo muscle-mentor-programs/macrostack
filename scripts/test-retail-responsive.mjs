@@ -18,7 +18,7 @@ export async function customerAvatarURL(){return null} export async function sav
 export async function retailerFoods(){return []}
 export async function publishNutrition(){}
 export async function storeMealPlans(){return []}
-export async function storeBranding(){return {name:'Retail Network',logo_path:'fixture-logo'}}
+export async function removeMealPlan(){window.planRemoved=true} export async function storeBranding(){return {name:'Retail Network',logo_path:'fixture-logo'}}
 export function brandLogoURL(path){return path?'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 132%22%3E%3Crect width=%22192%22 height=%22132%22 rx=%2212%22 fill=%22%2382ade1%22/%3E%3C/svg%3E':null}
 export async function saveBranding(){}
 export async function uploadBrandLogo(){return 'logo.png'}

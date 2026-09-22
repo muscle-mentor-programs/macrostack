@@ -51,7 +51,7 @@ function makeEmptyDay(label) {
   }
 }
 
-export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose, additionalFoods, toolbarContent, saveLabel = "SAVE PLAN", allowEmail = true, draftScope = "coach", maxDays = Infinity }) {
+export default function MealPlanBuilder({ client, initialPlan = null, onSave, onClose, additionalFoods, toolbarContent, saveLabel = "SAVE PLAN", allowEmail = true, draftScope = "coach", maxDays = Infinity, createPDF }) {
   const { customFoods, clients, setNavHidden, hiddenFoodIds } = useStore()
   const isMobile = useIsMobile()
   const userId = useStore(s => s.currentUser?.id)
@@ -212,6 +212,11 @@ export default function MealPlanBuilder({ client, initialPlan = null, onSave, on
     if (!planName.trim()) return
     setDownloading(true)
     try {
+      if (createPDF) {
+        const doc = await createPDF({planName:planName.trim(),days}, client);
+        doc.save(`${planName.trim().replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.pdf`);
+        return;
+      }
       const { downloadMealPlanPDF } = await import('../../lib/generateMealPlanPDF')
       downloadMealPlanPDF(
         { planName: planName.trim(), days },

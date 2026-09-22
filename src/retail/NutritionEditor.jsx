@@ -77,6 +77,10 @@ export default function NutritionEditor({ relationship, onClose }) {
     );
   return (
     <MealPlanBuilder
+      createPDF={async (plan, client) => {
+        const {loadPlanBranding,generateRetailPlanPDF} = await import("./planPDF");
+        return generateRetailPlanPDF(plan, client, await loadPlanBranding(relationship.location_id));
+      }}
       client={{
         id: relationship.id,
         name: relationship.name,

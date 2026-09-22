@@ -601,6 +601,7 @@ export default function CustomerWorkspace({
                 staff={staff}
                 recordTypes={["plans", "schedules"]}
                 title="App meal plans & scheduled targets"
+                onRefresh={()=>setNutritionRevision(v=>v+1)}
               />
               {nutritionEditor && (
                 <NutritionEditor

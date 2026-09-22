@@ -354,3 +354,5 @@ export async function nutritionState(rid) {
 }
 
 export async function deleteCustomer(rid,revision) {return check(await supabase.rpc('retail_delete_customer',{rid,expected_revision:revision}));}
+
+export async function removeMealPlan(rid,planId) { return check(await supabase.rpc('retail_remove_meal_plan',{rid,plan_id:planId})); }

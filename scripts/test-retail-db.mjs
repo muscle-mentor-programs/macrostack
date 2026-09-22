@@ -992,6 +992,24 @@ try {
   await as('member');
   assert.equal((await db.query('select * from retail_relationships where id=$1',[deletionId])).rows.length,0);
   assert.equal((await db.query('select private.retail_customer_access($1) allowed',[deletionId])).rows[0].allowed,false);
+  await db.exec('reset role');
+  await db.exec(readFileSync('supabase/migrations/20260922194039_retail_remove_meal_plan.sql','utf8'));
+  await db.query("update retail_relationships set status='active',share_app_records=true where id=$1",[rid]);
+  await db.query("update clients set active_meal_plan_id=$1 where id=$2",[nutritionId,initial.client_id]);
+  const coachPlan=crypto.randomUUID();
+  await db.query("insert into meal_plans(id,client_id,plan_name,days) values($1,$2,'Coach plan','[]')",[coachPlan,initial.client_id]);
+  await as('member');await assert.rejects(()=>db.query('select retail_remove_meal_plan($1,$2)',[rid,nutritionId]),/Authorized store/);
+  await as('other');await assert.rejects(()=>db.query('select retail_remove_meal_plan($1,$2)',[rid,nutritionId]),/Authorized store/);
+  await as('admin');await assert.rejects(()=>db.query('select retail_remove_meal_plan($1,$2)',[rid,coachPlan]),/Only plans created/);
+  await db.exec('reset role');
+  const targetsBefore=(await db.query('select goal_calories from clients where id=$1',[initial.client_id])).rows[0].goal_calories;
+  await as('admin');
+  await db.query('select retail_remove_meal_plan($1,$2)',[rid,nutritionId]);
+  await db.exec('reset role');
+  const afterRemoval=(await db.query('select active_meal_plan_id,goal_calories from clients where id=$1',[initial.client_id])).rows[0];
+  assert.equal(afterRemoval.active_meal_plan_id,null);assert.equal(afterRemoval.goal_calories,targetsBefore);
+  assert.equal((await db.query('select count(*)::int n from meal_plans where id=$1',[nutritionId])).rows[0].n,0);
+  assert.equal((await db.query('select count(*)::int n from meal_plans where id=$1',[coachPlan])).rows[0].n,1);
   console.log(
     "PASS retail database: provisioning, invitation identity, store isolation, staff/private visibility, immutable publishing, retry deduplication, sponsorship pause and corporate aggregate-only reporting",
   );

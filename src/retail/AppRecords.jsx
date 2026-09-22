@@ -1,3 +1,4 @@
+import PublishedPlan from "./PublishedPlan";
 import { useEffect, useState } from "react";
 import { appRecords, shareAppRecords, appPhotoURL } from "./api";
 import { Alert, Button, Empty, Select, useAction } from "./ui";
@@ -94,40 +95,6 @@ function Values({ value }) {
         ))}
     </dl>
   );
-}
-function MealDays({ days }) {
-  return (Array.isArray(days) ? days : []).map((day, i) => (
-    <details key={day.id || i} open={i === 0}>
-      <summary>{day.label || `Day ${i + 1}`}</summary>
-      {Object.entries(day.meals || {}).map(([meal, items]) => (
-        <section key={meal}>
-          <h4>{meal}</h4>
-          {(Array.isArray(items) ? items : []).map((food, j) => (
-            <div className="retail-row" key={food.id || j}>
-              <div>
-                <strong>{food.name}</strong>
-                <p>
-                  {["g", "oz", "ml", "lb"].includes(food.servingUnit) &&
-                  food.servingSize
-                    ? Math.round(
-                        Number(food.quantity) * Number(food.servingSize) * 100,
-                      ) / 100
-                    : food.quantity}{" "}
-                  {food.servingUnit || "servings"}
-                </p>
-              </div>
-              <span>
-                {Math.round(Number(food.calories) || 0)} kcal ·{" "}
-                {Math.round(Number(food.protein) || 0)}g protein ·{" "}
-                {Math.round(Number(food.carbs) || 0)}g carbs ·{" "}
-                {Math.round(Number(food.fat) || 0)}g fat
-              </span>
-            </div>
-          ))}
-        </section>
-      ))}
-    </details>
-  ));
 }
 export default function AppRecords({
   relationship,
@@ -246,7 +213,9 @@ export default function AppRecords({
         <>
           {kind === "weights" && <WeightTrend rows={data.rows} />}
           <div className="retail-app-records">
-            {data.rows.map((r, i) => (
+            {data.rows.map((r, i) => kind === "plans" ? (
+              <PublishedPlan key={r.id || i} plan={r} relationship={relationship} staff={staff} onRemoved={async()=>{prepareLoad();setRevision(v=>v+1);await onRefresh?.();}}/>
+            ) : (
               <article className="retail-card" key={r.id || i}>
                 <h3>
                   {kind === "foods"
@@ -277,13 +246,6 @@ export default function AppRecords({
                     >
                       View photo
                     </Button>
-                  </>
-                ) : kind === "plans" ? (
-                  <>
-                    <p>
-                      {r.active ? "Active meal plan" : "Previous meal plan"}
-                    </p>
-                    <MealDays days={r.days} />
                   </>
                 ) : (
                   <Values
