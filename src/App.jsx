@@ -115,13 +115,15 @@ const ROUTABLE = new Set([
   ...Object.keys(CLIENT_PAGES),
 ])
 
-// True when running as an installed PWA (homescreen shortcut) or inside the
-// native iOS shell, both should boot straight to sign-in, never the
-// marketing landing. Checked once at module load, doesn't change during a session.
-const IS_PWA =
-  window.matchMedia('(display-mode: standalone)').matches ||
-  window.navigator.standalone === true ||
-  isNativeApp
+// Native app launches open sign-in. Website visits, including installed PWA
+// launches, open the public homepage at /.
+const START_ON_LOGIN = isNativeApp
+const isPublicHomepagePath = () =>
+  !isNativeApp &&
+  window.location.pathname === '/' &&
+  new URLSearchParams(window.location.search).get('checkout') !== 'success' &&
+  !sessionStorage.getItem('ms-retail-return') &&
+  !sessionStorage.getItem('ms-marketplace-coach')
 
 export default function App() {
   const {
@@ -130,11 +132,11 @@ export default function App() {
     theme, initAuth, setActivePage, checkoutRedirect,
   } = useStore()
   const isMobile = useIsMobile()
+  const [showHomepage, setShowHomepage] = useState(isPublicHomepagePath)
 
   // Which pre-auth view is showing: null = landing, 'login' = sign-in,
   // 'signup' = create-account (+ payment when a plan was picked).
-  // Start on login immediately when launched from the homescreen.
-  const [authView, setAuthView] = useState(IS_PWA ? 'login' : null)
+  const [authView, setAuthView] = useState(START_ON_LOGIN ? 'login' : null)
 
   // True when the user landed via an email invite link and still needs to set a password
   const [postInvite, setPostInvite] = useState(
@@ -142,12 +144,12 @@ export default function App() {
   )
 
   // Public browser pages always use the brand dark theme. Preserve the saved
-  // preference for the authenticated app and installed PWA.
+  // preference for the authenticated app and native shell.
   useEffect(() => {
     const html = document.documentElement
     html.classList.remove('ocean-dark', 'ocean-light')
-    html.classList.add(!isAuthenticated && !IS_PWA ? 'ocean-dark' : theme)
-  }, [theme, isAuthenticated])
+    html.classList.add((showHomepage || !isAuthenticated) && !START_ON_LOGIN ? 'ocean-dark' : theme)
+  }, [theme, isAuthenticated, showHomepage])
 
   // Check Supabase session on mount
   useEffect(() => {
@@ -190,6 +192,8 @@ export default function App() {
       if (seg === 'marketplace') setAuthView('marketplace')
       return
     }
+    if (!seg) setShowHomepage(isPublicHomepagePath())
+    else setShowHomepage(false)
     if (seg === 'retail/member') setActivePage('retail')
     else if (ROUTABLE.has(seg)) setActivePage(seg)
     if (sessionStorage.getItem('ms-retail-return')) {setActivePage('retail');sessionStorage.removeItem('ms-retail-return')}
@@ -201,7 +205,7 @@ export default function App() {
   useEffect(() => {
     if (authLoading) return
     const path = isAuthenticated
-      ? (activePage === 'retail' ? '/retail/member' : `/${activePage || 'dashboard'}`)
+      ? (showHomepage ? '/' : activePage === 'retail' ? '/retail/member' : `/${activePage || 'dashboard'}`)
       : authView === 'login' ? '/login'
       : authView === 'signup' ? '/signup'
       : authView === 'marketplace' ? '/marketplace'
@@ -209,17 +213,21 @@ export default function App() {
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path + window.location.search)
     }
-  }, [isAuthenticated, authLoading, authView, activePage])
+  }, [isAuthenticated, authLoading, authView, activePage, showHomepage])
 
   // 3. Browser back/forward buttons drive the app
   useEffect(() => {
     const onPop = () => {
       const seg = window.location.pathname.replace(/^\/+|\/+$/g, '')
       if (!isAuthenticated) {
-        setAuthView(seg === 'marketplace' ? 'marketplace' : seg === 'login' ? 'login' : seg === 'signup' ? 'signup' : (IS_PWA ? 'login' : null))
+        setAuthView(seg === 'marketplace' ? 'marketplace' : seg === 'login' ? 'login' : seg === 'signup' ? 'signup' : (START_ON_LOGIN ? 'login' : null))
+      } else if (!seg && isPublicHomepagePath()) {
+        setShowHomepage(true)
       } else if (seg === 'retail/member') {
+        setShowHomepage(false)
         setActivePage('retail')
       } else if (ROUTABLE.has(seg)) {
+        setShowHomepage(false)
         setActivePage(seg)
       }
     }
@@ -287,7 +295,7 @@ export default function App() {
         {authView === 'marketplace'
           ? <Marketplace onBack={() => setAuthView(null)} onSignIn={() => { localStorage.removeItem('ms-pending-plan'); setAuthView('signup') }} />
           : authView === 'login'
-          ? <LoginScreen onBack={IS_PWA ? null : () => setAuthView(null)} />
+          ? <LoginScreen onBack={START_ON_LOGIN ? null : () => setAuthView(null)} />
           : authView === 'signup'
           ? <SignupCheckout onBack={() => setAuthView(null)} onSignIn={() => setAuthView('login')} />
           : <Landing onMarketplace={() => setAuthView('marketplace')} onGetStarted={() => setAuthView('login')} onSignUp={() => setAuthView('signup')} />}
@@ -302,6 +310,21 @@ export default function App() {
         <SetPasswordScreen onDone={() => setPostInvite(false)} />
       </Suspense>
     )
+  }
+
+  if (showHomepage) {
+    const openSelectedPlan = () => {
+      try {
+        const pending = JSON.parse(localStorage.getItem('ms-pending-plan') || 'null')
+        if (pending?.plan) setActivePage('upgrade')
+      } catch { /* ignore malformed selection */ }
+      setShowHomepage(false)
+    }
+    return <Suspense fallback={<PageLoader />}><Landing
+      onMarketplace={() => { setActivePage('marketplace'); setShowHomepage(false) }}
+      onGetStarted={() => setShowHomepage(false)}
+      onSignUp={openSelectedPlan}
+    /></Suspense>
   }
 
   if (activePage === 'retail') return <Suspense fallback={<LoadingSplash fullScreen label="Opening retailer workspace…" />}><RetailApp /></Suspense>
