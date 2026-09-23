@@ -1,5 +1,6 @@
 import { installDisclosureMotion } from './motion/disclosures'
 import LoadingSplash from "./components/LoadingSplash"
+import AppErrorBoundary from './components/AppErrorBoundary'
 import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
@@ -37,6 +38,21 @@ if (import.meta.env.VITE_SENTRY_DSN) {
  Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN, sendDefaultPii: false, tracesSampleRate: 0 })
 }
 
+// An open tab may still reference page chunks from an older deployment. Vite
+// reports a failed lazy import here; refresh once to load the current HTML and
+// chunk names. If it fails again, the error boundary keeps recovery visible.
+window.addEventListener('vite:preloadError', (event) => {
+  const key = 'macrostack-chunk-reload'
+  try {
+    if (sessionStorage.getItem(key) === import.meta.url) return
+    sessionStorage.setItem(key, import.meta.url)
+  } catch {
+    return
+  }
+  event.preventDefault()
+  window.location.reload()
+})
+
 // window.screen.height is the physical screen height in CSS pixels.
 // Unlike window.innerHeight, it includes the iOS home-indicator zone (~34pt)
 // that viewport-fit:cover exposes but the layout viewport excludes.
@@ -57,12 +73,14 @@ if (window.location.hash.includes('type=invite')) {
 const publicPath = window.location.pathname.replace(/\/+$/, '')
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Suspense fallback={<LoadingSplash fullScreen label={publicPath.startsWith('/retail') ? 'Opening retailer workspace…' : 'Opening MacroStack…'} />}>
-      {((publicPath === '/retail/member' || publicPath === '/retail/connect') && new URLSearchParams(window.location.search).has('invite')) ? <CustomerInvite /> : publicPath === '/retailers' || publicPath === '/retail/start' ? (['confirm','reset'].includes(new URLSearchParams(window.location.search).get('flow')) ? <RetailEmailFlow /> : <RetailSignup />)
-        : isRetailLoginRoute(publicPath, window.location.search) ? <RetailEntry />
-        : publicPath === '/gyms' ? <Gyms />
-        : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />
-        : <App />}
-    </Suspense>
+    <AppErrorBoundary>
+      <Suspense fallback={<LoadingSplash fullScreen label={publicPath.startsWith('/retail') ? 'Opening retailer workspace…' : 'Opening MacroStack…'} />}>
+        {((publicPath === '/retail/member' || publicPath === '/retail/connect') && new URLSearchParams(window.location.search).has('invite')) ? <CustomerInvite /> : publicPath === '/retailers' || publicPath === '/retail/start' ? (['confirm','reset'].includes(new URLSearchParams(window.location.search).get('flow')) ? <RetailEmailFlow /> : <RetailSignup />)
+          : isRetailLoginRoute(publicPath, window.location.search) ? <RetailEntry />
+          : publicPath === '/gyms' ? <Gyms />
+          : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />
+          : <App />}
+      </Suspense>
+    </AppErrorBoundary>
   </StrictMode>,
 )
