@@ -64,7 +64,7 @@ export default function Branding({ organization, onSaved }) {
   }
   return (
     <section id="retail-branding" className="retail-section retail-store-scroll-target" tabIndex={-1}>
-      <h2>Store logo & portal branding</h2>
+      <h2 className="retail-store-section-heading">Branding</h2>
       <p className="retail-muted">
         Make this workspace feel like your business. Shared across your
         locations and connected customer store views.

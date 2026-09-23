@@ -54,7 +54,7 @@ export default function OperationalHealth({ location, onNavigate }) {
       <section className="retail-section retail-store-scroll-target" id="retail-launch" tabIndex={-1}>
         <div className="retail-row">
           <div>
-            <h2>Launch checklist</h2>
+            <h2 className="retail-store-section-heading">Launch checklist</h2>
             <p>Prepare the store, then rehearse the customer journey.</p>
           </div>
         </div>
@@ -88,7 +88,7 @@ export default function OperationalHealth({ location, onNavigate }) {
       <section className="retail-section retail-store-scroll-target" id="retail-health" tabIndex={-1}>
         <div className="retail-row">
           <div>
-            <h2>Operations health</h2>
+            <h2 className="retail-store-section-heading">Operations health</h2>
             <p>Reminder activity over the last 30 days.</p>
           </div>
           <Button disabled={busy} onClick={() => run(refresh)}>

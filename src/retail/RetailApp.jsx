@@ -168,11 +168,11 @@ export default function RetailApp({ retailerSession = false }) {
     [isStaff, requestedSection, permissions.customers, permissions.chat, permissions.resources, permissions.resource_manage, permissions.team, permissions.billing, permissions.branding, permissions.reports]);
   const storeSections = [
     ...(permissions.branding && org ? [{ id: "retail-branding", label: "Branding" }] : []),
-    ...(permissions.billing && org ? [{ id: "retail-billing", label: "Billing" }, { id: "retail-pilot", label: "Pilot" }] : []),
-    ...(permissions.billing && permissions.team ? [{ id: "retail-launch", label: "Launch" }, { id: "retail-health", label: "Health" }] : []),
-    ...(permissions.customer_write ? [{ id: "retail-onboarding", label: "Customer link" }] : []),
-    ...(permissions.team ? [{ id: "retail-team", label: "Team" }] : []),
-    ...(permissions.reports ? [{ id: "retail-reports", label: "Reports" }] : []),
+    ...(permissions.customer_write ? [{ id: "retail-onboarding", label: "Customer access" }] : []),
+    ...(permissions.team ? [{ id: "retail-team", label: "Team & permissions" }] : []),
+    ...(permissions.billing && permissions.team ? [{ id: "retail-launch", label: "Launch checklist" }, { id: "retail-health", label: "Operations health" }] : []),
+    ...(permissions.billing && org ? [{ id: "retail-billing", label: "Subscription" }, { id: "retail-pilot", label: "Pilot readiness" }] : []),
+    ...(permissions.reports ? [{ id: "retail-reports", label: "Store performance" }] : []),
     ...(isOrgAdmin && (permissions.reports || permissions.team) ? [{ id: "retail-organization", label: "Organization" }] : []),
   ];
   const employees = staffDirectory;
@@ -839,24 +839,25 @@ export default function RetailApp({ retailerSession = false }) {
             {section === "Store" && (
               <>
                 <StoreSectionNav items={storeSections} />
+                <div className="retail-store-settings-body">
                 {permissions.branding && org && <Branding key={org.id} organization={org} onSaved={reloadContext} />}
-                {permissions.billing && org && (
-                  <Operations
-                    key={location.id}
-                    onBillingRefresh={reloadContext}
-                    location={location}
-                    organization={org}
-                    admin={user?.role === "superadmin"}
-                    organizationAdmin={
-                      user?.role === "superadmin" ||
-                      memberships.some(
-                        (m) =>
-                          m.organization_id === org.id &&
-                          m.role === "organization_admin",
-                      )
-                    }
+                {permissions.customer_write && <section className="retail-section retail-store-scroll-target" id="retail-onboarding" tabIndex={-1}>
+                  <h2 className="retail-store-section-heading">Customer access</h2>
+                  <p>Customers sign in or create an account, then explicitly confirm this store connection.</p>
+                  <JoinQR url={`${window.location.origin}/retail/member?store=${location.join_code}`} />
+                  <Field
+                    label="Customer link"
+                    value={`${window.location.origin}/retail/member?store=${location.join_code}`}
+                    readOnly
+                    onChange={() => {}}
                   />
-                )}
+                  <Button
+                    onClick={() => run(() => navigator.clipboard.writeText(`${window.location.origin}/retail/member?store=${location.join_code}`))}
+                  >
+                    Copy onboarding link
+                  </Button>
+                </section>}
+                {permissions.team && <Team organizationId={org.id} location={location} locations={ctx.locations.filter(l=>l.organization_id===org.id)} operators={ctx.operators.filter(o=>o.organization_id===org.id)} corporate={isOrgAdmin} onChanged={async()=>{await reloadContext();await refresh();}}/>}
                 {permissions.billing && permissions.team && (
                   <OperationalHealth
                     key={`health-${location.id}`}
@@ -875,43 +876,27 @@ export default function RetailApp({ retailerSession = false }) {
                     }}
                   />
                 )}
-
-                <div className="retail-columns">
-                  <section>
-                    {permissions.customer_write && <div className="retail-section retail-store-scroll-target" id="retail-onboarding" tabIndex={-1}>
-                      <h2>Store onboarding link</h2>
-                      <p>
-                        Customers sign in or create an account, then explicitly
-                        confirm this store connection.
-                      </p>
-                      <JoinQR
-                        url={`${window.location.origin}/retail/member?store=${location.join_code}`}
-                      />
-                      <Field
-                        label="Customer link"
-                        value={`${window.location.origin}/retail/member?store=${location.join_code}`}
-                        readOnly
-                        onChange={() => {}}
-                      />
-                      <Button
-                        onClick={() =>
-                          run(() =>
-                            navigator.clipboard.writeText(
-                              `${window.location.origin}/retail/member?store=${location.join_code}`,
-                            ),
-                          )
-                        }
-                      >
-                        Copy onboarding link
-                      </Button>
-                    </div>}
-                    {permissions.team && <Team organizationId={org.id} location={location} locations={ctx.locations.filter(l=>l.organization_id===org.id)} operators={ctx.operators.filter(o=>o.organization_id===org.id)} corporate={isOrgAdmin} onChanged={async()=>{await reloadContext();await refresh();}}/>}
-
-                  </section>
-                  <aside>
+                {permissions.billing && org && (
+                  <Operations
+                    key={location.id}
+                    onBillingRefresh={reloadContext}
+                    location={location}
+                    organization={org}
+                    admin={user?.role === "superadmin"}
+                    organizationAdmin={
+                      user?.role === "superadmin" ||
+                      memberships.some(
+                        (m) =>
+                          m.organization_id === org.id &&
+                          m.role === "organization_admin",
+                      )
+                    }
+                  />
+                )}
                     {permissions.reports && (
                       <section className="retail-section retail-store-scroll-target" id="retail-reports" tabIndex={-1}>
-                        <h2>Last 30 days</h2>
+                        <h2 className="retail-store-section-heading">Store performance</h2>
+                        <p>Activity from the last 30 days.</p>
                         <Button onClick={showReports} disabled={busy}>
                           Refresh metrics
                         </Button>
@@ -965,7 +950,8 @@ export default function RetailApp({ retailerSession = false }) {
                     )}
                     {isOrgAdmin && (permissions.reports || permissions.team) && (
                       <section className="retail-section retail-store-scroll-target" id="retail-organization" tabIndex={-1}>
-                        <h2>Organization setup</h2>
+                        <h2 className="retail-store-section-heading">Organization</h2>
+                        <p>Manage locations and review results across the business.</p>
                         {permissions.reports && <Button
                           disabled={busy}
                           onClick={() =>
@@ -1034,6 +1020,7 @@ export default function RetailApp({ retailerSession = false }) {
                             </Button>}
                           </>
                         )}
+                        <div className="retail-actions">
                         {permissions.team && <Button onClick={() => setModal("operator")}>
                           Add operator
                         </Button>}
@@ -1053,9 +1040,9 @@ export default function RetailApp({ retailerSession = false }) {
                             </Button>
                           </>
                         )}
+                        </div>
                       </section>
                     )}
-                  </aside>
                 </div>
               </>
             )}

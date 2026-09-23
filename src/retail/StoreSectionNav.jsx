@@ -23,6 +23,10 @@ export default function StoreSectionNav({ items }) {
     const update = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
+        if (scroller.scrollTop > 16 && scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4) {
+          setActive(items.at(-1)?.id);
+          return;
+        }
         const line = nav.getBoundingClientRect().bottom + 24;
         const passed = items
           .map(({ id }) => document.getElementById(id))

@@ -970,19 +970,24 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 /* Store settings index: stays within reach beneath the primary navigation. */
 .retail .retail-store-section-nav {
   position: sticky;
-  top: var(--retail-primary-nav-height, 70px);
+  top: calc(var(--retail-primary-nav-height, 70px) + 12px);
   z-index: 29;
   display: flex;
   align-items: center;
   gap: 20px;
   min-height: 64px;
-  margin: 0 0 34px;
-  padding: 8px 16px 8px 22px;
+  width: min(100%, 1380px);
+  margin: 16px auto 42px;
+  padding: 9px 18px 9px 24px;
   color: var(--retail-nav-text, var(--color-muted));
-  background: var(--retail-nav-paint, var(--color-surface));
-  border: 1px solid color-mix(in srgb, var(--retail-accent) 16%, var(--color-border));
-  border-radius: 15px;
-  box-shadow: 0 12px 32px #00000030, inset 0 1px 0 #ffffff0c;
+  background: linear-gradient(115deg,
+    color-mix(in srgb, var(--retail-nav-glass-start, #0a0e17) 84%, transparent),
+    color-mix(in srgb, var(--retail-nav-glass-end, #080b12) 78%, transparent));
+  border: 1px solid color-mix(in srgb, var(--retail-accent) 24%, #ffffff22);
+  border-radius: 18px;
+  box-shadow: 0 18px 42px #00000045, inset 0 1px 0 #ffffff24, inset 0 -1px 0 #ffffff08;
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  backdrop-filter: blur(22px) saturate(1.3);
 }
 .retail-store-section-nav-label {
   flex: 0 0 auto;
@@ -1002,6 +1007,8 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
   flex: 1;
   scrollbar-width: none;
   overscroll-behavior-x: contain;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent);
 }
 .retail-store-section-nav-links::-webkit-scrollbar { display: none; }
 .retail .retail-store-section-nav button {
@@ -1026,18 +1033,49 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 }
 .retail .retail-store-section-nav button[aria-current="location"] {
   color: var(--retail-accent);
-  background: color-mix(in srgb, var(--retail-accent) 12%, transparent);
-  border-color: color-mix(in srgb, var(--retail-accent) 28%, transparent);
-  box-shadow: inset 0 1px 0 #ffffff0b;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--retail-accent) 16%, transparent), color-mix(in srgb, var(--retail-accent) 7%, transparent));
+  border-color: color-mix(in srgb, var(--retail-accent) 34%, transparent);
+  box-shadow: inset 0 1px 0 #ffffff1a, 0 3px 12px #00000020;
 }
 .retail-store-section-nav-number { opacity: .58; font-size: 10px; letter-spacing: .08em; }
 .retail .retail-store-scroll-target {
-  scroll-margin-top: calc(var(--retail-primary-nav-height, 70px) + var(--retail-store-subnav-height, 64px) + 20px);
+  scroll-margin-top: calc(var(--retail-primary-nav-height, 70px) + var(--retail-store-subnav-height, 64px) + 36px);
+}
+.retail .retail-store-settings-body {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.retail .retail-store-settings-body .retail-store-scroll-target {
+  margin: 0;
+  padding: 36px 0 44px;
+  border-top: 1px solid color-mix(in srgb, var(--retail-accent) 18%, var(--color-border));
+}
+.retail .retail-store-settings-body .retail-store-section-heading {
+  margin: 0 0 14px;
+  color: var(--retail-heading, var(--color-cream));
+  font: 900 clamp(23px, 2.2vw, 28px)/1.15 var(--font-display);
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+.retail .retail-store-settings-body .retail-store-section-heading::after {
+  content: '';
+  display: block;
+  width: 42px;
+  height: 2px;
+  margin-top: 14px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--retail-brand-primary, #82ade1), var(--retail-brand-secondary, #91b8ad));
+}
+.retail .retail-store-settings-body :is(#retail-billing, #retail-pilot) > form,
+.retail .retail-store-settings-body #retail-onboarding > .retail-field {
+  max-width: 760px;
 }
 @media (max-width: 800px) {
-  .retail .retail-store-section-nav { gap: 0; padding: 7px 8px; margin-bottom: 26px; }
+  .retail .retail-store-section-nav { gap: 0; padding: 7px 8px; margin-bottom: 30px; }
   .retail-store-section-nav-label { display: none; }
   .retail .retail-store-section-nav button { padding-inline: 12px; }
+  .retail .retail-store-settings-body .retail-store-scroll-target { padding: 28px 0 34px; }
+  .retail .retail-store-settings-body .retail-store-section-heading { font-size: 23px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .retail .retail-store-section-nav button { transition: none; }

@@ -24,6 +24,7 @@ export function brandStyle(colors) {
  '--retail-brand-primary':c.primary,'--retail-brand-secondary':c.secondary,'--retail-accent':c.primary,'--retail-brand-ink':c.buttonText,
  '--color-bg':c.background,'--color-surface':c.card,'--color-card':c.card,'--color-dim':c.border,'--color-cream':c.text,'--color-muted':c.muted,'--color-border':c.border,'--color-accent':c.primary,'--color-brown':c.primary,'--color-brown-light':c.primary,'--color-olive':c.secondary,
  '--retail-heading':c.heading,'--retail-input':c.input,'--retail-input-text':c.inputText,'--retail-nav-text':c.navText,'--retail-header-text':c.headerText,
+ '--retail-nav-glass-start':c.nav,'--retail-nav-glass-end':c.navGradient?c.navEnd:c.nav,
  ...Object.fromEntries(Object.keys(gradientLayers).map(key=>[`--retail-${key}-paint`,themeBackground(c,key)])),
  };
 }

@@ -80,9 +80,9 @@ export default function Operations({
       window.location.assign(url.href);
     });
   return (
-    <div className="retail-columns">
+    <div className="retail-store-settings-stack">
       <section className="retail-section retail-setup-target retail-store-scroll-target" id="retail-billing" tabIndex={-1} aria-label="Store subscription">
-        <h2>Store subscription</h2>
+        <h2 className="retail-store-section-heading">Subscription</h2>
         <p>
           <strong>$599 / store / month</strong>
         </p>
@@ -170,7 +170,8 @@ export default function Operations({
         )}
       </section>
       <section className="retail-section retail-store-scroll-target" id="retail-pilot" tabIndex={-1}>
-        <h2>Pilot readiness</h2>
+        <h2 className="retail-store-section-heading">Pilot readiness</h2>
+        <p>Keep your partner details, approvals, and staff preparation together.</p>
         {pilot && (
           <form
             onSubmit={(e) => {
