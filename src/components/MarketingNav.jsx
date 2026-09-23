@@ -10,9 +10,11 @@ const links = [['features', 'Features'], ['app', 'The app'], ['pricing', 'Pricin
 export default function MarketingNav({ gyms = false, onGetStarted, onSignUp, onMarketplace }) {
   const ref = useRef(null)
   useEffect(() => {
-    const update = () => document.documentElement.style.setProperty('--marketing-nav-height', `${ref.current.offsetHeight}px`)
+    const node = ref.current
+    if (!node) return
+    const update = () => document.documentElement.style.setProperty('--marketing-nav-height', `${node.offsetHeight}px`)
     const observer = new ResizeObserver(update)
-    observer.observe(ref.current)
+    observer.observe(node)
     update()
     return () => { observer.disconnect(); document.documentElement.style.removeProperty('--marketing-nav-height') }
   }, [])
