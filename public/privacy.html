@@ -44,7 +44,7 @@
     <a class="btn" href="/signup">START FREE</a>
   </nav>
   <main>
-    <p class="eyebrow">Effective July 13, 2026</p>
+    <p class="eyebrow">Effective September 23, 2026</p>
     <h1 class="display">Privacy Policy</h1>
     <p style="margin-top:16px">MacroStack ("we," "us") is a nutrition tracking and coaching platform available at getmacrostack.com and through our mobile apps. This policy explains what we collect, why, and the control you have over it. The short version: your data exists to run your account, we don't sell it, and you can delete it whenever you want.</p>
 
@@ -53,7 +53,7 @@
       <li><strong style="color:var(--cream)">Account information</strong>, your name, email address, and password (stored as a secure hash; we never see the plain text).</li>
       <li><strong style="color:var(--cream)">Nutrition and health data you enter</strong>, food logs, calorie and macro targets, body-weight entries, progress photos, and check-in answers. This is the core of the product and is only collected when you enter it.</li>
       <li><strong style="color:var(--cream)">Messages</strong>, conversations between you and your coach, and with our AI assistant.</li>
-      <li><strong style="color:var(--cream)">Payment information</strong>, handled entirely by Stripe. We never receive or store your card number; we only see your subscription status.</li>
+      <li><strong style="color:var(--cream)">Payment information</strong>, handled by Stripe. We never receive or store your card number; we receive subscription status and invoice amounts.</li>
       <li><strong style="color:var(--cream)">Technical data</strong>, basic device and error diagnostics so we can fix crashes and keep the service reliable.</li>
     </ul>
 
@@ -65,6 +65,16 @@
       <li>To send service email, things like coach messages, check-in reminders, and account notices. You can adjust notifications in the app.</li>
       <li>Barcode scans you add are contributed to the shared food database as nutrition facts only, the food's name, brand, and macros. No personal information is attached or visible to anyone.</li>
     </ul>
+
+    <h2 class="display">Affiliate Tracking</h2>
+    <p>If you allow affiliate tracking, Trybe records your visit with a browser identifier so a creator who referred you can receive credit. If you buy MacroStack Pro, we send Trybe that identifier, the first paid invoice ID, payment amount, currency, and time. We do not send Trybe your food logs, weight, progress photos, card details, or email address. We do not send renewal invoices for commission. You can decline the choice shown on the site or change your choice here. Declining stops the Trybe pixel from loading on later visits.</p>
+    <p><button type="button" id="affiliate-tracking-off" style="cursor:pointer">Disable affiliate tracking</button> <span id="affiliate-tracking-status" aria-live="polite"></span></p>
+    <script>
+      document.getElementById('affiliate-tracking-off').addEventListener('click', function () {
+        localStorage.setItem('macrostack-affiliate-tracking', 'declined')
+        document.getElementById('affiliate-tracking-status').textContent = 'Disabled for future visits.'
+      })
+    </script>
 
     <h2 class="display">What We Don't Do</h2>
     <ul>

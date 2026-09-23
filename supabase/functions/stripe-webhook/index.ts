@@ -4,6 +4,28 @@ import Stripe from 'https://esm.sh/stripe@14?target=deno'
 import { fulfillMarketplace, syncMarketplaceSubscription } from '../_shared/marketplace-payments.ts'
 import { syncRetailSubscription } from '../_shared/retail-billing.mjs'
 import { stripeReady } from '../_shared/marketplace-rules.ts'
+import { trybeOrderForPaidInvoice, isFirstPositivePaidInvoice, submitTrybeOrder } from '../_shared/trybe-orders.mjs'
+
+async function sendFirstPaidProInvoice(stripe: Stripe, invoice: Stripe.Invoice) {
+  if (!invoice.subscription || invoice.amount_paid <= 0) return
+  const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string)
+  const order = trybeOrderForPaidInvoice(invoice, subscription)
+  if (!order) return
+  const sentInvoiceId = subscription.metadata?.trybe_first_paid_invoice_id
+  if (sentInvoiceId && sentInvoiceId !== invoice.id) return
+  if (!sentInvoiceId) {
+    // Webhook events can arrive out of order. Check Stripe's paid invoice history
+    // so a renewal cannot become the commissioned invoice on a delayed delivery.
+    const paidInvoices = stripe.invoices.list({ subscription: subscription.id, status: 'paid', limit: 100 })
+    if (!await isFirstPositivePaidInvoice(invoice, paidInvoices)) return
+  }
+  await submitTrybeOrder(order, Deno.env.get('TRYBE_ORDERS_API_KEY'))
+  if (!sentInvoiceId) {
+    await stripe.subscriptions.update(subscription.id, {
+      metadata: { trybe_first_paid_invoice_id: invoice.id },
+    })
+  }
+}
 
 // Safely convert a Stripe unix timestamp to ISO. Returns null if absent/invalid
 // (avoids `new Date(NaN).toISOString()` throwing and 500-ing the webhook).
@@ -122,6 +144,7 @@ serve(async (req) => {
         if (invoice.subscription) {
           if (!await syncRetailSubscription(stripe, admin, invoice.subscription as string)) await syncMarketplaceSubscription(stripe, admin, invoice.subscription as string)
         }
+        if (event.type === 'invoice.paid') await sendFirstPaidProInvoice(stripe, invoice)
         break
       }
       case 'account.updated': {

@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { coachClientLimit } from '../lib/coachTiers'
 import { startStripeConnection } from '../lib/stripeConnect'
+import { getTrybeVisitorId } from '../lib/trybeAttribution'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 
@@ -716,7 +717,7 @@ const useStore = create(
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${session.access_token}`,
               },
-              body: JSON.stringify({ audience, plan, returnUrl: window.location.origin }),
+              body: JSON.stringify({ audience, plan, returnUrl: window.location.origin, trybeVisitorId: audience === 'user' ? getTrybeVisitorId() : null }),
             }
           )
           const json = await res.json().catch(() => ({}))

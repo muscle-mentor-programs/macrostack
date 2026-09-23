@@ -52,7 +52,7 @@ serve(async (req) => {
 
     // `plan` is a cadence (weekly|monthly|annual) for users, or a coach tier
     // key (t_2_10 … t_121_plus) for coaches.
-    const { plan, returnUrl, audience: requestedAudience } = await req.json()
+    const { plan, returnUrl, audience: requestedAudience, trybeVisitorId } = await req.json()
 
     // Reuse an existing Stripe customer if we have one, else create + persist it.
     const { data: profile } = await admin
@@ -91,13 +91,16 @@ serve(async (req) => {
     }
 
     const base = returnUrl || Deno.env.get('SITE_URL') || ''
+    const trybeMetadata = audience === 'user' && typeof trybeVisitorId === 'string' && /^[a-zA-Z0-9_-]{8,128}$/.test(trybeVisitorId)
+      ? { trybe_vid: trybeVisitorId }
+      : {}
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       // user_id in metadata lets the webhook map the subscription back to a profile
-      subscription_data: { metadata: { supabase_user_id: user.id, plan, audience } },
-      metadata: { supabase_user_id: user.id, plan, audience },
+      subscription_data: { metadata: { supabase_user_id: user.id, plan, audience, ...trybeMetadata } },
+      metadata: { supabase_user_id: user.id, plan, audience, ...trybeMetadata },
       success_url: `${base}/?checkout=success&workspace=${audience === 'coach' ? 'coach' : 'client'}`,
       cancel_url: `${base}/?checkout=cancelled&workspace=${audience === 'coach' ? 'coach' : 'client'}`,
       allow_promotion_codes: true,
