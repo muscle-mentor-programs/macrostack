@@ -10,6 +10,17 @@ html body .text-\[11px\] {
 }
 
 html body p.text-xs {
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+html body p.text-sm {
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+@media (min-width: 768px) {
+  html body p.md\:text-base {
+    font-size: 16px;
+  }
 }

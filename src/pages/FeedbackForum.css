@@ -3,7 +3,7 @@
 .feedback-page header { margin-bottom:24px; }
 .feedback-page h1 { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:clamp(34px,5vw,52px); }
 .feedback-page h2 { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:24px; }
-.feedback-page header > p:last-child, .feedback-list-heading p { color:var(--color-muted); font-size:14px; line-height:1.6; }
+.feedback-page header > p:last-child, .feedback-list-heading p { color:var(--color-muted); font-size:15px; line-height:1.6; }
 .feedback-eyebrow { color:var(--color-accent); font-size:12px; letter-spacing:.2em; }
 .feedback-context { display:flex; gap:12px; flex-wrap:wrap; font-size:14px; margin-bottom:24px; color:var(--color-muted); }
 .feedback-context strong { color:var(--color-accent); }
@@ -17,7 +17,7 @@
 .feedback-record { display:flex; gap:18px; align-items:flex-start; }
 .feedback-record-body { min-width:0; flex:1; }
 .feedback-record h3 { font-family:'Barlow Condensed',sans-serif; font-size:25px; font-weight:800; overflow-wrap:anywhere; margin:10px 0; }
-.feedback-record-body > p { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; line-height:1.7; }
+.feedback-record-body > p { white-space:pre-wrap; overflow-wrap:anywhere; font-size:15px; line-height:1.7; }
 .feedback-meta { display:flex; gap:12px; flex-wrap:wrap; color:var(--color-muted); font-size:13px; }
 .feedback-meta span { display:inline-flex; align-items:center; gap:5px; }
 .feedback-vote { display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; padding:10px; min-width:56px; border:1px solid var(--color-border); border-radius:6px; }

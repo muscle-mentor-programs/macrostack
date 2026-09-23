@@ -57,7 +57,7 @@
 }
 .cw-header { display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:20px; }
 .cw-header h2 { font-family:var(--font-display,'Barlow Condensed',sans-serif); font-size:32px; font-weight:800; margin:0; }
-.cw-muted { color:var(--color-muted); font-size:14px; line-height:1.6; }
+.cw-muted { color:var(--color-muted); font-size:15px; line-height:1.6; }
 .cw-tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:12px; margin-bottom:16px; }
 .cw-tabs button { flex-shrink:0; }
 .coach-workspace button, .coach-workspace .cw-link { border:1px solid var(--color-border); border-radius:6px; padding:9px 12px; font-size:13px; font-weight:600; background:var(--color-surface); }
@@ -68,7 +68,7 @@
 .cw-grid:has(> label) + .cw-grid { margin-top:24px; }
 .cw-panel { padding:20px; border:1px solid var(--color-border); border-radius:10px; background:var(--color-card); margin-bottom:16px; overflow-wrap:anywhere; }
 .cw-panel h3 { font-size:18px; font-weight:700; margin-bottom:12px; }
-.cw-panel p { white-space:pre-wrap; line-height:1.65; font-size:14px; }
+.cw-panel p { white-space:pre-wrap; line-height:1.65; font-size:15px; }
 .cw-panel label { display:block; font-size:13px; margin:12px 0; color:var(--color-muted); }
 .coach-workspace input, .coach-workspace select, .coach-workspace textarea { display:block; width:100%; padding:10px 12px; border:1px solid var(--color-border); border-radius:6px; background:var(--color-bg); color:var(--color-cream); font-size:14px; margin-top:5px; }
 .coach-workspace textarea { min-height:120px; resize:vertical; }

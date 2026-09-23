@@ -4,7 +4,7 @@
   --workspace-line: color-mix(in srgb, var(--retail-accent) 18%, var(--color-border));
   --workspace-soft: color-mix(in srgb, var(--retail-accent) 7%, transparent);
   --workspace-shadow: 0 22px 54px #00000030, 0 4px 14px #00000026;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
   background: radial-gradient(ellipse 75% 510px at 15% 0%, color-mix(in srgb, var(--retail-accent) 9%, transparent), transparent), var(--retail-background-paint);
 }
@@ -124,7 +124,7 @@
   max-width: 65ch;
   margin: 11px 0 0;
   color: var(--retail-header-text, var(--color-cream));
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.65;
 }
 @keyframes retail-workspace-enter { from { opacity: .75; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
@@ -175,7 +175,7 @@
 .retail.retail-workspace .retail-section > h2 + p { margin-top: 2px; }
 .retail.retail-workspace .retail-row { padding-block: 19px; border-bottom-color: var(--workspace-line); }
 .retail.retail-workspace .retail-row h3 { font-size: 15px; line-height: 1.35; margin-bottom: 3px; }
-.retail.retail-workspace .retail-row p { font-size: 14px; line-height: 1.6; margin: 5px 0; }
+.retail.retail-workspace .retail-row p { font-size: 15px; line-height: 1.6; margin: 5px 0; }
 .retail.retail-workspace .retail-row small { font-size: 13px; }
 
 .retail.retail-workspace .retail-button {
@@ -225,7 +225,7 @@
 .retail.retail-workspace .customer-list-row .retail-customer-open { padding: 19px 24px; }
 .retail.retail-workspace .customer-list-row:hover { background: var(--workspace-soft); }
 .retail.retail-workspace .retail-customer-identity h2 { font-size: 16px; margin: 0; }
-.retail.retail-workspace .retail-customer-identity p { font-size: 14px; margin-top: 4px; }
+.retail.retail-workspace .retail-customer-identity p { font-size: 15px; margin-top: 4px; }
 .retail.retail-workspace .retail-customer-card {
   border-color: var(--workspace-line);
   background: linear-gradient(150deg, color-mix(in srgb, var(--retail-accent) 6%, transparent), transparent 54%), var(--retail-card-paint) !important;
@@ -291,7 +291,7 @@
   .retail.retail-workspace .retail-main { padding: 22px 16px 96px; }
   .retail.retail-workspace .retail-page-header { padding: 22px 20px; min-height: auto; border-radius: 15px; margin-bottom: 24px; }
   .retail.retail-workspace .retail-page-header h1 { font-size: clamp(29px, 8vw, 38px); }
-  .retail.retail-workspace .retail-page-header p { font-size: 14px; }
+  .retail.retail-workspace .retail-page-header p { font-size: 15px; }
   .retail.retail-workspace .retail-page-header::after { opacity: .5; }
   .retail.retail-workspace .retail-stats { margin-bottom: 24px; }
   .retail.retail-workspace .retail-stats > .retail-card { min-height: 100px; padding: 19px 14px; }

@@ -16,7 +16,7 @@
 .landing-redesign .hero h1 { font-size: clamp(76px, 8.7vw, 142px); line-height: .85; letter-spacing: -.035em; }
 .landing-redesign .hero h1 > span { padding-block: 5px; }
 .landing-redesign .hero h1 > span:nth-child(2) .hero-word { -webkit-text-stroke: 1px var(--color-cream); color: transparent; }
-.landing-redesign .hero-sub { max-width: 410px; margin-left: 0; font-size: 15px; line-height: 1.8; }
+.landing-redesign .hero-sub { max-width: 410px; margin-left: 0; font-size: 16px; line-height: 1.8; }
 .landing-redesign .hero-ctas { justify-content: flex-start; margin-top: 28px; }
 .landing-redesign .hero-ctas button { border-radius: 5px; }
 .landing-redesign .hero-mockup { height: 620px; align-items: center; justify-content: center; }
@@ -40,7 +40,7 @@
 .landing-card-icon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 42px; height: 42px; border: 1px solid color-mix(in srgb,var(--color-accent) 25%,var(--color-border)); border-radius: 6px; color: var(--color-accent); background: color-mix(in srgb,var(--color-accent) 6%,transparent); }
 .landing-step-top span:last-child { font-size: 12px; letter-spacing: .15em; }
 .landing-redesign .story-step h3 { font-size: 26px; font-weight: 800; line-height: 1.1; margin-bottom: 14px; }
-.landing-redesign .story-step p { font-size: 14px; line-height: 1.8; color: color-mix(in srgb,var(--color-cream) 72%,var(--color-bg)); }
+.landing-redesign .story-step p { font-size: 15px; line-height: 1.8; color: color-mix(in srgb,var(--color-cream) 72%,var(--color-bg)); }
 .landing-redesign .showcase > div:first-child { max-width: 1200px; text-align: left; }
 .landing-redesign .showcase > div:first-child > div { justify-content: flex-start; }
 .landing-redesign .showcase .premium-scroll { overflow: visible; max-width: 1248px; margin: 45px auto 0; padding: 0 24px; }
@@ -48,7 +48,7 @@
 .landing-redesign .showcase .premium-scroll > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; gap: 16px; align-items: stretch; }
 .landing-redesign .showcase .snap-start { width: auto; aspect-ratio: auto; min-height: 240px; border-radius: 8px; box-shadow: none !important; justify-content: flex-start; gap: 26px; padding: 26px; }
 .landing-redesign .showcase .snap-start h3 { font-size: 26px; font-weight: 800; line-height: 1.1; }
-.landing-redesign .showcase .snap-start p { font-size: 14px; line-height: 1.75; }
+.landing-redesign .showcase .snap-start p { font-size: 15px; line-height: 1.75; }
 .landing-redesign .showcase .snap-start:last-child { grid-column: 1 / -1; min-height: 130px; flex-direction: row; align-items: center; }
 .landing-redesign .showcase .snap-start:last-child > svg { flex-shrink: 0; }
 .landing-redesign .showcase .snap-start:last-child p { font-size: 12px; letter-spacing: .15em; margin-top: 8px; }
@@ -59,7 +59,7 @@
 .landing-redesign .landing-product-card > div:first-child { width: 240px; max-width: 75%; align-self: center; height: 355px; overflow: hidden; }
 .landing-redesign .landing-product-card > div:last-child { text-align: left; max-width: none; }
 .landing-redesign .landing-product-card h3 { font-size: clamp(30px,3vw,44px); }
-.landing-redesign .landing-product-card p { font-size: 14px; line-height: 1.8; }
+.landing-redesign .landing-product-card p { font-size: 15px; line-height: 1.8; }
 .landing-redesign #coach .landing-product-card { background: var(--land-invert-card); border-color: var(--land-invert-border); }
 /* These cropped mockups must not cast a shadow against the rectangular crop. */
 .landing-redesign .landing-product-card img { filter: none !important; }
@@ -104,7 +104,7 @@
   .landing-redesign .hero { padding-top: 125px; padding-bottom: 70px; }
   .landing-redesign .hero-inner { grid-template-columns: 1fr; padding-inline: 24px; }
   .landing-redesign .hero h1 { font-size: clamp(66px,16vw,100px); }
-  .landing-redesign .hero-sub { font-size: 14px; margin-top: 24px; }
+  .landing-redesign .hero-sub { font-size: 15px; margin-top: 24px; }
   .landing-redesign .hero-ctas { gap: 12px; }
   .landing-redesign .hero-ctas button { padding: 16px 20px; font-size: 13px; }
   .landing-redesign .hero-mockup { height: 420px; margin-top: 30px; }
