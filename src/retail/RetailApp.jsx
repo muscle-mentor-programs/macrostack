@@ -353,7 +353,7 @@ export default function RetailApp({ retailerSession = false }) {
       <header className="retail-top">
         <div className="retail-header-brand">
           <div className="retail-brand">
-            <StoreBrand locationId={locationId} revision={ctx} />
+            <StoreBrand locationId={locationId} organization={org} revision={ctx} />
           </div>
 
         </div>

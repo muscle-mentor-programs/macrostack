@@ -22,7 +22,7 @@ export function BrandIdentity({ name, logo }) {
     </div>
   );
 }
-export default function StoreBrand({ locationId, revision }) {
+export default function StoreBrand({ locationId, organization, revision }) {
   const [result, setResult] = useState(null);
   useEffect(() => {
     let active = true;
@@ -38,10 +38,14 @@ export default function StoreBrand({ locationId, revision }) {
       active = false;
     };
   }, [locationId, revision]);
-  return result?.id === locationId && result.brand ? (
+  const brand = (result?.id === locationId && result.brand) || (organization && {
+    name: organization.brand_name || organization.name,
+    logo_path: organization.logo_path,
+  });
+  return brand ? (
     <BrandIdentity
-      name={result.brand.name}
-      logo={brandLogoURL(result.brand.logo_path)}
+      name={brand.name}
+      logo={brandLogoURL(brand.logo_path)}
     />
   ) : (
     <BrandWordmark />
