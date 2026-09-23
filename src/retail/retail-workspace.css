@@ -4,7 +4,7 @@
   --workspace-line: color-mix(in srgb, var(--retail-accent) 18%, var(--color-border));
   --workspace-soft: color-mix(in srgb, var(--retail-accent) 7%, transparent);
   --workspace-shadow: 0 22px 54px #00000030, 0 4px 14px #00000026;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   background: radial-gradient(ellipse 75% 510px at 15% 0%, color-mix(in srgb, var(--retail-accent) 9%, transparent), transparent), var(--retail-background-paint);
 }
@@ -27,7 +27,7 @@
 }
 .retail.retail-workspace .retail-top .retail-powered {
   color: var(--retail-header-text, var(--color-cream));
-  opacity: .68;
+  opacity: .85;
 }
 .retail.retail-workspace .retail-location-control select[aria-label="Choose store"] {
   min-height: 46px;
@@ -53,7 +53,7 @@
 .retail.retail-workspace .retail-nav button {
   min-height: 44px;
   border-radius: 9px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 650;
   padding: 10px 19px;
   transition: color .22s ease, background .22s ease, border-color .22s ease, box-shadow .22s ease;
@@ -124,9 +124,8 @@
   max-width: 65ch;
   margin: 11px 0 0;
   color: var(--retail-header-text, var(--color-cream));
-  opacity: .76;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.65;
 }
 @keyframes retail-workspace-enter { from { opacity: .75; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -156,7 +155,7 @@
   letter-spacing: -.025em;
   margin: 0 0 10px;
 }
-.retail.retail-workspace .retail-stats small { font-size: 12px; color: var(--color-muted); }
+.retail.retail-workspace .retail-stats small { font-size: 13px; color: var(--retail-copy-muted); }
 .retail.retail-workspace .retail-columns { gap: clamp(24px, 3.5vw, 58px); }
 .retail.retail-workspace .retail-columns > .retail-section {
   padding: 27px 0 0;
@@ -176,8 +175,8 @@
 .retail.retail-workspace .retail-section > h2 + p { margin-top: 2px; }
 .retail.retail-workspace .retail-row { padding-block: 19px; border-bottom-color: var(--workspace-line); }
 .retail.retail-workspace .retail-row h3 { font-size: 15px; line-height: 1.35; margin-bottom: 3px; }
-.retail.retail-workspace .retail-row p { font-size: 12px; line-height: 1.5; margin: 5px 0; }
-.retail.retail-workspace .retail-row small { font-size: 11px; }
+.retail.retail-workspace .retail-row p { font-size: 14px; line-height: 1.6; margin: 5px 0; }
+.retail.retail-workspace .retail-row small { font-size: 13px; }
 
 .retail.retail-workspace .retail-button {
   border-color: var(--workspace-line);
@@ -195,7 +194,7 @@
   border-color: color-mix(in srgb, var(--retail-accent) 60%, var(--color-border));
   font-weight: 700;
 }
-.retail.retail-workspace .retail-field > span { font-size: 12px; font-weight: 600; }
+.retail.retail-workspace .retail-field > span { font-size: 13px; font-weight: 600; }
 .retail.retail-workspace :is(input:not([type="checkbox"]), select, textarea) {
   border-radius: 10px;
   border-color: var(--workspace-line);
@@ -226,7 +225,7 @@
 .retail.retail-workspace .customer-list-row .retail-customer-open { padding: 19px 24px; }
 .retail.retail-workspace .customer-list-row:hover { background: var(--workspace-soft); }
 .retail.retail-workspace .retail-customer-identity h2 { font-size: 16px; margin: 0; }
-.retail.retail-workspace .retail-customer-identity p { font-size: 12px; margin-top: 4px; }
+.retail.retail-workspace .retail-customer-identity p { font-size: 14px; margin-top: 4px; }
 .retail.retail-workspace .retail-customer-card {
   border-color: var(--workspace-line);
   background: linear-gradient(150deg, color-mix(in srgb, var(--retail-accent) 6%, transparent), transparent 54%), var(--retail-card-paint) !important;
@@ -292,12 +291,12 @@
   .retail.retail-workspace .retail-main { padding: 22px 16px 96px; }
   .retail.retail-workspace .retail-page-header { padding: 22px 20px; min-height: auto; border-radius: 15px; margin-bottom: 24px; }
   .retail.retail-workspace .retail-page-header h1 { font-size: clamp(29px, 8vw, 38px); }
-  .retail.retail-workspace .retail-page-header p { font-size: 12px; }
+  .retail.retail-workspace .retail-page-header p { font-size: 14px; }
   .retail.retail-workspace .retail-page-header::after { opacity: .5; }
   .retail.retail-workspace .retail-stats { margin-bottom: 24px; }
   .retail.retail-workspace .retail-stats > .retail-card { min-height: 100px; padding: 19px 14px; }
   .retail.retail-workspace .retail-stats strong { font-size: 27px; }
-  .retail.retail-workspace .retail-stats small { font-size: 11px; }
+  .retail.retail-workspace .retail-stats small { font-size: 12px; }
   .retail.retail-workspace .customer-list-row .retail-customer-open { padding: 18px 16px; }
   .retail.retail-workspace .retail-store-settings-body .retail-store-scroll-target { padding-block: 32px 42px; }
 }
