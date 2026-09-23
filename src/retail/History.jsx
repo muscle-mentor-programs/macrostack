@@ -25,7 +25,7 @@ function summary(row) {
     "Record"
   );
 }
-export default function History({ relationship, staff }) {
+export default function History({ relationship, staff, allowExport=true }) {
   const [category, setCategory] = useState("plans"),
     [from, setFrom] = useState(""),
     [to, setTo] = useState(""),
@@ -172,7 +172,7 @@ export default function History({ relationship, staff }) {
           }}
         />
       </div>
-      <details className="retail-export-menu">
+      {allowExport && <details className="retail-export-menu">
         <summary>Export ▾</summary>
         <div className="retail-actions">
           <Button disabled={!rows.length || loading} onClick={exportPage}>
@@ -182,7 +182,7 @@ export default function History({ relationship, staff }) {
             Export date range
           </Button>
         </div>
-      </details>
+      </details>}
       {busy && (
         <Button
           onClick={() => {

@@ -1,3 +1,4 @@
+import {useRetailPermissions} from './PermissionContext';
 import CustomerResources from './CustomerResources';
 import { CurrentNutrition, ConsultationNotes } from "./CustomerDetails";
 import FoodJournal from "./FoodJournal";
@@ -35,6 +36,13 @@ export default function CustomerWorkspace({
   onRefresh,
 }) {
   const now = useClock();
+  const permissions = useRetailPermissions();
+  const canWrite = staff && !!permissions?.customer_write;
+  const canNutrition = staff && !!permissions?.nutrition;
+  const canChat = staff && !!permissions?.chat;
+  const canShare = staff && !!permissions?.resources;
+  const canDelete = staff && !!permissions?.delete_customer;
+  const canExport = !staff || !!permissions?.exports;
   const [avatarPath, setAvatarPath] = useState(relationship.avatar_path);
   const [deleteOpen,setDeleteOpen]=useState(false);
   const [deleteName,setDeleteName]=useState("");
@@ -206,7 +214,7 @@ export default function CustomerWorkspace({
           </Button>
           <CustomerAvatar
             customer={{ ...relationship, avatar_path: avatarPath }}
-            editable={staff}
+            editable={canWrite}
             onSaved={async (path) => {
               setAvatarPath(path);
               await onRefresh?.();
@@ -219,10 +227,10 @@ export default function CustomerWorkspace({
               ?.name || "No specialist assigned"}
           </p>
         </div>
-        {staff && (
-          <div className="retail-actions"><Button disabled={relationship.status !== "active"} onClick={() => {setOpenResourcePicker(true);selectTab("Resources")}}>Add from Resources</Button><Button primary onClick={() => setConsult(true)}>
+        {(canShare || canNutrition) && (
+          <div className="retail-actions">{canShare && <Button disabled={relationship.status !== "active"} onClick={() => {setOpenResourcePicker(true);selectTab("Resources")}}>Add from Resources</Button>}{canNutrition && <Button primary onClick={() => setConsult(true)}>
             {draft ? "Continue consultation" : "Start consultation"}
-          </Button></div>
+          </Button>}</div>
         )}
       </div>
       <Alert error={error} />
@@ -266,7 +274,7 @@ export default function CustomerWorkspace({
                         <p className="retail-muted">
                           {displayDate(t.due_at)} · {t.kind}
                         </p>
-                        <Field
+                        {canWrite && <><Field
                           label="Completion or rescheduling note"
                           value={taskNotes[t.id] || ""}
                           onChange={(v) =>
@@ -326,10 +334,10 @@ export default function CustomerWorkspace({
                           >
                             Reschedule
                           </Button>
-                        </div>
+                        </div></>}
                       </div>
                     ))}
-                    <h3>Add follow-up</h3>
+                    {canWrite && <><h3>Add follow-up</h3>
                     <Field
                       label="Title"
                       value={task.title}
@@ -371,7 +379,7 @@ export default function CustomerWorkspace({
                       }
                     >
                       Create follow-up
-                    </Button>
+                    </Button></>}
                   </section>
                 ) : (
                   <section className="retail-section">
@@ -441,7 +449,7 @@ export default function CustomerWorkspace({
                 <section className="retail-section">
                   <div className="retail-eyebrow">Staff only</div>
                   <h2>Private notes</h2>
-                  <Field
+                  {canWrite && <><Field
                     label="Add a note"
                     value={note}
                     onChange={setNote}
@@ -454,7 +462,7 @@ export default function CustomerWorkspace({
                     }
                   >
                     Save private note
-                  </Button>
+                  </Button></>}
                   <ConsultationNotes
                     consultations={data.consultations || []}
                     notes={data.notes || []}
@@ -466,7 +474,7 @@ export default function CustomerWorkspace({
           {tab === "Preferences" && (
             <div>
               {" "}
-              {manager && (
+              {manager && canWrite && (
                 <section className="retail-section">
                   <h2>Store relationship</h2>
                   <Select
@@ -506,8 +514,8 @@ export default function CustomerWorkspace({
                   >
                     Update relationship
                   </Button>
-                  <div className="retail-delete-customer"><h3>Remove customer</h3><p>Remove this customer from this store and end their connection. Their personal account and other connections stay active. Store history is retained.</p><Button onClick={()=>{setDeleteName("");setDeleteOpen(true)}}>Delete customer</Button></div>
-                  {deleteOpen&&<Modal title="Delete customer" onClose={()=>{if(!busy)setDeleteOpen(false)}}><p>Remove {relationship.name} from this store? Open follow-ups and store access will end. Their personal MacroStack account is not deleted. Historical store records are retained.</p><Field label="Type customer name to confirm" value={deleteName} onChange={setDeleteName}/><Alert error={error}/><div className="retail-actions"><Button disabled={busy} onClick={()=>setDeleteOpen(false)}>Keep customer</Button><Button disabled={busy||deleteName.trim()!==relationship.name.trim()} onClick={()=>run(async()=>{await deleteCustomer(relationship.id,relationship.revision);setDeleteOpen(false);onBack();await onRefresh?.();})}>Confirm deletion</Button></div></Modal>}
+                  {canDelete && <div className="retail-delete-customer"><h3>Remove customer</h3><p>Remove this customer from this store and end their connection. Their personal account and other connections stay active. Store history is retained.</p><Button onClick={()=>{setDeleteName("");setDeleteOpen(true)}}>Delete customer</Button></div>}
+                  {canDelete && deleteOpen&&<Modal title="Delete customer" onClose={()=>{if(!busy)setDeleteOpen(false)}}><p>Remove {relationship.name} from this store? Open follow-ups and store access will end. Their personal MacroStack account is not deleted. Historical store records are retained.</p><Field label="Type customer name to confirm" value={deleteName} onChange={setDeleteName}/><Alert error={error}/><div className="retail-actions"><Button disabled={busy} onClick={()=>setDeleteOpen(false)}>Keep customer</Button><Button disabled={busy||deleteName.trim()!==relationship.name.trim()} onClick={()=>run(async()=>{await deleteCustomer(relationship.id,relationship.revision);setDeleteOpen(false);onBack();await onRefresh?.();})}>Confirm deletion</Button></div></Modal>}
 
                 </section>
               )}
@@ -521,7 +529,7 @@ export default function CustomerWorkspace({
               />
             </div>
           )}
-          {tab === "Resources" && <CustomerResources relationship={relationship} staff={staff} onRefresh={refresh} openPicker={openResourcePicker} onPickerOpened={()=>setOpenResourcePicker(false)} />}
+          {tab === "Resources" && <CustomerResources relationship={relationship} staff={staff} canShare={canShare} canExport={canExport} onRefresh={refresh} openPicker={openResourcePicker} onPickerOpened={()=>setOpenResourcePicker(false)} />}
           {tab === "Intake" && (
             <section className="retail-section">
               <h2>Customer intake</h2>
@@ -582,7 +590,7 @@ export default function CustomerWorkspace({
                     customer's app.
                   </p>
                 </div>
-                {staff && (
+                {canNutrition && (
                   <Button
                     primary
                     disabled={relationship.status !== "active"}
@@ -602,7 +610,7 @@ export default function CustomerWorkspace({
                 key={`plans:${nutritionRevision}`}
                 relationship={relationship}
                 staff={staff}
-                manager={manager}
+                manager={manager && canNutrition}
                 recordTypes={["plans", "schedules"]}
                 title="App meal plans & scheduled targets"
                 onRefresh={()=>setNutritionRevision(v=>v+1)}
@@ -620,7 +628,7 @@ export default function CustomerWorkspace({
                     Daily targets, practical meal guidance and agreed habits.
                   </p>
                 </div>
-                {staff && (
+                {canNutrition && (
                   <Button
                     primary
                     onClick={() => {
@@ -649,9 +657,9 @@ export default function CustomerWorkspace({
                     Published {displayDate(plan.published_at)}
                   </div>
                   <h2>{plan.content.goal}</h2>
-                  <Button onClick={() => window.print()}>
+                  {canExport && <Button onClick={() => window.print()}>
                     Print / save plan
-                  </Button>
+                  </Button>}
                   <p className="retail-muted">
                     Targets recorded when this guidance was published. Current
                     app targets are shown above.
@@ -705,7 +713,7 @@ export default function CustomerWorkspace({
           )}
           {tab === "Progress" && (
             <>
-              {staff && (
+              {canWrite && (
                 <Button
                   disabled={busy}
                   onClick={() =>
@@ -726,7 +734,7 @@ export default function CustomerWorkspace({
                 recordTypes={["weights", "photos"]}
                 title="App weight & progress photos"
               />
-              <Progress relationship={relationship} mode="files" />
+              <Progress relationship={relationship} mode="files" editable={!staff || canWrite} />
               <div className="retail-section">
                 <h2>Assessment history</h2>
                 <p className="retail-muted">
@@ -777,7 +785,7 @@ export default function CustomerWorkspace({
                   <Empty>No assessments recorded.</Empty>
                 )}
               </div>
-              {staff && (
+              {canNutrition && (
                 <section className="retail-section">
                   <h2>Record assessment</h2>
                   <div className="retail-fields">
@@ -965,7 +973,7 @@ export default function CustomerWorkspace({
                       {String(v)}
                     </p>
                   ))}
-                  {staff && !c.reviewed_at && (
+                  {canWrite && !c.reviewed_at && (
                     <Button
                       disabled={busy}
                       onClick={() => mutate("review_checkin", { id: c.id })}
@@ -991,7 +999,7 @@ export default function CustomerWorkspace({
                     A store employee is working in this conversation.
                   </p>
                 )}
-              {staff && (
+              {canChat && (
                 <div className="retail-actions">
                   <Button
                     disabled={busy}
@@ -1056,7 +1064,7 @@ export default function CustomerWorkspace({
                     </div>
                   ))}
               </div>
-              <Field
+              {(!staff || canChat) && <><Field
                 label="Message"
                 value={message}
                 onChange={(v) => {
@@ -1074,7 +1082,7 @@ export default function CustomerWorkspace({
               <Button
                 primary
                 disabled={
-                  busy || !message.trim() || relationship.status !== "active"
+                  busy || (staff && !canChat) || !message.trim() || relationship.status !== "active"
                 }
                 onClick={() =>
                   mutate("message", { id: messageId, body: message }, () => {
@@ -1084,7 +1092,7 @@ export default function CustomerWorkspace({
                 }
               >
                 Send message
-              </Button>
+              </Button></>}
             </section>
           )}
           {tab === "Preferences" && !staff && (
@@ -1095,7 +1103,7 @@ export default function CustomerWorkspace({
           )}
 
           {tab === "History" && (
-            <History relationship={relationship} staff={staff} />
+            <History relationship={relationship} staff={staff} allowExport={canExport} />
           )}
           {tab === "Preferences" && !staff && (
             <section className="retail-section">

@@ -3,7 +3,7 @@ import useStore from "../store";
 import { activity, list, uploadFile, fileURL } from "./api";
 import { Button, Select, Empty, Alert, useAction } from "./ui";
 import { displayDate } from "./model";
-export default function Progress({ relationship, mode = "all", targets }) {
+export default function Progress({ relationship, mode = "all", targets, editable = true }) {
   const userId = useStore((s) => s.currentUser?.id),
     [shared, setShared] = useState(null),
     [files, setFiles] = useState([]),
@@ -56,7 +56,7 @@ export default function Progress({ relationship, mode = "all", targets }) {
             Files uploaded here are shared with this customer and their
             authorized store team. Customer app photos are shown separately above when shared.
           </p>
-          {relationship.status === "active" && (
+          {editable && relationship.status === "active" && (
             <>
               <Select label="File type" value={kind} onChange={setKind}>
                 <option value="photo">Progress photo</option>

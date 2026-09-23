@@ -1,8 +1,12 @@
+import RequiredResources from './RequiredResources';
+import CustomerDirectory from './CustomerDirectory';
+import {PermissionContext} from './PermissionContext';
+import {effectivePermissions} from './teamApi';
+import Team from './Team';
 import Resources from './Resources';
 import {RetailThemeContext} from "./ThemeContext";
 import { brandStyle } from "./brandColors";
 import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, LogOut, ArrowUpRight } from "lucide-react";
-import CustomerAvatar from "./CustomerAvatar";
 import ScrambleText from "../components/ScrambleText";
 import LoadingSplash from "../components/LoadingSplash";
 import { accountEmail } from "./accountEmail";
@@ -109,6 +113,13 @@ export default function RetailApp({ retailerSession = false }) {
     [info, setInfo] = useState(null),
     [consent, setConsent] = useState(false),
     [share, setShare] = useState(false);
+  const [access,setAccess]=useState(null);
+  useEffect(()=>{if(!locationId)return;let active=true;
+    const load=()=>effectivePermissions(locationId).then(p=>{if(active)setAccess({locationId,...p})}).catch(()=>{if(active)setAccess({locationId})});
+    load();const timer=setInterval(load,30000);window.addEventListener('focus',load);
+    return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',load)};
+  },[locationId,ctx.staff]);
+  const permissions=access?.locationId===locationId?access:{};
   const location = ctx.locations.find((l) => l.id === locationId),
     org = ctx.organizations.find((o) => o.id === location?.organization_id);
   const memberships = ctx.staff.filter(
@@ -143,15 +154,18 @@ export default function RetailApp({ retailerSession = false }) {
         (s.location_id === locationId && s.role === "manager") ||
         (s.role === "operator" && s.operator_id === location?.operator_id),
     );
-  const locationStaff =
-    user?.role === "superadmin" ||
-    memberships.some((m) => m.location_id === locationId);
-  const section =
-    isStaff &&
-    !locationStaff &&
-    !["Resources", "Store"].includes(requestedSection)
-      ? "Store"
-      : requestedSection;
+  const allowedSections = sections.filter((name) => {
+    if (name === "Today" || name === "Customers") return permissions.customers;
+    if (name === "Inbox") return permissions.chat;
+    if (name === "Resources") return permissions.resources || permissions.resource_manage;
+    if (name === "Store") return permissions.team || permissions.billing || permissions.branding || permissions.reports;
+    return false;
+  });
+  const section = useMemo(() => isStaff && allowedSections.length && !allowedSections.includes(requestedSection)
+    ? allowedSections[0] : requestedSection,
+    // Access is fetched as one immutable snapshot; its capability flags are the dependencies.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isStaff, requestedSection, permissions.customers, permissions.chat, permissions.resources, permissions.resource_manage, permissions.team, permissions.billing, permissions.branding, permissions.reports]);
   const employees = staffDirectory;
   const reloadContext = useCallback(async () => {
     const c = await context(user?.id);
@@ -200,12 +214,12 @@ export default function RetailApp({ retailerSession = false }) {
           () =>
             Promise.all([
               list("templates", { organization_id: location?.organization_id }),
-              isStaff ? queue(locationId, taskOffset) : Promise.resolve([]),
-              isStaff
+              isStaff && permissions.customers ? queue(locationId, taskOffset) : Promise.resolve([]),
+              isStaff && permissions.chat
                 ? inbox(locationId, { offset: threadOffset, state: inboxState })
                 : Promise.resolve([]),
-              isStaff ? directory(locationId) : Promise.resolve([]),
-              isStaff ? queueCounts(locationId) : Promise.resolve({}),
+              isStaff && permissions.customers ? directory(locationId) : Promise.resolve([]),
+              isStaff && permissions.customers ? queueCounts(locationId) : Promise.resolve({}),
             ]),
           force,
         ),
@@ -231,6 +245,8 @@ export default function RetailApp({ retailerSession = false }) {
       section,
       user?.id,
       isStaff,
+      permissions.customers,
+      permissions.chat,
       auxCache,
       taskOffset,
       threadOffset,
@@ -324,7 +340,7 @@ export default function RetailApp({ retailerSession = false }) {
     setThreads([]);
   };
   return (
-    <RetailThemeContext.Provider value={brandStyle(org?.brand_colors)}><div className="retail" style={brandStyle(org?.brand_colors)}>
+    <PermissionContext.Provider value={permissions}><RetailThemeContext.Provider value={brandStyle(org?.brand_colors)}><div className="retail" style={brandStyle(org?.brand_colors)}>
       <header className="retail-top">
         <div className="retail-header-brand">
           <div className="retail-brand">
@@ -365,7 +381,7 @@ export default function RetailApp({ retailerSession = false }) {
       </header>
       {isStaff && (
         <nav className="retail-nav" aria-label="Store navigation">
-          {(locationStaff ? sections : ["Resources", "Store"]).map((s) => (
+          {allowedSections.map((s) => (
             <button
               key={s}
               aria-current={
@@ -382,7 +398,7 @@ export default function RetailApp({ retailerSession = false }) {
                 setSection(s);
                 setTaskOffset(0);
                 setThreadOffset(0);
-                if (s === "Store" && manager) showReports();
+                if (s === "Store" && permissions.reports) showReports();
               }}
             >
               {(() => { const Icon = { Today: LayoutDashboard, Customers: Users, Inbox: MessageCircle, Resources: BookOpen, Store: Settings2 }[s]; return Icon ? <Icon size={17} aria-hidden="true"/> : null; })()}<span>{s}</span>
@@ -486,6 +502,8 @@ export default function RetailApp({ retailerSession = false }) {
         )}
         {loading ? (
           <LoadingSplash label="Loading your stores…" />
+        ) : isStaff && access?.locationId !== locationId ? (
+          <LoadingSplash label="Loading store access…" />
         ) : selected ? (
           <CustomerWorkspace
             key={`${selected.id}:${customerTab}`}
@@ -580,7 +598,7 @@ export default function RetailApp({ retailerSession = false }) {
                   }
                 </p>
               </div>
-              {locationStaff && ["Today", "Customers"].includes(section) && (
+              {permissions.customer_write && ["Today", "Customers"].includes(section) && (
                 <Button primary onClick={() => setModal("prospect")}>
                   Add customer
                 </Button>
@@ -589,6 +607,7 @@ export default function RetailApp({ retailerSession = false }) {
             <WorkspaceGuide section={section} />
             {section === "Today" && (
               <>
+                <RequiredResources locationId={locationId} userId={user.id} roles={memberships.filter(s=>s.location_id===locationId || s.role==='organization_admin' || (s.role==='operator' && s.operator_id===location?.operator_id)).map(s=>s.access_role||s.role)}/>
                 <div className="retail-stats">
                   {[
                     [counts.open || 0, "Open conversations"],
@@ -720,67 +739,7 @@ export default function RetailApp({ retailerSession = false }) {
                     ))}
                   </Select>
                 </div>
-                <div className="retail-grid">
-                  {filtered.map((c) => (
-                    <article
-                      className="retail-card retail-customer-card"
-                      key={c.id}
-                    >
-                      <button
-                        className="retail-customer-open"
-                        onClick={() => {
-                          setCustomerTab("Overview");
-                          setSelected(c);
-                        }}
-                      >
-                        <div className="retail-customer-identity">
-                          <CustomerAvatar customer={c} />
-                          <div>
-                            <h2>{c.name}</h2>
-                            <p className="retail-muted">
-                              {c.email || "No email recorded"}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="retail-badge">
-                          {c.status === "invited"
-                            ? "Invitation pending"
-                            : c.status}
-                        </span>
-                        <p>{c.goal || "Set their goals and nutrition plan"}</p>
-                        <p className="retail-muted">
-                          {c.assigned_to === user.id
-                            ? "Assigned to you"
-                            : c.assigned_to
-                              ? "Assigned specialist"
-                              : "Unassigned"}{" "}
-                          · Open customer →
-                        </p>
-                      </button>
-                      <div
-                        className="retail-customer-shortcuts"
-                        aria-label={`Actions for ${c.name}`}
-                      >
-                        {[
-                          ["Plan", "Nutrition"],
-                          ["Food journal", "Food journal"],
-                          ["Progress", "Progress"],
-                          ["Messages", "Messages"],
-                        ].map(([tab, label]) => (
-                          <Button
-                            key={tab}
-                            onClick={() => {
-                              setCustomerTab(tab);
-                              setSelected(c);
-                            }}
-                          >
-                            {label}
-                          </Button>
-                        ))}
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                <CustomerDirectory customers={filtered} employees={employees} user={user} onOpen={(customer,tab)=>{setCustomerTab(tab);setSelected(customer)}}/>
                 {!filtered.length && (
                   <Empty>
                     <h2>
@@ -793,7 +752,7 @@ export default function RetailApp({ retailerSession = false }) {
                         ? "Try another name or clear the filters."
                         : "Add a customer, share their private invitation, then manage their nutrition plan and progress here."}
                     </p>
-                    {!query && filter === "all" && (
+                    {!query && filter === "all" && permissions.customer_write && (
                       <Button primary onClick={() => setModal("prospect")}>
                         Add your first customer
                       </Button>
@@ -867,12 +826,12 @@ export default function RetailApp({ retailerSession = false }) {
               </section>
             )}
             {section === "Resources" && (
-              <Resources location={location} organizationId={org?.id} manager={manager} corporate={isOrgAdmin} />
+              <Resources locations={ctx.locations.filter(l=>l.organization_id===org?.id)} location={location} organizationId={org?.id} manager={!!permissions.resource_manage} corporate={isOrgAdmin && !!permissions.resource_manage} />
             )}
             {section === "Store" && (
               <>
-                {isOrgAdmin && org && <Branding key={org.id} organization={org} onSaved={reloadContext} />}
-                {manager && org && (
+                {permissions.branding && org && <Branding key={org.id} organization={org} onSaved={reloadContext} />}
+                {permissions.billing && org && (
                   <Operations
                     key={location.id}
                     onBillingRefresh={reloadContext}
@@ -889,7 +848,7 @@ export default function RetailApp({ retailerSession = false }) {
                     }
                   />
                 )}
-                {manager && (
+                {permissions.billing && permissions.team && (
                   <OperationalHealth
                     key={`health-${location.id}`}
                     location={location}
@@ -910,7 +869,7 @@ export default function RetailApp({ retailerSession = false }) {
 
                 <div className="retail-columns">
                   <section>
-                    <div className="retail-section">
+                    {permissions.customer_write && <div className="retail-section">
                       <h2>Store onboarding link</h2>
                       <p>
                         Customers sign in or create an account, then explicitly
@@ -936,48 +895,12 @@ export default function RetailApp({ retailerSession = false }) {
                       >
                         Copy onboarding link
                       </Button>
-                    </div>
-                    {manager && (
-                      <div className="retail-section retail-setup-target" id="retail-team" tabIndex={-1} aria-label="Team">
-                        <h2>Team</h2>
-                        <Button primary onClick={() => setModal("staff")}>
-                          Invite employee
-                        </Button>
-                        {employees.map((e) => (
-                          <div key={e.id} className="retail-row">
-                            <div>
-                              <strong>{e.name || e.user_id.slice(0, 8)}</strong>
-                              <p>{e.role} · active</p>
-                            </div>
-                            {e.user_id !== user.id && (
-                              <Button
-                                disabled={busy}
-                                onClick={() => {
-                                  if (
-                                    window.confirm(
-                                      "Remove this employee’s store access and unassign their open work?",
-                                    )
-                                  )
-                                    run(async () => {
-                                      await command("revoke_staff", {
-                                        staff_id: e.id,
-                                      });
-                                      await reloadContext();
-                                      await refresh();
-                                    });
-                                }}
-                              >
-                                Remove access
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    </div>}
+                    {permissions.team && <Team organizationId={org.id} location={location} locations={ctx.locations.filter(l=>l.organization_id===org.id)} operators={ctx.operators.filter(o=>o.organization_id===org.id)} corporate={isOrgAdmin} onChanged={async()=>{await reloadContext();await refresh();}}/>}
 
                   </section>
                   <aside>
-                    {manager && (
+                    {permissions.reports && (
                       <section className="retail-section">
                         <h2>Last 30 days</h2>
                         <Button onClick={showReports} disabled={busy}>
@@ -1005,7 +928,7 @@ export default function RetailApp({ retailerSession = false }) {
                                 </div>
                               ))}
                             </div>
-                            <Button
+                            {permissions.exports && <Button
                               onClick={() =>
                                 csvDownload(
                                   [
@@ -1017,7 +940,7 @@ export default function RetailApp({ retailerSession = false }) {
                               }
                             >
                               Export metrics
-                            </Button>
+                            </Button>}
                             <p
                               className="retail-muted"
                               style={{ marginTop: 12 }}
@@ -1031,10 +954,10 @@ export default function RetailApp({ retailerSession = false }) {
                         )}
                       </section>
                     )}
-                    {isOrgAdmin && (
+                    {isOrgAdmin && (permissions.reports || permissions.team) && (
                       <section className="retail-section">
                         <h2>Organization setup</h2>
-                        <Button
+                        {permissions.reports && <Button
                           disabled={busy}
                           onClick={() =>
                             run(async () =>
@@ -1052,7 +975,7 @@ export default function RetailApp({ retailerSession = false }) {
                           }
                         >
                           Compare stores
-                        </Button>
+                        </Button>}
                         {network && (
                           <>
                             <div className="retail-table-wrap">
@@ -1077,7 +1000,7 @@ export default function RetailApp({ retailerSession = false }) {
                                 </tbody>
                               </table>
                             </div>
-                            <Button
+                            {permissions.exports && <Button
                               onClick={() =>
                                 csvDownload(
                                   [
@@ -1099,18 +1022,18 @@ export default function RetailApp({ retailerSession = false }) {
                               }
                             >
                               Export store comparison
-                            </Button>
+                            </Button>}
                           </>
                         )}
-                        <Button onClick={() => setModal("operator")}>
+                        {permissions.team && <Button onClick={() => setModal("operator")}>
                           Add operator
-                        </Button>
-                        <Button onClick={() => setModal("location")}>
+                        </Button>}
+                        {permissions.team && <Button onClick={() => setModal("location")}>
                           Add store
-                        </Button>
-                        <Button onClick={() => setModal("settings")}>
+                        </Button>}
+                        {permissions.team && <Button onClick={() => setModal("settings")}>
                           Store settings
-                        </Button>
+                        </Button>}
                         {user?.role === "superadmin" && (
                           <>
                             <Button onClick={() => setModal("provision")}>
@@ -1165,7 +1088,7 @@ export default function RetailApp({ retailerSession = false }) {
           />
         </Modal>
       )}
-    </div></RetailThemeContext.Provider>
+    </div></RetailThemeContext.Provider></PermissionContext.Provider>
   );
 }
 function SetupForm({

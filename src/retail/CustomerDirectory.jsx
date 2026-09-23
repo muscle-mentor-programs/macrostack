@@ -1,0 +1,11 @@
+import {useState} from 'react';
+import {LayoutGrid,List,ArrowUpRight} from 'lucide-react';
+import CustomerAvatar from './CustomerAvatar';
+import {Button} from './ui';
+const preferenceKey='macrostack:retail:customer-layout';
+export default function CustomerDirectory({customers,employees,user,onOpen}) {
+ const [layout,setLayout]=useState(()=>{try{return localStorage.getItem(preferenceKey)==='list'?'list':'cards'}catch{return 'cards'}});
+ const choose=value=>{setLayout(value);try{localStorage.setItem(preferenceKey,value)}catch{/* Storage may be unavailable in private sessions. */}};
+ const assigned=c=>{if(!c.assigned_to)return 'Unassigned';const employee=employees.find(e=>e.user_id===c.assigned_to);return employee?.name||(c.assigned_to===user.id?(user.name||'You'):'Assigned employee');};
+ return <section className="retail-directory" aria-label="Customer directory"><div className="customer-directory-toolbar"><p>{customers.length} customers on this page</p><div className="customer-view-switch" role="group" aria-label="Customer layout"><Button aria-pressed={layout==='cards'} onClick={()=>choose('cards')}><LayoutGrid size={16}/>Cards</Button><Button aria-pressed={layout==='list'} onClick={()=>choose('list')}><List size={16}/>List</Button></div></div><div className={layout==='cards'?'retail-grid':'customer-list'}>{customers.map(c=><article className={layout==='cards'?'retail-card retail-customer-card':'customer-list-row'} key={c.id}><button className="retail-customer-open" onClick={()=>onOpen(c,'Overview')}><div className="retail-customer-identity"><CustomerAvatar customer={c}/><div><h2>{c.name}</h2><p className="retail-muted">{c.email||'No email recorded'}</p></div></div><span className="retail-badge">{c.status==='invited'?'Invitation pending':c.status}</span>{layout==='cards'&&<p>{c.goal||'Set their goals and nutrition plan'}</p>}<div className="customer-assignee"><span>Assigned to</span><strong>{assigned(c)}</strong></div><ArrowUpRight className="customer-open-arrow" size={18} aria-hidden="true"/></button>{layout==='cards'&&<div className="retail-customer-shortcuts" aria-label={`Actions for ${c.name}`}>{[['Plan','Nutrition'],['Food journal','Food journal'],['Progress','Progress'],['Messages','Messages']].map(([tab,label])=><Button key={tab} onClick={()=>onOpen(c,tab)}>{label}</Button>)}</div>}</article>)}</div></section>;
+}

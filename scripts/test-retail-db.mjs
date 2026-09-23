@@ -1064,6 +1064,59 @@ try {
   await db.query('select retail_remove_meal_plan($1,$2)',[rid,mealRequest]);
   assert.equal((await db.query('select meal_plan_id from retail_resource_assignments where id=$1',[mealRequest])).rows[0].meal_plan_id,null);
   console.log('PASS resources: permission boundaries, immutable copies, retry deduplication, form completion, archive preservation, catalog counts');
+  await db.exec('reset role');
+  await db.exec(readFileSync('supabase/migrations/20260923150238_retail_team_permissions.sql','utf8'));
+  console.log('PASS team migration applies to existing retail schema');
+  const teamCall=async(action,payload)=>(await db.query('select retail_team_command($1,$2) result',[action,JSON.stringify(payload)])).rows[0].result;
+  await as('admin');
+  const teamInvite=await teamCall('invite',{organization_id:a.organization_id,location_id:a.location_id,email:'other@example.invalid',access_role:'reviewer'});
+  assert.equal(teamInvite.access_role,'reviewer');
+  await assert.rejects(()=>teamCall('invite',{organization_id:a.organization_id,location_id:a.location_id,email:'other@example.invalid',access_role:'reviewer'}),/already pending/);
+  await db.exec("reset role;update auth.users set raw_app_meta_data=jsonb_build_object('account_type','retailer','retail_verified_email',email) where email='other@example.invalid'");
+  await as('other');
+  await call('accept_invite',{token:teamInvite.token,consent:true});
+  const reviewerMember=(await db.query('select * from retail_staff where user_id=$1 and location_id=$2',[ids.other,a.location_id])).rows[0];
+  assert.equal(reviewerMember.access_role,'reviewer');
+  const reviewerPerms=(await db.query('select retail_permissions($1) p',[a.location_id])).rows[0].p;
+  assert.equal(reviewerPerms.customers,true);assert.equal(reviewerPerms.nutrition,false);assert.equal(reviewerPerms.chat,false);
+  await assert.rejects(()=>call('message',{relationship_id:rid,body:'Not allowed',id:crypto.randomUUID()}),/role does not allow/);
+  await assert.rejects(()=>db.query('select retail_set_targets($1,$2)',[rid,JSON.stringify({calories:2000})]),/role does not allow/);
+  await assert.rejects(()=>resourceCall('assign',{...assign,resource_id:formId,request_id:crypto.randomUUID()}),/cannot share/);
+  await as('admin');
+  await teamCall('suspend',{organization_id:a.organization_id,id:reviewerMember.id,revision:reviewerMember.revision,confirm_unassigned:true});
+  await as('other');
+  assert.equal((await db.query('select * from retail_relationships where id=$1',[rid])).rows.length,0);
+  assert.equal((await db.query('select retail_permissions($1) p',[a.location_id])).rows[0].p.customers,false);
+  console.log('PASS employee invitations, duplicate prevention, reviewer mutation denial, suspension on existing session');
+
+  await db.exec('reset role');
+  const additionalStore=(await db.query("insert into retail_locations(organization_id,operator_id,name,enabled) select organization_id,operator_id,'Second location',true from retail_locations where id=$1 returning id",[a.location_id])).rows[0].id;
+  const multiUser=crypto.randomUUID();
+  await db.query("insert into profiles(id,name,role) values($1,'Multi-location associate','client')",[multiUser]);
+  await db.query("insert into auth.users(id,email,email_confirmed_at,raw_app_meta_data) values($1,'multi@example.invalid',now(),'{\"account_type\":\"retailer\",\"retail_verified_email\":\"multi@example.invalid\"}'::jsonb)",[multiUser]);
+  await as('admin');
+  const multiInvite=await teamCall('invite',{organization_id:a.organization_id,location_id:a.location_id,location_ids:[a.location_id,additionalStore],email:'multi@example.invalid',access_role:'associate'});
+  await db.exec(`reset role;set request.jwt.claim.sub='${multiUser}';set role authenticated`);
+  await call('accept_invite',{token:multiInvite.token,consent:true});
+  assert.equal((await db.query('select count(*)::int n from retail_staff where user_id=$1 and active',[multiUser])).rows[0].n,2);
+  assert.equal((await db.query('select retail_permissions($1) p',[additionalStore])).rows[0].p.nutrition,false);
+  await as('admin');
+  const revisionId=await resourceCall('save',{...resourceDraft,title:'Updated company form',kind:'form',status:'draft',replaces_id:formId,content:{questions:[{id:'goal',label:'What matters most?',type:'text',required:true}]}});
+  await resourceCall('submit',{id:revisionId,review_revision:1});
+  assert.equal((await db.query('select status from retail_resources where id=$1',[formId])).rows[0].status,'published');
+  assert.equal((await db.query('select count(*)::int n from jsonb_array_elements(retail_resource_review_queue($1))',[a.organization_id])).rows[0].n,1);
+  await resourceCall('approve',{id:revisionId,review_revision:2,usage_policy:'approved',distribution:[a.location_id],required_roles:[]});
+  assert.equal((await db.query('select status from retail_resources where id=$1',[formId])).rows[0].status,'archived');
+  const approved=(await db.query('select status,location_id,usage_policy from retail_resources where id=$1',[revisionId])).rows[0];
+  assert.equal(approved.status,'published');assert.equal(approved.location_id,null);assert.equal(approved.usage_policy,'approved');
+  await assert.rejects(()=>resourceCall('save',{...resourceDraft,id:revisionId,version:1}),/draft revision/);
+  await resourceCall('governance',{id:staffId,review_revision:1,usage_policy:'approved',staff_required:true,required_roles:['manager'],distribution:[]});
+  const staffVersion=(await db.query('select version from retail_resources where id=$1',[staffId])).rows[0].version;
+  await as('manager');await resourceCall('acknowledge',{id:staffId,version:staffVersion});
+  assert.equal((await db.query('select count(*)::int n from retail_resource_acknowledgments where resource_id=$1',[staffId])).rows[0].n,1);
+  console.log('PASS multi-store invite, published-version preservation, company review, protected resource, staff acknowledgment');
+
+
   console.log(
     "PASS retail database: provisioning, invitation identity, store isolation, staff/private visibility, immutable publishing, retry deduplication, sponsorship pause and corporate aggregate-only reporting",
   );

@@ -14,3 +14,7 @@ export async function resourceAssignments(filters) {
 export async function resourceStore(locationId) {
  return result(await supabase.from('retail_locations').select('id,organization_id').eq('id',locationId).single());
 }
+
+export async function resourceReviewQueue(organizationId) {
+ return result(await supabase.rpc('retail_resource_review_queue',{oid:organizationId}))||[];
+}
