@@ -1066,6 +1066,7 @@ try {
   console.log('PASS resources: permission boundaries, immutable copies, retry deduplication, form completion, archive preservation, catalog counts');
   await db.exec('reset role');
   await db.exec(readFileSync('supabase/migrations/20260923150238_retail_team_permissions.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260923154651_retail_team_invoker_readers.sql','utf8'));
   console.log('PASS team migration applies to existing retail schema');
   const teamCall=async(action,payload)=>(await db.query('select retail_team_command($1,$2) result',[action,JSON.stringify(payload)])).rows[0].result;
   await as('admin');
