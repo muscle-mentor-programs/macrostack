@@ -76,7 +76,7 @@ body:has(.software-ui) :is(input,textarea)::placeholder {
   opacity: 1;
 }
 body:has(.software-ui) table th {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .12em;
   padding-block: 14px;
 }
@@ -139,7 +139,7 @@ body:has(.software-ui) .glass-bottom-nav {
 }
 .software-ui .client-energy > .flex { width: min(100%, 330px); justify-content: space-evenly; gap: 16px; }
 .software-ui .client-energy .text-lg { font-size: 28px; line-height: 1; }
-.software-ui .client-energy .text-xs { font-size: 10px; letter-spacing: .12em; margin-top: 8px; }
+.software-ui .client-energy .text-xs { font-size: 12px; letter-spacing: .12em; margin-top: 8px; }
 .software-ui .client-macros .font-black { font-size: 30px; line-height: 1.1; }
 
 /* Entry screens share the landing's open grid and oversized brand typography.

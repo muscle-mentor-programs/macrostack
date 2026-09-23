@@ -1,16 +1,16 @@
 .coach-stripe-connection { display: grid; gap: 12px; min-width: 0; }
 .coach-stripe-connection .coach-stripe-button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 46px; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: 12px; color: var(--color-cream); background: var(--color-surface); font: inherit; font-size: 14px; font-weight: 600; }
 .coach-stripe-connection .coach-stripe-button.is-linked { background: #143e32 !important; border-color: #3b826a !important; color: #c6f7dc !important; }
-.coach-stripe-connection .coach-stripe-caption, .coach-stripe-connection .coach-stripe-error { font-size: 12px; line-height: 1.6; margin: 0; }
+.coach-stripe-connection .coach-stripe-caption, .coach-stripe-connection .coach-stripe-error { font-size: 13px; line-height: 1.6; margin: 0; }
 .coach-stripe-caption { color: var(--color-muted); }
 .coach-stripe-error { color: #ef707a; }
 .coach-stripe-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; }
-.coach-stripe-actions a, .coach-stripe-actions button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 0; background: transparent; border: 0; font: inherit; font-size: 12px; color: var(--color-cream); text-decoration: underline; text-underline-offset: 4px; }
+.coach-stripe-actions a, .coach-stripe-actions button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 0; background: transparent; border: 0; font: inherit; font-size: 13px; color: var(--color-cream); text-decoration: underline; text-underline-offset: 4px; }
 .coach-stripe-confirm { padding: 16px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface); }
 .coach-stripe-confirm h3 { font-family: inherit; font-size: 15px; font-weight: 600; margin: 0 0 10px; }
-.coach-stripe-confirm p { font-size: 12px; line-height: 1.6; color: var(--color-muted); margin: 0 0 12px; }
+.coach-stripe-confirm p { font-size: 13px; line-height: 1.6; color: var(--color-muted); margin: 0 0 12px; }
 .coach-stripe-confirm-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
-.coach-stripe-confirm-actions button { flex: 1; min-height: 44px; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--color-border); background: transparent; color: var(--color-cream); font: inherit; font-size: 13px; }
+.coach-stripe-confirm-actions button { flex: 1; min-height: 44px; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--color-border); background: transparent; color: var(--color-cream); font: inherit; font-size: 14px; }
 .coach-stripe-confirm-actions .coach-stripe-unlink { background: #73303b !important; border-color: #a8535e !important; color: #fff !important; }
 .coach-stripe-connection button:disabled { opacity: .6; cursor: wait; }
 .coach-stripe-connection :is(button,a):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }

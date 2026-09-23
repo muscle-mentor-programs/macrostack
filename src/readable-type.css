@@ -1,0 +1,15 @@
+/* Bring older fixed-size labels and compact copy in line with the retail portal. */
+html body :is(.text-\[9px\], .text-\[10px\]) {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+html body .text-\[11px\] {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+html body p.text-xs {
+  font-size: 14px;
+  line-height: 1.6;
+}

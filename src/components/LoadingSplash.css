@@ -37,7 +37,7 @@
 }
 .loading-splash-content > p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--color-muted, #96a7bd);
 }

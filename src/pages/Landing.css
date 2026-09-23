@@ -25,7 +25,7 @@
 .landing-redesign .hero-orbit { width: 530px; height: 530px; max-width: 115%; position: absolute; border: 1px solid color-mix(in srgb,var(--color-accent) 40%,transparent); border-radius: 50%; box-shadow: 0 0 0 35px color-mix(in srgb,var(--color-accent) 4%,transparent), 0 0 0 70px color-mix(in srgb,var(--color-accent) 3%,transparent); }
 .landing-redesign .hero-orbit::after { content: ''; width: 12px; height: 12px; position: absolute; top: 14%; left: 14%; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 30px var(--color-accent); }
 .landing-redesign .hero > .absolute.bottom-8 { display: none; }
-.landing-hero-rail { position: absolute; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around; gap: 20px; padding: 25px; border-block: 1px solid var(--color-border); font-size: 10px; letter-spacing: .2em; color: var(--color-muted); }
+.landing-hero-rail { position: absolute; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around; gap: 20px; padding: 25px; border-block: 1px solid var(--color-border); font-size: 12px; letter-spacing: .2em; color: var(--color-muted); }
 .landing-hero-rail span::before { content: '✦'; color: var(--color-accent); margin-right: 20px; }
 .landing-redesign .guide-wrap > section:first-child { min-height: auto; padding: 100px 7vw 70px; justify-content: flex-start; }
 .landing-redesign .stmt { max-width: 1100px; text-align: left; font-size: clamp(38px,5.5vw,82px); line-height: 1.08; letter-spacing: -.025em; }
@@ -38,9 +38,9 @@
 .landing-redesign .story-step { padding: 26px 24px; border: 1px solid var(--color-border); border-top-color: color-mix(in srgb,var(--color-accent) 45%,var(--color-border)); border-radius: 8px; background: var(--color-card); }
 .landing-step-top { display: flex; gap: 12px; justify-content: space-between; align-items: center; color: var(--color-accent); margin-bottom: 26px; }
 .landing-card-icon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 42px; height: 42px; border: 1px solid color-mix(in srgb,var(--color-accent) 25%,var(--color-border)); border-radius: 6px; color: var(--color-accent); background: color-mix(in srgb,var(--color-accent) 6%,transparent); }
-.landing-step-top span:last-child { font-size: 9px; letter-spacing: .15em; }
+.landing-step-top span:last-child { font-size: 12px; letter-spacing: .15em; }
 .landing-redesign .story-step h3 { font-size: 26px; font-weight: 800; line-height: 1.1; margin-bottom: 14px; }
-.landing-redesign .story-step p { font-size: 13px; line-height: 1.8; color: color-mix(in srgb,var(--color-cream) 72%,var(--color-bg)); }
+.landing-redesign .story-step p { font-size: 14px; line-height: 1.8; color: color-mix(in srgb,var(--color-cream) 72%,var(--color-bg)); }
 .landing-redesign .showcase > div:first-child { max-width: 1200px; text-align: left; }
 .landing-redesign .showcase > div:first-child > div { justify-content: flex-start; }
 .landing-redesign .showcase .premium-scroll { overflow: visible; max-width: 1248px; margin: 45px auto 0; padding: 0 24px; }
@@ -51,7 +51,7 @@
 .landing-redesign .showcase .snap-start p { font-size: 14px; line-height: 1.75; }
 .landing-redesign .showcase .snap-start:last-child { grid-column: 1 / -1; min-height: 130px; flex-direction: row; align-items: center; }
 .landing-redesign .showcase .snap-start:last-child > svg { flex-shrink: 0; }
-.landing-redesign .showcase .snap-start:last-child p { font-size: 10px; letter-spacing: .15em; margin-top: 8px; }
+.landing-redesign .showcase .snap-start:last-child p { font-size: 12px; letter-spacing: .15em; margin-top: 8px; }
 .landing-redesign #app { padding-top: 100px; }
 .landing-redesign #app > div:nth-child(2), .landing-redesign #pricing, .landing-redesign #coach > div:last-child { max-width: 1200px; }
 .landing-product-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
@@ -59,7 +59,7 @@
 .landing-redesign .landing-product-card > div:first-child { width: 240px; max-width: 75%; align-self: center; height: 355px; overflow: hidden; }
 .landing-redesign .landing-product-card > div:last-child { text-align: left; max-width: none; }
 .landing-redesign .landing-product-card h3 { font-size: clamp(30px,3vw,44px); }
-.landing-redesign .landing-product-card p { font-size: 13px; line-height: 1.8; }
+.landing-redesign .landing-product-card p { font-size: 14px; line-height: 1.8; }
 .landing-redesign #coach .landing-product-card { background: var(--land-invert-card); border-color: var(--land-invert-border); }
 /* These cropped mockups must not cast a shadow against the rectangular crop. */
 .landing-redesign .landing-product-card img { filter: none !important; }
@@ -96,17 +96,17 @@
 }
 @media (max-width: 640px) {
   .landing-redesign nav:not(.marketing-nav) { top: 10px; left: 10px; right: 10px; padding: 12px; border-radius: 10px; }
-  .landing-redesign nav:not(.marketing-nav) > button { font-size: 13px; letter-spacing: .06em; }
+  .landing-redesign nav:not(.marketing-nav) > button { font-size: 14px; letter-spacing: .06em; }
   .landing-redesign .landing-nav-brand { gap:4px; }
   .landing-nav-brand img { width:26px; height:26px; }
   .landing-redesign nav:not(.marketing-nav) > div:last-child { gap: 5px; }
-  .landing-redesign nav:not(.marketing-nav) > div:last-child > button { font-size: 10px; padding-inline: 8px; }
+  .landing-redesign nav:not(.marketing-nav) > div:last-child > button { font-size: 12px; padding-inline: 8px; }
   .landing-redesign .hero { padding-top: 125px; padding-bottom: 70px; }
   .landing-redesign .hero-inner { grid-template-columns: 1fr; padding-inline: 24px; }
   .landing-redesign .hero h1 { font-size: clamp(66px,16vw,100px); }
-  .landing-redesign .hero-sub { font-size: 13px; margin-top: 24px; }
+  .landing-redesign .hero-sub { font-size: 14px; margin-top: 24px; }
   .landing-redesign .hero-ctas { gap: 12px; }
-  .landing-redesign .hero-ctas button { padding: 16px 20px; font-size: 12px; }
+  .landing-redesign .hero-ctas button { padding: 16px 20px; font-size: 13px; }
   .landing-redesign .hero-mockup { height: 420px; margin-top: 30px; }
   .landing-redesign .hero-mockup > img:last-child { width: 180px; }
   .landing-redesign .hero-secondary { width: 145px; left: 12%; bottom: 20px; }

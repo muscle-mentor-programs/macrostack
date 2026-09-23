@@ -103,7 +103,6 @@ function clearPlan() {
 /* Everything a coach gets. (A few are on the near-term roadmap, we build them next.) */
 const COACH_FEATURES = [
   { t: 'Live client dashboard',      d: 'Every client’s daily intake, macros, and 7-day compliance at a glance.' },
-  { t: 'AI meal-plan builder',       d: 'Build day-by-day custom plans in seconds, clients log them in one tap.' },
   { t: 'Real-time messaging',        d: 'Direct in-app chat with every client, with read receipts and unread badges.' },
   { t: 'Weekly check-ins',           d: 'Clients submit weight, adherence & notes, review their submissions in one place.' },
   { t: 'Macro targets & auto-adjust',d: 'Set each client’s calorie & macro goals; get nudges to adjust as progress dictates.' },
@@ -260,7 +259,7 @@ export default function Landing({ onGetStarted, onSignUp = onGetStarted, onMarke
             </h1>
             <p className="hero-sub max-w-md mx-auto md:mx-0 mt-8 text-sm md:text-base leading-relaxed text-muted">
               The nutrition OS for serious athletes and the coaches who guide them.
-              Macro tracking, coaching tools, and AI food intel, one platform.
+              Macro tracking and coaching tools, all in one platform.
             </p>
             <div className="hero-ctas flex items-center justify-center md:justify-start gap-4 mt-10">
               <button

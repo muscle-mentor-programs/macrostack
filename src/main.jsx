@@ -12,6 +12,7 @@ import './coach-dashboard.css'
 import './software-motion.css'
 import './coach-cards.css'
 import './coach-responsive.css'
+import './readable-type.css'
 // eslint-disable-next-line react-refresh/only-export-components
 const App = lazy(() => import('./App.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components

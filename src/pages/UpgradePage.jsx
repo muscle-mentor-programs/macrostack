@@ -11,7 +11,6 @@ const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transp
 
 const COACH_PERKS = [
   'Roster that grows with your tier',
-  'AI meal-plan builder',
   'Full coaching dashboard & compliance',
   'Real-time client messaging',
 ]
