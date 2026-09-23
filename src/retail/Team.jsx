@@ -22,7 +22,7 @@ export default function Team({ organizationId, location, locations, operators = 
     (filter === 'all' || (filter === 'active' ? m.active : !m.active)) &&
     `${m.name} ${m.email} ${m.location_name}`.toLowerCase().includes(query.toLowerCase()));
   const changed = async () => { await reload(); await onChanged?.(); };
-  return <section className="retail-section retail-team retail-setup-target" id="retail-team" tabIndex={-1} aria-label="Team & permissions">
+  return <section className="retail-section retail-team retail-setup-target retail-store-scroll-target" id="retail-team" tabIndex={-1} aria-label="Team & permissions">
     <div className="team-heading"><div><span className="retail-eyebrow">PEOPLE & ACCESS</span><h2>Team & permissions</h2><p>Give each employee the tools and access they need.</p></div><Button primary onClick={() => setEditing({})}><UserPlus size={16} />Invite employee</Button></div>
     <Alert error={error} />{notice && <p role="status">{notice}</p>}
     <div className="team-toolbar"><Field label="Find an employee" value={query} onChange={setQuery} placeholder="Name, email or store" /><Select label="Status" value={filter} onChange={setFilter}><option value="all">All employees</option><option value="active">Active</option><option value="suspended">Suspended</option></Select></div>

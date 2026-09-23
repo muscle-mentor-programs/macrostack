@@ -81,7 +81,7 @@ export default function Operations({
     });
   return (
     <div className="retail-columns">
-      <section className="retail-section retail-setup-target" id="retail-billing" tabIndex={-1} aria-label="Store subscription">
+      <section className="retail-section retail-setup-target retail-store-scroll-target" id="retail-billing" tabIndex={-1} aria-label="Store subscription">
         <h2>Store subscription</h2>
         <p>
           <strong>$599 / store / month</strong>
@@ -169,7 +169,7 @@ export default function Operations({
           </>
         )}
       </section>
-      <section className="retail-section">
+      <section className="retail-section retail-store-scroll-target" id="retail-pilot" tabIndex={-1}>
         <h2>Pilot readiness</h2>
         {pilot && (
           <form

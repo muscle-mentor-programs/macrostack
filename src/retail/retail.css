@@ -967,6 +967,82 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 }
 .retail-setup-target { scroll-margin-top: 180px; }
 
+/* Store settings index: stays within reach beneath the primary navigation. */
+.retail .retail-store-section-nav {
+  position: sticky;
+  top: var(--retail-primary-nav-height, 70px);
+  z-index: 29;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 64px;
+  margin: 0 0 34px;
+  padding: 8px 16px 8px 22px;
+  color: var(--retail-nav-text, var(--color-muted));
+  background: var(--retail-nav-paint, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--retail-accent) 16%, var(--color-border));
+  border-radius: 15px;
+  box-shadow: 0 12px 32px #00000030, inset 0 1px 0 #ffffff0c;
+}
+.retail-store-section-nav-label {
+  flex: 0 0 auto;
+  padding-right: 20px;
+  border-right: 1px solid var(--color-border);
+  color: var(--retail-accent);
+  font: 700 10px/1.3 var(--font-mono);
+  letter-spacing: .15em;
+  white-space: nowrap;
+}
+.retail-store-section-nav-links {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.retail-store-section-nav-links::-webkit-scrollbar { display: none; }
+.retail .retail-store-section-nav button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 8px;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--retail-nav-text, var(--color-muted));
+  font: 500 12px/1.3 var(--font-mono);
+  white-space: nowrap;
+  transition: color 200ms ease, background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+.retail .retail-store-section-nav button:hover {
+  color: var(--color-cream);
+  background: color-mix(in srgb, var(--retail-accent) 7%, transparent);
+}
+.retail .retail-store-section-nav button[aria-current="location"] {
+  color: var(--retail-accent);
+  background: color-mix(in srgb, var(--retail-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--retail-accent) 28%, transparent);
+  box-shadow: inset 0 1px 0 #ffffff0b;
+}
+.retail-store-section-nav-number { opacity: .58; font-size: 10px; letter-spacing: .08em; }
+.retail .retail-store-scroll-target {
+  scroll-margin-top: calc(var(--retail-primary-nav-height, 70px) + var(--retail-store-subnav-height, 64px) + 20px);
+}
+@media (max-width: 800px) {
+  .retail .retail-store-section-nav { gap: 0; padding: 7px 8px; margin-bottom: 26px; }
+  .retail-store-section-nav-label { display: none; }
+  .retail .retail-store-section-nav button { padding-inline: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .retail .retail-store-section-nav button { transition: none; }
+}
+
 /* Resources use an editorial list: concise summaries, deliberate actions. */
 .retail-resources { min-width:0; }
 .resource-toolbar { display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:28px; }

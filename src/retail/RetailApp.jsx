@@ -15,6 +15,7 @@ import { createRequestCache } from "./requestCache.mjs";
 import OperationalHealth from "./OperationalHealth";
 import WorkspaceGuide from "./WorkspaceGuide";
 import Operations from "./Operations";
+import StoreSectionNav from "./StoreSectionNav";
 import useViewport from "./useViewport";
 import useClock from "./useClock";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -166,6 +167,15 @@ export default function RetailApp({ retailerSession = false }) {
     // Access is fetched as one immutable snapshot; its capability flags are the dependencies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [isStaff, requestedSection, permissions.customers, permissions.chat, permissions.resources, permissions.resource_manage, permissions.team, permissions.billing, permissions.branding, permissions.reports]);
+  const storeSections = [
+    ...(permissions.branding && org ? [{ id: "retail-branding", label: "Branding" }] : []),
+    ...(permissions.billing && org ? [{ id: "retail-billing", label: "Billing" }, { id: "retail-pilot", label: "Pilot" }] : []),
+    ...(permissions.billing && permissions.team ? [{ id: "retail-launch", label: "Launch" }, { id: "retail-health", label: "Health" }] : []),
+    ...(permissions.customer_write ? [{ id: "retail-onboarding", label: "Customer link" }] : []),
+    ...(permissions.team ? [{ id: "retail-team", label: "Team" }] : []),
+    ...(permissions.reports ? [{ id: "retail-reports", label: "Reports" }] : []),
+    ...(isOrgAdmin && (permissions.reports || permissions.team) ? [{ id: "retail-organization", label: "Organization" }] : []),
+  ];
   const employees = staffDirectory;
   const reloadContext = useCallback(async () => {
     const c = await context(user?.id);
@@ -830,6 +840,7 @@ export default function RetailApp({ retailerSession = false }) {
             )}
             {section === "Store" && (
               <>
+                <StoreSectionNav items={storeSections} />
                 {permissions.branding && org && <Branding key={org.id} organization={org} onSaved={reloadContext} />}
                 {permissions.billing && org && (
                   <Operations
@@ -869,7 +880,7 @@ export default function RetailApp({ retailerSession = false }) {
 
                 <div className="retail-columns">
                   <section>
-                    {permissions.customer_write && <div className="retail-section">
+                    {permissions.customer_write && <div className="retail-section retail-store-scroll-target" id="retail-onboarding" tabIndex={-1}>
                       <h2>Store onboarding link</h2>
                       <p>
                         Customers sign in or create an account, then explicitly
@@ -901,7 +912,7 @@ export default function RetailApp({ retailerSession = false }) {
                   </section>
                   <aside>
                     {permissions.reports && (
-                      <section className="retail-section">
+                      <section className="retail-section retail-store-scroll-target" id="retail-reports" tabIndex={-1}>
                         <h2>Last 30 days</h2>
                         <Button onClick={showReports} disabled={busy}>
                           Refresh metrics
@@ -955,7 +966,7 @@ export default function RetailApp({ retailerSession = false }) {
                       </section>
                     )}
                     {isOrgAdmin && (permissions.reports || permissions.team) && (
-                      <section className="retail-section">
+                      <section className="retail-section retail-store-scroll-target" id="retail-organization" tabIndex={-1}>
                         <h2>Organization setup</h2>
                         {permissions.reports && <Button
                           disabled={busy}
