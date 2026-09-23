@@ -79,8 +79,8 @@ export default function OperationalHealth({ location, onNavigate }) {
               ))}
             </div>
             <p className="retail-muted">
-              Partner approval, staff training, and a hosted pilot remain part
-              of launch sign-off.
+              Invite staff, publish resources, and test the customer journey
+              before launch.
             </p>
           </>
         )}

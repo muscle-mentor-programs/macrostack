@@ -1,73 +1,41 @@
 import LoadingSplash from "../components/LoadingSplash";
 import { useEffect, useState } from "react";
 import { billing, command, list } from "./api";
-import { Alert, Button, Check, Field, useAction } from "./ui";
+import { Alert, Button, Field, useAction } from "./ui";
 export default function Operations({
   location,
-  organization,
   admin,
   organizationAdmin,
   onBillingRefresh,
 }) {
   const [contract, setContract] = useState(null),
-    [pilot, setPilot] = useState(null),
     [loaded, setLoaded] = useState(false),
     [name, setName] = useState(""),
     [email, setEmail] = useState("");
   const { busy, error, run, setError } = useAction();
-  const reload = async (scope = "all") => {
-    const [contracts, settings] = await Promise.all([
-      list("contracts", { location_id: location.id }),
-      list("pilot_settings", { organization_id: organization.id }),
-    ]);
-    if (scope !== "pilot") {
-      setContract(contracts[0] || null);
-      setName(contracts[0]?.billing_name || "");
-      setEmail(contracts[0]?.billing_email || "");
-    }
-    if (scope !== "billing") {
-      setPilot(
-        settings[0] || {
-          public_name: organization.name,
-          contact_email: "",
-          onboarding_notes: "",
-          forms_approved: false,
-          brand_approved: false,
-          staff_trained: false,
-        },
-      );
-    }
+  const reload = async () => {
+    const contracts = await list("contracts", { location_id: location.id });
+    setContract(contracts[0] || null);
+    setName(contracts[0]?.billing_name || "");
+    setEmail(contracts[0]?.billing_email || "");
     setLoaded(true);
-    if (scope !== "pilot") await onBillingRefresh?.();
+    await onBillingRefresh?.();
   };
   useEffect(() => {
     let active = true;
-    Promise.all([
-      list("contracts", { location_id: location.id }),
-      list("pilot_settings", { organization_id: organization.id }),
-    ])
-      .then(([contracts, settings]) => {
+    list("contracts", { location_id: location.id })
+      .then((contracts) => {
         if (!active) return;
         setContract(contracts[0] || null);
         setName(contracts[0]?.billing_name || "");
         setEmail(contracts[0]?.billing_email || "");
-        setPilot(
-          settings[0] || {
-            public_name: organization.name,
-            contact_email: "",
-            onboarding_notes: "",
-            forms_approved: false,
-            brand_approved: false,
-            staff_trained: false,
-          },
-        );
         setLoaded(true);
       })
       .catch((e) => active && setError(e.message));
     return () => {
       active = false;
     };
-  }, [location.id, organization.id, organization.name, setError]);
+  }, [location.id, setError]);
   const redirect = (action) =>
     run(async () => {
       const result = await billing(contract.id, action);
@@ -115,7 +83,7 @@ export default function Operations({
                         billing_email: email,
                         revision: contract?.revision,
                       });
-                      await reload("billing");
+                      await reload();
                     });
                   }}
                 >
@@ -156,7 +124,7 @@ export default function Operations({
                 )}
                 <Button
                   disabled={busy}
-                  onClick={() => run(() => reload("billing"))}
+                  onClick={() => run(reload)}
                 >
                   Refresh billing
                 </Button>
@@ -167,69 +135,6 @@ export default function Operations({
               does not charge the store.
             </p>
           </>
-        )}
-      </section>
-      <section className="retail-section retail-store-scroll-target" id="retail-pilot" tabIndex={-1}>
-        <h2 className="retail-store-section-heading">Pilot readiness</h2>
-        <p>Keep your partner details, approvals, and staff preparation together.</p>
-        {pilot && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              run(async () => {
-                await command("pilot_settings", {
-                  ...pilot,
-                  organization_id: organization.id,
-                });
-                await reload("pilot");
-              });
-            }}
-          >
-            <Field
-              label="Partner name"
-              value={pilot.public_name}
-              onChange={(v) => setPilot((p) => ({ ...p, public_name: v }))}
-              required
-              disabled={!organizationAdmin}
-            />
-            <Field
-              label="Partner support email"
-              type="email"
-              value={pilot.contact_email}
-              onChange={(v) => setPilot((p) => ({ ...p, contact_email: v }))}
-              disabled={!organizationAdmin}
-            />
-            <Field
-              label="Launch notes and staff onboarding"
-              multiline
-              value={pilot.onboarding_notes}
-              onChange={(v) => setPilot((p) => ({ ...p, onboarding_notes: v }))}
-              disabled={!organizationAdmin}
-            />
-            {organizationAdmin && (
-              <>
-                {[
-                  ["forms_approved", "Partner has approved the intake forms"],
-                  ["brand_approved", "Partner has approved the branding"],
-                  ["staff_trained", "Pilot staff have completed training"],
-                ].map(([key, label]) => (
-                  <Check
-                    key={key}
-                    checked={pilot[key]}
-                    onChange={(v) => setPilot((p) => ({ ...p, [key]: v }))}
-                  >
-                    {label}
-                  </Check>
-                ))}
-                <Button disabled={busy} type="submit">
-                  Save readiness
-                </Button>
-              </>
-            )}
-            <p className="retail-muted">
-              Add approved resources in Resources and invite staff from Store.
-            </p>
-          </form>
         )}
       </section>
     </div>

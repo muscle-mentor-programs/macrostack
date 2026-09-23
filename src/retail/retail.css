@@ -1066,7 +1066,7 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
   border-radius: 2px;
   background: linear-gradient(90deg, var(--retail-brand-primary, #82ade1), var(--retail-brand-secondary, #91b8ad));
 }
-.retail .retail-store-settings-body :is(#retail-billing, #retail-pilot) > form,
+.retail .retail-store-settings-body #retail-billing > form,
 .retail .retail-store-settings-body #retail-onboarding > .retail-field {
   max-width: 760px;
 }

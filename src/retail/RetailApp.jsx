@@ -171,7 +171,7 @@ export default function RetailApp({ retailerSession = false }) {
     ...(permissions.customer_write ? [{ id: "retail-onboarding", label: "Customer access" }] : []),
     ...(permissions.team ? [{ id: "retail-team", label: "Team & permissions" }] : []),
     ...(permissions.billing && permissions.team ? [{ id: "retail-launch", label: "Launch checklist" }, { id: "retail-health", label: "Operations health" }] : []),
-    ...(permissions.billing && org ? [{ id: "retail-billing", label: "Subscription" }, { id: "retail-pilot", label: "Pilot readiness" }] : []),
+    ...(permissions.billing && org ? [{ id: "retail-billing", label: "Subscription" }] : []),
     ...(permissions.reports ? [{ id: "retail-reports", label: "Store performance" }] : []),
     ...(isOrgAdmin && (permissions.reports || permissions.team) ? [{ id: "retail-organization", label: "Organization" }] : []),
   ];
@@ -602,7 +602,7 @@ export default function RetailApp({ retailerSession = false }) {
                         "Manage nutrition plans, food journals, progress and follow-ups for every customer.",
                       Inbox: "One team. Every conversation accounted for.",
                       Resources: "Create once. Personalize and share with your customers.",
-                      Store: "Your team, operations and pilot results.",
+                      Store: "Your team, operations and store results.",
                     }[section]
                   }
                 </p>
@@ -881,7 +881,6 @@ export default function RetailApp({ retailerSession = false }) {
                     key={location.id}
                     onBillingRefresh={reloadContext}
                     location={location}
-                    organization={org}
                     admin={user?.role === "superadmin"}
                     organizationAdmin={
                       user?.role === "superadmin" ||
@@ -929,7 +928,7 @@ export default function RetailApp({ retailerSession = false }) {
                                     ["Metric", "Value"],
                                     ...Object.entries(metric),
                                   ],
-                                  "store-pilot-metrics.csv",
+                                  "store-metrics.csv",
                                 )
                               }
                             >
