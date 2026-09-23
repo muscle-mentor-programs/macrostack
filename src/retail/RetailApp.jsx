@@ -7,7 +7,6 @@ import Resources from './Resources';
 import {RetailThemeContext} from "./ThemeContext";
 import { brandStyle } from "./brandColors";
 import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, LogOut, ArrowUpRight } from "lucide-react";
-import ScrambleText from "../components/ScrambleText";
 import LoadingSplash from "../components/LoadingSplash";
 import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
@@ -47,6 +46,7 @@ import StoreBrand from "./StoreBrand";
 import Branding from "./Branding";
 import JoinQR from "./JoinQR";
 import "./retail.css";
+import "./retail-workspace.css";
 const emptyContext = {
   locations: [],
   organizations: [],
@@ -349,7 +349,7 @@ export default function RetailApp({ retailerSession = false }) {
     setThreads([]);
   };
   return (
-    <PermissionContext.Provider value={permissions}><RetailThemeContext.Provider value={brandStyle(org?.brand_colors)}><div className="retail" style={brandStyle(org?.brand_colors)}>
+    <PermissionContext.Provider value={permissions}><RetailThemeContext.Provider value={brandStyle(org?.brand_colors)}><div className="retail retail-workspace" style={brandStyle(org?.brand_colors)}>
       <header className="retail-top">
         <div className="retail-header-brand">
           <div className="retail-brand">
@@ -593,7 +593,7 @@ export default function RetailApp({ retailerSession = false }) {
                 <div className="retail-eyebrow">
                   {org?.name} · {location.name}
                 </div>
-                <h1 aria-label={section}><ScrambleText text={section.toUpperCase()} duration={800} /></h1>
+                <h1>{section}</h1>
                 <p className="retail-muted">
                   {
                     {

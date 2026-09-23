@@ -1,0 +1,314 @@
+/* Retail workspace visual system. This layer is scoped to the signed-in portal;
+   the public retailer pages and their forms retain their own presentation. */
+.retail.retail-workspace {
+  --workspace-line: color-mix(in srgb, var(--retail-accent) 18%, var(--color-border));
+  --workspace-soft: color-mix(in srgb, var(--retail-accent) 7%, transparent);
+  --workspace-shadow: 0 22px 54px #00000030, 0 4px 14px #00000026;
+  font-size: 14px;
+  line-height: 1.6;
+  background: radial-gradient(ellipse 75% 510px at 15% 0%, color-mix(in srgb, var(--retail-accent) 9%, transparent), transparent), var(--retail-background-paint);
+}
+
+.retail.retail-workspace .retail-main {
+  width: min(100%, 1760px);
+  padding: clamp(28px, 3vw, 48px) clamp(20px, 3.2vw, 54px) 112px;
+}
+
+/* The logo keeps its existing dimensions. Controls occupy the same masthead row. */
+.retail.retail-workspace .retail-top {
+  padding-block: 10px;
+  background: var(--retail-header-paint) !important;
+  border-bottom-color: var(--workspace-line);
+}
+.retail.retail-workspace .retail-top .retail-store-identity strong {
+  font-size: clamp(17px, 1.4vw, 21px);
+  line-height: 1.18;
+  letter-spacing: -.025em;
+}
+.retail.retail-workspace .retail-top .retail-powered {
+  color: var(--retail-header-text, var(--color-cream));
+  opacity: .68;
+}
+.retail.retail-workspace .retail-location-control select[aria-label="Choose store"] {
+  min-height: 46px;
+  border-color: var(--workspace-line);
+  border-radius: 11px;
+  box-shadow: inset 0 1px 0 #ffffff0a;
+}
+.retail.retail-workspace .retail-header-controls > .retail-button {
+  min-height: 44px;
+  padding-inline: 16px;
+  color: var(--retail-header-text, var(--color-cream));
+  opacity: .78;
+}
+.retail.retail-workspace .retail-header-controls > .retail-button:hover { opacity: 1; }
+
+.retail.retail-workspace .retail-nav {
+  gap: 7px;
+  padding-block: 10px;
+  background: var(--retail-nav-paint) !important;
+  border-bottom-color: var(--workspace-line);
+  box-shadow: 0 12px 28px #00000024, inset 0 1px 0 #ffffff0b;
+}
+.retail.retail-workspace .retail-nav button {
+  min-height: 44px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 650;
+  padding: 10px 19px;
+  transition: color .22s ease, background .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+.retail.retail-workspace .retail-nav button[aria-current="page"] {
+  color: var(--retail-accent);
+  background: linear-gradient(130deg, color-mix(in srgb, var(--retail-accent) 15%, transparent), color-mix(in srgb, var(--retail-brand-secondary) 6%, transparent));
+  border-color: color-mix(in srgb, var(--retail-accent) 27%, transparent);
+  box-shadow: inset 0 1px 0 #ffffff1b, 0 5px 18px #00000024;
+}
+.retail.retail-workspace .retail-nav button[aria-current="page"]::after {
+  bottom: -11px;
+  width: 34px;
+  left: calc(50% - 17px);
+  box-shadow: 0 0 14px var(--retail-accent);
+  animation: retail-workspace-indicator .24s ease-out both;
+}
+@keyframes retail-workspace-indicator { from { opacity: .25; transform: scaleX(.35); } to { opacity: 1; transform: scaleX(1); } }
+
+/* A compact editorial hero brings the public retailer page's depth into work. */
+.retail.retail-workspace .retail-page-header {
+  position: relative;
+  overflow: hidden;
+  min-height: 154px;
+  margin: 0 0 32px;
+  padding: clamp(24px, 2.8vw, 38px) clamp(24px, 3vw, 42px);
+  border: 1px solid var(--workspace-line);
+  border-radius: 19px;
+  background: linear-gradient(105deg, color-mix(in srgb, var(--retail-accent) 11%, transparent), transparent 62%), var(--retail-header-paint) !important;
+  box-shadow: var(--workspace-shadow), inset 0 1px 0 #ffffff14 !important;
+  animation: retail-workspace-enter .28s ease-out both;
+}
+.retail.retail-workspace .retail-page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(var(--retail-brand-primary), var(--retail-brand-secondary));
+}
+.retail.retail-workspace .retail-page-header::after {
+  content: '';
+  position: absolute;
+  right: -55px;
+  top: -175px;
+  width: 500px;
+  height: 500px;
+  border: 1px solid color-mix(in srgb, var(--retail-accent) 13%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 70px color-mix(in srgb, var(--retail-accent) 2%, transparent), 0 0 0 145px color-mix(in srgb, var(--retail-accent) 1%, transparent);
+  pointer-events: none;
+}
+.retail.retail-workspace .retail-page-header > * { position: relative; z-index: 1; }
+.retail.retail-workspace .retail-page-header .retail-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  color: var(--retail-accent);
+  margin-bottom: 9px;
+}
+.retail.retail-workspace .retail-page-header h1 {
+  margin: 0;
+  color: var(--retail-header-text, var(--color-cream));
+  font: 850 clamp(30px, 3.2vw, 48px)/1.03 var(--font-display);
+  letter-spacing: -.005em;
+  text-transform: uppercase;
+}
+.retail.retail-workspace .retail-page-header p {
+  max-width: 65ch;
+  margin: 11px 0 0;
+  color: var(--retail-header-text, var(--color-cream));
+  opacity: .76;
+  font-size: 13px;
+  line-height: 1.55;
+}
+@keyframes retail-workspace-enter { from { opacity: .75; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Metrics read as one dashboard instrument, while records remain open lists. */
+.retail.retail-workspace .retail-stats {
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--workspace-line);
+  border-radius: 16px;
+  background: linear-gradient(125deg, color-mix(in srgb, var(--retail-accent) 6%, transparent), transparent 75%), var(--retail-card-paint) !important;
+  box-shadow: var(--workspace-shadow), inset 0 1px 0 #ffffff0d;
+  margin-bottom: 34px;
+}
+.retail.retail-workspace .retail-stats > .retail-card {
+  min-height: 114px;
+  padding: 24px clamp(20px, 2.6vw, 38px);
+  border: 0;
+  border-right: 1px solid var(--workspace-line);
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+}
+.retail.retail-workspace .retail-stats > .retail-card:last-child { border-right: 0; }
+.retail.retail-workspace .retail-stats strong {
+  color: var(--retail-heading, var(--color-cream));
+  font: 750 34px/1 var(--font-display);
+  letter-spacing: -.025em;
+  margin: 0 0 10px;
+}
+.retail.retail-workspace .retail-stats small { font-size: 12px; color: var(--color-muted); }
+.retail.retail-workspace .retail-columns { gap: clamp(24px, 3.5vw, 58px); }
+.retail.retail-workspace .retail-columns > .retail-section {
+  padding: 27px 0 0;
+  border-top: 1px solid var(--workspace-line);
+  background: transparent !important;
+  box-shadow: none;
+}
+.retail.retail-workspace .retail-section { border-top-color: var(--workspace-line); }
+.retail.retail-workspace .retail-section > h2,
+.retail.retail-workspace .resource-toolbar h2,
+.retail.retail-workspace .team-heading h2 {
+  color: var(--retail-heading, var(--color-cream));
+  font: 800 clamp(20px, 1.7vw, 25px)/1.17 var(--font-display);
+  letter-spacing: .015em;
+  margin: 0 0 13px;
+}
+.retail.retail-workspace .retail-section > h2 + p { margin-top: 2px; }
+.retail.retail-workspace .retail-row { padding-block: 19px; border-bottom-color: var(--workspace-line); }
+.retail.retail-workspace .retail-row h3 { font-size: 15px; line-height: 1.35; margin-bottom: 3px; }
+.retail.retail-workspace .retail-row p { font-size: 12px; line-height: 1.5; margin: 5px 0; }
+.retail.retail-workspace .retail-row small { font-size: 11px; }
+
+.retail.retail-workspace .retail-button {
+  border-color: var(--workspace-line);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 #ffffff0b;
+  transition: transform .16s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.retail.retail-workspace .retail-button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--retail-accent) 48%, var(--color-border));
+  box-shadow: inset 0 1px 0 #ffffff15, 0 6px 16px #00000024;
+}
+.retail.retail-workspace .retail-button.primary {
+  background: var(--retail-button-paint, var(--retail-accent));
+  color: var(--retail-brand-ink);
+  border-color: color-mix(in srgb, var(--retail-accent) 60%, var(--color-border));
+  font-weight: 700;
+}
+.retail.retail-workspace .retail-field > span { font-size: 12px; font-weight: 600; }
+.retail.retail-workspace :is(input:not([type="checkbox"]), select, textarea) {
+  border-radius: 10px;
+  border-color: var(--workspace-line);
+  min-height: 44px;
+}
+.retail.retail-workspace :is(input:not([type="checkbox"]), select, textarea):focus-visible {
+  border-color: var(--retail-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--retail-accent) 14%, transparent);
+}
+
+/* Customer directory: list for fast scanning, cards as an intentional option. */
+.retail.retail-workspace .retail-fields { gap: 18px; }
+.retail.retail-workspace .customer-directory-toolbar { margin: 12px 0 16px; }
+.retail.retail-workspace .customer-view-switch {
+  background: var(--retail-card-paint);
+  border-color: var(--workspace-line);
+  border-radius: 10px;
+}
+.retail.retail-workspace .customer-list {
+  overflow: hidden;
+  border: 1px solid var(--workspace-line);
+  border-radius: 15px;
+  background: var(--retail-card-paint);
+  box-shadow: 0 13px 32px #0000001f, inset 0 1px 0 #ffffff0b;
+}
+.retail.retail-workspace .customer-list-row { border-bottom-color: var(--workspace-line); }
+.retail.retail-workspace .customer-list-row:last-child { border-bottom: 0; }
+.retail.retail-workspace .customer-list-row .retail-customer-open { padding: 19px 24px; }
+.retail.retail-workspace .customer-list-row:hover { background: var(--workspace-soft); }
+.retail.retail-workspace .retail-customer-identity h2 { font-size: 16px; margin: 0; }
+.retail.retail-workspace .retail-customer-identity p { font-size: 12px; margin-top: 4px; }
+.retail.retail-workspace .retail-customer-card {
+  border-color: var(--workspace-line);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--retail-accent) 6%, transparent), transparent 54%), var(--retail-card-paint) !important;
+  box-shadow: 0 14px 30px #00000027, inset 0 1px 0 #ffffff10;
+}
+.retail.retail-workspace .retail-customer-card:hover {
+  border-color: color-mix(in srgb, var(--retail-accent) 48%, var(--color-border));
+  box-shadow: 0 20px 42px #00000038, inset 0 1px 0 #ffffff15;
+}
+
+/* Customer record and resource shelves use the same hierarchy as the landing story. */
+.retail.retail-workspace .retail-customer-header { min-height: 145px; }
+.retail.retail-workspace .retail-profile-navigation {
+  border-bottom-color: var(--workspace-line);
+  margin-bottom: 34px;
+  padding-bottom: 13px;
+}
+.retail.retail-workspace .retail-profile-navigation button[aria-current="page"] {
+  background: color-mix(in srgb, var(--retail-accent) 11%, transparent);
+  border-color: color-mix(in srgb, var(--retail-accent) 31%, transparent);
+}
+.retail.retail-workspace .retail-profile-scroll > span {
+  background: linear-gradient(90deg, var(--retail-brand-primary), var(--retail-brand-secondary));
+}
+.retail.retail-workspace .retail-published-plan,
+.retail.retail-workspace .retail-journal-day {
+  border-color: var(--workspace-line);
+  box-shadow: 0 12px 28px #00000025, inset 0 1px 0 #ffffff0c;
+}
+.retail.retail-workspace .resource-toolbar { padding-bottom: 22px; border-bottom: 1px solid var(--workspace-line); }
+.retail.retail-workspace .resource-types { border-bottom-color: var(--workspace-line); }
+.retail.retail-workspace .resource-row { border-color: var(--workspace-line); }
+.retail.retail-workspace .resource-icon {
+  color: var(--retail-accent);
+  background: color-mix(in srgb, var(--retail-accent) 11%, var(--color-card));
+  border-color: var(--workspace-line);
+}
+
+/* Settings stay an open document, with clear chapter breaks rather than a wall of cards. */
+.retail.retail-workspace .retail-store-section-nav { border-color: var(--workspace-line); }
+.retail.retail-workspace .retail-store-settings-body .retail-store-scroll-target {
+  padding-block: 42px 52px;
+  border-top-color: var(--workspace-line);
+}
+.retail.retail-workspace .retail-store-settings-body .retail-store-section-heading {
+  font-size: clamp(25px, 2.5vw, 34px);
+  margin-bottom: 19px;
+}
+.retail.retail-workspace .retail-store-settings-body .retail-store-section-heading::after { width: 54px; }
+.retail.retail-workspace .retail-card {
+  border-color: var(--workspace-line);
+}
+
+@media (max-width: 1050px) {
+  .retail.retail-workspace .retail-top { gap: 10px 22px; }
+  .retail.retail-workspace .retail-top > .retail-header-controls { align-items: center; }
+  .retail.retail-workspace .retail-columns { gap: 25px; }
+}
+@media (max-width: 700px) {
+  .retail.retail-workspace .retail-main { padding: 22px 16px 96px; }
+  .retail.retail-workspace .retail-page-header { padding: 22px 20px; min-height: auto; border-radius: 15px; margin-bottom: 24px; }
+  .retail.retail-workspace .retail-page-header h1 { font-size: clamp(29px, 8vw, 38px); }
+  .retail.retail-workspace .retail-page-header p { font-size: 12px; }
+  .retail.retail-workspace .retail-page-header::after { opacity: .5; }
+  .retail.retail-workspace .retail-stats { margin-bottom: 24px; }
+  .retail.retail-workspace .retail-stats > .retail-card { min-height: 100px; padding: 19px 14px; }
+  .retail.retail-workspace .retail-stats strong { font-size: 27px; }
+  .retail.retail-workspace .retail-stats small { font-size: 11px; }
+  .retail.retail-workspace .customer-list-row .retail-customer-open { padding: 18px 16px; }
+  .retail.retail-workspace .retail-store-settings-body .retail-store-scroll-target { padding-block: 32px 42px; }
+}
+@media (max-width: 520px) {
+  .retail.retail-workspace .retail-top .retail-store-brand { grid-template-columns: 138px minmax(0, 1fr); }
+  .retail.retail-workspace .retail-top .retail-store-identity img { width: 138px; height: 108px; }
+  .retail.retail-workspace .retail-nav button { padding-inline: 14px; }
+  .retail.retail-workspace .retail-page-header { align-items: flex-start; flex-direction: column; gap: 18px; }
+  .retail.retail-workspace .retail-page-header > .retail-button { align-self: flex-start; }
+  .retail.retail-workspace .retail-customer-header { gap: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .retail.retail-workspace .retail-page-header,
+  .retail.retail-workspace .retail-nav button[aria-current="page"]::after { animation: none; }
+  .retail.retail-workspace .retail-button,
+  .retail.retail-workspace .retail-nav button { transition: none; }
+}
