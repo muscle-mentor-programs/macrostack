@@ -1185,3 +1185,97 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
   background-size: 16px 16px !important;
   padding-right: 50px !important;
 }
+
+/* Keep working copy readable without changing the store's chosen palette. */
+.retail {
+  --retail-copy-muted: color-mix(in srgb, var(--color-muted) 72%, var(--color-cream));
+  font-size: 15px;
+}
+.retail :is(
+  .retail-muted,
+  .retail-section > p,
+  .retail-page-header p,
+  .retail-row p,
+  .retail-stats small,
+  .retail-nutrition-targets small,
+  .retail-record-values dt,
+  .retail-weight-trend figcaption,
+  .retail-weight-trend p,
+  .retail-plan-heading p,
+  .retail-plan-totals dt,
+  .retail-plan-totals dd small,
+  .retail-plan-meal > header > span,
+  .retail-plan-food > span,
+  .retail-plan-food-macros > span,
+  .retail-journal-count,
+  .retail-journal-summary-totals > span > span,
+  .retail-journal-summary-totals small,
+  .retail-journal-total-note,
+  .resource-toolbar p,
+  .resource-title span,
+  .resource-title small,
+  .resource-customer span,
+  .resource-assignment span,
+  .customer-directory-toolbar > p,
+  .customer-assignee > span,
+  .resource-review-queue .retail-row small,
+  .retail-theme-preview-body > p,
+  .retail-theme-preview article p
+) {
+  color: var(--retail-copy-muted);
+}
+.retail .retail-page-header p,
+.retail .retail-section > p,
+.retail .resource-toolbar p {
+  font-size: 15px;
+  line-height: 1.65;
+}
+.retail :is(
+  .retail-row p,
+  .retail-customer-identity p,
+  .retail-care-actions p,
+  .retail-weight-trend figcaption,
+  .retail-weight-trend p,
+  .retail-plan-heading p,
+  .retail-plan-food strong,
+  .resource-title span,
+  .resource-customer span,
+  .resource-assignment span,
+  .customer-directory-toolbar > p
+) {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.retail :is(
+  .retail-field > span,
+  .retail-stats small,
+  .retail-nutrition-targets small,
+  .retail-record-values dt,
+  .retail-plan-totals dt,
+  .retail-plan-totals dd small,
+  .retail-plan-meal > header > span,
+  .retail-plan-food > span,
+  .retail-plan-food-macros > span,
+  .retail-plan-food-macros small,
+  .retail-journal-count,
+  .retail-journal-summary-totals > span > span,
+  .retail-journal-summary-totals small,
+  .retail-journal-total-note,
+  .resource-title small,
+  .customer-assignee > span,
+  .resource-review-queue .retail-row small
+) {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.retail .retail-button { font-size: 14px; }
+.retail-theme-settings p { color: #A8B9CD; font-size: 13px; }
+@media (max-width: 600px) {
+  .retail .retail-page-header p { font-size: 14px; }
+  .retail :is(
+    .retail-plan-totals dt,
+    .retail-plan-totals dd small,
+    .retail-journal-summary-totals > span > span,
+    .retail-journal-summary-totals small
+  ) { font-size: 12px; }
+}
