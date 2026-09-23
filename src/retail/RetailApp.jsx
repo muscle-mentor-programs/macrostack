@@ -167,7 +167,7 @@ export default function RetailApp({ retailerSession = false }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [isStaff, requestedSection, permissions.customers, permissions.chat, permissions.resources, permissions.resource_manage, permissions.team, permissions.billing, permissions.branding, permissions.reports]);
   const storeSections = [
-    ...(permissions.branding && org ? [{ id: "retail-branding", label: "Branding" }] : []),
+    ...(isOrgAdmin && permissions.branding && org ? [{ id: "retail-branding", label: "Branding" }] : []),
     ...(permissions.customer_write ? [{ id: "retail-onboarding", label: "Customer access" }] : []),
     ...(permissions.team ? [{ id: "retail-team", label: "Team & permissions" }] : []),
     ...(permissions.billing && permissions.team ? [{ id: "retail-launch", label: "Launch checklist" }, { id: "retail-health", label: "Operations health" }] : []),
@@ -840,7 +840,7 @@ export default function RetailApp({ retailerSession = false }) {
               <>
                 <StoreSectionNav items={storeSections} />
                 <div className="retail-store-settings-body">
-                {permissions.branding && org && <Branding key={org.id} organization={org} onSaved={reloadContext} />}
+                {isOrgAdmin && permissions.branding && org && <Branding key={org.id} organization={org} onSaved={reloadContext} />}
                 {permissions.customer_write && <section className="retail-section retail-store-scroll-target" id="retail-onboarding" tabIndex={-1}>
                   <h2 className="retail-store-section-heading">Customer access</h2>
                   <p>Customers sign in or create an account, then explicitly confirm this store connection.</p>

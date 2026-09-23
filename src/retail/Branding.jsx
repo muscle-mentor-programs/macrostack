@@ -59,15 +59,15 @@ export default function Branding({ organization, onSaved }) {
   async function persist(path) {
     await saveBranding(organization.id, name.trim(), path, colors);
     setLogo(path);
-    setNotice("Branding saved. Your store portal is updated.");
+    setNotice("Branding saved across all company stores.");
     await onSaved();
   }
   return (
     <section id="retail-branding" className="retail-section retail-store-scroll-target" tabIndex={-1}>
       <h2 className="retail-store-section-heading">Branding</h2>
       <p className="retail-muted">
-        Make this workspace feel like your business. Shared across your
-        locations and connected customer store views.
+        Set one company identity for every store and connected customer view.
+        Only chain administrators can change the logo, display name, and colors.
       </p>
       <div className="retail-theme-preview" style={brandStyle(colors)}>
         <header><BrandIdentity name={name || organization.name} logo={brandLogoURL(logo)}/></header>
@@ -101,7 +101,7 @@ export default function Branding({ organization, onSaved }) {
           ].map(([title,keys,layer])=><details className="retail-theme-group" key={title} open={title==='Brand & buttons'}><summary>{title}</summary><div className="retail-theme-fields">{keys.map(key=><div className="retail-theme-color" key={key}><Field label={themeColorFields[key]} value={colors[key]} onChange={value=>setColors(c=>({...c,[key]:value.trim()}))} placeholder={defaultBrandColors[key]} pattern="#[0-9a-fA-F]{6}" maxLength={7} required/><input aria-label={`${themeColorFields[key]} picker`} type="color" value={validBrandColor(colors[key])?colors[key]:defaultBrandColors[key]} onChange={e=>setColors(c=>({...c,[key]:e.target.value.toUpperCase()}))}/></div>)}</div>{layer&&<div className="retail-theme-gradient"><Check checked={colors[`${layer}Gradient`]} onChange={value=>setColors(c=>({...c,[`${layer}Gradient`]:value}))}>{gradientLayers[layer]} gradient</Check><Select label={`${gradientLayers[layer]} gradient direction`} value={colors[`${layer}Angle`]} onChange={value=>setColors(c=>({...c,[`${layer}Angle`]:Number(value)}))}>{[0,45,90,100,115,135,180,225,270,315,360].map(angle=><option key={angle} value={angle}>{angle}°</option>)}</Select></div>}</details>)}
         </div>
         <label className="retail-field">
-          <span>Upload your store logo</span>
+          <span>Upload your company logo</span>
           <input
             type="file"
             accept="image/png,image/webp"
@@ -120,7 +120,7 @@ export default function Branding({ organization, onSaved }) {
                   throw e;
                 }
                 setLogo(path);
-                setNotice("Logo saved. Your store portal is updated.");
+                setNotice("Logo saved across all company stores.");
                 await onSaved();
               });
             }}
