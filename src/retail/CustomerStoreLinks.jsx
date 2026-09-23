@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, Store, MessageCircle, ArrowUpRight } from 'lucide-react'
+import { Check, Store, MessageCircle } from 'lucide-react'
 import useStore from '../store'
 import { list, storeBranding, brandLogoURL } from './api'
 
@@ -39,7 +39,6 @@ export default function CustomerStoreLinks() {
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" className="flex items-center gap-2 min-h-11 px-3 py-2 rounded-xl border border-border font-mono text-xs text-cream" onClick={() => openChat(connection.id)}><MessageCircle size={14} />Message store</button>
-          <button type="button" className="flex items-center gap-2 min-h-11 px-3 py-2 rounded-xl border border-border font-mono text-xs text-muted" onClick={() => setActivePage('retail')}>Plans & check-ins<ArrowUpRight size={14} /></button>
         </div>
       </div>)}
       <p className="font-mono text-xs text-muted leading-relaxed">Your store and coach connections are separate. Find both conversations in the Chat tab.</p>
