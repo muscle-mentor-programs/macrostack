@@ -244,7 +244,10 @@
   margin-bottom: 34px;
   padding-bottom: 13px;
 }
+.retail.retail-workspace .retail-profile-navigation .retail-tabbar { gap: 8px; }
+.retail.retail-workspace .retail-profile-navigation .retail-tabbar > .retail-button { flex: 0 0 auto; }
 .retail.retail-workspace .retail-profile-navigation button[aria-current="page"] {
+  color: var(--retail-accent);
   background: color-mix(in srgb, var(--retail-accent) 11%, transparent);
   border-color: color-mix(in srgb, var(--retail-accent) 31%, transparent);
 }
