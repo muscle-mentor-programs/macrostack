@@ -1,5 +1,5 @@
 /* Shared coach workspace system. Theme colors come from the active app theme. */
-.coach-shell{display:flex;width:100%;height:var(--coach-height,100dvh);overflow:hidden;background:var(--color-bg);color:var(--color-cream)}
+.coach-shell{display:flex;width:100%;max-width:1920px;margin-inline:auto;height:var(--coach-height,100dvh);overflow:hidden;background:var(--color-bg);color:var(--color-cream)}
 .coach-canvas{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0}
 .coach-main{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 .coach-main>div{min-height:100%}
