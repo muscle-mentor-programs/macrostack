@@ -13,7 +13,6 @@ import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
 import { createRequestCache } from "./requestCache.mjs";
 import OperationalHealth from "./OperationalHealth";
-import WorkspaceGuide from "./WorkspaceGuide";
 import Operations from "./Operations";
 import StoreSectionNav from "./StoreSectionNav";
 import useViewport from "./useViewport";
@@ -614,7 +613,6 @@ export default function RetailApp({ retailerSession = false }) {
                 </Button>
               )}
             </header>
-            <WorkspaceGuide section={section} />
             {section === "Today" && (
               <>
                 <RequiredResources locationId={locationId} userId={user.id} roles={memberships.filter(s=>s.location_id===locationId || s.role==='organization_admin' || (s.role==='operator' && s.operator_id===location?.operator_id)).map(s=>s.access_role||s.role)}/>
