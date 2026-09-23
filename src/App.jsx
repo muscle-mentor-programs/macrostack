@@ -55,7 +55,9 @@ const Marketplace = lazy(() => import('./pages/Marketplace'))
 const RetailApp = lazy(() => import('./retail/RetailApp'))
 const MarketplaceSetup = lazy(() => import('./pages/coach/MarketplaceSetup'))
 
-function PageLoader() { return <LoadingSplash /> }
+function PageLoader() {
+  return <div className="app-page-gutter px-5 pt-mobile-header" role="status" aria-label="Loading page"><div className="skeleton h-8 w-44 mb-6" /><div className="skeleton h-28 w-full !rounded-2xl" /></div>
+}
 
 const COACH_PAGES_DESKTOP = {
   library: CoachLibrary,
@@ -302,7 +304,7 @@ export default function App() {
     )
   }
 
-  if (activePage === 'retail') return <Suspense fallback={<PageLoader />}><RetailApp /></Suspense>
+  if (activePage === 'retail') return <Suspense fallback={<LoadingSplash fullScreen label="Opening retailer workspace…" />}><RetailApp /></Suspense>
 
   if (!activeRole) {
     return (

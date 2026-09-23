@@ -53,7 +53,7 @@ const emptyContext = {
   staff: [],
   operators: [],
 };
-export default function RetailApp({ retailerSession = false }) {
+export default function RetailApp({ retailerSession = false, onReady }) {
   useViewport();
   useEffect(() => {
     document.documentElement.classList.remove('ocean-dark', 'ocean-light');
@@ -348,6 +348,9 @@ export default function RetailApp({ retailerSession = false }) {
     setTasks([]);
     setThreads([]);
   };
+  useEffect(() => {
+    if (!loading && (!isStaff || access?.locationId === locationId)) onReady?.();
+  }, [loading, isStaff, access?.locationId, locationId, onReady]);
   return (
     <PermissionContext.Provider value={permissions}><RetailThemeContext.Provider value={brandStyle(org?.brand_colors)}><div className="retail retail-workspace" style={brandStyle(org?.brand_colors)}>
       <header className="retail-top">
@@ -510,9 +513,9 @@ export default function RetailApp({ retailerSession = false }) {
           </section>
         )}
         {loading ? (
-          <LoadingSplash label="Loading your stores…" />
+          <LoadingSplash fullScreen label="Opening retailer workspace…" />
         ) : isStaff && access?.locationId !== locationId ? (
-          <LoadingSplash label="Loading store access…" />
+          <LoadingSplash fullScreen label="Opening retailer workspace…" />
         ) : selected ? (
           <CustomerWorkspace
             key={`${selected.id}:${customerTab}`}

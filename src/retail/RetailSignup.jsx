@@ -162,10 +162,7 @@ export default function RetailSignup() {
               userId: user.id,
               status: e ? "error" : data?.length ? "existing" : "new",
             });
-            if (
-              data?.length &&
-              new URLSearchParams(window.location.search).has("signin")
-            )
+            if (data?.length)
               window.location.replace(
                 new URLSearchParams(window.location.search).has("invite")
                   ? `/retail?staff=1&invite=${encodeURIComponent(new URLSearchParams(window.location.search).get("invite"))}`
@@ -350,7 +347,7 @@ export default function RetailSignup() {
             }
           />
           {checking ? (
-            <LoadingSplash label="Checking your account…" />
+            <LoadingSplash fullScreen label="Opening retailer workspace…" />
           ) : emailStep && !user ? (
             <>
               <h2>
@@ -481,8 +478,8 @@ export default function RetailSignup() {
                 Forgot password?
               </Button>
             </>
-          ) : !workspaceStatus ? (
-            <LoadingSplash label="Finding your workspace…" />
+          ) : !workspaceStatus || existing ? (
+            <LoadingSplash fullScreen label="Opening retailer workspace…" />
           ) : workspaceStatus === "error" ? (
             <>
               <h2>We couldn’t load your workspace</h2>
@@ -493,21 +490,9 @@ export default function RetailSignup() {
             </>
           ) : (
             <>
-              <h2>{existing ? "Welcome back" : "Set up your business"}</h2>
+              <h2>Set up your business</h2>
               <p>Signed in as {user.email}</p>
-              {existing && (
-                <div className="retail-signup-existing">
-                  <p>
-                    Your workspace is ready. Continue to your customers,
-                    conversations and store tools.
-                  </p>
-                  <a className="retail-button primary" href="/retail">
-                    Open your workspace →
-                  </a>
-                </div>
-              )}
-              {!existing && (
-                <form onSubmit={createWorkspace}>
+              <form onSubmit={createWorkspace}>
                   <Field
                     label="Business name"
                     placeholder="e.g. Peak Nutrition"
@@ -558,7 +543,6 @@ export default function RetailSignup() {
                     {busy ? "Creating workspace…" : "Create my workspace →"}
                   </Button>
                 </form>
-              )}
               <Button
                 disabled={busy}
                 onClick={() =>

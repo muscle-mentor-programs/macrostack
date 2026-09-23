@@ -13,7 +13,10 @@
   position: fixed;
   inset: 0;
   z-index: 100;
+  width: 100vw;
+  height: 100dvh;
   min-height: 100dvh;
+  max-height: 100dvh;
   background: var(--color-bg, #080b12);
 }
 .loading-splash-content {

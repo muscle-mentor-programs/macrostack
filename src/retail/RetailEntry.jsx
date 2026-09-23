@@ -1,5 +1,5 @@
 import LoadingSplash from "../components/LoadingSplash";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
 import useStore from "../store";
@@ -7,6 +7,8 @@ import { isVerifiedRetailAccount } from "./authRouting.mjs";
 import RetailApp from "./RetailApp";
 export default function RetailEntry() {
   const [ready, setReady] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
+  const markPortalReady = useCallback(() => setPortalReady(true), []);
   const [error, setError] = useState(
     supabase ? "" : "Account service unavailable. Please try again shortly.",
   );
@@ -81,9 +83,13 @@ export default function RetailEntry() {
         <a href="/retailers?signin=1">Retailer sign in</a>
       </main>
     );
-  return ready ? (
-    <RetailApp retailerSession />
-  ) : (
-    <LoadingSplash fullScreen label="Opening retailer workspace…" />
+  if (!ready) return <LoadingSplash fullScreen label="Opening retailer workspace…" />;
+  return (
+    <>
+      <div style={portalReady ? undefined : { visibility: "hidden" }} aria-hidden={!portalReady}>
+        <RetailApp retailerSession onReady={markPortalReady} />
+      </div>
+      {!portalReady && <LoadingSplash fullScreen label="Opening retailer workspace…" />}
+    </>
   );
 }

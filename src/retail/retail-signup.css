@@ -101,18 +101,6 @@
 .retail-signup-steps [aria-current] {
   color: #82ade1;
 }
-.retail-signup-existing {
-  display: grid;
-  justify-items: start;
-  gap: 16px;
-  margin-block: 20px;
-  padding: 20px;
-  background: #82ade10a;
-  border-radius: 12px;
-}
-.retail-signup-existing > p {
-  margin: 0;
-}
 .retail-signup-footer {
   max-width: 1240px;
   margin: auto;

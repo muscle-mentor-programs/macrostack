@@ -56,7 +56,7 @@ if (window.location.hash.includes('type=invite')) {
 const publicPath = window.location.pathname.replace(/\/+$/, '')
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Suspense fallback={<LoadingSplash fullScreen label="Opening MacroStack…" />}>
+    <Suspense fallback={<LoadingSplash fullScreen label={publicPath.startsWith('/retail') ? 'Opening retailer workspace…' : 'Opening MacroStack…'} />}>
       {((publicPath === '/retail/member' || publicPath === '/retail/connect') && new URLSearchParams(window.location.search).has('invite')) ? <CustomerInvite /> : publicPath === '/retailers' || publicPath === '/retail/start' ? (['confirm','reset'].includes(new URLSearchParams(window.location.search).get('flow')) ? <RetailEmailFlow /> : <RetailSignup />)
         : isRetailLoginRoute(publicPath, window.location.search) ? <RetailEntry />
         : publicPath === '/gyms' ? <Gyms />
