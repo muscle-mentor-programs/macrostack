@@ -239,12 +239,34 @@
 /* Customer record and resource shelves use the same hierarchy as the landing story. */
 .retail.retail-workspace .retail-customer-header { min-height: 145px; }
 .retail.retail-workspace .retail-profile-navigation {
-  border-bottom-color: var(--workspace-line);
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--workspace-line);
+  border-radius: 16px;
+  background: var(--retail-nav-paint) !important;
+  box-shadow: var(--retail-nested-shadow, 0 12px 28px #00000020);
   margin-bottom: 34px;
-  padding-bottom: 13px;
+  padding: 10px 14px 14px;
 }
-.retail.retail-workspace .retail-profile-navigation .retail-tabbar { gap: 8px; }
+.retail.retail-workspace .retail-profile-navigation .retail-tabbar {
+  gap: 8px;
+  margin: 0;
+  padding: 2px 0 4px;
+  scroll-padding-inline: 4px;
+}
 .retail.retail-workspace .retail-profile-navigation .retail-tabbar > .retail-button { flex: 0 0 auto; }
+.retail.retail-workspace .retail-profile-more > summary {
+  border: 1px solid var(--workspace-line);
+  border-radius: 10px;
+  background: var(--retail-card-paint);
+}
+.retail.retail-workspace .retail-profile-scroll {
+  left: 14px;
+  right: 14px;
+  bottom: 5px;
+  height: 2px;
+  background: color-mix(in srgb, var(--retail-accent) 9%, var(--workspace-line));
+}
 .retail.retail-workspace .retail-profile-navigation button[aria-current="page"] {
   color: var(--retail-accent);
   background: color-mix(in srgb, var(--retail-accent) 11%, transparent);
@@ -252,6 +274,16 @@
 }
 .retail.retail-workspace .retail-profile-scroll > span {
   background: linear-gradient(90deg, var(--retail-brand-primary), var(--retail-brand-secondary));
+}
+.retail.retail-workspace .retail-customer-overview > :is(div, aside) > .retail-section {
+  padding: clamp(22px, 2.1vw, 32px);
+  border: 1px solid var(--workspace-line);
+  border-radius: 16px;
+  background: var(--retail-card-paint) !important;
+  box-shadow: var(--retail-card-shadow, 0 12px 28px #00000020);
+}
+.retail.retail-workspace .retail-customer-overview > :is(div, aside) > .retail-section + .retail-section {
+  margin-top: 24px;
 }
 .retail.retail-workspace .retail-published-plan,
 .retail.retail-workspace .retail-journal-day {
@@ -268,7 +300,16 @@
 }
 
 /* Settings stay an open document, with clear chapter breaks rather than a wall of cards. */
-.retail.retail-workspace .retail-store-section-nav { border-color: var(--workspace-line); }
+.retail.retail-workspace .retail-store-section-nav {
+  border-color: var(--workspace-line);
+  max-width: calc(100% - 2px);
+}
+.retail.retail-workspace .retail-store-section-nav-links {
+  padding-inline: 4px;
+  scroll-padding-inline: 4px;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
 .retail.retail-workspace .retail-store-settings-body .retail-store-scroll-target {
   padding-block: 42px 52px;
   border-top-color: var(--workspace-line);
@@ -406,11 +447,18 @@
 .retail.retail-workspace.retail-light .retail-top {
   box-shadow: inset 0 1px 0 #FFFFFF, 0 6px 18px #19334B0d;
 }
-.retail.retail-workspace.retail-light .retail-top .retail-store-identity img {
-  padding: 5px;
-  border-radius: 12px;
-  background: #132137;
-  box-shadow: inset 0 1px 0 #ffffff25, 0 3px 9px #19334B1f;
+/* Trace the transparent artwork itself, keeping white lettering legible without a logo tile. */
+.retail.retail-workspace.retail-light .retail-top .retail-store-identity img,
+.retail .retail-theme-preview[data-retail-theme="light"] .retail-store-identity img {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  filter: drop-shadow(1px 0 0 #21395299)
+    drop-shadow(-1px 0 0 #21395299)
+    drop-shadow(0 1px 0 #21395299)
+    drop-shadow(0 -1px 0 #21395299)
+    drop-shadow(0 3px 4px #21395255);
 }
 .retail.retail-workspace.retail-light .retail-nav {
   box-shadow: inset 0 1px 0 #FFFFFF, 0 10px 24px #19334B1c;

@@ -244,7 +244,7 @@ export default function CustomerWorkspace({
       ) : (
         <>
           {tab === "Overview" && (
-            <div className="retail-columns">
+            <div className="retail-columns retail-customer-overview">
               <div>
                 <section className="retail-section">
                   <h2>Customer focus</h2>
