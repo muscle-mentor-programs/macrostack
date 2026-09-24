@@ -15,10 +15,17 @@ html:is(.light, .forest-light, .ocean-light) .software-coach {
   --coach-lavender: #695185;
   --coach-blue: #315f96;
 }
+.software-coach[data-coach-page=dashboard] { --coach-tone: var(--coach-amber); }
+.software-coach[data-coach-page=library],
 .software-coach[data-coach-page=foods],
 .software-coach [data-coach-section=Journal] { --coach-tone: var(--coach-sage); }
 .software-coach[data-coach-page=chat] { --coach-tone: var(--coach-teal); }
-.software-coach[data-coach-page=profile] { --coach-tone: var(--coach-lavender); }
+.software-coach[data-coach-page=more],
+.software-coach[data-coach-page=profile],
+.software-coach[data-coach-page=upgrade],
+.software-coach[data-coach-page=marketplace],
+.software-coach[data-coach-page=feedback],
+.software-coach[data-coach-page=billing] { --coach-tone: var(--coach-lavender); }
 .software-coach[data-coach-page=forms],
 .software-coach [data-coach-section=Notes],
 .software-coach [data-coach-section=Reviews],

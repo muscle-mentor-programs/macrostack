@@ -52,6 +52,30 @@ try{
    await page.evaluate(theme=>{document.documentElement.className=theme;window.testStore.setState({theme})},theme)
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${width} ${theme}: document overflow`)
   }
+  if(width===1440){
+   for(const theme of ['ocean-dark','ocean-light']){
+    await page.evaluate(theme=>{document.documentElement.className=theme;window.testStore.setState({theme})},theme)
+    for(const [active,tone] of [['dashboard','amber'],['clients','blue'],['chat','teal'],['library','sage'],['foods','sage'],['forms','lavender'],['more','lavender'],['profile','lavender']]){
+     await page.evaluate(active=>window.testStore.getState().setActivePage(active),active)
+     await page.waitForFunction(({active,tone})=>{
+      const shell=document.querySelector('.coach-shell')
+      const button=shell?.querySelector('.coach-sidebar nav button[aria-current=page]')
+      if(!button||shell.dataset.coachPage!==active)return false
+      const heading=button.closest('section')?.querySelector('.coach-sidebar-heading')
+      const sample=document.createElement('span');sample.style.color=`var(--coach-${tone})`;shell.append(sample)
+      const matches=getComputedStyle(heading).color===getComputedStyle(sample).color
+      sample.remove();return matches
+     },{active,tone})
+     await page.waitForFunction(()=>{
+      const headings=[...document.querySelectorAll('.coach-sidebar nav .coach-sidebar-heading')]
+      const sample=document.createElement('span');sample.style.color='var(--color-muted)';headings[0].closest('.coach-shell').append(sample)
+      const muted=getComputedStyle(sample).color;sample.remove()
+      return headings.filter(h=>!h.parentElement.querySelector('button[aria-current=page]')).every(h=>getComputedStyle(h).color===muted)
+     })
+    }
+   }
+   await page.evaluate(()=>window.testStore.getState().setActivePage('dashboard'))
+  }
   await page.evaluate(()=>{window.testStore.getState().setViewingClientId('client-0','overview');window.testStore.getState().setActivePage('clients')})
   await page.getByRole('navigation',{name:'Client sections'}).waitFor()
   if(width>=768){

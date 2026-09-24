@@ -13,6 +13,8 @@
 .coach-sidebar nav{flex:1}
 .coach-sidebar nav section{margin:24px 0}
 .coach-sidebar nav h2{font:600 11px var(--font-mono);color:var(--color-muted);text-transform:uppercase;letter-spacing:.08em;margin:0 12px 8px}
+.coach-sidebar nav section:has(button[aria-current=page])>.coach-sidebar-heading{color:var(--coach-tone);text-shadow:0 0 5px color-mix(in srgb,var(--coach-tone) 10%,transparent)}
+.coach-sidebar .coach-sidebar-heading{transition:color 420ms ease,text-shadow 420ms ease}
 .coach-sidebar nav button{width:100%;margin:4px 0;color:var(--color-muted)}
 .coach-sidebar button[aria-current=page],.coach-bottom-nav button[aria-current=page]{color:var(--color-accent);background:color-mix(in srgb,var(--color-accent) 12%,transparent)}
 .coach-sidebar-account{border-top:1px solid var(--color-border);overflow-wrap:anywhere}
