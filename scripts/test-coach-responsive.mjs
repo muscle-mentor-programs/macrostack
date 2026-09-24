@@ -27,6 +27,17 @@ try{
   },width)
   await page.getByRole('button',{name:'Find a client',exact:true}).count() // settle imports
   await page.locator('.coach-roster-row').first().waitFor()
+  if(width===1440){
+   const surfaces=await page.evaluate(()=>{
+    const roster=getComputedStyle(document.querySelector('.coach-roster-cards'))
+    const card=getComputedStyle(document.querySelector('.coach-client-card'))
+    return {rosterFill:roster.backgroundColor,rosterShadow:roster.boxShadow,cardFill:card.backgroundColor,cardShadow:card.boxShadow,canvas:getComputedStyle(document.querySelector('.coach-shell')).backgroundColor}
+   })
+   assert.equal(surfaces.rosterFill,'rgba(0, 0, 0, 0)','Roster gaps show the page canvas')
+   assert.equal(surfaces.rosterShadow,'none','Roster has no shared panel shadow')
+   assert.notEqual(surfaces.cardFill,surfaces.canvas,'Client cards remain distinct from the canvas')
+   assert.notEqual(surfaces.cardShadow,'none','Client cards have their own depth')
+  }
   const shell = await page.locator('.coach-shell').boundingBox()
   assert.ok(Math.abs(shell.x)<1 && Math.abs(shell.width-width)<1, `${width}: coach shell fills viewport`)
   if(width>=768){
@@ -101,6 +112,7 @@ try{
   await page.getByRole('button',{name:'Journal',exact:true}).click()
   await page.getByRole('heading',{name:'Client journal',exact:true}).waitFor()
   assert.equal(await page.locator('.coach-client-detail').evaluate(n=>n.scrollWidth>n.clientWidth),false,`${width}: client detail overflow`)
+  if(width===1440)assert.notEqual(await page.locator('.coach-client-detail .cw-panel').first().evaluate(n=>getComputedStyle(n).boxShadow),'none','Client workspace cards have depth')
   await page.evaluate(()=>document.fonts.ready)
   if(width===390||width===1440||width===2520)await page.screenshot({path:`outputs/coach-responsive/journal-${width}.png`})
   await page.getByRole('button',{name:'Check-ins',exact:true}).click();await page.getByText('NO CHECK-IN YET').waitFor()
@@ -117,6 +129,7 @@ try{
   await page.getByRole('button',{name:'Notes & tasks',exact:true}).filter({visible:true}).click()
   await page.getByRole('button',{name:'Tasks',exact:true}).click();await page.getByRole('button',{name:'New follow-up'}).waitFor()
   await page.evaluate(()=>window.testStore.getState().setActivePage('library'));await page.getByRole('heading',{name:'Library',exact:true}).waitFor()
+  if(width===1440)assert.notEqual(await page.locator('.coach-resource-grid>button').first().evaluate(n=>getComputedStyle(n).boxShadow),'none','Library cards have depth')
   await page.evaluate(()=>window.testStore.getState().setActivePage('more'));await page.getByRole('heading',{name:'Settings',exact:true,level:1}).waitFor()
   if(width===390 || width===1440){
     await page.evaluate(async()=>{

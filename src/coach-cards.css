@@ -2,18 +2,22 @@
    reaches client workspaces rendered in portals, without restyling client mode. */
 body:has(.software-coach) {
   --coach-card-fill: var(--color-card);
-  --coach-card-shadow: 0 2px 4px #00000018, 0 10px 24px #00000020;
+  --coach-card-highlight: linear-gradient(145deg, #ffffff09, transparent 56%);
+  --coach-card-shadow: inset 0 1px 0 #ffffff10, 0 3px 6px #00000030, 0 16px 34px #00000045;
+  --coach-nested-shadow: inset 0 1px 0 #ffffff08, 0 3px 10px #00000026;
 }
 html:is(.light, .forest-light, .ocean-light) body:has(.software-coach) {
   --coach-card-fill: #fff;
-  --coach-card-shadow: var(--light-raised);
+  --coach-card-highlight: linear-gradient(155deg, #ffffffb8, color-mix(in srgb, var(--color-bg) 28%, transparent));
+  --coach-card-shadow: inset 0 1px 0 #fff, 0 3px 7px color-mix(in srgb, var(--color-cream) 11%, transparent), 0 16px 34px color-mix(in srgb, var(--color-accent) 16%, transparent);
+  --coach-nested-shadow: inset 0 1px 0 #fff, 0 3px 10px color-mix(in srgb, var(--color-cream) 9%, transparent);
 }
 
 html body:has(.software-coach) :is(.glass-card, .card-dim, .cw-panel, .coach-card, [data-client-card], .cw-client-header, .cw-toolbar, .cw-empty):where(:not(input):not(select):not(textarea):not(.card-inset)) {
   background: var(--coach-card-fill) !important;
-  background-image: none !important;
+  background-image: var(--coach-card-highlight) !important;
   border-color: var(--color-border) !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
   box-shadow: var(--coach-card-shadow) !important;
 }
 
@@ -35,7 +39,8 @@ html body:has(.software-coach) .cw-panel.cw-record-pinned {
 
 /* Conversation buttons retain their existing active fill and border. */
 html body:has(.software-coach) .chat-conversations > button {
-  border-radius: 8px;
+  border-radius: 12px;
+  background-image: var(--coach-card-highlight);
   box-shadow: var(--coach-card-shadow);
 }
 

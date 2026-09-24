@@ -136,13 +136,16 @@ html body .software-coach .cw-client-workspace .cw-journal :is(h3,h4){color:var(
 @container(max-width:480px){.coach-client-detail .cw-journal-filters{grid-template-columns:minmax(0,1fr);max-width:none;gap:12px}.coach-client-detail .cw-journal-filters input[type=date]{appearance:none;-webkit-appearance:none}}
 
 /* Three quiet layers: canvas, content surfaces, and transient controls. */
-.software-coach{--coach-card-shadow:0 3px 12px #0000001a,inset 0 1px 0 #ffffff06;--coach-popover-shadow:0 12px 32px #00000030;--coach-surface-edge:color-mix(in srgb,var(--color-border) 85%,var(--color-accent) 15%)}
-html.ocean-light .software-coach{--coach-card-shadow:0 2px 3px #10204004,0 5px 16px #10204009;--coach-popover-shadow:0 12px 32px #10204020}
-html body .software-coach :is(.cw-panel,.glass-card,.card-dim,.coach-resource-grid>button,.coach-roster){box-shadow:var(--coach-card-shadow)!important;border-color:var(--coach-surface-edge)!important;background-color:var(--color-card)}
-html body .software-coach :is(.cw-panel,.glass-card,.card-dim) :is(.cw-panel,.glass-card,.card-dim){box-shadow:none!important}
+.software-coach{--coach-popover-shadow:0 12px 32px #00000030;--coach-surface-edge:color-mix(in srgb,var(--color-border) 85%,var(--color-accent) 15%)}
+html.ocean-light .software-coach{--coach-popover-shadow:0 12px 32px #10204020}
+html body .software-coach :is(.cw-panel,.glass-card,.card-dim,.coach-resource-grid>button){box-shadow:var(--coach-card-shadow)!important;border-color:var(--coach-surface-edge)!important;background-color:var(--coach-card-fill)}
+html body .software-coach .coach-resource-grid>button{background-image:var(--coach-card-highlight)}
+html body .software-coach :is(.cw-panel,.glass-card,.card-dim) :is(.cw-panel,.glass-card,.card-dim){box-shadow:var(--coach-nested-shadow)!important}
 html body .software-coach :is(.cw-journal-toolbar,.dashboard-workboard>.cw-stats>.cw-panel,.coach-record-summary){background-image:radial-gradient(ellipse at top right,color-mix(in srgb,var(--color-accent) 7%,transparent),transparent 65%)!important}
 .software-coach .coach-client-sections [aria-current=page],.software-coach .cw-tabs button[aria-pressed=true]{background-color:color-mix(in srgb,var(--color-accent) 9%,transparent)}
-html body .software-coach .cw-journal-dates button[aria-pressed=true],html body .software-coach .dashboard-workboard .cw-stat[aria-pressed=true]{background-color:color-mix(in srgb,var(--color-accent) 10%,var(--color-card));box-shadow:inset 3px 0 var(--color-accent)!important;border-color:color-mix(in srgb,var(--color-accent) 45%,var(--color-border))!important}
+html body .software-coach .cw-journal-dates button[aria-pressed=true],html body .software-coach .dashboard-workboard .cw-stat[aria-pressed=true]{background-color:color-mix(in srgb,var(--color-accent) 10%,var(--color-card));border-color:color-mix(in srgb,var(--color-accent) 45%,var(--color-border))!important}
+html body .software-coach .cw-journal-dates button[aria-pressed=true]{box-shadow:inset 3px 0 var(--color-accent)!important}
+html body .software-coach .dashboard-workboard .cw-stat[aria-pressed=true]{box-shadow:inset 3px 0 var(--color-accent),var(--coach-card-shadow)!important}
 .software-coach .coach-sidebar button[aria-current=page]{box-shadow:inset 3px 0 var(--color-accent)}
 .software-coach :is(h1,h2,h3){line-height:1.15;letter-spacing:.01em}
 .software-coach :is(.cw-stat strong,.cw-journal-metrics strong){font-variant-numeric:tabular-nums;letter-spacing:-.015em}
@@ -169,7 +172,7 @@ html body .software-coach .cw-journal-dates button[aria-pressed=true],html body 
 
 /* Separate roster cards: identity, a compact data strip, and one action. */
 html body .software-coach .coach-roster-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;border:0;background:none;box-shadow:none!important;overflow:visible}
-.software-coach .coach-roster-cards .coach-client-card{display:flex;flex-direction:column;gap:18px;padding:18px;border:1px solid var(--coach-surface-edge);border-radius:12px;min-width:0;background:var(--color-card);box-shadow:var(--coach-card-shadow)}
+.software-coach .coach-roster-cards .coach-client-card{display:flex;flex-direction:column;gap:18px;padding:18px;border:1px solid var(--coach-surface-edge);border-radius:12px;min-width:0;background:var(--coach-card-fill);background-image:var(--coach-card-highlight);box-shadow:var(--coach-card-shadow)}
 .software-coach .coach-client-card .coach-client-identity{display:flex;align-items:center;gap:12px;width:100%;padding:0;min-width:0;text-align:left}
 .coach-client-identity>span{min-width:0;flex:1}
 .software-coach .coach-client-identity strong{display:block;font:600 17px/1.3 var(--font-mono);letter-spacing:-.025em;overflow-wrap:anywhere}
