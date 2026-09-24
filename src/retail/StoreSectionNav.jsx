@@ -1,8 +1,30 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function StoreSectionNav({ items }) {
   const navRef = useRef(null);
+  const linksRef = useRef(null);
   const [active, setActive] = useState(items[0]?.id);
+  const [scrollEdges, setScrollEdges] = useState({ left: false, right: false });
+  const sectionIds = items.map(({ id }) => id).join("|");
+
+  useEffect(() => {
+    const links = linksRef.current;
+    if (!links) return;
+    const update = () => {
+      const left = links.scrollLeft > 2;
+      const right = links.scrollLeft + links.clientWidth < links.scrollWidth - 2;
+      setScrollEdges((current) => current.left === left && current.right === right ? current : { left, right });
+    };
+    const observer = new ResizeObserver(update);
+    observer.observe(links);
+    links.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => {
+      observer.disconnect();
+      links.removeEventListener("scroll", update);
+    };
+  }, [sectionIds]);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -67,10 +89,19 @@ export default function StoreSectionNav({ items }) {
     });
   };
 
+  const scrollLinks = (direction) => {
+    const links = linksRef.current;
+    if (!links) return;
+    links.scrollBy({
+      left: direction * Math.max(links.clientWidth * .65, 220),
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    });
+  };
+
   return (
     <nav ref={navRef} className="retail-store-section-nav" aria-label="Store settings sections">
       <span className="retail-store-section-nav-label" aria-hidden="true">ON THIS PAGE</span>
-      <div className="retail-store-section-nav-links">
+      <div ref={linksRef} className="retail-store-section-nav-links">
         {items.map(({ id, label }, index) => (
           <button
             key={id}
@@ -84,6 +115,12 @@ export default function StoreSectionNav({ items }) {
           </button>
         ))}
       </div>
+      {(scrollEdges.left || scrollEdges.right) && (
+        <div className="retail-store-section-nav-scroll" aria-label="Scroll settings sections">
+          <button type="button" aria-label="Scroll sections left" disabled={!scrollEdges.left} onClick={() => scrollLinks(-1)}><ChevronLeft size={17} aria-hidden="true" /></button>
+          <button type="button" aria-label="Scroll sections right" disabled={!scrollEdges.right} onClick={() => scrollLinks(1)}><ChevronRight size={17} aria-hidden="true" /></button>
+        </div>
+      )}
     </nav>
   );
 }

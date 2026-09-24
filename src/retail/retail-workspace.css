@@ -310,6 +310,29 @@
   -webkit-mask-image: none;
   mask-image: none;
 }
+.retail.retail-workspace .retail-store-section-nav-scroll {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  padding-left: 10px;
+  border-left: 1px solid var(--workspace-line);
+}
+.retail.retail-workspace .retail-store-section-nav-scroll button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: 1px solid var(--workspace-line);
+  border-radius: 9px;
+  background: var(--retail-card-paint);
+  color: var(--retail-nav-text);
+}
+.retail.retail-workspace .retail-store-section-nav-scroll button:hover:not(:disabled) {
+  color: var(--retail-accent);
+  border-color: var(--retail-accent);
+}
+.retail.retail-workspace .retail-store-section-nav-scroll button:disabled { opacity: .38; cursor: default; }
 .retail.retail-workspace .retail-store-settings-body .retail-store-scroll-target {
   padding-block: 42px 52px;
   border-top-color: var(--workspace-line);
