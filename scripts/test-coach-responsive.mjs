@@ -5,7 +5,7 @@ const {chromium}=createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE||'
 const browser=await chromium.launch({channel:process.env.BROWSER_CHANNEL||'chrome',headless:true})
 await mkdir('outputs/coach-responsive',{recursive:true})
 try{
- for(const width of [320,390,430,768,1024,1440,1920]){
+ for(const width of [320,390,430,768,1024,1440,1920,2520]){
   const page=await browser.newPage({viewport:{width,height:900}}),errors=[]
   page.on('pageerror',e=>errors.push(e.stack || e.message))
   await page.route('**/*.supabase.co/**',r=>r.abort())
@@ -27,9 +27,16 @@ try{
   },width)
   await page.getByRole('button',{name:'Find a client',exact:true}).count() // settle imports
   await page.locator('.coach-roster-row').first().waitFor()
+  const shell = await page.locator('.coach-shell').boundingBox()
+  assert.ok(Math.abs(shell.x)<1 && Math.abs(shell.width-width)<1, `${width}: coach shell fills viewport`)
+  if(width>=768){
+   const main=await page.locator('.coach-main').boundingBox(),board=await page.locator('.dashboard-workboard').boundingBox()
+   assert.ok(board.width>=main.width-70, `${width}: dashboard uses available page width`)
+  }
+  if(width===2520)await page.screenshot({path:`outputs/coach-responsive/dashboard-${width}.png`})
   await page.getByRole('button',{name:/Marketplace notifications/}).click()
   assert.equal(await page.locator('#coach-notification-title').evaluate(el=>getComputedStyle(el).fontSize),'18px')
-  assert.equal(await page.locator('.coach-notification-actions button').first().evaluate(el=>getComputedStyle(el).fontSize),'13px')
+  assert.equal(await page.locator('.coach-notification-actions button').first().evaluate(el=>getComputedStyle(el).fontSize),'14px')
   await page.getByRole('button',{name:'Close notifications',exact:true}).click()
 
   assert.equal(await page.locator('.coach-roster-row').count(),20)
@@ -47,6 +54,10 @@ try{
   }
   await page.evaluate(()=>{window.testStore.getState().setViewingClientId('client-0','overview');window.testStore.getState().setActivePage('clients')})
   await page.getByRole('navigation',{name:'Client sections'}).waitFor()
+  if(width>=768){
+   const main=await page.locator('.coach-main').boundingBox(),detail=await page.locator('.coach-client-detail').boundingBox()
+   assert.ok(Math.abs(detail.x-main.x)<1 && detail.width>=main.width-20, `${width}: client detail fills main area`)
+  }
   if(width<768){
    await page.evaluate(()=>{Object.defineProperty(visualViewport,'height',{configurable:true,value:420});Object.defineProperty(visualViewport,'offsetTop',{configurable:true,value:180});visualViewport.dispatchEvent(new Event('resize'));visualViewport.dispatchEvent(new Event('scroll'))})
    await page.waitForTimeout(80)
@@ -67,7 +78,7 @@ try{
   await page.getByRole('heading',{name:'Client journal',exact:true}).waitFor()
   assert.equal(await page.locator('.coach-client-detail').evaluate(n=>n.scrollWidth>n.clientWidth),false,`${width}: client detail overflow`)
   await page.evaluate(()=>document.fonts.ready)
-  if(width===390||width===1440)await page.screenshot({path:`outputs/coach-responsive/journal-${width}.png`})
+  if(width===390||width===1440||width===2520)await page.screenshot({path:`outputs/coach-responsive/journal-${width}.png`})
   await page.getByRole('button',{name:'Check-ins',exact:true}).click();await page.getByText('NO CHECK-IN YET').waitFor()
   await page.getByRole('button',{name:'Photos',exact:true}).click()
   await page.evaluate(()=>window.testStore.setState({sendMessage:async()=>({ok:false})}))

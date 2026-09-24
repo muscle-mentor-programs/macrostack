@@ -1,5 +1,5 @@
 /* Shared coach workspace system. Theme colors come from the active app theme. */
-.coach-shell{display:flex;width:100%;max-width:1920px;margin-inline:auto;height:var(--coach-height,100dvh);overflow:hidden;background:var(--color-bg);color:var(--color-cream)}
+.coach-shell{display:flex;width:100%;height:var(--coach-height,100dvh);overflow:hidden;background:var(--color-bg);color:var(--color-cream)}
 .coach-canvas{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0}
 .coach-main{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 .coach-main>div{min-height:100%}
@@ -74,7 +74,7 @@
 .software-coach :is(h1,h2,h3){font-family:var(--font-display)}
 .software-coach :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--color-accent);outline-offset:3px}
 .software-coach :is(button,a){touch-action:manipulation}
-.software-coach .dashboard-workboard{max-width:1440px;margin:auto}
+.software-coach .dashboard-workboard{width:100%;max-width:none;margin:0}
 .software-coach .dashboard-workboard>.cw-tabs{display:none}
 .software-coach .dashboard-workboard>.cw-stats button{padding:16px;text-align:left;min-height:88px;margin:0}
 .software-coach .dashboard-workboard .cw-stat strong{font:800 30px var(--font-display)}
@@ -83,7 +83,7 @@
 .software-coach .pt-mobile-header{padding-top:20px}
 .coach-client-detail>header,.coach-client-detail>div:first-child{padding-top:max(12px,env(safe-area-inset-top));padding-bottom:12px}
 @container(max-width:700px){.coach-client-sections>.coach-secondary-section{display:none}.coach-section-more{display:block}}
-@media(min-width:768px){.coach-main>div{height:100%}.coach-client-detail{max-width:1600px;margin:auto}.coach-client-detail .cw-journal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:768px){.coach-main>div{height:100%}.coach-client-detail{width:100%;max-width:none;margin:0}.coach-client-detail .cw-journal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){
  .coach-utility-bar{padding-inline:16px;min-height:44px}.coach-main{scrollbar-gutter:auto}.coach-resource-page{padding:20px 16px}.coach-resource-grid{grid-template-columns:1fr;gap:12px}
  .coach-client-detail{height:var(--coach-height,100dvh)!important;bottom:auto!important}.coach-client-detail .app-page-gutter{padding-inline:16px}
@@ -228,7 +228,7 @@ html body .software-coach .cw-journal-date{font-size:22px;line-height:1.2}
 .software-coach .coach-resource-header{position:relative;padding:24px 32px;border-bottom:1px solid var(--color-border)}
 .software-coach .coach-resource-header h1{font:900 28px/1.15 var(--font-display);letter-spacing:.025em;text-transform:uppercase;color:var(--resource-tone);margin:0}
 .software-coach .coach-resource-header>p:last-child{font:12px/1.5 var(--font-mono);margin-top:6px;color:var(--color-muted)}
-.coach-resource-content{max-width:1100px;margin-inline:auto;padding:24px 32px}
+.coach-resource-content{padding:24px 32px}
 .coach-resource-content .coach-resource-grid{margin-top:0}
 .software-coach .coach-resource-grid>button>svg:first-child{color:var(--resource-tone)}
 .software-coach .coach-resource-grid>button>svg:last-child{color:var(--color-muted)}
