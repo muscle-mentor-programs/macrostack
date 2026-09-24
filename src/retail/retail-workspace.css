@@ -282,6 +282,57 @@
   border-color: var(--workspace-line);
 }
 
+/* Echo the coach portal's raised-card finish while keeping store colors intact. */
+.retail.retail-workspace {
+  --retail-card-sheen: linear-gradient(145deg, #ffffff09, transparent 56%);
+  --retail-card-shadow: inset 0 1px 0 #ffffff10, 0 3px 6px #00000030, 0 16px 34px #00000045;
+  --retail-nested-shadow: inset 0 1px 0 #ffffff08, 0 3px 10px #00000026;
+}
+.retail.retail-workspace :is(
+  .retail-card,
+  .retail-dialog,
+  .retail-published-plan,
+  .retail-journal-day,
+  .retail-sharing-card,
+  .retail-stats,
+  .customer-list
+) {
+  background: var(--retail-card-sheen), var(--retail-card-paint) !important;
+  border-color: var(--workspace-line);
+  box-shadow: var(--retail-card-shadow) !important;
+}
+.retail.retail-workspace .retail-customer-card {
+  background: var(--retail-card-sheen), linear-gradient(150deg, color-mix(in srgb, var(--retail-accent) 6%, transparent), transparent 54%), var(--retail-card-paint) !important;
+  transition: border-color 180ms ease, box-shadow 220ms ease;
+}
+.retail.retail-workspace :is(.retail-plan-meal, .retail-theme-preview article) {
+  background: linear-gradient(145deg, #ffffff07, transparent 56%), var(--retail-card-paint) !important;
+  border-color: var(--workspace-line);
+  box-shadow: var(--retail-nested-shadow);
+}
+.retail.retail-workspace :is(.retail-stats > .retail-card, .retail-card .retail-card) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.retail.retail-workspace .retail-theme-settings {
+  background: linear-gradient(145deg, #ffffff09, transparent 56%), #0B101A;
+  box-shadow: var(--retail-card-shadow);
+}
+.retail.retail-workspace .customer-list-row:focus-within {
+  background: linear-gradient(110deg, color-mix(in srgb, var(--retail-accent) 8%, transparent), transparent 65%);
+  box-shadow: inset 2px 0 0 var(--retail-accent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .retail.retail-workspace .retail-customer-card:hover {
+    border-color: color-mix(in srgb, var(--retail-accent) 48%, var(--color-border));
+    box-shadow: inset 0 1px 0 #ffffff16, 0 3px 6px #00000030, 0 18px 36px color-mix(in srgb, var(--retail-accent) 15%, #00000070) !important;
+  }
+  .retail.retail-workspace .customer-list-row:hover {
+    background: linear-gradient(110deg, color-mix(in srgb, var(--retail-accent) 8%, transparent), transparent 65%);
+    box-shadow: inset 2px 0 0 var(--retail-accent);
+  }
+}
+
 @media (max-width: 1050px) {
   .retail.retail-workspace .retail-top { gap: 10px 22px; }
   .retail.retail-workspace .retail-top > .retail-header-controls { align-items: center; }
