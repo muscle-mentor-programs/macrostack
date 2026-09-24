@@ -6,7 +6,7 @@ import Team from './Team';
 import Resources from './Resources';
 import {RetailThemeContext} from "./ThemeContext";
 import { brandStyle } from "./brandColors";
-import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, LogOut, ArrowUpRight } from "lucide-react";
+import { LayoutDashboard, Users, MessageCircle, BookOpen, Settings2, MapPin, LogOut, ArrowUpRight, Moon, Sun } from "lucide-react";
 import LoadingSplash from "../components/LoadingSplash";
 import { accountEmail } from "./accountEmail";
 import { supabase } from "../lib/supabase";
@@ -53,12 +53,24 @@ const emptyContext = {
   staff: [],
   operators: [],
 };
+const appearanceKey = 'macrostack-retail-appearance';
+function savedAppearance() {
+  try { return window.localStorage.getItem(appearanceKey) === 'light' ? 'light' : 'dark'; }
+  catch { return 'dark'; }
+}
 export default function RetailApp({ retailerSession = false, onReady }) {
   useViewport();
+  const [appearance, setAppearance] = useState(savedAppearance);
   useEffect(() => {
-    document.documentElement.classList.remove('ocean-dark', 'ocean-light');
-    document.documentElement.classList.add('ocean-dark');
-  }, []);
+    const html = document.documentElement;
+    html.classList.remove('ocean-dark', 'ocean-light');
+    html.classList.add(appearance === 'light' ? 'ocean-light' : 'ocean-dark');
+    try { window.localStorage.setItem(appearanceKey, appearance); } catch { /* Private browsing still supports the current session. */ }
+    return () => {
+      html.classList.remove('ocean-dark', 'ocean-light');
+      html.classList.add(useStore.getState().theme);
+    };
+  }, [appearance]);
   const now = useClock();
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
@@ -122,6 +134,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
   const permissions=access?.locationId===locationId?access:{};
   const location = ctx.locations.find((l) => l.id === locationId),
     org = ctx.organizations.find((o) => o.id === location?.organization_id);
+  const themeStyle = useMemo(() => brandStyle(org?.brand_colors, appearance), [org?.brand_colors, appearance]);
   const memberships = ctx.staff.filter(
     (s) => s.active && s.user_id === user?.id,
   );
@@ -352,7 +365,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
     if (!loading && (!isStaff || access?.locationId === locationId)) onReady?.();
   }, [loading, isStaff, access?.locationId, locationId, onReady]);
   return (
-    <PermissionContext.Provider value={permissions}><RetailThemeContext.Provider value={brandStyle(org?.brand_colors)}><div className="retail retail-workspace" style={brandStyle(org?.brand_colors)}>
+    <PermissionContext.Provider value={permissions}><RetailThemeContext.Provider value={themeStyle}><div className={`retail retail-workspace retail-${appearance}`} data-retail-theme={appearance} style={themeStyle}>
       <header className="retail-top">
         <div className="retail-header-brand">
           <div className="retail-brand">
@@ -361,6 +374,10 @@ export default function RetailApp({ retailerSession = false, onReady }) {
 
         </div>
         <div className="retail-actions retail-header-controls">
+          <button type="button" className="retail-appearance-toggle" onClick={() => setAppearance(current => current === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${appearance === 'light' ? 'dark' : 'light'} mode`} title={`Switch to ${appearance === 'light' ? 'dark' : 'light'} mode`}>
+            {appearance === 'light' ? <Moon size={16} aria-hidden="true"/> : <Sun size={16} aria-hidden="true"/>}
+            <span>{appearance === 'light' ? 'Dark mode' : 'Light mode'}</span>
+          </button>
           {ctx.locations.length > 0 && (
             <label className="retail-location-control"><span><MapPin size={12} aria-hidden="true"/>{isStaff ? "STORE WORKSPACE" : "YOUR STORE CONNECTION"}</span><select
               aria-label="Choose store"
@@ -843,7 +860,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
               <>
                 <StoreSectionNav items={storeSections} />
                 <div className="retail-store-settings-body">
-                {isOrgAdmin && permissions.branding && org && <Branding key={org.id} organization={org} onSaved={reloadContext} />}
+                {isOrgAdmin && permissions.branding && org && <Branding key={org.id} organization={org} onSaved={reloadContext} appearance={appearance} />}
                 {permissions.customer_write && <section className="retail-section retail-store-scroll-target" id="retail-onboarding" tabIndex={-1}>
                   <h2 className="retail-store-section-heading">Customer access</h2>
                   <p>Customers sign in or create an account, then explicitly confirm this store connection.</p>

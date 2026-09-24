@@ -145,10 +145,12 @@ export default function App() {
   // Public browser pages always use the brand dark theme. Preserve the saved
   // preference for the authenticated app and native shell.
   useEffect(() => {
+    // The retailer workspace owns its separate, per-device appearance choice.
+    if (isAuthenticated && !showHomepage && activePage === 'retail') return
     const html = document.documentElement
     html.classList.remove('ocean-dark', 'ocean-light')
     html.classList.add((showHomepage || !isAuthenticated) && !START_ON_LOGIN ? 'ocean-dark' : theme)
-  }, [theme, isAuthenticated, showHomepage])
+  }, [theme, isAuthenticated, showHomepage, activePage])
 
   // Check Supabase session on mount
   useEffect(() => {

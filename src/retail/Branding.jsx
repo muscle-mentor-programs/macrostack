@@ -47,12 +47,14 @@ async function transparentPNG(file) {
     bitmap.close();
   }
 }
-export default function Branding({ organization, onSaved }) {
+export default function Branding({ organization, onSaved, appearance = 'dark' }) {
   const [name, setName] = useState(
     organization.brand_name || organization.name,
   );
   const [logo, setLogo] = useState(organization.logo_path);
   const [colors, setColors] = useState(() => brandColors(organization.brand_colors));
+  const [previewChoice, setPreviewChoice] = useState(null);
+  const previewAppearance = previewChoice ?? appearance;
   const colorsValid = validBrandColors(colors);
   const [notice, setNotice] = useState("");
   const { busy, error, run } = useAction();
@@ -69,7 +71,14 @@ export default function Branding({ organization, onSaved }) {
         Set one company identity for every store and connected customer view.
         Only chain administrators can change the logo, display name, and colors.
       </p>
-      <div className="retail-theme-preview" style={brandStyle(colors)}>
+      <div className="retail-theme-preview-controls" aria-label="Preview appearance">
+        <span>Preview appearance</span>
+        <div role="group" aria-label="Preview appearance">
+          <button type="button" aria-pressed={previewAppearance === 'light'} onClick={() => setPreviewChoice('light')}>Light</button>
+          <button type="button" aria-pressed={previewAppearance === 'dark'} onClick={() => setPreviewChoice('dark')}>Dark</button>
+        </div>
+      </div>
+      <div className="retail-theme-preview" data-retail-theme={previewAppearance} style={brandStyle(colors, previewAppearance)}>
         <header><BrandIdentity name={name || organization.name} logo={brandLogoURL(logo)}/></header>
         <nav><strong>Today</strong><span>Customers</span><span>Inbox</span></nav>
         <div className="retail-theme-preview-body"><h3>Your store workspace</h3><p>A preview of your colors, surfaces, and typography.</p><article><h4>Customer nutrition</h4><p>Meal plans, progress, and conversations in one place.</p><span className="retail-theme-preview-input">Customer name</span><span className="retail-brand-preview-action">Open customer</span></article></div>
@@ -90,7 +99,7 @@ export default function Branding({ organization, onSaved }) {
           maxLength={80}
         />
         <div className="retail-theme-settings">
-          <div className="retail-theme-settings-heading"><div><h3>Portal colors</h3><p>Use hex codes or the color picker. Changes preview above; Save branding applies them.</p></div><Button type="button" disabled={busy} onClick={()=>{setColors({...defaultBrandColors});setNotice('MacroStack default colors restored in the preview. Save branding to apply.');}}>Reset to MacroStack defaults</Button></div>
+          <div className="retail-theme-settings-heading"><div><h3>Portal colors</h3><p>Use hex codes or the color picker. These surfaces customize dark mode; light mode uses your brand accents on a readable light palette. Save branding to apply across your stores.</p></div><Button type="button" disabled={busy} onClick={()=>{setColors({...defaultBrandColors});setNotice('MacroStack default colors restored in the preview. Save branding to apply.');}}>Reset to MacroStack defaults</Button></div>
           {[
             ['Brand & buttons',['primary','secondary','buttonEnd','buttonText'],'button'],
             ['Page background',['background','backgroundEnd'],'background'],
