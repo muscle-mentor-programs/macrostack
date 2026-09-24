@@ -2,7 +2,7 @@ import LoadingSplash from "./components/LoadingSplash"
 import { useEffect, useState, useRef, lazy, Suspense } from 'react'
 import useStore from './store'
 import useIsMobile from './hooks/useIsMobile'
-import { isNativeApp } from './lib/platform'
+import { isInstalledPWA, isNativeApp } from './lib/platform'
 
 // Layouts (small, keep eager so the shell paints instantly)
 import CoachLayout from './layouts/CoachLayout'
@@ -115,11 +115,10 @@ const ROUTABLE = new Set([
   ...Object.keys(CLIENT_PAGES),
 ])
 
-// Native app launches open sign-in. Website visits, including installed PWA
-// launches, open the public homepage at /.
-const START_ON_LOGIN = isNativeApp
+// Installed apps resume the workspace after auth; browser visits to / stay public.
+const START_ON_LOGIN = isNativeApp || isInstalledPWA
 const isPublicHomepagePath = () =>
-  !isNativeApp &&
+  !START_ON_LOGIN &&
   window.location.pathname === '/' &&
   new URLSearchParams(window.location.search).get('checkout') !== 'success' &&
   !sessionStorage.getItem('ms-retail-return') &&
