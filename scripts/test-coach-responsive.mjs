@@ -8,6 +8,7 @@ try{
  for(const width of [320,390,430,768,1024,1440,1920,2520]){
   const page=await browser.newPage({viewport:{width,height:900}}),errors=[]
   page.on('pageerror',e=>errors.push(e.stack || e.message))
+  await page.addInitScript(()=>{window.copiedCoachCodes=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async code=>{window.copiedCoachCodes.push(code)}}})})
   await page.route('**/*.supabase.co/**',r=>r.abort())
   await page.route('**/src/lib/coachWorkspace.js*',async route=>{const response=await route.fetch();const body=(await response.text()).replace(/async function loadWorkspace\(clientId\) \{[\s\S]*?\n\}/, 'async function loadWorkspace() { return [] }');await route.fulfill({response,body})})
   await page.route(/\/$/,r=>r.fulfill({contentType:'text/html',body:`<html><head><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"></head><body><div id="root"></div><script type="module">import R from '/@react-refresh';R.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>t=>t;window.__vite_plugin_react_preamble_installed__=true;</script></body></html>`}))
@@ -21,12 +22,19 @@ try{
    const components={};for(const [key,path]of Object.entries(paths))components[key]=(await import(`/src/pages/coach/${path}.jsx`)).default
    const today=new Date().toLocaleDateString('en-CA')
    const clients=Array.from({length:45},(_,i)=>({id:`client-${i}`,name:i?'Client '+i:'Alexandra Montgomery With A Long Name',email:`client${i}@example.com`,status:'active',goals:{calories:2200,protein:160,carbs:250,fat:65},log:{[today]:[{id:'food',name:'Oats',meal:'Breakfast',calories:300,protein:20,carbs:40,fat:7}]},weightLog:[],checkins:[],photos:[],mealPlans:[],tags:[],createdAt:new Date().toISOString()}))
-   store.setState({isAuthenticated:true,currentUser:{id:'test-coach',name:'Coach',role:'coach',hasAccess:true},activeRole:'coach',activePage:'dashboard',clients,messages:{},coachProfile:{},customFoods:[],mealPlanTemplates:[],fetchCoachForms:async()=>{},fetchCoachRequests:async()=>{},fetchTargetSchedules:async()=>{},fetchClientSubmissions:async()=>{},fetchMyCoachRequests:async()=>{},fetchClientNote:async()=>'',fetchCheckinQuestions:async()=>[],markCheckinReviewed:async()=>{},fetchMealPlanTemplates:async()=>{},getClientTotalsForDate:()=>({calories:300,protein:20,carbs:40,fat:7})})
+   store.setState({isAuthenticated:true,currentUser:{id:'test-coach',name:'Coach',role:'coach',hasAccess:true,coachCode:'BRAN59EF'},activeRole:'coach',activePage:'dashboard',clients,messages:{},coachProfile:{},customFoods:[],mealPlanTemplates:[],fetchCoachForms:async()=>{},fetchCoachRequests:async()=>{},fetchTargetSchedules:async()=>{},fetchClientSubmissions:async()=>{},fetchMyCoachRequests:async()=>{},fetchClientNote:async()=>'',fetchCheckinQuestions:async()=>[],markCheckinReviewed:async()=>{},fetchMealPlanTemplates:async()=>{},getClientTotalsForDate:()=>({calories:300,protein:20,carbs:40,fat:7})})
    function Harness(){const active=store(s=>s.activePage);const Component=components[active]||components.more;return React.createElement(Layout,null,React.createElement(Component,{key:active}))}
    window.testReact=React;window.testRoot=createRoot(document.getElementById('root'));window.testRoot.render(React.createElement(Harness))
   },width)
   await page.getByRole('button',{name:'Find a client',exact:true}).count() // settle imports
   await page.locator('.coach-roster-row').first().waitFor()
+  const codeCard=page.getByRole('button',{name:'Copy coach code BRAN59EF'})
+  const codeBox=await codeCard.boundingBox(),utilityBox=await page.locator('.coach-utility-bar').boundingBox()
+  assert.ok(codeBox.width<160 && codeBox.x>utilityBox.x && codeBox.x+codeBox.width<utilityBox.x+utilityBox.width,`${width}: coach code stays compact inside the top bar`)
+  assert.equal(await page.locator('.coach-summary-code').count(),0,'Dashboard no longer has a full-width coach code card')
+  await codeCard.click()
+  assert.deepEqual(await page.evaluate(()=>window.copiedCoachCodes),['BRAN59EF'])
+  await page.getByRole('status').filter({hasText:'Coach code copied'}).waitFor()
   if(width===1440){
    const surfaces=await page.evaluate(()=>{
     const roster=getComputedStyle(document.querySelector('.coach-roster-cards'))
@@ -44,7 +52,7 @@ try{
    const main=await page.locator('.coach-main').boundingBox(),board=await page.locator('.dashboard-workboard').boundingBox()
    assert.ok(board.width>=main.width-70, `${width}: dashboard uses available page width`)
   }
-  if(width===2520)await page.screenshot({path:`outputs/coach-responsive/dashboard-${width}.png`})
+  if([390,1440,2520].includes(width))await page.screenshot({path:`outputs/coach-responsive/dashboard-${width}.png`})
   await page.getByRole('button',{name:/Marketplace notifications/}).click()
   assert.equal(await page.locator('#coach-notification-title').evaluate(el=>getComputedStyle(el).fontSize),'18px')
   assert.equal(await page.locator('.coach-notification-actions button').first().evaluate(el=>getComputedStyle(el).fontSize),'14px')
@@ -89,6 +97,19 @@ try{
   }
   await page.evaluate(()=>{window.testStore.getState().setViewingClientId('client-0','overview');window.testStore.getState().setActivePage('clients')})
   await page.getByRole('navigation',{name:'Client sections'}).waitFor()
+  const tabs=page.locator('.coach-section-scroll>button')
+  const tabStyles=await tabs.first().evaluate(el=>{const sample=document.createElement('span');sample.style.color='var(--color-accent)';el.parentElement.append(sample);const styles={font:getComputedStyle(el).fontFamily,transform:getComputedStyle(el).textTransform,shadow:getComputedStyle(el).boxShadow,color:getComputedStyle(el).color,accent:getComputedStyle(sample).color};sample.remove();return styles})
+  assert.equal(tabStyles.font,await page.locator('.coach-eyebrow').evaluate(el=>getComputedStyle(el).fontFamily),`${width}: client tabs use the header font`)
+  assert.equal(tabStyles.transform,'uppercase',`${width}: client tabs use header-style type`)
+  assert.notEqual(tabStyles.shadow,'none',`${width}: client tabs have individual depth`)
+  assert.notEqual(tabStyles.color,tabStyles.accent,`${width}: client tab labels stay neutral`)
+  assert.equal(await tabs.first().getAttribute('aria-current'),'page')
+  if(width===1440){
+   await page.evaluate(()=>{document.documentElement.className='ocean-dark';window.testStore.setState({theme:'ocean-dark'})})
+   await page.waitForTimeout(250)
+   await page.screenshot({path:'outputs/coach-responsive/client-sections-dark-1440.png'})
+   await page.evaluate(()=>{document.documentElement.className='ocean-light';window.testStore.setState({theme:'ocean-light'})})
+  }
   if(width>=768){
    const main=await page.locator('.coach-main').boundingBox(),detail=await page.locator('.coach-client-detail').boundingBox()
    assert.ok(Math.abs(detail.x-main.x)<1 && detail.width>=main.width-20, `${width}: client detail fills main area`)

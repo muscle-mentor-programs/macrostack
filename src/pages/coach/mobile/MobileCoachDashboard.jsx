@@ -4,7 +4,7 @@ import { format, subDays } from 'date-fns'
 import {
   Mail, Edit2, MessageCircle, BookOpen,
   Users, TrendingUp, Target, X, Send, CheckSquare, Square, ChevronRight,
-  Copy, Check as CheckIcon, Bell, Gauge, ClipboardCheck, ClipboardList,
+  Check as CheckIcon, Bell, Gauge, ClipboardCheck, ClipboardList,
 } from 'lucide-react'
 import useStore from '../../../store'
 import { macroTargetCalories } from '../../../lib/macroTargetCalories'
@@ -354,14 +354,13 @@ function MobileClientCard({ client, delay, onEdit, onEmail, onChat, onMealPlans,
 export default function MobileCoachDashboard() {
   const {
     clients, setActivePage, setViewingClientId,
-    currentUser, coachRequests, fetchCoachRequests, respondToRequest, sendCodeToRequest,
+    coachRequests, fetchCoachRequests, respondToRequest, sendCodeToRequest,
     setPendingChatClientId,
   } = useStore()
 
   const [editClient,     setEditClient]     = useState(null)
   const [showEmail,      setShowEmail]      = useState(false)
   const [emailPreselect, setEmailPreselect] = useState(null)
-  const [copied,         setCopied]         = useState(false)
   const [reqError,       setReqError]       = useState('')
 
   useEffect(() => { fetchCoachRequests() }, [])
@@ -370,13 +369,6 @@ export default function MobileCoachDashboard() {
     setReqError('')
     const res = await respondToRequest(reqId, true)
     if (res?.capReached) setReqError(res.error)
-  }
-
-  const handleCopyCode = () => {
-    if (!currentUser?.coachCode) return
-    navigator.clipboard.writeText(currentUser.coachCode).catch(() => {})
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   const avgCompliance = clients.length
@@ -439,7 +431,7 @@ export default function MobileCoachDashboard() {
       <div className="app-page-gutter px-4 pt-4 pb-4 space-y-5">
 
       <div className="coach-primary-workboard">
-        <CoachWorkboard userCount={clients.length} avgCompliance={avgCompliance} activePlans={activePlans} coachCode={currentUser?.coachCode} copied={copied} onCopyCode={handleCopyCode} renderClient={(client, i, onOpen) => (
+        <CoachWorkboard userCount={clients.length} avgCompliance={avgCompliance} activePlans={activePlans} renderClient={(client, i, onOpen) => (
           <MobileClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
             onOpen={onOpen} onEdit={setEditClient}
             onEmail={(id) => { setEmailPreselect(id); setShowEmail(true) }}

@@ -5,7 +5,7 @@ import { format, subDays } from 'date-fns'
 import {
   Mail, Edit2, Users, TrendingUp, Target, X, Send,
   CheckSquare, Square, MessageCircle, BookOpen,
-  Copy, Check as CheckIcon, Bell, Gauge, ClipboardCheck, ClipboardList,
+  Check as CheckIcon, Bell, Gauge, ClipboardCheck, ClipboardList,
 } from 'lucide-react'
 import useStore from '../../store'
 import { macroTargetCalories } from '../../lib/macroTargetCalories'
@@ -521,7 +521,6 @@ export default function CoachDashboard() {
   const [editClient,      setEditClient]      = useState(null)
   const [emailModal,      setEmailModal]      = useState(false)
   const [emailPreselect,  setEmailPreselect]  = useState(null)
-  const [copied,          setCopied]          = useState(false)
   const [reqError,        setReqError]        = useState('')
   const [checklistHidden, setChecklistHidden] = useState(
     () => localStorage.getItem('ms-onboarding-dismissed') === '1'
@@ -571,13 +570,6 @@ export default function CoachDashboard() {
     }
     return true
   }).length
-
-  const handleCopyCode = () => {
-    if (!currentUser?.coachCode) return
-    navigator.clipboard.writeText(currentUser.coachCode).catch(() => {})
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
 
   const handleChat = (clientId) => {
     setPendingChatClientId(clientId)
@@ -641,7 +633,7 @@ export default function CoachDashboard() {
       </div>
 
       <div className="coach-primary-workboard">
-        <CoachWorkboard userCount={active.length} avgCompliance={avgCompliance} activePlans={activePlans} coachCode={currentUser?.coachCode} copied={copied} onCopyCode={handleCopyCode} renderClient={(client, i, onOpen) => (
+        <CoachWorkboard userCount={active.length} avgCompliance={avgCompliance} activePlans={activePlans} renderClient={(client, i, onOpen) => (
           <ClientCard key={client.id} client={client} delay={Math.min(i, 8) * 45}
             onOpen={onOpen} onEdit={setEditClient}
             onEmail={(id) => { setEmailPreselect(id); setEmailModal(true) }}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import CoachBottomNav from '../components/CoachBottomNav'
 import CoachNotifications from '../components/CoachNotifications'
+import CoachCodeBadge from '../components/CoachCodeBadge'
 import useStore from '../store'
 import useIsMobile from '../hooks/useIsMobile'
 const positions=new Map()
@@ -32,5 +33,5 @@ export default function CoachLayout({children}) {
    el?.addEventListener('scroll',remember,true)
    return()=>{cancelAnimationFrame(frame);el?.removeEventListener('scroll',remember,true)}
  },[activePage,currentUser?.id,mobile])
- return <div className="software-ui software-coach coach-shell" data-coach-page={activePage}>{!mobile&&<Sidebar/>}<div className="coach-canvas"><div className="coach-utility-bar"><span className="coach-eyebrow">COACH PORTAL</span><CoachNotifications compact/></div>{!online&&<p className="coach-offline" role="status">You’re offline. Reconnect before saving changes.</p>}<main ref={root} className="coach-main" data-scroller>{children}</main>{mobile&&<CoachBottomNav/>}</div></div>
+ return <div className="software-ui software-coach coach-shell" data-coach-page={activePage}>{!mobile&&<Sidebar/>}<div className="coach-canvas"><div className="coach-utility-bar"><div className="coach-utility-identity"><span className="coach-eyebrow">COACH PORTAL</span>{currentUser?.coachCode&&<CoachCodeBadge code={currentUser.coachCode}/>}</div><CoachNotifications compact/></div>{!online&&<p className="coach-offline" role="status">You’re offline. Reconnect before saving changes.</p>}<main ref={root} className="coach-main" data-scroller>{children}</main>{mobile&&<CoachBottomNav/>}</div></div>
 }

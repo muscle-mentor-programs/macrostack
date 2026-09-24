@@ -4,7 +4,12 @@
 .coach-main{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 .coach-main>div{min-height:100%}
 .coach-utility-bar{display:flex;justify-content:space-between;align-items:center;min-height:48px;padding:8px 24px;border-bottom:1px solid var(--color-border);background:var(--color-surface);padding-top:max(8px,env(safe-area-inset-top))}
+.coach-utility-identity{display:flex;align-items:center;gap:12px;min-width:0}
 .coach-eyebrow{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.12em;color:var(--color-muted)}
+.coach-code-card{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-height:32px;padding:5px 10px;border:1px solid var(--color-border);border-radius:8px;background:linear-gradient(150deg,color-mix(in srgb,var(--color-cream) 5%,var(--color-card)),var(--color-card));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--color-cream) 9%,transparent),0 2px 7px #00000012;color:var(--color-cream);white-space:nowrap}
+.coach-code-label{font:600 9px var(--font-mono);letter-spacing:.06em;color:var(--color-muted)}
+.coach-code-card strong{font:800 13px/1 var(--font-display);letter-spacing:.055em}
+.coach-code-card svg{color:var(--color-muted);flex-shrink:0}
 .coach-sidebar{display:flex;flex-direction:column;flex:0 0 224px;border-right:1px solid var(--color-border);padding:20px 12px;background:var(--color-surface);overflow:auto}
 .coach-sidebar.is-collapsed{flex-basis:72px}
 .coach-sidebar header{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;font-family:var(--font-display);font-size:24px;font-weight:800}
@@ -39,8 +44,6 @@
 .coach-account-settings>button{display:block;min-height:44px;border-bottom:1px solid var(--color-border);width:100%;text-align:left;margin-top:8px}
 .coach-client-detail{container-type:inline-size}
 .coach-client-sections{display:flex;flex-shrink:0;border-bottom:1px solid var(--color-border);background:var(--color-surface);position:relative;z-index:21}
-.coach-client-sections>button,.coach-section-more>summary{flex:1;min-height:48px;padding:12px 10px;white-space:nowrap;text-align:center;font:700 14px var(--font-display);letter-spacing:.04em;color:var(--color-muted);cursor:pointer}
-.coach-client-sections [aria-current=page]{color:var(--color-accent);box-shadow:inset 0 -2px var(--color-accent)}
 .coach-section-more{display:none;flex:1;min-width:0}
 .coach-section-more>summary{list-style:none;overflow:hidden;text-overflow:ellipsis}
 .coach-section-more>summary::-webkit-details-marker{display:none}
@@ -87,7 +90,7 @@
 @container(max-width:700px){.coach-client-sections>.coach-secondary-section{display:none}.coach-section-more{display:block}}
 @media(min-width:768px){.coach-main>div{height:100%}.coach-client-detail{width:100%;max-width:none;margin:0}.coach-client-detail .cw-journal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){
- .coach-utility-bar{padding-inline:16px;min-height:44px}.coach-main{scrollbar-gutter:auto}.coach-resource-page{padding:20px 16px}.coach-resource-grid{grid-template-columns:1fr;gap:12px}
+ .coach-utility-bar{padding-inline:16px;min-height:44px}.coach-utility-identity{gap:8px}.coach-code-card{padding-inline:8px}.coach-main{scrollbar-gutter:auto}.coach-resource-page{padding:20px 16px}.coach-resource-grid{grid-template-columns:1fr;gap:12px}
  .coach-client-detail{height:var(--coach-height,100dvh)!important;bottom:auto!important}.coach-client-detail .app-page-gutter{padding-inline:16px}
  .coach-client-detail .cw-journal-grid{grid-template-columns:1fr}.coach-client-detail .cw-journal-toolbar{gap:12px;padding:16px}
  .coach-client-detail .cw-journal-day summary{padding:16px}.coach-client-detail .cw-journal-date{font-size:24px;margin-bottom:12px}
@@ -142,7 +145,7 @@ html body .software-coach :is(.cw-panel,.glass-card,.card-dim,.coach-resource-gr
 html body .software-coach .coach-resource-grid>button{background-image:var(--coach-card-highlight)}
 html body .software-coach :is(.cw-panel,.glass-card,.card-dim) :is(.cw-panel,.glass-card,.card-dim){box-shadow:var(--coach-nested-shadow)!important}
 html body .software-coach :is(.cw-journal-toolbar,.dashboard-workboard>.cw-stats>.cw-panel,.coach-record-summary){background-image:radial-gradient(ellipse at top right,color-mix(in srgb,var(--color-accent) 7%,transparent),transparent 65%)!important}
-.software-coach .coach-client-sections [aria-current=page],.software-coach .cw-tabs button[aria-pressed=true]{background-color:color-mix(in srgb,var(--color-accent) 9%,transparent)}
+.software-coach .cw-tabs button[aria-pressed=true]{background-color:color-mix(in srgb,var(--color-accent) 9%,transparent)}
 html body .software-coach .cw-journal-dates button[aria-pressed=true],html body .software-coach .dashboard-workboard .cw-stat[aria-pressed=true]{background-color:color-mix(in srgb,var(--color-accent) 10%,var(--color-card));border-color:color-mix(in srgb,var(--color-accent) 45%,var(--color-border))!important}
 html body .software-coach .cw-journal-dates button[aria-pressed=true]{box-shadow:inset 3px 0 var(--color-accent)!important}
 html body .software-coach .dashboard-workboard .cw-stat[aria-pressed=true]{box-shadow:inset 3px 0 var(--color-accent),var(--coach-card-shadow)!important}
@@ -190,12 +193,14 @@ html body .software-coach .coach-roster-cards{display:grid;grid-template-columns
 @media(max-width:767px){.software-coach .coach-client-card button[data-action]{min-height:44px}.software-coach .coach-resource-page h1{font-size:24px}}
 
 /* All client sections stay in one swipeable row with a visible scroll cue. */
-.coach-client-scrollnav{display:block;min-width:0;padding-bottom:9px}
-.coach-section-scroll{display:flex;position:relative;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;padding:0 8px;scroll-padding-inline:8px}
+.coach-client-scrollnav{display:block;min-width:0;padding:10px 0 11px;background:linear-gradient(180deg,color-mix(in srgb,var(--color-cream) 3%,var(--color-surface)),var(--color-surface));box-shadow:0 6px 18px #0000000d}
+.coach-section-scroll{display:flex;gap:8px;position:relative;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;padding:2px 16px 5px;scroll-padding-inline:16px}
 .coach-section-scroll::-webkit-scrollbar{display:none}
-.coach-section-scroll>button{flex:1 0 auto;min-height:48px;padding:12px 20px;white-space:nowrap;font:700 14px var(--font-display);letter-spacing:.035em;color:var(--color-muted)}
-.coach-section-track{position:absolute;bottom:3px;left:16px;right:16px;height:4px;border-radius:4px;background:color-mix(in srgb,var(--color-accent) 15%,transparent);overflow:hidden}
-.coach-section-track>span{position:absolute;top:0;height:100%;border-radius:inherit;background:var(--color-accent);left:0;will-change:transform;transition:none}
+.software-coach .coach-section-scroll>button{flex:1 0 auto;min-height:44px;padding:10px 18px;white-space:nowrap;text-align:center;font:800 15px/1.1 var(--font-display);letter-spacing:.045em;text-transform:uppercase;color:color-mix(in srgb,var(--color-cream) 78%,var(--color-muted));border:1px solid var(--color-border);border-radius:9px;background:linear-gradient(165deg,color-mix(in srgb,var(--color-cream) 3%,var(--color-card)),var(--color-card));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--color-cream) 6%,transparent),0 2px 5px #0000000b}
+.software-coach .coach-section-scroll>button[aria-current=page]{color:var(--color-cream);border-color:color-mix(in srgb,var(--color-cream) 24%,var(--color-border));background:linear-gradient(155deg,color-mix(in srgb,var(--color-cream) 8%,var(--color-card)),var(--color-card));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--color-cream) 12%,transparent),0 4px 11px #00000021}
+@media(hover:hover){.software-coach .coach-section-scroll>button:hover{color:var(--color-cream);border-color:color-mix(in srgb,var(--color-cream) 25%,var(--color-border))}}
+.coach-section-track{position:absolute;bottom:3px;left:16px;right:16px;height:4px;border-radius:4px;background:color-mix(in srgb,var(--color-cream) 10%,transparent);overflow:hidden}
+.coach-section-track>span{position:absolute;top:0;height:100%;border-radius:inherit;background:color-mix(in srgb,var(--color-cream) 52%,var(--color-muted));left:0;will-change:transform;transition:none}
 
 @media(prefers-reduced-motion:reduce){.coach-section-track>span{animation:none!important;transition:none!important}}
 
@@ -244,13 +249,9 @@ body .software-coach .coach-dashboard-welcome{--coach-tone:var(--coach-amber)}
 html body .software-coach .coach-dashboard-welcome h2{font:900 28px/1.15 var(--font-display);letter-spacing:.025em;color:var(--coach-amber)!important}
 @media(max-width:767px){html body .software-coach .coach-dashboard-welcome h2{font-size:26px}}
 
-/* Two coordinated stat rows, followed by the coach code. */
+/* Two coordinated stat rows. */
 .software-coach .coach-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 12px}
 html body .software-coach .dashboard-workboard .coach-summary-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:16px 8px;min-height:110px;border:1px solid var(--color-border);border-radius:12px;margin:0}
 .coach-summary-card>svg{color:var(--color-muted);opacity:.75}
 html body .software-coach .dashboard-workboard .coach-summary-card strong{font:900 26px/1.1 var(--font-display);color:var(--color-cream)}
 html body .software-coach .dashboard-workboard .coach-summary-card>span{font:10px/1.4 var(--font-mono);text-transform:uppercase;color:var(--color-muted)}
-.coach-summary-code{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;margin-bottom:24px;border:1px solid var(--color-border);border-radius:12px;font:12px var(--font-mono)}
-.coach-summary-code>span{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;line-height:1.2}
-.coach-summary-code strong{font:800 18px/1.2 var(--font-display);letter-spacing:.06em;color:var(--color-accent)}
-.coach-summary-code button{display:flex;align-items:center;gap:6px;min-height:44px}
