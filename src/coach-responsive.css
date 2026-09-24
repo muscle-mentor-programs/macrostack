@@ -161,8 +161,6 @@ html body .software-coach .dashboard-workboard .cw-stat[aria-pressed=true]{box-s
  .software-coach :is(.coach-roster-row,.coach-sidebar nav button,.cw-journal-dates button):hover{background-color:color-mix(in srgb,var(--color-accent) 5%,var(--color-card))}
 }
 .software-coach .coach-dashboard-welcome{isolation:isolate;overflow:visible;z-index:30}
-.software-coach .coach-dashboard-welcome::after{content:'';position:absolute;z-index:-1;pointer-events:none;width:200px;height:100%;right:20%;top:0;background:url('/macrostack-mark-transparent.png') center/contain no-repeat;opacity:.035;transform:rotate(-12deg)}
-@media(max-width:767px){.software-coach .coach-dashboard-welcome::after{right:0;width:160px;height:100%;top:0}}
 @media(prefers-reduced-motion:reduce){.software-coach *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 /* Resource titles use the quieter brand typeface, not condensed display type. */
