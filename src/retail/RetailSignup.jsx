@@ -189,7 +189,7 @@ export default function RetailSignup() {
       if (mode === "login" && demoResult !== "not-demo") {
         if (demoResult !== "valid") throw new Error("That demo password is incorrect.");
         startRetailDemoSession(window.sessionStorage);
-        window.location.assign("/retail/demo");
+        window.location.assign("/retail/showcase");
         return;
       }
       if (mode === "signup" && isRetailDemoEmail(email))

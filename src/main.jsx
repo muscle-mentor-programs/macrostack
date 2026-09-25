@@ -78,7 +78,7 @@ createRoot(document.getElementById('root')).render(
     <AppErrorBoundary>
       <Suspense fallback={<LoadingSplash fullScreen label={publicPath.startsWith('/retail') ? 'Opening retailer workspace…' : 'Opening MacroStack…'} />}>
         {((publicPath === '/retail/member' || publicPath === '/retail/connect') && new URLSearchParams(window.location.search).has('invite')) ? <CustomerInvite /> : publicPath === '/retailers' || publicPath === '/retail/start' ? (['confirm','reset'].includes(new URLSearchParams(window.location.search).get('flow')) ? <RetailEmailFlow /> : <RetailSignup />)
-          : publicPath === '/retail/demo' ? <RetailDemo />
+          : publicPath === '/retail/showcase' ? <RetailDemo />
           : isRetailLoginRoute(publicPath, window.location.search) ? <RetailEntry />
           : publicPath === '/gyms' ? <Gyms />
           : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />
