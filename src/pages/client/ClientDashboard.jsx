@@ -141,7 +141,7 @@ function MealPlanSection({ client, onLogMeal }) {
   )
 
   return (
-    <div className="mx-5 mb-6 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
+    <div className="app-page-inset mb-6 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
       {/* Section heading */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -194,7 +194,7 @@ function MealPlanSection({ client, onLogMeal }) {
         )}
 
         {/* Meals */}
-        {MEAL_ORDER.map((meal, mi) => {
+        {MEAL_ORDER.map((meal) => {
           const items = day?.meals?.[meal] || []
           if (items.length === 0) return null
           const mTotal = items.reduce(
