@@ -32,11 +32,14 @@ export default function RetailTour({ index, onStep, onClose, onNavigate }) {
       }
       const rect = target.getBoundingClientRect();
       const inset = 9;
+      const bottomInset = step.spotlightBottomInset ?? inset;
+      const top = Math.max(8, rect.top - inset);
+      const bottom = Math.min(window.innerHeight - 8, rect.bottom + bottomInset);
       setSpotlight({
-        top: Math.max(8, rect.top - inset),
+        top,
         left: Math.max(8, rect.left - inset),
         width: Math.min(window.innerWidth - 16, rect.width + inset * 2),
-        height: Math.min(window.innerHeight - 16, rect.height + inset * 2),
+        height: Math.max(0, bottom - top),
       });
     };
     const frame = requestAnimationFrame(focusTarget);
@@ -50,7 +53,7 @@ export default function RetailTour({ index, onStep, onClose, onNavigate }) {
       window.removeEventListener("scroll", focusTarget, true);
       window.removeEventListener("resize", focusTarget);
     };
-  }, [index, step.target]);
+  }, [index, step.target, step.spotlightBottomInset]);
   useEffect(() => {
     const handleKey = (event) => {
       if (event.key === "Escape") { event.preventDefault(); onClose(); }

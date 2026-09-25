@@ -2,7 +2,7 @@ export const RETAIL_DEMO_EMAIL = "demo@getmacrostack.com";
 export const RETAIL_TOUR_SEEN_KEY = "macrostack-retail-real-tour-v1";
 
 export const retailTourSteps = [
-  { section: "Today", target: ".retail-top", path: "Your workspace", title: "Welcome to MacroStack Retail", body: "This is the real retailer portal, signed in to an isolated MacroStack Retail workspace. Follow the guide, then explore every section yourself." },
+  { section: "Today", target: ".retail-top", spotlightBottomInset: -4, path: "Your workspace", title: "Welcome to MacroStack Retail", body: "This is the real retailer portal, signed in to an isolated MacroStack Retail workspace. Follow the guide, then explore every section yourself." },
   { section: "Today", target: ".retail-stats", path: "Today", title: "Know what needs attention", body: "Today brings conversations, follow-ups and customer activations together so your team knows what to do next." },
   { section: "Customers", target: ".retail-fields", path: "Customers", title: "Find the right customer", body: "Search and filter your customer directory. Switch between cards and a compact list to see status and who is assigned." },
   { section: "Customers", customerTab: "Overview", target: ".retail-customer-header", path: "Customer profile", title: "One connected customer record", body: "Open a customer to see their goals, consultation history, next steps and the specialist responsible for them." },
