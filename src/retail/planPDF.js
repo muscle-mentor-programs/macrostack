@@ -129,6 +129,41 @@ export function generateRetailPlanPDF(plan, client, brand) {
   const days = Array.isArray(plan.days) ? plan.days : [];
   const candidates = [];
 
+  function measureMeals(day, width) {
+    return MEALS.map(name => {
+      const items = Array.isArray(day.meals?.[name]) ? day.meals[name] : [];
+      if (!items.length) return null;
+      const rows = items.map(item => {
+        const food = wrapped(`${item.name || 'Food'}${item.brand ? `, ${item.brand}` : ''}`, 9, width - 92);
+        const quantity = Number(item.quantity) || 1;
+        const serving = ['g', 'oz', 'ml', 'lb', 'fl oz', 'L'].includes(item.servingUnit) && item.servingSize
+          ? `${Math.round(quantity * Number(item.servingSize) * 100) / 100} ${item.servingUnit}`
+          : `${quantity} × ${item.servingUnit || 'serving'}`;
+        const portion = wrapped(serving, 7.5, width - 100);
+        return {item, food, portion, height:Math.max(35, food.length * 11 + portion.length * 9 + 13)};
+      });
+      return {name, items, rows, height:22 + rows.reduce((sum, row) => sum + row.height, 0) + 3};
+    }).filter(Boolean);
+  }
+
+  function drawMeal(meal, x, width, top, toY, scale) {
+    const print = (value, px, py, size, color = text, options = {}) =>
+      label(value, px, toY(py), size * scale, color, 'Space', {...options, lineHeightFactor:1.22});
+    doc.setDrawColor(...border); doc.setLineWidth(.5);
+    doc.line(x + 10, toY(top), x + width - 10, toY(top));
+    print(meal.name.toUpperCase(), x + 11, top + 14, 8, primary);
+    print(`${rounded(totalsFor(meal.items).calories)} kcal`, x + width - 11, top + 14, 7.5, muted, {align:'right'});
+    let rowTop = top + 22;
+    for (const row of meal.rows) {
+      print(row.food, x + 11, rowTop + 11, 9);
+      print(`${rounded(row.item.calories)} kcal`, x + width - 11, rowTop + 11, 7.6, text, {align:'right'});
+      const detailY = rowTop + 12 + row.food.length * 11;
+      print(row.portion, x + 11, detailY, 7.5, muted);
+      print(`${rounded(row.item.protein)}P · ${rounded(row.item.carbs)}C · ${rounded(row.item.fat)}F`, x + width - 11, detailY, 7, muted, {align:'right'});
+      rowTop += row.height;
+    }
+  }
+
   // Measure before drawing. Column count and vertical scale are chosen together,
   // so even a long imported plan remains on a single sheet with no clipped rows.
   for (let count = 1; count <= Math.min(4, Math.max(1, days.length)); count++) {
@@ -138,20 +173,7 @@ export function generateRetailPlanPDF(plan, client, brand) {
     const columns = Array.from({length:count}, () => []);
     days.forEach((day, index) => {
       const title = wrapped(day.label || `Day ${index + 1}`, 13, width - 24);
-      const meals = MEALS.map(name => {
-        const items = Array.isArray(day.meals?.[name]) ? day.meals[name] : [];
-        if (!items.length) return null;
-        const rows = items.map(item => {
-          const food = wrapped(`${item.name || 'Food'}${item.brand ? `, ${item.brand}` : ''}`, 9, width - 92);
-          const quantity = Number(item.quantity) || 1;
-          const serving = ['g', 'oz', 'ml', 'lb', 'fl oz', 'L'].includes(item.servingUnit) && item.servingSize
-            ? `${Math.round(quantity * Number(item.servingSize) * 100) / 100} ${item.servingUnit}`
-            : `${quantity} × ${item.servingUnit || 'serving'}`;
-          const portion = wrapped(serving, 7.5, width - 100);
-          return {item, food, portion, height:Math.max(35, food.length * 11 + portion.length * 9 + 13)};
-        });
-        return {name, items, rows, height:22 + rows.reduce((sum, row) => sum + row.height, 0) + 3};
-      }).filter(Boolean);
+      const meals = measureMeals(day, width);
       const height = 40 + title.length * 15 + 38 + meals.reduce((sum, meal) => sum + meal.height, 0) + 8;
       columns[Math.floor(index / perColumn)].push({day, index, title, meals, height});
     });
@@ -161,6 +183,69 @@ export function generateRetailPlanPDF(plan, client, brand) {
     candidates.push({count, width, gap, columns, scale, score:(count === 1 ? 10 : count === 2 ? 9 : count === 3 ? 8 : 7) * scale});
   }
   const layout = candidates.reduce((best, candidate) => candidate.score > best.score + .1 ? candidate : best);
+
+  // A dense single day can place its meals in two reading-order columns.
+  // Split at a meal boundary when possible; very long individual meals may continue on the right.
+  let splitDay = null;
+  if (days.length === 1 && layout.scale < .93) {
+    const gap = 11, width = (INNER - gap) / 2;
+    const title = wrapped(days[0].label || 'Day 1', 13, INNER - 24);
+    const summaryHeight = 50 + title.length * 15 + 38;
+    const meals = measureMeals(days[0], width);
+    const entries = meals.flatMap((meal, mealIndex) => meal.rows.map((row, rowIndex) => ({meal, mealIndex, row, rowIndex})));
+    const groupsFor = entriesInColumn => {
+      const groups = [];
+      for (const entry of entriesInColumn) {
+        let group = groups.at(-1);
+        if (!group || group.mealIndex !== entry.mealIndex) {
+          group = {mealIndex:entry.mealIndex, name:`${entry.meal.name}${entry.rowIndex ? ' · continued' : ''}`, rows:[], items:[]};
+          groups.push(group);
+        }
+        group.rows.push(entry.row);
+        group.items.push(entry.row.item);
+      }
+      return groups.map(group => ({...group, height:25 + group.rows.reduce((sum, row) => sum + row.height, 0)}));
+    };
+    let partition = null;
+    for (let cut = 1; cut < entries.length; cut++) {
+      const columns = [groupsFor(entries.slice(0, cut)), groupsFor(entries.slice(cut))];
+      const heights = columns.map(column => 18 + column.reduce((sum, meal) => sum + meal.height, 0));
+      const breaksMeal = entries[cut].mealIndex === entries[cut - 1].mealIndex;
+      const cost = Math.max(...heights) + (breaksMeal ? 12 : 0);
+      if (!partition || cost < partition.cost) partition = {columns, heights, cost};
+    }
+    if (partition) {
+      const available = contentBottom - contentTop - summaryHeight - 11;
+      const scale = Math.min(1, available / Math.max(...partition.heights));
+      if (9 * scale > layout.score + .1) splitDay = {...partition, title, width, gap, summaryHeight, scale};
+    }
+  }
+
+  if (splitDay) {
+    const {title, width, gap, summaryHeight, scale, columns} = splitDay;
+    panel(P, contentTop, INNER, summaryHeight, 8);
+    paint('header', P + 1, contentTop + 1, INNER - 2, 34, 7);
+    label(title, P + 12, contentTop + 20, 13, headerText);
+    const summaryTop = contentTop + 34 + title.length * 15;
+    const totals = totalsFor(Object.values(days[0].meals || {}).flat());
+    [[totals.calories, 'KCAL'], [totals.protein, 'PROTEIN'], [totals.carbs, 'CARBS'], [totals.fat, 'FAT']].forEach(([value, caption], index) => {
+      const x = P + 12 + index * (INNER - 24) / 4;
+      label(`${rounded(value)}${index ? 'g' : ''}`, x, summaryTop + 15, 13, heading, 'Barlow');
+      label(caption, x, summaryTop + 28, 6.4, muted);
+    });
+    const top = contentTop + summaryHeight + 11;
+    const toY = value => top + value * scale;
+    columns.forEach((column, index) => {
+      const x = P + index * (width + gap);
+      const height = 18 + column.reduce((sum, meal) => sum + meal.height, 0);
+      panel(x, top, width, height * scale, 8);
+      let mealTop = 9;
+      for (const meal of column) {
+        drawMeal(meal, x, width, mealTop, toY, scale);
+        mealTop += meal.height;
+      }
+    });
+  } else {
   const s = layout.scale;
   const Y = value => contentTop + value * s;
   const scaledLabel = (value, x, y, size, color = text, font = 'Space', options = {}) => label(value, x, Y(y), size * s, color, font, {...options, lineHeightFactor:1.22});
@@ -188,24 +273,13 @@ export function generateRetailPlanPDF(plan, client, brand) {
       });
       let mealTop = summaryTop + 38;
       for (const meal of meals) {
-        doc.setDrawColor(...border); doc.setLineWidth(.5);
-        doc.line(x + 10, Y(mealTop), x + layout.width - 10, Y(mealTop));
-        scaledLabel(meal.name.toUpperCase(), x + 11, mealTop + 14, 8, primary);
-        scaledLabel(`${rounded(totalsFor(meal.items).calories)} kcal`, x + layout.width - 11, mealTop + 14, 7.5, muted, 'Space', {align:'right'});
-        let rowTop = mealTop + 22;
-        for (const row of meal.rows) {
-          scaledLabel(row.food, x + 11, rowTop + 11, 9);
-          scaledLabel(`${rounded(row.item.calories)} kcal`, x + layout.width - 11, rowTop + 11, 7.6, text, 'Space', {align:'right'});
-          const detailY = rowTop + 12 + row.food.length * 11;
-          scaledLabel(row.portion, x + 11, detailY, 7.5, muted);
-          scaledLabel(`${rounded(row.item.protein)}P · ${rounded(row.item.carbs)}C · ${rounded(row.item.fat)}F`, x + layout.width - 11, detailY, 7, muted, 'Space', {align:'right'});
-          rowTop += row.height;
-        }
+        drawMeal(meal, x, layout.width, mealTop, Y, s);
         mealTop += meal.height;
       }
       cursor += height + 10;
     }
   });
+  }
 
   doc.setDrawColor(...mix(primary, background, .35));
   doc.line(P, H - 37, W - P, H - 37);
