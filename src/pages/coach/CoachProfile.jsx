@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
-import { User, Globe, Award, BookOpen, Check, Copy, Pencil, X } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { User, Globe, Award, BookOpen, Check, Copy, Download, Link2, Pencil, QrCode, X } from 'lucide-react'
 import useStore from '../../store'
 import useIsSuperadmin from '../../hooks/useIsSuperadmin'
 import ScrambleText from '../../components/ScrambleText'
+import ConnectionQR from '../../components/ConnectionQR'
+import { coachJoinURL } from '../../lib/connectionQr'
 
 const inputCls = 'w-full bg-surface border border-border rounded-lg px-4 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors resize-none'
 const lbl      = 'font-display text-xs text-muted tracking-widest block mb-1.5'
@@ -18,6 +20,9 @@ export default function CoachProfile() {
   const [saving,  setSaving]    = useState(false)
   const [saveError, setSaveError] = useState('')
   const [copied,  setCopied]    = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+  const [shareError, setShareError] = useState('')
+  const qrRef = useRef(null)
   const [form,    setForm]      = useState({
     name:        currentUser?.name        || '',
     bio:         currentUser?.bio         || '',
@@ -72,6 +77,32 @@ export default function CoachProfile() {
     navigator.clipboard.writeText(currentUser.coachCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const joinURL = coachJoinURL(window.location.origin, currentUser?.coachCode)
+  const copyJoinURL = async () => {
+    if (!joinURL) return
+    try {
+      await navigator.clipboard.writeText(joinURL)
+      setLinkCopied(true)
+      setShareError('')
+      setTimeout(() => setLinkCopied(false), 2000)
+    } catch {
+      setShareError('Could not copy the link. Try again or share the coach code above.')
+    }
+  }
+  const downloadQR = () => {
+    const svg = qrRef.current?.querySelector('svg')
+    if (!svg) return
+    const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' })
+    const objectURL = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = objectURL
+    link.download = `macrostack-coach-${currentUser.coachCode.toLowerCase()}.svg`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    setTimeout(() => URL.revokeObjectURL(objectURL), 1000)
   }
 
   const initial = (currentUser?.name || 'C').charAt(0).toUpperCase()
@@ -275,6 +306,20 @@ export default function CoachProfile() {
             <p className="font-mono text-xs text-muted mt-3">
               Share this code with users so they can link to you after signing up.
             </p>
+            {joinURL && <div className="mt-5 pt-5 border-t border-border/70">
+              <div className="flex items-center gap-2 mb-3"><QrCode size={15} style={{ color: ACCENT }} /><p className="font-mono text-[10px] tracking-[0.22em] text-muted">YOUR CONNECTION QR</p></div>
+              <div ref={qrRef} className="w-fit mx-auto rounded-2xl bg-white p-3 shadow-[0_12px_35px_rgba(0,0,0,0.22)]">
+                <ConnectionQR url={joinURL} label={`Scan to link with ${currentUser?.name || 'this coach'}`} size={190} className="block max-w-full h-auto" />
+              </div>
+              <p className="font-mono text-xs text-muted text-center leading-relaxed mt-3">Users scan this in Profile, review your name, and confirm the connection.</p>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <button type="button" onClick={copyJoinURL} className="min-h-11 rounded-xl border border-border bg-surface text-cream hover:border-brown flex items-center justify-center gap-2 font-display font-bold text-xs tracking-wide">
+                  {linkCopied ? <Check size={14} /> : <Link2 size={14} />}{linkCopied ? 'LINK COPIED' : 'COPY LINK'}
+                </button>
+                <button type="button" onClick={downloadQR} className="min-h-11 rounded-xl border border-border bg-surface text-cream hover:border-brown flex items-center justify-center gap-2 font-display font-bold text-xs tracking-wide"><Download size={14} /> DOWNLOAD QR</button>
+              </div>
+              {shareError && <p role="alert" className="mt-2 text-xs text-red-400">{shareError}</p>}
+            </div>}
           </div>
 
           {/* Profile preview */}

@@ -123,6 +123,7 @@ const isPublicHomepagePath = () =>
   new URLSearchParams(window.location.search).get('checkout') !== 'success' &&
   !sessionStorage.getItem('ms-retail-return') &&
   !sessionStorage.getItem('ms-marketplace-coach')
+const hasCoachInvite = () => new URLSearchParams(window.location.search).has('coach')
 
 export default function App() {
   const {
@@ -135,7 +136,7 @@ export default function App() {
 
   // Which pre-auth view is showing: null = landing, 'login' = sign-in,
   // 'signup' = create-account (+ payment when a plan was picked).
-  const [authView, setAuthView] = useState(START_ON_LOGIN ? 'login' : null)
+  const [authView, setAuthView] = useState(START_ON_LOGIN || hasCoachInvite() ? 'login' : null)
 
   // True when the user landed via an email invite link and still needs to set a password
   const [postInvite, setPostInvite] = useState(
@@ -187,6 +188,7 @@ export default function App() {
   useEffect(() => {
     const seg = (initialPathRef.current || '/').replace(/^\/+|\/+$/g, '')
     if (!isAuthenticated) {
+      if (seg === 'profile' && hasCoachInvite()) setAuthView('login')
       if (seg === 'retail' || seg === 'retail/member') { sessionStorage.setItem('ms-retail-return', '1'); setAuthView('login') }
       if (seg === 'login')  setAuthView('login')
       if (seg === 'signup') setAuthView('signup')
@@ -201,6 +203,14 @@ export default function App() {
     if (sessionStorage.getItem('ms-marketplace-coach')) setActivePage('marketplace')
     initialPathRef.current = '/'   // consumed, don't re-apply on later auth flips
   }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // If sign-in asks a member to select their client workspace first, keep the
+  // scanned coach invitation pending until that workspace is ready.
+  useEffect(() => {
+    if (isAuthenticated && activeRole === 'client' && activeClientId && hasCoachInvite() && activePage !== 'profile') {
+      setActivePage('profile')
+    }
+  }, [isAuthenticated, activeRole, activeClientId, activePage, setActivePage])
 
   // 2. Keep the address bar in sync with in-app navigation
   useEffect(() => {

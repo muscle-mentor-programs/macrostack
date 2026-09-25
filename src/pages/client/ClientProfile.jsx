@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { format, subDays } from 'date-fns'
-import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2, FileDown, Flame, Beef, Repeat, Mail } from 'lucide-react'
+import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2, FileDown, Flame, Beef, Repeat, Mail, ScanLine, Store } from 'lucide-react'
 import { enablePush, pushPermission } from '../../lib/push'
 import apiFetch from '../../lib/apiFetch'
 import {
@@ -18,6 +18,8 @@ import AvatarCropModal from '../../components/AvatarCropModal'
 import CoachActivation from '../../components/CoachActivation'
 import CustomerStoreLinks from '../../retail/CustomerStoreLinks'
 import CoachMarketplace from '../../components/CoachMarketplace'
+
+const ConnectionScanner = lazy(() => import('../../components/ConnectionScanner'))
 
 /* Enable browser push, new messages from the coach ping the home screen. */
 function PushToggle() {
@@ -67,6 +69,15 @@ export default function ClientProfile() {
   const [confirmUnlink, setConfirmUnlink] = useState(false)
   const [unlinking,     setUnlinking]     = useState(false)
   const [showMarket,    setShowMarket]    = useState(false)
+  const [scanInvite,    setScanInvite]    = useState(() => new URLSearchParams(window.location.search).get('coach') || '')
+  const [scanOpen,      setScanOpen]      = useState(() => Boolean(new URLSearchParams(window.location.search).get('coach')))
+
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has('coach')) return
+    url.searchParams.delete('coach')
+    window.history.replaceState(window.history.state, '', url.toString())
+  }, [])
 
   useEffect(() => { fetchMyCoachRequests() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -313,6 +324,24 @@ export default function ClientProfile() {
         />
       </div>
 
+      <div className="app-page-inset mb-6 rounded-2xl p-[1px] anim-fade-in-up" style={{ background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 65%, transparent), var(--color-border) 65%)' }}>
+        <div className="rounded-2xl p-4 sm:p-5" style={{ background: 'radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 55%), var(--color-card)' }}>
+          <div className="flex items-start gap-3">
+            <div className="w-11 h-11 rounded-xl border flex items-center justify-center shrink-0" style={{ color: 'var(--color-accent)', borderColor: 'color-mix(in srgb, var(--color-accent) 38%, transparent)', background: 'color-mix(in srgb, var(--color-accent) 14%, transparent)' }}><ScanLine size={21} /></div>
+            <div className="min-w-0 flex-1">
+              <p className="font-mono text-[10px] tracking-[0.25em] text-muted">CONNECTIONS</p>
+              <h2 className="font-display font-black text-2xl text-cream leading-tight mt-1">Scan QR code</h2>
+              <p className="font-mono text-xs text-muted leading-relaxed mt-1">Scan a coach or store code to connect your account.</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 mt-4">
+            <button type="button" onClick={() => { setScanInvite(''); setScanOpen(true) }} className="btn-accent min-h-11 rounded-xl px-4 flex items-center gap-2 font-display font-bold text-sm tracking-wide"><ScanLine size={16} /> OPEN SCANNER</button>
+            <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-border text-[10px] font-mono text-muted"><Link2 size={11} /> COACH</span>
+            <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-border text-[10px] font-mono text-muted"><Store size={11} /> STORE</span>
+          </div>
+        </div>
+      </div>
+
       {/* Link to Coach */}
       <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
         <div className="flex items-center gap-2 mb-3">
@@ -440,6 +469,16 @@ export default function ClientProfile() {
       </div>
 
       <CustomerStoreLinks />
+
+      {scanOpen && <Suspense fallback={<div role="status" className="app-page-inset mb-6 text-sm text-muted">Opening QR scanner…</div>}>
+        <ConnectionScanner
+          initialValue={scanInvite}
+          hasCoach={hasCoach}
+          onLinkCoach={submitCoachCode}
+          onLinked={(name) => { setCoachName(name); setCodeStatus('sent') }}
+          onClose={() => setScanOpen(false)}
+        />
+      </Suspense>}
 
       {/* My targets, every user (free or Pro) can edit; a linked coach can
           override from their portal at any time */}
