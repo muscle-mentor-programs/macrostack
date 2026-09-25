@@ -117,7 +117,9 @@ export async function handleRetailAuth(
       return json({ ok: true });
     }
     if (action === "invite") {
-      await caller();
+      const sender = await caller();
+      if (sender.email?.toLowerCase() === "demo@getmacrostack.com")
+        return json({ error: "The demo workspace cannot email invitations." }, 403);
       const callerClient = authClient(req.headers.get("authorization"));
       const { data: invite, error } = await callerClient.rpc(
         "retail_invitation_email",

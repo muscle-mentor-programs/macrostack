@@ -13,7 +13,7 @@ const reasons = {
   consent_changed: "Customer preferences changed",
   unsubscribed: "Customer unsubscribed",
 };
-export default function OperationalHealth({ location, onNavigate }) {
+export default function OperationalHealth({ location, onNavigate, demo = false }) {
   const now = useClock();
   const [data, setData] = useState(null);
   const { busy, error, run, setError } = useAction();
@@ -37,12 +37,12 @@ export default function OperationalHealth({ location, onNavigate }) {
     ? [
         ["Staff access", data.setup.staff > 0, "Store", "retail-team"],
         ["Published resources", data.setup.resources > 0, "Resources"],
-        [
+        ...(!demo ? [[
           "Billing arranged",
           ["active", "trialing"].includes(data.setup.billing),
           "Store",
           "retail-billing",
-        ],
+        ]] : []),
       ]
     : [];
   const worker = data?.worker;
@@ -62,7 +62,7 @@ export default function OperationalHealth({ location, onNavigate }) {
           <>
             <progress
               aria-label="Store setup progress"
-              max={3}
+              max={steps.length}
               value={steps.filter((x) => x[1]).length}
             />
             <div className="retail-grid">

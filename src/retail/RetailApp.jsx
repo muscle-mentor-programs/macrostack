@@ -189,7 +189,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
     ...(permissions.customer_write ? [{ id: "retail-onboarding", label: "Customer access" }] : []),
     ...(permissions.team ? [{ id: "retail-team", label: "Team & permissions" }] : []),
     ...(permissions.billing && permissions.team ? [{ id: "retail-launch", label: "Launch checklist" }, { id: "retail-health", label: "Operations health" }] : []),
-    ...(permissions.billing && org ? [{ id: "retail-billing", label: "Subscription" }] : []),
+    ...(permissions.billing && org && !isDemo ? [{ id: "retail-billing", label: "Subscription" }] : []),
     ...(permissions.reports ? [{ id: "retail-reports", label: "Store performance" }] : []),
     ...(isOrgAdmin && (permissions.reports || permissions.team) ? [{ id: "retail-organization", label: "Organization" }] : []),
   ];
@@ -917,6 +917,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
                   <OperationalHealth
                     key={`health-${location.id}`}
                     location={location}
+                    demo={isDemo}
                     onNavigate={(target, anchor) => {
                       setSection(target);
                       requestAnimationFrame(() => {
@@ -931,7 +932,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
                     }}
                   />
                 )}
-                {permissions.billing && org && (
+                {permissions.billing && org && !isDemo && (
                   <Operations
                     key={location.id}
                     onBillingRefresh={reloadContext}

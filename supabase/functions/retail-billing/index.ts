@@ -36,6 +36,8 @@ serve(async (req) => {
       error: authError,
     } = await caller.auth.getUser();
     if (authError || !user) return respond({ error: "Sign in required" }, 401);
+    if (user.email?.toLowerCase() === "demo@getmacrostack.com")
+      return respond({ error: "Billing is unavailable in the demo workspace" }, 403);
     const body = await req.json();
     cid = body.contract_id;
     const { data: c, error } = await caller
