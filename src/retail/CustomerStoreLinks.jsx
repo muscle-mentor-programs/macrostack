@@ -37,11 +37,8 @@ export default function CustomerStoreLinks() {
           </div>
           <div className="min-w-0 flex-1"><p className="font-mono text-sm text-cream break-words">{connection.brand?.name || 'Your store'}</p><p className="flex items-center gap-1.5 font-mono text-xs text-olive-light mt-1"><Check size={12} aria-hidden="true" />Account linked</p></div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" className="flex items-center gap-2 min-h-11 px-3 py-2 rounded-xl border border-border font-mono text-xs text-cream" onClick={() => openChat(connection.id)}><MessageCircle size={14} />Message store</button>
-        </div>
+        <button type="button" className="flex items-center gap-2 min-h-11 px-3 py-2 rounded-xl border border-border bg-surface font-mono text-xs text-muted hover:text-cream hover:border-brown/50 transition-colors" onClick={() => openChat(connection.id)}><MessageCircle size={14} aria-hidden="true" />Message store</button>
       </div>)}
-      <p className="font-mono text-xs text-muted leading-relaxed">Your store and coach connections are separate. Find both conversations in the Chat tab.</p>
     </div>}
   </section>
 }

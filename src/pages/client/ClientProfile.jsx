@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { format, subDays } from 'date-fns'
-import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2, FileDown, Flame, Beef, Repeat, Mail, ScanLine, Store } from 'lucide-react'
+import { Check, Link2, Camera, Bell, BellRing, Unlink, Search, Loader2, FileDown, Flame, Beef, Repeat, Mail, ScanLine, UserRound } from 'lucide-react'
 import { enablePush, pushPermission } from '../../lib/push'
 import apiFetch from '../../lib/apiFetch'
 import {
@@ -325,51 +325,37 @@ export default function ClientProfile() {
         />
       </div>
 
-      <div className="app-page-inset mb-6 rounded-2xl p-[1px] anim-fade-in-up" style={{ background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 65%, transparent), var(--color-border) 65%)' }}>
-        <div className="rounded-2xl p-4 sm:p-5" style={{ background: 'radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 55%), var(--color-card)' }}>
-          <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-xl border flex items-center justify-center shrink-0" style={{ color: 'var(--color-accent)', borderColor: 'color-mix(in srgb, var(--color-accent) 38%, transparent)', background: 'color-mix(in srgb, var(--color-accent) 14%, transparent)' }}><ScanLine size={21} /></div>
-            <div className="min-w-0 flex-1">
-              <p className="font-mono text-[10px] tracking-[0.25em] text-muted">CONNECTIONS</p>
-              <h2 className="font-display font-black text-2xl text-cream leading-tight mt-1">Scan QR code</h2>
-              <p className="font-mono text-xs text-muted leading-relaxed mt-1">Scan a coach or store code to connect your account.</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 mt-4">
-            <button type="button" onClick={() => { setScanInvite(''); setScanOpen(true) }} className="btn-accent min-h-11 rounded-xl px-4 flex items-center gap-2 font-display font-bold text-sm tracking-wide"><ScanLine size={16} /> OPEN SCANNER</button>
-            <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-border text-[10px] font-mono text-muted"><Link2 size={11} /> COACH</span>
-            <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-border text-[10px] font-mono text-muted"><Store size={11} /> STORE</span>
-          </div>
+      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up">
+        <div className="flex items-center gap-2 mb-3">
+          <ScanLine size={14} className="text-olive-light" aria-hidden="true" />
+          <h2 className="font-mono text-[10px] tracking-[0.3em] text-muted">CONNECTIONS</h2>
         </div>
+        <button type="button" onClick={() => { setScanInvite(''); setScanOpen(true) }} className="min-h-11 rounded-xl border border-border bg-surface px-4 flex items-center gap-2 font-display font-bold text-sm tracking-wide text-cream hover:border-brown/50 transition-colors">
+          <ScanLine size={16} aria-hidden="true" /> SCAN QR CODE
+        </button>
       </div>
 
       {/* Link to Coach */}
-      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '130ms' }}>
+      <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '130ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 size={14} className="text-olive-light" />
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">LINK TO COACH</p>
+          <h2 className="font-mono text-[10px] tracking-[0.3em] text-muted">{hasCoach || codeStatus === 'sent' ? 'LINKED COACH' : 'LINK TO COACH'}</h2>
         </div>
 
-        {hasCoach ? (
+        {hasCoach || codeStatus === 'sent' ? (
           <div className="space-y-3">
-            <div className="flex items-center justify-between gap-2 py-1">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-5 h-5 rounded-full bg-olive/20 border border-olive/30 flex items-center justify-center flex-shrink-0">
-                  <Check size={11} className="text-olive-light" />
-                </div>
-                <p className="font-mono text-sm text-olive-light truncate">
-                  Linked to {(coachProfile?.name || coachName) ? <span className="text-cream">{coachProfile?.name || coachName}</span> : 'your coach'}
-                </p>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-11 h-11 shrink-0 rounded-xl border border-border bg-surface flex items-center justify-center">
+                <UserRound size={20} className="text-muted" aria-hidden="true" />
               </div>
-              {!confirmUnlink && (
-                <button
-                  onClick={() => setConfirmUnlink(true)}
-                  className="flex items-center gap-1.5 flex-shrink-0 font-display font-bold text-[10px] tracking-widest px-3 py-2 rounded-lg border border-border text-dim hover:text-red-400 hover:border-red-400/30 transition-colors press"
-                >
-                  <Unlink size={11} /> UNLINK
-                </button>
-              )}
+              <div className="min-w-0 flex-1">
+                <p className="font-mono text-sm text-cream break-words">{codeStatus === 'sent' ? coachName || coachProfile?.name || 'Your coach' : coachProfile?.name || coachName || 'Your coach'}</p>
+                <p className="flex items-center gap-1.5 font-mono text-xs text-olive-light mt-1"><Check size={12} aria-hidden="true" />Account linked</p>
+              </div>
             </div>
+            {hasCoach && !confirmUnlink && <button type="button" onClick={() => setConfirmUnlink(true)} className="flex items-center gap-2 min-h-11 px-3 py-2 rounded-xl border border-border bg-surface font-mono text-xs text-muted hover:text-red-400 hover:border-red-400/30 transition-colors">
+              <Unlink size={14} aria-hidden="true" />Unlink coach
+            </button>}
             {confirmUnlink && (
               <div className="bg-red-400/[0.06] border border-red-400/25 rounded-xl p-3.5 space-y-3 anim-fade-in">
                 <p className="font-mono text-xs text-muted leading-relaxed">
@@ -397,10 +383,6 @@ export default function ClientProfile() {
               </div>
             )}
           </div>
-        ) : codeStatus === 'sent' ? (
-          <p className="font-mono text-sm text-olive-light py-2">
-            Linked to {coachName ? <span className="text-cream">{coachName}</span> : 'your coach'}!
-          </p>
         ) : (
           <div className="space-y-3">
             {/* A coach answered your marketplace request with their code */}
