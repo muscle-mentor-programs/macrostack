@@ -46,7 +46,7 @@ import StoreBrand from "./StoreBrand";
 import Branding from "./Branding";
 import JoinQR from "./JoinQR";
 import RetailTour, { ReplayRetailTour } from "./RetailTour";
-import { RETAIL_DEMO_EMAIL, RETAIL_TOUR_SEEN_KEY, retailTourSteps } from "./retailTourModel.mjs";
+import { RETAIL_DEMO_EMAIL, retailTourSteps } from "./retailTourModel.mjs";
 import { useRetailTour } from "./useRetailTour";
 import "./retail.css";
 import "./retail-workspace.css";
@@ -392,13 +392,11 @@ export default function RetailApp({ retailerSession = false, onReady }) {
   }, [loading, isStaff, access?.locationId, locationId, onReady]);
   return (
     <PermissionContext.Provider value={permissions}><RetailThemeContext.Provider value={themeStyle}><div className="retail retail-workspace retail-dark" data-retail-theme="dark" style={themeStyle}>
-      <header className="retail-top">
+      <header className={`retail-top${isDemo ? " retail-demo-header" : ""}`}>
         <div className="retail-header-brand">
           <div className="retail-brand">
-            <StoreBrand locationId={locationId} organization={org} revision={ctx} fallbackLogo={isDemo ? "/macrostack-mark-transparent.png" : null} />
+            <StoreBrand locationId={locationId} organization={org} revision={ctx} fallbackLogo={isDemo ? "/macrostack-mark-transparent.png" : null} titleBadge={isDemo ? <span className="retail-real-demo-badge">Demo workspace · sample data</span> : null} />
           </div>
-          {isDemo && <span className="retail-real-demo-badge">Demo workspace · sample data</span>}
-
         </div>
         <div className="retail-actions retail-header-controls">
           {isDemo && <ReplayRetailTour onClick={() => { void navigateTour(retailTourSteps[0]).then(tour.replay).catch((cause) => setError(cause.message)); }} />}
@@ -423,7 +421,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
                 )
               )
                 return;
-              if (retailerSession) { run(async () => { const {error:e}=await supabase.auth.signOut({scope:"local"}); if(e) throw e; if (isDemo) { try { sessionStorage.removeItem(RETAIL_TOUR_SEEN_KEY); } catch { /* Browser storage can be unavailable. */ } } }); return; }
+              if (retailerSession) { run(async () => { const {error:e}=await supabase.auth.signOut({scope:"local"}); if(e) throw e; }); return; }
               window.history.replaceState({}, "", "/dashboard");
               back("dashboard");
             }}

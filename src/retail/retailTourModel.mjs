@@ -1,5 +1,4 @@
 export const RETAIL_DEMO_EMAIL = "demo@getmacrostack.com";
-export const RETAIL_TOUR_SEEN_KEY = "macrostack-retail-real-tour-v1";
 
 export const retailTourSteps = [
   { section: "Today", target: ".retail-top", spotlightBottomInset: -4, path: "Your workspace", title: "Welcome to MacroStack Retail", body: "This is the real retailer portal, signed in to an isolated MacroStack Retail workspace. Follow the guide, then explore every section yourself." },

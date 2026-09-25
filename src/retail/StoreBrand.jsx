@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BrandWordmark from "../components/BrandWordmark";
 import { storeBranding, brandLogoURL } from "./api";
-export function BrandIdentity({ name, logo }) {
+export function BrandIdentity({ name, logo, titleBadge = null }) {
   return (
     <div className="retail-store-brand">
       <div className="retail-store-identity">
@@ -14,7 +14,7 @@ export function BrandIdentity({ name, logo }) {
             }}
           />
         )}
-        <strong>{name}</strong>
+        <strong>{name}{titleBadge}</strong>
       </div>
       <div className="retail-powered">
         Powered by <BrandWordmark />
@@ -22,7 +22,7 @@ export function BrandIdentity({ name, logo }) {
     </div>
   );
 }
-export default function StoreBrand({ locationId, organization, revision, fallbackLogo = null }) {
+export default function StoreBrand({ locationId, organization, revision, fallbackLogo = null, titleBadge = null }) {
   const [result, setResult] = useState(null);
   useEffect(() => {
     let active = true;
@@ -46,6 +46,7 @@ export default function StoreBrand({ locationId, organization, revision, fallbac
     <BrandIdentity
       name={brand.name}
       logo={brandLogoURL(brand.logo_path) || fallbackLogo}
+      titleBadge={titleBadge}
     />
   ) : (
     <BrandWordmark />
