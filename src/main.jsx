@@ -5,6 +5,7 @@ import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import { isRetailLoginRoute } from './retail/authRouting.mjs'
+import { isNativeIOS } from './lib/platform'
 import './index.css'
 import './software.css'
 import './light-depth.css'
@@ -20,6 +21,7 @@ const App = lazy(() => import('./App.jsx'))
 const StripeConnectCallback = lazy(() => import('./pages/StripeConnectCallback.jsx'))
 
 installDisclosureMotion()
+document.documentElement.classList.toggle('native-ios', isNativeIOS)
 
 // The root entry mounts the lazy public route rather than exporting components.
 // eslint-disable-next-line react-refresh/only-export-components

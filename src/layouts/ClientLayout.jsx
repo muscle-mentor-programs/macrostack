@@ -18,7 +18,7 @@ function AmbientBackground() {
       />
       {/* Faint grid, structural techy detail */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.018]"
+        className="client-ambient-grid pointer-events-none absolute inset-0 opacity-[0.018]"
         style={{
           backgroundImage:
             'linear-gradient(var(--color-accent) 1px, transparent 1px), linear-gradient(90deg, var(--color-accent) 1px, transparent 1px)',

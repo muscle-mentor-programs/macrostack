@@ -113,6 +113,18 @@ body:has(.software-ui) .product-sidebar.glass-sidebar {
   border-radius: 10px;
 }
 
+/* The native status bar overlays the WebView, including on landscape iPad
+   where WebKit can report a zero top safe-area inset. */
+html.native-ios .coach-shell {
+  padding-top: max(24px, env(safe-area-inset-top, 0px));
+}
+
+/* The faint 40px ambient grid creates a stray rule beneath the iPhone status
+   icons. Keep the rest of the user workspace background. */
+@media (max-width: 767px) {
+  html.native-ios .software-client .client-ambient-grid { display: none; }
+}
+
 /* Bottom navigation retains badges, spring indicators and hide-on-scroll. */
 body:has(.software-ui) .glass-bottom-nav {
   background: color-mix(in srgb, var(--color-bg) 96%, transparent) !important;
