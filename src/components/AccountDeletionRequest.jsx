@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import apiFetch from '../lib/apiFetch'
 
-export default function AccountDeletionRequest() {
+export default function AccountDeletionRequest({ profileStyle = false }) {
   const [confirming, setConfirming] = useState(false)
   const [sending, setSending] = useState(false)
   const [requestId, setRequestId] = useState('')
@@ -30,7 +30,7 @@ export default function AccountDeletionRequest() {
       <div className="flex items-start gap-3">
         <Trash2 size={17} className="text-muted shrink-0 mt-0.5" aria-hidden="true" />
         <div className="min-w-0 flex-1">
-          <h2 className="font-display font-bold text-lg text-cream">Delete account</h2>
+          <h2 className={profileStyle ? 'profile-card-heading' : 'font-display font-bold text-lg text-cream'}>Delete account</h2>
           <p className="font-mono text-xs text-muted mt-1 leading-relaxed">
             Request permanent deletion of your MacroStack account and personal data. Our team handles the request and emails you when it is complete.
           </p>
@@ -45,16 +45,16 @@ export default function AccountDeletionRequest() {
               </p>
               {error && <p role="alert" className="font-mono text-xs text-red-400">{error}</p>}
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={requestDeletion} disabled={sending} className="min-h-11 rounded-xl bg-red-900/40 border border-red-500/50 px-4 font-display font-bold text-xs tracking-wide text-red-200 disabled:opacity-50">
+                <button type="button" onClick={requestDeletion} disabled={sending} className={profileStyle ? 'profile-card-action is-filled min-h-11 rounded-xl bg-red-800 border border-red-600 px-4 disabled:opacity-50' : 'min-h-11 rounded-xl bg-red-900/40 border border-red-500/50 px-4 font-display font-bold text-xs tracking-wide text-red-200 disabled:opacity-50'}>
                   {sending ? 'SENDING…' : 'CONFIRM REQUEST'}
                 </button>
-                <button type="button" onClick={() => { setConfirming(false); setError('') }} disabled={sending} className="min-h-11 rounded-xl border border-border px-4 font-display font-bold text-xs tracking-wide text-cream">
+                <button type="button" onClick={() => { setConfirming(false); setError('') }} disabled={sending} className={profileStyle ? 'profile-card-action min-h-11 rounded-xl border border-border px-4' : 'min-h-11 rounded-xl border border-border px-4 font-display font-bold text-xs tracking-wide text-cream'}>
                   KEEP ACCOUNT
                 </button>
               </div>
             </div>
           ) : (
-            <button type="button" onClick={() => setConfirming(true)} className="mt-4 min-h-11 rounded-xl border border-border px-4 font-display font-bold text-xs tracking-wide text-muted hover:text-cream hover:border-red-500/50">
+            <button type="button" onClick={() => setConfirming(true)} className={profileStyle ? 'profile-card-action mt-4 min-h-11 rounded-xl border border-border px-4 hover:border-red-500/50' : 'mt-4 min-h-11 rounded-xl border border-border px-4 font-display font-bold text-xs tracking-wide text-muted hover:text-cream hover:border-red-500/50'}>
               REQUEST ACCOUNT DELETION
             </button>
           )}

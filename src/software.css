@@ -113,6 +113,28 @@ body:has(.software-ui) .product-sidebar.glass-sidebar {
   border-radius: 10px;
 }
 
+/* One heading and action type system for cards on the member Profile page. */
+.profile-card-heading {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+  color: var(--color-cream);
+}
+.profile-card-action {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--color-cream);
+}
+.profile-card-action.btn-accent,
+.profile-card-action.is-filled {
+  color: #fff;
+}
+
 /* The native status bar overlays the WebView, including on landscape iPad
    where WebKit can report a zero top safe-area inset. */
 html.native-ios .coach-shell {

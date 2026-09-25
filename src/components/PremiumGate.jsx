@@ -15,9 +15,10 @@ const accentA = (pct) => `color-mix(in srgb, var(--color-accent) ${pct}%, transp
  *   children – the gated feature
  *   inline   – smaller locked card (for embedding inside a page section)
  */
-export default function PremiumGate({ title, blurb, children, inline = false }) {
+export default function PremiumGate({ title, blurb, children, inline = false, headingClassName = '', actionClassName = '' }) {
   const { hasAccess } = useSubscription()
   const setActivePage = useStore((s) => s.setActivePage)
+  const Title = headingClassName ? 'h2' : 'p'
 
   if (hasAccess) return children
 
@@ -38,11 +39,11 @@ export default function PremiumGate({ title, blurb, children, inline = false }) 
         <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PREMIUM</p>
         <span className="w-5 h-px" style={{ background: accentA(50) }} />
       </div>
-      <p className="font-display font-black text-xl tracking-widest text-cream">{title}</p>
+      <Title className={headingClassName || 'font-display font-black text-xl tracking-widest text-cream'}>{title}</Title>
       {blurb && <p className="font-mono text-xs text-muted mt-2 max-w-xs mx-auto leading-relaxed">{blurb}</p>}
       <button
         onClick={() => setActivePage('upgrade')}
-        className="btn-accent text-bg font-display font-bold text-sm tracking-widest px-6 py-3 rounded-xl mt-5 transition-colors glow-hover press"
+        className={`btn-accent ${actionClassName || 'text-bg font-display font-bold text-sm tracking-widest'} px-6 py-3 rounded-xl mt-5 transition-colors glow-hover press`}
       >
         UNLOCK WITH PREMIUM
       </button>

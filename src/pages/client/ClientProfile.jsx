@@ -41,7 +41,7 @@ function PushToggle() {
       <span className="flex items-center gap-2.5 text-left">
         <BellRing size={14} className="text-muted flex-shrink-0" />
         <span>
-          <span className="block font-mono text-sm text-cream">Push notifications</span>
+          <span className="block profile-card-action">Push notifications</span>
           <span className="block font-mono text-[10px] text-dim mt-0.5">
             Get pinged when your coach messages you
           </span>
@@ -328,9 +328,9 @@ export default function ClientProfile() {
       <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up">
         <div className="flex items-center gap-2 mb-3">
           <ScanLine size={14} className="text-olive-light" aria-hidden="true" />
-          <h2 className="font-mono text-[10px] tracking-[0.3em] text-muted">CONNECTIONS</h2>
+          <h2 className="profile-card-heading">CONNECTIONS</h2>
         </div>
-        <button type="button" onClick={() => { setScanInvite(''); setScanOpen(true) }} className="min-h-11 rounded-xl border border-border bg-surface px-4 flex items-center gap-2 font-display font-bold text-sm tracking-wide text-cream hover:border-brown/50 transition-colors">
+        <button type="button" onClick={() => { setScanInvite(''); setScanOpen(true) }} className="profile-card-action min-h-11 rounded-xl border border-border bg-surface px-4 flex items-center gap-2 hover:border-brown/50 transition-colors">
           <ScanLine size={16} aria-hidden="true" /> SCAN QR CODE
         </button>
       </div>
@@ -339,7 +339,7 @@ export default function ClientProfile() {
       <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '130ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 size={14} className="text-olive-light" />
-          <h2 className="font-mono text-[10px] tracking-[0.3em] text-muted">{hasCoach || codeStatus === 'sent' ? 'LINKED COACH' : 'LINK TO COACH'}</h2>
+          <h2 className="profile-card-heading">{hasCoach || codeStatus === 'sent' ? 'LINKED COACH' : 'LINK TO COACH'}</h2>
         </div>
 
         {hasCoach || codeStatus === 'sent' ? (
@@ -353,7 +353,7 @@ export default function ClientProfile() {
                 <p className="flex items-center gap-1.5 font-mono text-xs text-olive-light mt-1"><Check size={12} aria-hidden="true" />Account linked</p>
               </div>
             </div>
-            {hasCoach && !confirmUnlink && <button type="button" onClick={() => setConfirmUnlink(true)} className="flex items-center gap-2 min-h-11 px-3 py-2 rounded-xl border border-border bg-surface font-mono text-xs text-muted hover:text-red-400 hover:border-red-400/30 transition-colors">
+            {hasCoach && !confirmUnlink && <button type="button" onClick={() => setConfirmUnlink(true)} className="profile-card-action flex items-center gap-2 min-h-11 px-3 py-2 rounded-xl border border-border bg-surface hover:text-red-400 hover:border-red-400/30 transition-colors">
               <Unlink size={14} aria-hidden="true" />Unlink coach
             </button>}
             {confirmUnlink && (
@@ -367,7 +367,7 @@ export default function ClientProfile() {
                   <button
                     onClick={handleUnlink}
                     disabled={unlinking}
-                    className="flex-1 flex items-center justify-center gap-2 font-display font-bold text-xs tracking-widest py-2.5 rounded-lg bg-red-400/15 border border-red-400/30 text-red-400 hover:bg-red-400/25 transition-colors disabled:opacity-50"
+                    className="profile-card-action is-filled flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-800 border border-red-700 hover:bg-red-700 transition-colors disabled:opacity-50"
                   >
                     {unlinking ? <Loader2 size={12} className="animate-spin" /> : <Unlink size={12} />}
                     YES, UNLINK
@@ -375,7 +375,7 @@ export default function ClientProfile() {
                   <button
                     onClick={() => setConfirmUnlink(false)}
                     disabled={unlinking}
-                    className="flex-1 font-display font-bold text-xs tracking-widest py-2.5 rounded-lg border border-border text-muted hover:text-cream transition-colors"
+                    className="profile-card-action flex-1 py-2.5 rounded-lg border border-border hover:border-muted transition-colors"
                   >
                     CANCEL
                   </button>
@@ -390,16 +390,16 @@ export default function ClientProfile() {
               <button
                 onClick={handleUseSentCode}
                 disabled={codeStatus === 'sending'}
-                className="w-full text-left rounded-xl p-3.5 border transition-colors press anim-fade-in"
+                className="profile-card-action w-full text-left rounded-xl p-3.5 border transition-colors press anim-fade-in"
                 style={{
                   borderColor: 'color-mix(in srgb, var(--color-accent) 40%, transparent)',
                   background:  'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                 }}
               >
-                <p className="font-display font-bold text-xs tracking-widest" style={{ color: 'var(--color-accent)' }}>
+                <p className="profile-card-action">
                   {codeStatus === 'sending' ? 'LINKING…' : 'A COACH SENT YOU THEIR CODE'}
                 </p>
-                <p className="font-mono text-xs text-muted mt-1">
+                <p className="font-mono text-xs text-cream mt-1">
                   Tap to link with code <span className="text-cream tracking-widest">{codeSentReq.coach_code}</span>
                 </p>
               </button>
@@ -424,7 +424,7 @@ export default function ClientProfile() {
               <button
                 type="submit"
                 disabled={codeStatus === 'sending' || !codeInput.trim()}
-                className="w-full py-3 rounded-xl font-display font-bold text-sm tracking-widest bg-olive hover:bg-olive-light disabled:opacity-40 disabled:cursor-not-allowed text-bg transition-colors"
+                className="profile-card-action is-filled w-full py-3 rounded-xl bg-olive hover:bg-olive-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {codeStatus === 'sending' ? 'LINKING...' : 'LINK'}
               </button>
@@ -437,11 +437,10 @@ export default function ClientProfile() {
             </div>
             <button
               onClick={() => setShowMarket(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-display font-bold text-sm tracking-widest border transition-colors press"
+              className="profile-card-action w-full flex items-center justify-center gap-2 py-3 rounded-xl border transition-colors press"
               style={{
                 borderColor: 'color-mix(in srgb, var(--color-accent) 40%, transparent)',
                 background:  'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                color: 'var(--color-accent)',
               }}
             >
               <Search size={14} />
@@ -469,7 +468,7 @@ export default function ClientProfile() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-            <p className="font-mono text-[10px] tracking-[0.3em] text-muted">MY TARGETS</p>
+            <h2 className="profile-card-heading">MY TARGETS</h2>
           </div>
           <button
             onClick={() => {
@@ -482,7 +481,7 @@ export default function ClientProfile() {
               })
               setEditGoals(true)
             }}
-            className="font-display font-bold text-xs tracking-widest text-brown-light press"
+            className="profile-card-action press"
           >
             {editGoals ? 'CANCEL' : 'EDIT'}
           </button>
@@ -517,8 +516,7 @@ export default function ClientProfile() {
                 })
                 setEditGoals(false)
               }}
-              className="w-full mt-3 btn-accent font-display font-bold text-xs tracking-widest py-2.5 rounded-xl press"
-              style={{ color: '#fff' }}
+              className="profile-card-action w-full mt-3 btn-accent py-2.5 rounded-xl press"
             >
               SAVE TARGETS
             </button>
@@ -533,7 +531,7 @@ export default function ClientProfile() {
             ].map(({ label, value, unit }) => (
               <div key={label} className="glass-card border border-border rounded-2xl p-3 card-dim">
                 <p className="font-display font-black text-2xl text-cream">{value ?? '-'}</p>
-                <p className="font-mono text-xs text-muted">{label} / {unit}</p>
+                <p className="font-display font-bold text-sm uppercase text-muted">{label} / {unit}</p>
               </div>
             ))}
           </div>
@@ -545,14 +543,14 @@ export default function ClientProfile() {
         </p>
       </div>
 
-      <PremiumGate title="30-DAY ANALYTICS" blurb="Unlock Pro for intake averages, logging consistency, and calorie and protein trends." inline>
+      <PremiumGate title="30-DAY ANALYTICS" blurb="Unlock Pro for intake averages, logging consistency, and calorie and protein trends." headingClassName="profile-card-heading" actionClassName="profile-card-action" inline>
       {/* ── 30-Day Progress ─────────────────────────────────────────────────── */}
       <div className="app-page-gutter px-5 mb-3 anim-fade-in-down" style={{ animationDelay: '250ms' }}>
         <div className="flex items-center gap-2 mb-1">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">30-DAY PROGRESS</p>
         </div>
-        <p className="font-display font-black text-2xl tracking-wide text-cream">LAST 30 DAYS</p>
+        <h2 className="profile-card-heading">LAST 30 DAYS</h2>
       </div>
 
       {/* Stat cards */}
@@ -565,7 +563,7 @@ export default function ClientProfile() {
         ].map(({ val, label, color }) => (
           <div key={label} className="glass-card border border-border rounded-2xl p-4 card-dim">
             <p className={`font-display font-black text-3xl ${color} data-flicker`}>{val}</p>
-            <p className="font-mono text-xs text-muted">{label}</p>
+            <p className="font-display font-bold text-sm uppercase text-muted">{label}</p>
           </div>
         ))}
       </div>
@@ -574,7 +572,7 @@ export default function ClientProfile() {
       <div className="app-page-inset mb-5 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '360ms' }}>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">CALORIE TREND</p>
+          <h2 className="profile-card-heading">CALORIE TREND</h2>
         </div>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={calData}>
@@ -601,7 +599,7 @@ export default function ClientProfile() {
       <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4 anim-fade-in-up" style={{ animationDelay: '420ms' }}>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PROTEIN TREND</p>
+          <h2 className="profile-card-heading">PROTEIN TREND</h2>
         </div>
         <ResponsiveContainer width="100%" height={110}>
           <AreaChart data={calData}>
@@ -633,7 +631,7 @@ export default function ClientProfile() {
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
           <p className="font-mono text-[10px] tracking-[0.3em] text-muted">WEEKLY REPORT</p>
         </div>
-        <p className="font-display font-black text-2xl tracking-wide text-cream">LAST 7 DAYS</p>
+        <h2 className="profile-card-heading">LAST 7 DAYS</h2>
       </div>
 
       {hasAccess ? (
@@ -648,13 +646,13 @@ export default function ClientProfile() {
               <div key={label} className="glass-card border border-border rounded-2xl p-3 card-dim">
                 <Icon size={14} className="text-muted mb-2" />
                 <p className={`font-display font-black text-2xl leading-none ${color} data-flicker`}>{val}</p>
-                <p className="font-mono text-[10px] text-muted mt-1 leading-tight">{label}</p>
+                <p className="font-display font-bold text-sm uppercase text-muted mt-1 leading-tight">{label}</p>
               </div>
             ))}
           </div>
           <button
             onClick={() => downloadProgressReportPDF(client)}
-            className="w-full flex items-center justify-center gap-2 btn-accent text-bg font-display font-bold text-sm tracking-widest py-3 rounded-xl transition-colors glow-hover press"
+            className="profile-card-action w-full flex items-center justify-center gap-2 btn-accent py-3 rounded-xl transition-colors glow-hover press"
           >
             <FileDown size={15} />
             DOWNLOAD WEEKLY REPORT
@@ -663,7 +661,7 @@ export default function ClientProfile() {
             <button
               onClick={handleEmailReport}
               disabled={reportEmail === 'sending'}
-              className="w-full flex items-center justify-center gap-2 mt-2.5 border border-border text-cream font-display font-bold text-sm tracking-widest py-3 rounded-xl hover:border-muted transition-colors press disabled:opacity-50"
+              className="profile-card-action w-full flex items-center justify-center gap-2 mt-2.5 border border-border py-3 rounded-xl hover:border-muted transition-colors press disabled:opacity-50"
             >
               {reportEmail === 'sending'
                 ? <><Loader2 size={15} className="animate-spin" /> SENDING…</>
@@ -680,6 +678,8 @@ export default function ClientProfile() {
           <PremiumGate
             title="WEEKLY REPORT"
             blurb="A shareable PDF of your week, adherence, macro averages, weight change, and your logging streak."
+            headingClassName="profile-card-heading"
+            actionClassName="profile-card-action"
             inline
           />
         </div>
@@ -689,7 +689,7 @@ export default function ClientProfile() {
       <div className="app-page-inset mb-4 glass-card border border-border rounded-2xl p-4 space-y-4 anim-fade-in-up card-hover" style={{ animationDelay: '480ms' }}>
         <div className="flex items-center gap-2">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">PERSONAL INFO</p>
+          <h2 className="profile-card-heading">PERSONAL INFO</h2>
         </div>
 
         <div>
@@ -729,7 +729,7 @@ export default function ClientProfile() {
       <div className="app-page-inset mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '500ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">NOTIFICATIONS</p>
+          <h2 className="profile-card-heading">NOTIFICATIONS</h2>
         </div>
         <button
           onClick={() => setClientReminders(client.id, !(client?.remindersEnabled ?? true))}
@@ -738,7 +738,7 @@ export default function ClientProfile() {
           <span className="flex items-center gap-2.5 text-left">
             <Bell size={14} className="text-muted flex-shrink-0" />
             <span>
-              <span className="block font-mono text-sm text-cream">Reminder emails</span>
+              <span className="block profile-card-action">Reminder emails</span>
               <span className="block font-mono text-[10px] text-dim mt-0.5">
                 A daily nudge if you haven't logged, and when your weekly check-in is due
               </span>
@@ -764,7 +764,7 @@ export default function ClientProfile() {
       <div className="app-page-inset mb-4 glass-card border border-border rounded-2xl p-4 anim-fade-in-up card-hover" style={{ animationDelay: '510ms' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="w-5 h-px bg-brown/50 flex-shrink-0" />
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted">LOGGING</p>
+          <h2 className="profile-card-heading">LOGGING</h2>
         </div>
         <p className="font-mono text-sm text-cream mb-1">Serving sizes when adding food</p>
         <p className="font-mono text-[10px] text-dim leading-relaxed mb-3">
@@ -782,10 +782,10 @@ export default function ClientProfile() {
               <button
                 key={opt.id}
                 onClick={() => setServingPref(client.id, opt.id)}
-                className="flex-1 py-2.5 font-display font-bold text-[11px] tracking-[0.12em] rounded-lg transition-all"
+                className="profile-card-action flex-1 py-2.5 rounded-lg transition-all"
                 style={active
                   ? { background: 'linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, white))', color: '#fff' }
-                  : { color: 'var(--color-muted)' }}
+                  : { color: 'var(--color-cream)' }}
               >
                 {opt.label}
               </button>
@@ -800,8 +800,8 @@ export default function ClientProfile() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className={`w-full py-3.5 rounded-xl font-display font-bold text-sm tracking-widest transition-all glow-hover-olive ${
-            saved ? 'bg-olive text-bg' : 'btn-accent text-bg'
+          className={`profile-card-action w-full py-3.5 rounded-xl transition-all glow-hover-olive ${
+            saved ? 'is-filled bg-olive' : 'btn-accent'
           }`}
         >
           {saved ? (
@@ -814,13 +814,13 @@ export default function ClientProfile() {
     </div>
     <CoachActivation />
 
-    <div className="mx-5 mb-8 glass-card rounded-lg p-5">
-      <h2 className="font-display font-bold text-xl">FEATURES & BUGS</h2>
+    <div className="app-page-inset mb-6 glass-card border border-border rounded-2xl p-4">
+      <h2 className="profile-card-heading">FEATURES & BUGS</h2>
       <p className="text-muted text-sm mt-2 mb-4">Share ideas, report bugs, and upvote feedback with other users.</p>
-      <button className="btn-accent rounded-lg px-5 py-3" onClick={() => useStore.getState().setActivePage('feedback')}>Open user forum</button>
+      <button className="profile-card-action btn-accent rounded-lg px-5 py-3" onClick={() => useStore.getState().setActivePage('feedback')}>Open user forum</button>
     </div>
 
-    <div className="mx-5 mb-8"><AccountDeletionRequest /></div>
+    <div className="app-page-inset mb-6"><AccountDeletionRequest profileStyle /></div>
 
     {/* Crop modal, portaled so it sits above everything */}
     {cropSrc && createPortal(
