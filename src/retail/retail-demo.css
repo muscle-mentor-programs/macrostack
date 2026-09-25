@@ -209,6 +209,20 @@ button.retail-demo-list-row:hover { color: var(--retail-accent); }
 .retail-demo-tour-skip { border: 0; background: transparent; color: #bcd0e8; padding: 8px 0; font-size: 12px; }
 .retail-demo-tour > small { display: block; border-top: 1px solid #ffffff1e; padding: 11px 26px 14px; color: #9eb2ca; font-size: 10px; }
 .retail-demo-redirect { min-height: 100dvh; display: grid; place-items: center; background: #0b1421; color: #d5e7f6; }
+/* Shared retail heading selectors may be emitted after this lazy route's CSS. */
+.retail.retail-workspace.retail-demo .retail-demo-panel h2,
+.retail.retail-workspace.retail-demo .retail-demo-resource-grid h2 {
+  color: var(--demo-ink);
+  font: 800 clamp(20px, 1.7vw, 25px)/1.12 var(--font-display);
+}
+.retail.retail-workspace.retail-demo .retail-demo-modal h2 {
+  color: var(--demo-ink);
+  font: 850 28px/1.07 var(--font-display);
+}
+.retail.retail-workspace.retail-demo .retail-demo-tour-copy h2 {
+  color: #f1f6fd;
+  font: 850 29px/1.07 var(--font-display);
+}
 @media (max-width: 900px) {
   .retail-demo .retail-top { flex-wrap: wrap; }
   .retail-demo-header-actions { justify-content: flex-start; }
@@ -242,7 +256,7 @@ button.retail-demo-list-row:hover { color: var(--retail-accent); }
   .retail-demo-compose button { width: 100%; justify-content: center; }
   .retail-demo-billing { grid-template-columns: 1fr; }
   .retail-demo-tour-copy { padding: 22px 20px 18px; }
-  .retail-demo-tour-copy h2 { font-size: 25px; }
+  .retail.retail-workspace.retail-demo .retail-demo-tour-copy h2 { font-size: 25px; }
   .retail-demo-tour-actions { padding: 0 20px 15px; }
   .retail-demo-tour > small { padding-inline: 20px; }
 }
