@@ -208,7 +208,7 @@ export default function CustomerWorkspace({
   return (
     <section className="retail-customer-workspace" data-retail-tour-tab={tab}>
       <div className="retail-header retail-page-header retail-customer-header glass-panel accent-line anim-fade-in-down">
-        <div className="retail-customer-identity">
+        <div className="retail-profile-identity">
           <Button onClick={leaveProfile}>
             ← {staff ? "Customers" : "My stores"}
           </Button>

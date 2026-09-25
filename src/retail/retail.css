@@ -808,10 +808,10 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 
 /* Customer workspace: one navigation layer and quiet, source-aware records. */
 .retail .retail-customer-header{padding:20px 24px;align-items:center;gap:24px}
-.retail-customer-header>.retail-customer-identity{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 18px;align-items:center;min-width:0}
-.retail-customer-header>.retail-customer-identity>.retail-button{grid-column:1/-1;justify-self:start;margin-bottom:10px}
+.retail-customer-header>.retail-profile-identity{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 18px;align-items:center;min-width:0}
+.retail-customer-header>.retail-profile-identity>.retail-button{grid-column:1/-1;justify-self:start;margin-bottom:10px}
 .retail-customer-header h1{font-size:28px;margin:0!important;overflow-wrap:anywhere}
-.retail-customer-header>.retail-customer-identity>p{grid-column:2;margin:0!important}
+.retail-customer-header>.retail-profile-identity>p{grid-column:2;margin:0!important}
 .retail-customer-header :is(.retail-avatar-editor,.retail-customer-avatar){grid-row:2/4}
 .retail-profile-navigation{display:flex;position:relative;align-items:start;gap:12px;margin-bottom:28px;padding-bottom:12px;border-bottom:1px solid var(--color-border)}
 .retail-profile-navigation .retail-tabbar{flex:1;min-width:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;border:0;margin:0;padding:0 0 8px}
@@ -834,12 +834,12 @@ html.ocean-light .retail .retail-page-header h1{color:#315f96}
 .retail .retail-export-menu .retail-actions{margin-top:12px}
 .retail .retail-record-values{overflow-wrap:anywhere}
 .retail .retail-chat-log{min-height:240px;max-height:55dvh}
-@media(max-width:600px){.retail .retail-customer-header{padding:18px;gap:16px}.retail-customer-header h1{font-size:24px}.retail-customer-header>.retail-customer-identity{gap:8px 12px}.retail-profile-navigation{gap:4px}.retail-profile-more>summary{padding-inline:10px;font-size:12px}.retail-profile-navigation .retail-button{min-height:44px}.retail .retail-current-targets{padding-top:8px}.retail .retail-field :is(input,textarea,select){font-size:16px}}
+@media(max-width:600px){.retail .retail-customer-header{padding:18px;gap:16px}.retail-customer-header h1{font-size:24px}.retail-customer-header>.retail-profile-identity{gap:8px 12px}.retail-profile-navigation{gap:4px}.retail-profile-more>summary{padding-inline:10px;font-size:12px}.retail-profile-navigation .retail-button{min-height:44px}.retail .retail-current-targets{padding-top:8px}.retail .retail-field :is(input,textarea,select){font-size:16px}}
 .retail-weight-trend{margin:20px 0;padding:20px;background:linear-gradient(120deg,color-mix(in srgb, var(--retail-accent) 4%, transparent),transparent);border-block:1px solid var(--color-border)}
 .retail-weight-trend svg{display:block;width:100%;max-height:180px}
 .retail-weight-trend :is(figcaption,p){font-size:12px;color:var(--color-muted)}
 .retail-profile-navigation button[aria-current=page]{color:var(--retail-accent);background:color-mix(in srgb, var(--retail-accent) 8%, transparent);border-color:color-mix(in srgb, var(--retail-accent) 25%, transparent)}
-@media(min-width:768px){.retail-customer-header>.retail-customer-identity{grid-template-columns:auto auto minmax(0,1fr)}.retail-customer-header>.retail-customer-identity>.retail-button{grid-column:1;grid-row:1/3;align-self:center;margin:0 8px 0 0}.retail-customer-header :is(.retail-avatar-editor,.retail-customer-avatar){grid-column:2;grid-row:1/3}.retail-customer-header h1{grid-column:3;grid-row:1}.retail-customer-header>.retail-customer-identity>p{grid-column:3;grid-row:2}}
+@media(min-width:768px){.retail-customer-header>.retail-profile-identity{grid-template-columns:auto auto minmax(0,1fr)}.retail-customer-header>.retail-profile-identity>.retail-button{grid-column:1;grid-row:1/3;align-self:center;margin:0 8px 0 0}.retail-customer-header :is(.retail-avatar-editor,.retail-customer-avatar){grid-column:2;grid-row:1/3}.retail-customer-header h1{grid-column:3;grid-row:1}.retail-customer-header>.retail-profile-identity>p{grid-column:3;grid-row:2}}
 .retail input.retail-calculated-calories[readonly]{background:color-mix(in srgb,var(--color-muted) 10%,var(--color-bg));color:#9aa7b7;border-color:color-mix(in srgb,var(--color-muted) 25%,var(--color-border));cursor:default;box-shadow:none}
 .retail-delete-customer{margin-top:32px;padding-top:24px;border-top:1px solid var(--color-border)}
 .retail-delete-customer p{margin-bottom:16px;color:var(--color-muted)}
