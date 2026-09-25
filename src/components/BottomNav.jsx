@@ -51,7 +51,7 @@ export default function BottomNav() {
               {/* Active pill background */}
               {active && (
                 <span
-                  className="product-nav-pill absolute inset-x-3 top-1.5 bottom-4 rounded-xl pointer-events-none"
+                  className="product-nav-pill absolute inset-x-2 top-1 bottom-1.5 rounded-xl pointer-events-none"
                   style={{ background: 'rgba(154,123,85,0.10)' }}
                 />
               )}
