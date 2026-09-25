@@ -206,7 +206,7 @@ export default function CustomerWorkspace({
       );
   };
   return (
-    <section>
+    <section className="retail-customer-workspace" data-retail-tour-tab={tab}>
       <div className="retail-header retail-page-header retail-customer-header glass-panel accent-line anim-fade-in-down">
         <div>
           <Button onClick={leaveProfile}>

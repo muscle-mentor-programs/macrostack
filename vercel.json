@@ -59,6 +59,11 @@
   ],
   "redirects": [
     {
+      "source": "/retail/showcase",
+      "destination": "/retail",
+      "permanent": true
+    },
+    {
       "source": "/retail/demo",
       "destination": "/retailers",
       "permanent": true

@@ -1,0 +1,33 @@
+.retail-tour-layer { position: fixed; inset: 0; z-index: 10000; pointer-events: none; font-family: inherit; }
+.retail-tour-backdrop { position: absolute; inset: 0; background: rgba(5, 10, 20, .73); backdrop-filter: blur(3px); pointer-events: auto; }
+.retail-tour-hitbox { position: absolute; inset: 0; pointer-events: auto; }
+.retail-tour-spotlight { position: fixed; z-index: 1; border: 2px solid #9fc6fa; border-radius: 16px; box-shadow: 0 0 0 9999px rgba(5, 10, 20, .74), 0 0 0 8px rgba(145, 184, 225, .16), 0 18px 56px rgba(5, 10, 20, .35); pointer-events: auto; transition: top .32s ease, left .32s ease, width .32s ease, height .32s ease; }
+.retail-tour-dialog { position: fixed; z-index: 2; right: clamp(18px, 4vw, 72px); bottom: clamp(18px, 4vw, 54px); width: min(440px, calc(100vw - 36px)); max-height: calc(100dvh - 36px); overflow: auto; padding: 24px; color: #e9f2ff; background: linear-gradient(145deg, #1e2b40, #111a2a 72%); border: 1px solid rgba(164, 198, 241, .35); border-radius: 22px; box-shadow: 0 32px 90px rgba(0, 0, 0, .55), inset 0 1px rgba(255, 255, 255, .1); pointer-events: auto; }
+.retail-tour-head, .retail-tour-actions, .retail-tour-actions > div, .retail-tour-path { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.retail-tour-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 800; letter-spacing: .13em; color: #c1dbfa; }
+.retail-tour-brand img { width: 24px; height: 24px; object-fit: contain; }
+.retail-tour-dialog button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 38px; padding: 8px 11px; color: #dfebfa; background: #1c293d; border: 1px solid rgba(167, 194, 227, .3); border-radius: 10px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.retail-tour-dialog button:hover { background: #2a3b55; }
+.retail-tour-dialog button:focus-visible, .retail-tour-replay:focus-visible { outline: 3px solid #9bc9ff; outline-offset: 3px; }
+.retail-tour-dialog button:disabled { opacity: .46; cursor: not-allowed; }
+.retail-tour-head > button { width: 36px; min-height: 36px; padding: 0; background: transparent; border-color: transparent; }
+.retail-tour-progress { height: 3px; margin: 19px 0 24px; overflow: hidden; border-radius: 5px; background: #3a4a60; }
+.retail-tour-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #83addf, #a8c7ef); transition: width .28s ease; }
+.retail-tour-path { font-size: 11px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; color: #9cbae0; }
+.retail-tour-path span { color: #b9cde7; }
+.retail-tour-copy { min-height: 167px; animation: retail-tour-enter .3s both; }
+.retail-tour-copy h2 { margin: 17px 0 10px; color: #f3f8ff; font-size: clamp(25px, 2vw, 31px); line-height: 1.1; letter-spacing: -.025em; }
+.retail-tour-copy p { margin: 0 0 20px; color: #c6d5e9; font-size: 14px; line-height: 1.65; }
+.retail-tour-error { margin: 0 0 14px; padding: 9px 11px; border: 1px solid #df9b9b; border-radius: 9px; color: #ffe7e7; background: rgba(170, 61, 61, .19); font-size: 12px; }
+.retail-tour-actions { flex-wrap: wrap; border-top: 1px solid rgba(164, 198, 241, .2); padding-top: 18px; }
+.retail-tour-actions .retail-tour-skip { padding-left: 0; border: 0; background: transparent; color: #aacaf1; }
+.retail-tour-actions .retail-tour-next { color: #13243c; background: #9ec4f2; border-color: #9ec4f2; }
+.retail-tour-actions .retail-tour-next:hover { background: #bed9fa; }
+.retail-tour-dialog > small { display: block; margin-top: 17px; color: #94a9c3; font-size: 11px; }
+.retail-tour-replay { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 8px 12px; border: 1px solid var(--retail-border, rgba(145, 178, 219, .38)); border-radius: 10px; background: var(--retail-card, rgba(17, 27, 43, .8)); color: var(--retail-text, #e8f0fc); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.retail-tour-replay:hover { border-color: var(--retail-primary, #8eb7e8); }
+.retail-light .retail-tour-replay { background: rgba(255, 255, 255, .72); color: #213550; box-shadow: 0 2px 10px rgba(34, 66, 103, .09); }
+.retail-real-demo-badge { display: inline-flex; align-items: center; margin-left: 12px; padding: 6px 9px; border: 1px solid rgba(142, 183, 232, .4); border-radius: 999px; color: var(--retail-primary, #9dc6f5); background: rgba(115, 159, 216, .09); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+@keyframes retail-tour-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 640px) { .retail-tour-dialog { left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); width: auto; padding: 18px; } .retail-tour-copy { min-height: 0; } .retail-tour-actions { align-items: stretch; } .retail-tour-actions > div { margin-left: auto; } .retail-tour-dialog > small { display: none; } .retail-real-demo-badge { margin-left: 0; margin-top: 6px; font-size: 9px; } }
+@media (prefers-reduced-motion: reduce) { .retail-tour-spotlight, .retail-tour-progress span { transition: none; } .retail-tour-copy { animation: none; } }

@@ -1,0 +1,21 @@
+export const RETAIL_DEMO_EMAIL = "demo@getmacrostack.com";
+export const RETAIL_TOUR_SEEN_KEY = "macrostack-retail-real-tour-v1";
+
+export const retailTourSteps = [
+  { section: "Today", target: ".retail-top", path: "Your workspace", title: "Welcome to MacroStack Retail", body: "This is the real retailer portal, signed in to an isolated MacroStack Retail workspace. Follow the guide, then explore every section yourself." },
+  { section: "Today", target: ".retail-stats", path: "Today", title: "Know what needs attention", body: "Today brings conversations, follow-ups and customer activations together so your team knows what to do next." },
+  { section: "Customers", target: ".retail-fields", path: "Customers", title: "Find the right customer", body: "Search and filter your customer directory. Switch between cards and a compact list to see status and who is assigned." },
+  { section: "Customers", customerTab: "Overview", target: ".retail-customer-header", path: "Customer profile", title: "One connected customer record", body: "Open a customer to see their goals, consultation history, next steps and the specialist responsible for them." },
+  { section: "Customers", customerTab: "Plan", target: '[data-retail-tour-tab="Plan"] .retail-nutrition-builder-entry', path: "Customer · Nutrition", title: "Set nutrition and build plans", body: "Set macro targets, create a plan using the food database and publish it to the connected customer. Their nutrition history stays in this record." },
+  { section: "Customers", customerTab: "Food journal", target: '[data-retail-tour-tab="Food journal"] .retail-row h2', path: "Customer · Food journal", title: "Review the food journal", body: "Expand each day to review the customer's logged meals and daily totals alongside their plan." },
+  { section: "Customers", customerTab: "Progress", target: '[data-retail-tour-tab="Progress"] .retail-section h2', path: "Customer · Progress", title: "See progress over time", body: "Review measurements and shared progress photos, then record the next assessment when the customer returns." },
+  { section: "Customers", customerTab: "Check-ins", target: '[data-retail-tour-tab="Check-ins"] > .retail-section > h2', path: "Customer · Check-ins", title: "Keep momentum between visits", body: "Read check-ins, identify barriers and use follow-ups to keep each customer moving forward." },
+  { section: "Customers", customerTab: "Resources", target: '[data-retail-tour-tab="Resources"] .resource-toolbar', path: "Customer · Resources", title: "Share useful materials", body: "Choose approved plans, guides and forms from the company library and share them with this customer." },
+  { section: "Customers", customerTab: "Messages", target: '[data-retail-tour-tab="Messages"] > .retail-section > h2', path: "Customer · Chat", title: "Talk with your customer", body: "Store chat is connected to the customer's account. They can also keep a separate coach conversation if they have a coach." },
+  { section: "Inbox", target: ".retail-page-header", path: "Inbox", title: "Work conversations as a team", body: "The shared inbox keeps customer conversations visible and helps staff follow up without losing context." },
+  { section: "Resources", target: ".retail-page-header", path: "Resources", title: "Create once, use across stores", body: "Build and approve nutrition plans, intake forms, education guides and staff materials for your team to personalize and share." },
+  { section: "Store", target: "#retail-branding h2", path: "Store · Branding", title: "Make the portal your own", body: "Management controls the company logo and colors here. The brand carries across locations and customer-facing materials." },
+  { section: "Store", target: "#retail-team h2", path: "Store · Team", title: "Give staff the right access", body: "Invite employees, assign locations and choose permissions for the work each person should handle." },
+  { section: "Store", target: "#retail-reports h2", path: "Store · Performance", title: "See how the stores are doing", body: "Review customer activity and follow-through at a location, then compare results across the organization." },
+  { section: "Today", target: ".retail-nav", path: "Explore", title: "Now it is yours to explore", body: "Use the real navigation to revisit any section. You can replay this guide any time from the header." },
+];

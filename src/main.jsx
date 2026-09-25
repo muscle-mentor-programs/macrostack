@@ -29,8 +29,6 @@ const RetailSignup = lazy(() => import('./retail/RetailSignup.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
 const RetailEntry = lazy(() => import('./retail/RetailEntry.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
-const RetailDemo = lazy(() => import('./retail/RetailDemo.jsx'))
-// eslint-disable-next-line react-refresh/only-export-components
 const RetailEmailFlow = lazy(() => import('./retail/RetailEmailFlow.jsx'))
 // eslint-disable-next-line react-refresh/only-export-components
 const Gyms = lazy(() => import('./pages/Gyms.jsx'))
@@ -78,7 +76,6 @@ createRoot(document.getElementById('root')).render(
     <AppErrorBoundary>
       <Suspense fallback={<LoadingSplash fullScreen label={publicPath.startsWith('/retail') ? 'Opening retailer workspace…' : 'Opening MacroStack…'} />}>
         {((publicPath === '/retail/member' || publicPath === '/retail/connect') && new URLSearchParams(window.location.search).has('invite')) ? <CustomerInvite /> : publicPath === '/retailers' || publicPath === '/retail/start' ? (['confirm','reset'].includes(new URLSearchParams(window.location.search).get('flow')) ? <RetailEmailFlow /> : <RetailSignup />)
-          : publicPath === '/retail/showcase' ? <RetailDemo />
           : isRetailLoginRoute(publicPath, window.location.search) ? <RetailEntry />
           : publicPath === '/gyms' ? <Gyms />
           : publicPath === '/stripe-connect/callback' ? <StripeConnectCallback />

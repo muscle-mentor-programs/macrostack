@@ -2,6 +2,7 @@
 export function isRetailLoginRoute(path, search = "") {
   const route = path.replace(/\/+$/, "");
   const params = new URLSearchParams(search);
+  if (route === "/retail/showcase") return true;
   if (route === "/retailers" || route === "/retail/start") return true;
   return (
     route === "/retail" &&

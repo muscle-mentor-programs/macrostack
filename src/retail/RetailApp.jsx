@@ -45,6 +45,9 @@ import CustomerWorkspace from "./CustomerWorkspace";
 import StoreBrand from "./StoreBrand";
 import Branding from "./Branding";
 import JoinQR from "./JoinQR";
+import RetailTour, { ReplayRetailTour } from "./RetailTour";
+import { RETAIL_DEMO_EMAIL, RETAIL_TOUR_SEEN_KEY, retailTourSteps } from "./retailTourModel.mjs";
+import { useRetailTour } from "./useRetailTour";
 import "./retail.css";
 import "./retail-workspace.css";
 const emptyContext = {
@@ -84,6 +87,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
   }, []);
   const user = useStore((s) => s.currentUser),
     back = useStore((s) => s.setActivePage);
+  const isDemo = retailerSession && user?.email?.toLowerCase() === RETAIL_DEMO_EMAIL;
   const [ctx, setCtx] = useState(emptyContext),
     [locationId, setLocationId] = useState(""),
     [requestedSection, setSection] = useState(
@@ -111,6 +115,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
     [network, setNetwork] = useState(null);
   const { busy, error, run, setError } = useAction();
   const generation = useRef(0);
+  const tourCustomerRef = useRef(null);
   const [auxCache] = useState(() => createRequestCache());
   const [taskOffset, setTaskOffset] = useState(0),
     [threadOffset, setThreadOffset] = useState(0);
@@ -189,6 +194,33 @@ export default function RetailApp({ retailerSession = false, onReady }) {
     ...(isOrgAdmin && (permissions.reports || permissions.team) ? [{ id: "retail-organization", label: "Organization" }] : []),
   ];
   const employees = staffDirectory;
+  const tour = useRetailTour(isDemo, !loading && !!locationId && isStaff && access?.locationId === locationId);
+  const navigateTour = async (step) => {
+    for (const name of ["retail-before-leave", "retail-section-leave"]) {
+      if (!window.dispatchEvent(new Event(name, { cancelable: true })))
+        throw new Error("Save or discard your changes before continuing the guide.");
+    }
+    if (step.customerTab) {
+      if (!tourCustomerRef.current) {
+        const page = await relationships(locationId, { filter: "active", offset: 0 });
+        tourCustomerRef.current = page.rows[0] || null;
+      }
+      if (!tourCustomerRef.current)
+        throw new Error("This demo workspace has no active sample customer yet. Continue after the sample data is ready.");
+      setQuery("");
+      setFilter("all");
+      setOffset(0);
+      setSection("Customers");
+      setCustomerTab(step.customerTab);
+      setSelected(tourCustomerRef.current);
+    } else {
+      setSelected(null);
+      setSection(step.section);
+      if (step.section === "Store" && permissions.reports && !metric) {
+        reports(locationId).then(setMetric).catch(() => {});
+      }
+    }
+  };
   const reloadContext = useCallback(async () => {
     const c = await context(user?.id);
     setCtx(c);
@@ -351,6 +383,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
     )
       return;
     setSelected(null);
+    tourCustomerRef.current = null;
     setMetric(null);
     setNetwork(null);
     setOffset(0);
@@ -369,11 +402,13 @@ export default function RetailApp({ retailerSession = false, onReady }) {
       <header className="retail-top">
         <div className="retail-header-brand">
           <div className="retail-brand">
-            <StoreBrand locationId={locationId} organization={org} revision={ctx} />
+            <StoreBrand locationId={locationId} organization={org} revision={ctx} fallbackLogo={isDemo ? "/macrostack-mark-transparent.png" : null} />
           </div>
+          {isDemo && <span className="retail-real-demo-badge">Demo workspace · sample data</span>}
 
         </div>
         <div className="retail-actions retail-header-controls">
+          {isDemo && <ReplayRetailTour onClick={() => { void navigateTour(retailTourSteps[0]).then(tour.replay).catch((cause) => setError(cause.message)); }} />}
           <button type="button" className="retail-appearance-toggle" onClick={() => setAppearance(current => current === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${appearance === 'light' ? 'dark' : 'light'} mode`} title={`Switch to ${appearance === 'light' ? 'dark' : 'light'} mode`}>
             {appearance === 'light' ? <Moon size={16} aria-hidden="true"/> : <Sun size={16} aria-hidden="true"/>}
             <span>{appearance === 'light' ? 'Dark mode' : 'Light mode'}</span>
@@ -399,7 +434,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
                 )
               )
                 return;
-              if (retailerSession) { run(async () => { const {error:e}=await supabase.auth.signOut({scope:"local"}); if(e) throw e; }); return; }
+              if (retailerSession) { run(async () => { const {error:e}=await supabase.auth.signOut({scope:"local"}); if(e) throw e; if (isDemo) { try { sessionStorage.removeItem(RETAIL_TOUR_SEEN_KEY); } catch { /* Browser storage can be unavailable. */ } } }); return; }
               window.history.replaceState({}, "", "/dashboard");
               back("dashboard");
             }}
@@ -1103,6 +1138,7 @@ export default function RetailApp({ retailerSession = false, onReady }) {
           />
         </Modal>
       )}
+      {tour.open && isDemo && !loading && <RetailTour index={tour.step} onStep={tour.setStep} onClose={tour.close} onNavigate={navigateTour} />}
     </div></RetailThemeContext.Provider></PermissionContext.Provider>
   );
 }

@@ -22,7 +22,7 @@ export function BrandIdentity({ name, logo }) {
     </div>
   );
 }
-export default function StoreBrand({ locationId, organization, revision }) {
+export default function StoreBrand({ locationId, organization, revision, fallbackLogo = null }) {
   const [result, setResult] = useState(null);
   useEffect(() => {
     let active = true;
@@ -45,7 +45,7 @@ export default function StoreBrand({ locationId, organization, revision }) {
   return brand ? (
     <BrandIdentity
       name={brand.name}
-      logo={brandLogoURL(brand.logo_path)}
+      logo={brandLogoURL(brand.logo_path) || fallbackLogo}
     />
   ) : (
     <BrandWordmark />

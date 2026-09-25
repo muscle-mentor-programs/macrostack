@@ -3,7 +3,6 @@ const suites = [
   'coach-workspace.test.mjs',
   'test-retail-model.mjs',
   'test-retail-auth.mjs',
-  'test-retail-demo.mjs',
   'test-retail-email.mjs',
   'test-retail-operations.mjs',
   'test-retail-readiness.mjs',
