@@ -3,15 +3,11 @@ import { Eye, EyeOff, UserPlus, Share, PlusSquare, Smartphone } from 'lucide-rea
 import useStore from '../store'
 import BrandWordmark from '../components/BrandWordmark'
 import ThemeToggle from '../components/ThemeToggle'
-
-// Hidden once the app is already running as an installed PWA.
-const IS_INSTALLED =
-  (typeof window !== 'undefined' &&
-    (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true))
+import { isInstalledPWA, isNativeApp } from '../lib/platform'
 
 // "Add to Home Screen" instructions, Share → Add to Home Screen.
 function AddToHomeScreen() {
-  if (IS_INSTALLED) return null
+  if (isNativeApp || isInstalledPWA) return null
 
   const steps = [
     { icon: Share, text: <>Tap the <b className="text-cream">Share</b> button</> },

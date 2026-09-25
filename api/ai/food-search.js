@@ -1,3 +1,4 @@
+import { handleNativeCors } from '../_cors.js'
 import { requireSuperadmin } from '../_auth.js'
 /**
  * POST /api/ai/food-search
@@ -12,6 +13,7 @@ import { requireSuperadmin } from '../_auth.js'
  */
 
 export default async function handler(req, res) {
+  if (handleNativeCors(req, res)) return
   if (!(await requireSuperadmin(req, res))) return
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })

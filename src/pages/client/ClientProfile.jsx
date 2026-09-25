@@ -18,6 +18,7 @@ import AvatarCropModal from '../../components/AvatarCropModal'
 import CoachActivation from '../../components/CoachActivation'
 import CustomerStoreLinks from '../../retail/CustomerStoreLinks'
 import CoachMarketplace from '../../components/CoachMarketplace'
+import AccountDeletionRequest from '../../components/AccountDeletionRequest'
 
 const ConnectionScanner = lazy(() => import('../../components/ConnectionScanner'))
 
@@ -836,6 +837,8 @@ export default function ClientProfile() {
       <p className="text-muted text-sm mt-2 mb-4">Share ideas, report bugs, and upvote feedback with other users.</p>
       <button className="btn-accent rounded-lg px-5 py-3" onClick={() => useStore.getState().setActivePage('feedback')}>Open user forum</button>
     </div>
+
+    <div className="mx-5 mb-8"><AccountDeletionRequest /></div>
 
     {/* Crop modal, portaled so it sits above everything */}
     {cropSrc && createPortal(

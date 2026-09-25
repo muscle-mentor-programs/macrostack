@@ -16,6 +16,7 @@ const suites = [
   'test-persistence.mjs',
   'test-email-results.mjs',
   'test-email-authorization.mjs',
+  'test-ios-release.mjs',
 ]
 for (const suite of suites) {
   const result = spawnSync(process.execPath, [`scripts/${suite}`], { stdio: 'inherit' })

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "ios:sync": "npm run build && cap sync ios",
     "lint": "eslint .",
     "preview": "vite preview",
     "prebuild": "node scripts/gen-food-count.mjs",
@@ -13,9 +14,8 @@
     "test": "node scripts/test-core.mjs"
   },
   "dependencies": {
-    "@capacitor/cli": "^8.4.1",
-    "@capacitor/core": "^8.4.1",
-    "@capacitor/ios": "^8.4.1",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/ios": "8.5.2",
     "@sentry/react": "^10.65.0",
     "@supabase/supabase-js": "^2.105.3",
     "@zxing/browser": "^0.2.0",
@@ -34,6 +34,7 @@
     "zustand": "^5.0.13"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.2",
     "@eslint/js": "^10.0.1",
     "@resvg/resvg-js": "^2.6.2",
     "@types/react": "^19.2.14",

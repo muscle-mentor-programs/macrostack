@@ -1,3 +1,4 @@
+import { handleNativeCors } from './_cors.js'
 import { requireSuperadmin } from './_auth.js'
 /**
  * POST /api/leads
@@ -48,7 +49,7 @@ Rules for your FINAL answer:
 
 /* Translate raw Anthropic API errors into actionable, human-readable text */
 function friendlyAnthropicError(errText, status) {
-  let msg = ''
+  let msg
   try { msg = JSON.parse(errText)?.error?.message || '' } catch { msg = errText }
   if (/credit balance is too low/i.test(msg)) {
     return 'The Anthropic account is out of API credits. Top up at console.anthropic.com → Plans & Billing, then retry.'
@@ -69,6 +70,7 @@ function friendlyAnthropicError(errText, status) {
 const DISABLED = true
 
 export default async function handler(req, res) {
+  if (handleNativeCors(req, res)) return
   if (!(await requireSuperadmin(req, res))) return
   if (DISABLED) {
     return res.status(503).json({ error: 'Lead Finder is temporarily disabled.' })

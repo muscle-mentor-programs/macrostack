@@ -4,6 +4,7 @@ import useStore from '../../store'
 import useIsSuperadmin from '../../hooks/useIsSuperadmin'
 import ScrambleText from '../../components/ScrambleText'
 import ConnectionQR from '../../components/ConnectionQR'
+import AccountDeletionRequest from '../../components/AccountDeletionRequest'
 import { coachJoinURL } from '../../lib/connectionQr'
 
 const inputCls = 'w-full bg-surface border border-border rounded-lg px-4 py-2.5 font-mono text-sm text-cream placeholder-dim focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/30 transition-colors resize-none'
@@ -34,6 +35,8 @@ export default function CoachProfile() {
   // Keep form in sync if currentUser changes (e.g. after initial load)
   useEffect(() => {
     if (!editing) {
+      // The profile arrives asynchronously after the form's initial render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({
         name:        currentUser?.name        || '',
         bio:         currentUser?.bio         || '',
@@ -364,6 +367,7 @@ export default function CoachProfile() {
 
           </div>
         </div>
+        <div className="mt-6"><AccountDeletionRequest /></div>
       </div>
     </div>
   )

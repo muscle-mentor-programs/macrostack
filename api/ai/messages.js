@@ -1,3 +1,4 @@
+import { handleNativeCors } from '../_cors.js'
 import { requireUser } from '../_auth.js'
 /**
  * Vercel serverless function, proxies POST /api/ai/messages → Anthropic Messages API
@@ -78,6 +79,7 @@ async function resolveModel(apiKey) {
 }
 
 export default async function handler(req, res) {
+  if (handleNativeCors(req, res)) return
   const auth = await requireUser(req, res)
   if (!auth) return
   if (req.method !== 'POST') {

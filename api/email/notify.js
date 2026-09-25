@@ -1,3 +1,4 @@
+import { handleNativeCors } from '../_cors.js'
 import { requireUser, requireEmailRecipients } from '../_auth.js'
 /**
  * POST /api/email/notify
@@ -19,6 +20,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM   = process.env.RESEND_FROM_EMAIL || 'MacroStack <onboarding@resend.dev>'
 
 export default async function handler(req, res) {
+  if (handleNativeCors(req, res)) return
   const auth = await requireUser(req, res)
   if (!auth) return
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
