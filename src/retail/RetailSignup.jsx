@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { supabase } from "../lib/supabase";
 import { accountEmail } from "./accountEmail";
 import { isRetailAccount, isVerifiedRetailAccount } from "./authRouting.mjs";
+import { demoCredentialResult, isRetailDemoEmail, startRetailDemoSession } from "./demoAccess.mjs";
 import BrandWordmark from "../components/BrandWordmark";
 import { Alert, Button, Field, Select, useAction } from "./ui";
 import useViewport from "./useViewport";
@@ -184,6 +185,15 @@ export default function RetailSignup() {
   const authenticate = (event) => {
     event.preventDefault();
     run(async () => {
+      const demoResult = demoCredentialResult(email, password);
+      if (mode === "login" && demoResult !== "not-demo") {
+        if (demoResult !== "valid") throw new Error("That demo password is incorrect.");
+        startRetailDemoSession(window.sessionStorage);
+        window.location.assign("/retail/demo");
+        return;
+      }
+      if (mode === "signup" && isRetailDemoEmail(email))
+        throw new Error("The demo address is reserved. Select retailer sign in to explore the demo.");
       if (!supabase) throw new Error("Account service unavailable");
       if (mode === "signup") {
         await accountEmail("register", {
@@ -340,11 +350,9 @@ export default function RetailSignup() {
             </ol>
           )}
           <Alert
-            error={
-              !supabase
-                ? "Account service unavailable. Please try again shortly."
-                : error
-            }
+            error={error || (!supabase && !isRetailDemoEmail(email)
+              ? "Account service unavailable. Please try again shortly."
+              : "")}
           />
           {checking ? (
             <LoadingSplash fullScreen label="Opening retailer workspace…" />
